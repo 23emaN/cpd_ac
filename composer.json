@@ -3,7 +3,8 @@
     "description": "CPD AC Project",
     "type": "project",
     "require": {
-        "vlucas/phpdotenv": "^5.7"
+        "vlucas/phpdotenv": "^5.7",
+        "firebase/php-jwt": "^7.1"
     },
     "autoload": {
         "psr-4": {
