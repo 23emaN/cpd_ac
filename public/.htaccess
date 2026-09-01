@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # ถ้าไฟล์หรือโฟลเดอร์นั้นมีอยู่จริง (เช่น รูปภาพ, css, js) ให้โหลดไฟล์นั้นเลย
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # แต่ถ้าไม่มี ให้ส่งเส้นทาง URL ทั้งหมดไปให้ index.php ตัดสินใจ (ผ่านตัวแปร url)
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+</IfModule>
