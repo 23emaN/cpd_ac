@@ -363,7 +363,7 @@
                 </div>
             </a>
 
-            <!-- Company List Pills Container -->
+            <!-- Company List Pills Container with Dropdowns -->
             <div class="acc-company-container">
                 <?php if (isset($data['companies']) && !empty($data['companies'])): ?>
                     <?php foreach ($data['companies'] as $index => $company): 
@@ -371,16 +371,43 @@
                         $companyName = htmlspecialchars($company['company_name'] ?? 'ไม่มีชื่อบริษัท');
                         $isActive    = ($index === 0) ? 'active' : '';
                     ?>
-                        <button type="button" class="acc-company-btn <?= $isActive ?>"
-                            data-company-id="<?= $companyId ?>"
-                            data-company-name="<?= $companyName ?>"
-                            title="<?= $companyName ?>"
-                            onclick="selectCompany(this, '<?= $companyId ?>')">
-                            <div class="acc-company-icon">
-                                <i class="ri-building-4-line"></i>
-                            </div>
-                            <span class="acc-company-name"><?= $companyName ?></span>
-                        </button>
+                        <div class="dropdown">
+                            <button type="button" 
+                                class="acc-company-btn <?= $isActive ?>" 
+                                id="dropdownCompany_<?= $companyId ?>"
+                                data-bs-toggle="dropdown" 
+                                data-bs-popper-config='{"strategy":"fixed"}'
+                                aria-expanded="false"
+                                data-company-id="<?= $companyId ?>"
+                                data-company-name="<?= $companyName ?>"
+                                title="<?= $companyName ?>"
+                                onclick="selectCompany(this, '<?= $companyId ?>')">
+                                <div class="acc-company-icon">
+                                    <i class="ri-building-4-line"></i>
+                                </div>
+                                <span class="acc-company-name"><?= $companyName ?></span>
+                                <i class="ri-arrow-down-s-line text-muted ms-1" style="font-size: 15px;"></i>
+                            </button>
+
+                            <!-- Dropdown Menu แต่ละบริษัท -->
+                            <ul class="dropdown-menu shadow-lg border-0 mt-2 py-2" aria-labelledby="dropdownCompany_<?= $companyId ?>"
+                                style="border-radius: 12px; min-width: 220px; border: 1px solid #edf2f7 !important; z-index: 9999;">
+                                <li class="px-3 py-1 mb-1 text-muted" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">
+                                    <?= $companyName ?>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center py-2" href="javascript:void(0);"
+                                        onclick="selectCompanyById('<?= $companyId ?>')">
+                                        <i class="ri-checkbox-circle-line me-2 text-primary"></i> เลือกบริษัทนี้
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center py-2 text-muted" href="javascript:void(0);">
+                                        <i class="ri-calendar-line me-2 text-muted"></i> จัดการปีทำงาน
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
 
@@ -415,7 +442,6 @@
             </a>
         </div>
     </header>
-
     <!-- Modal เพิ่มบริษัท -->
     <div class="modal fade" id="addCompanyModal" tabindex="-1" aria-labelledby="addCompanyModalLabel"
         aria-hidden="true">
@@ -442,6 +468,8 @@
     </div>
 
     <script>
+        let currentSelectedCompanyId = '<?= isset($data['companies'][0]) ? ($data['companies'][0]['company_id'] ?? $data['companies'][0]['id'] ?? '') : '' ?>';
+
         function selectCompany(element, companyId) {
             if (!element) return;
 
@@ -452,6 +480,7 @@
 
             // 2. กำหนด active ค้างไว้ที่ปุ่มที่เลือก
             element.classList.add('active');
+            currentSelectedCompanyId = companyId;
 
             // 3. ดึงชื่อบริษัท
             const name = element.getAttribute('data-company-name') || (element.querySelector('.acc-company-name') ? element.querySelector('.acc-company-name').textContent.trim() : '');
@@ -463,13 +492,13 @@
             // 4. เลื่อน scroll มาที่ปุ่มที่เลือกอย่างนุ่มนวล
             element.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
 
-            // 5. เก็บค่าลง localStorage
-            localStorage.setItem('bo_selected_company', companyId);
-
-            // 6. โหลดข้อมูลใหม่ผ่าน AJAX สำหรับหน้า index
-            if (typeof loadFiscalYears === 'function') {
-                loadFiscalYears(companyId);
+            // 5. ส่ง Event หรือเรียก Callback ไปยังหน้า index หรือหน้าที่กำลังใช้งานอยู่
+            if (typeof window.onCompanyChange === 'function') {
+                window.onCompanyChange(companyId, name);
             }
+            document.dispatchEvent(new CustomEvent('companyChanged', { 
+                detail: { companyId: companyId, companyName: name } 
+            }));
         }
 
         function selectCompanyById(companyId) {
