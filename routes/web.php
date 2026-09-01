@@ -1,9 +1,7 @@
-﻿<?php
+<?php
 
-// ตรวจสอบ HTTP Method ปัจจุบัน (GET หรือ POST)
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-// แยก Route ตาม Method
 $routes = [
     'GET' => [
         'login'  => ['AuthController', 'showLogin'],
@@ -26,7 +24,7 @@ if (isset($routes[$requestMethod]) && array_key_exists($url, $routes[$requestMet
     $controller = new $controllerName();
     $controller->$methodName();
 } else {
-    // ถ้าไม่พบ Route, พิมพ์ URL ผิด หรือส่งมาผิด Method ให้เด้งไปหน้า Login อัตโนมัติ
     header("Location: " . BASE_URL . "/login");
     exit();
 }
+

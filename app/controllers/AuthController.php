@@ -39,8 +39,8 @@ class AuthController {
                 // 3. ตรวจสอบรหัสผ่านที่ถูกเข้ารหัสไว้ด้วย password_verify
                 if (password_verify($password, $user['user_password'])) {
                     // หากตรงกัน ให้บันทึก Token
-                    require_once '../app/core/Utility/Auth.php';
-                    $token = \App\Utility\Auth::generateToken($user);
+                    require_once '../app/models/AuthModel.php';
+                    $token = \App\Models\AuthModel::generateToken($user);
                     
                     // Set cookie for 1 day
                     setcookie('bo_access_token', $token, time() + 86400, '/');
@@ -57,3 +57,4 @@ class AuthController {
         }
     }
 }
+

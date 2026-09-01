@@ -1,14 +1,14 @@
 <?php
-namespace App\Utility;
+namespace App\Models;
 
-use App\Database\Connection;
+use App\Config\Connection;
 use Dotenv\Dotenv;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use PDO;
 use Throwable;
 
-class Auth
+class AuthModel
 {
 
     public static function bearerToken(): string
@@ -87,7 +87,7 @@ class Auth
 
         if ($jwt === '') {
             file_put_contents(dirname(__DIR__, 2) . '/debug_auth.log', "[" . date('Y-m-d H:i:s') . "] No JWT token found in headers.\n", FILE_APPEND);
-            Response::json(0, 'Unauthorized', null);
+            ResponseModel::json(0, 'Unauthorized', null);
 
         }
 
@@ -95,7 +95,7 @@ class Auth
 
         if (! $envLoaded) {
 
-            Dotenv::createImmutable(dirname(__DIR__, 3))->safeLoad();
+            Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
 
             $envLoaded = true;
 
@@ -105,7 +105,7 @@ class Auth
 
         if ($secretKey === '') {
             file_put_contents(dirname(__DIR__, 2) . '/debug_auth.log', "[" . date('Y-m-d H:i:s') . "] JWT_SECRET not found in env.\n", FILE_APPEND);
-            Response::json(0, 'Secret key not found', null);
+            ResponseModel::json(0, 'Secret key not found', null);
 
         }
 
@@ -115,13 +115,13 @@ class Auth
 
         } catch (Throwable $exception) {
             file_put_contents(dirname(__DIR__, 2) . '/debug_auth.log', "[" . date('Y-m-d H:i:s') . "] JWT decode failed: " . $exception->getMessage() . " Token: " . $jwt . "\n", FILE_APPEND);
-            Response::json(0, 'Invalid token', null);
+            ResponseModel::json(0, 'Invalid token', null);
 
         }
 
         if (($token->exp ?? 0) < time()) {
             file_put_contents(dirname(__DIR__, 2) . '/debug_auth.log', "[" . date('Y-m-d H:i:s') . "] Token expired. Exp: " . ($token->exp ?? 0) . " vs Now: " . time() . "\n", FILE_APPEND);
-            Response::json(0, 'Token expired', null);
+            ResponseModel::json(0, 'Token expired', null);
 
         }
 
@@ -136,7 +136,7 @@ class Auth
 
         if (empty($token->jti)) {
             file_put_contents(dirname(__DIR__, 2) . '/debug_auth.log', "[" . date('Y-m-d H:i:s') . "] Token jti is empty.\n", FILE_APPEND);
-            Response::json(0, 'Invalid token', null);
+            ResponseModel::json(0, 'Invalid token', null);
 
         }
 
@@ -177,7 +177,7 @@ class Auth
                 $log_msg .= "No token found in tbl_login_token matching JTI.\n";
             }
             setcookie('bo_access_token', '', time() - 3600, '/');
-            Response::json(0, 'User revoked', null);
+            ResponseModel::json(0, 'User revoked', null);
 
         }
 
@@ -213,7 +213,7 @@ class Auth
     {
         static $envLoaded = false;
         if (! $envLoaded) {
-            Dotenv::createImmutable(dirname(__DIR__, 3))->safeLoad();
+            Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
             $envLoaded = true;
         }
 
@@ -259,7 +259,7 @@ class Auth
 
         static $envLoaded = false;
         if (! $envLoaded) {
-            Dotenv::createImmutable(dirname(__DIR__, 3))->safeLoad();
+            Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
             $envLoaded = true;
         }
 
@@ -304,4 +304,7 @@ class Auth
         ];
     }
 }
+
+
+
 

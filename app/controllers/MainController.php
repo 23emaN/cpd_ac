@@ -9,8 +9,8 @@ class MainController
     // ตรวจสอบการ Login ไว้เป็นฟังก์ชันส่วนตัว จะได้ไม่ต้องเขียนซ้ำ
     private function checkAuth()
     {
-        require_once '../app/core/Utility/Auth.php';
-        $user = \App\Utility\Auth::checkWebAuth();
+        require_once '../app/models/AuthModel.php';
+        $user = \App\Models\AuthModel::checkWebAuth();
         
         if (!$user) {
             // ถ้าเช็ค Token ไม่ผ่าน ให้เด้งไปหน้า Login
@@ -127,8 +127,8 @@ class MainController
     public function logout()
     {
         // 1. (Optional) Invalidate token in database if we want strictly stateful JWT
-        require_once '../app/core/Utility/Auth.php';
-        $jwt = \App\Utility\Auth::bearerToken();
+        require_once '../app/models/AuthModel.php';
+        $jwt = \App\Models\AuthModel::bearerToken();
         if ($jwt !== '') {
             try {
                 $secretKey = $_ENV['JWT_SECRET'] ?? '';
@@ -151,3 +151,4 @@ class MainController
         exit();
     }
 }
+

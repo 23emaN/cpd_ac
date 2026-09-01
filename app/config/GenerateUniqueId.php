@@ -1,5 +1,5 @@
 <?php
-    namespace App\Database;
+    namespace App\Config;
 
     use App\Database\Connection;
     use App\String\Random;
