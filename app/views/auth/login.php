@@ -92,15 +92,11 @@
                             <img src="/cpd_ac/public/template/assets/images/login.jpg" alt="" aria-hidden="true">
                         </div> -->
                     <div class="col-lg-12">
-                        <div class="login-form-wrap">
                             <div class="login-brand flex-column align-items-start">
-                                <img src="/cpd_ac/public/assets/images/G_AM_logo-01.jpg" alt="CPDTH" class="align-self-center"
+                                <img src="/cpd_ac/public/assets/images/G_AM_logo-01.jpg" alt="CPDTH"
+                                    class="align-self-center"
                                     style="width: auto; height: 180px; max-width: 100%; object-fit: cover;"
                                     onerror="this.style.display='none'">
-                                <!-- <div>
-                                        <h1 class="login-title">เข้าสู่ระบบ</h1>
-                                        <p class="login-subtitle mb-0">กรุณาลงชื่อเข้าใช้เพื่อจัดการระบบ</p>
-                                    </div> -->
                             </div>
                             <div id="loginAlert" class="login-alert" role="alert" style="display:none;"></div>
                             <form novalidate autocomplete="on">
