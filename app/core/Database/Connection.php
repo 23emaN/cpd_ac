@@ -11,7 +11,6 @@ class Connection
 
     public function __construct()
     {
-
         // แก้ไข Path ให้ถอยไป 3 ระดับเพื่อไปให้ถึงโฟลเดอร์นอกสุด (cpd_ac)
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
         $dotenv->safeLoad();
@@ -44,4 +43,3 @@ class Connection
         return $this->pdo;
     }
 }
-?>

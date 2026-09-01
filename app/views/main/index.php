@@ -225,6 +225,9 @@ require_once __DIR__ . '/header.php';
     <div class="page-title-section">
         <h2 class="page-main-heading">เลือกปีทำงาน</h2>
         <p class="page-breadcrumb-sub">ภาพรวมระบบ • เลือกปีทำงาน</p>
+=======
+        <a href="/cpd_ac/public/logout" class="btn-logout">ออกจากระบบ</a>
+>>>>>>> origin/Tanawat
     </div>
 
     <!-- 2. Main Content Card -->
