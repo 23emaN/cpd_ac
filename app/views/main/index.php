@@ -20,7 +20,7 @@
         
         <p>นี่คือตัวอย่างการแสดงผลหลังจาก Login ผ่านแล้ว โดยดึงข้อมูล Session มาแสดง</p>
 
-        <a href="/new_am/public/logout" class="btn-logout">ออกจากระบบ</a>
+        <a href="/cpd_ac/public/logout" class="btn-logout">ออกจากระบบ</a>
     </div>
 </body>
 </html>

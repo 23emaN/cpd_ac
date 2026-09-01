@@ -10,7 +10,7 @@
 
         public function __construct() {
    
-            // แก้ไข Path ให้ถอยไป 3 ระดับเพื่อไปให้ถึงโฟลเดอร์นอกสุด (new_am)
+            // แก้ไข Path ให้ถอยไป 3 ระดับเพื่อไปให้ถึงโฟลเดอร์นอกสุด (cpd_ac)
             $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
             $dotenv->safeLoad();
 

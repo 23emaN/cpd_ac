@@ -8,7 +8,7 @@ class MainController {
         session_start();
         if (!isset($_SESSION['user_id'])) {
             // ถ้ายังไม่ Login ให้เด้งกลับไปหน้า login
-            header("Location: /new_am/public/login");
+            header("Location: /cpd_ac/public/login");
             exit();
         }
 
@@ -26,7 +26,7 @@ class MainController {
     public function logout() {
         session_start();
         session_destroy();
-        header("Location: /new_am/public/login");
+        header("Location: /cpd_ac/public/login");
         exit();
     }
 }

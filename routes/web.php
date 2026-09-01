@@ -28,6 +28,6 @@ else if ($url === 'logout') {
 }
 else {
     // ถ้าเข้าหน้าแรกปกติ หรือพิมพ์ URL ผิด ให้เด้งไปหน้า Login อัตโนมัติ
-    header("Location: /new_am/public/login");
+    header("Location: /cpd_ac/public/login");
     exit();
 }
