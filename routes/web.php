@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // ตรวจสอบ HTTP Method ปัจจุบัน (GET หรือ POST)
 $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -8,6 +8,7 @@ $routes = [
     'GET' => [
         'login'  => ['AuthController', 'showLogin'],
         'main'   => ['MainController', 'index'],
+        'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout']
     ],
     'POST' => [

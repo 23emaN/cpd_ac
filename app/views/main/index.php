@@ -406,6 +406,62 @@ require_once __DIR__ . '/header.php';
             }
         });
     }
+    function loadFiscalYears(companyId) {
+        // อัปเดต input ซ่อนในฟอร์มเพิ่มปี
+        $('input[name="company_id"]').val(companyId);
+        
+        // เคลียร์การ์ดเก่าออก ยกเว้นการ์ดปุ่ม "เพิ่มปี"
+        $('.year-card-grid .fiscal-year-card').remove();
+        
+        // เพิ่ม Spinner ถ้าระบบโหลดนาน (Optional)
+        // $('.year-card-grid').prepend('<div class="spinner-border text-primary fiscal-year-card" role="status"></div>');
+
+        $.ajax({
+            url: '/cpd_ac/public/fiscal_years/get?company_id=' + companyId,
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                $('.year-card-grid .spinner-border').remove();
+                if (response.result === 1 && response.data.length > 0) {
+                    let optionsHtml = '';
+                    response.data.forEach(function(fy) {
+                        // วาดการ์ด (สามารถตกแต่ง HTML การ์ดได้ตามที่ต้องการ)
+                        let cardHtml = `
+                            <div class="fiscal-year-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                <h4 style="margin: 0; color: #1e293b; font-weight: 700;">ปี ${fy.fiscal_years || fy.working_year || fy.year}</h4>
+                            </div>
+                        `;
+                        // แทรกก่อนปุ่ม "เพิ่มปี"
+                        $('.year-add-card').before(cardHtml);
+                        
+                        optionsHtml += `<option value="${fy.year_id || fy.id}">ปี ${fy.fiscal_years || fy.working_year || fy.year}</option>`;
+                    });
+                    
+                    // อัปเดต Select คัดลอกข้อมูล
+                    $('select[name="copy_from_year"]').html(optionsHtml + '<option value="">ไม่คัดลอก (เริ่มใหม่ทั้งหมด)</option>');
+                } else {
+                    $('select[name="copy_from_year"]').html('<option value="">ไม่คัดลอก (เริ่มใหม่ทั้งหมด)</option>');
+                }
+            },
+            error: function() {
+                $('.year-card-grid .spinner-border').remove();
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        let savedCompany = localStorage.getItem('bo_selected_company');
+        if (savedCompany) {
+            selectCompanyById(savedCompany);
+        } else {
+            // ค้นหาปุ่มบริษัทแรกแล้วกดคลิก
+            let firstCompany = document.querySelector('.acc-company-btn');
+            if (firstCompany) {
+                let companyId = firstCompany.getAttribute('data-company-id');
+                selectCompany(firstCompany, companyId);
+            }
+        }
+    });
 </script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

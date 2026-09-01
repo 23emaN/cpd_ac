@@ -8,7 +8,7 @@ class FiscalYearsModel extends Model {
             "INSERT INTO tbl_fiscal_years (
                 company_id,
                 fiscal_years,
-                created_at
+                create_at
                 ) 
             VALUES (
                 :company_id,
@@ -20,5 +20,11 @@ class FiscalYearsModel extends Model {
             'company_id' => $companyId,
             'working_year' => $workingYear,
         ]);
+    }
+
+    public function getFiscalYearsByCompany($companyId) {
+        $stmt = $this->pdo->prepare("SELECT * FROM tbl_fiscal_years WHERE company_id = :company_id ORDER BY fiscal_years DESC");
+        $stmt->execute(['company_id' => $companyId]);
+        return $stmt->fetchAll();
     }
 }

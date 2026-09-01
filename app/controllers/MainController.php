@@ -108,6 +108,22 @@ class MainController
         }
     }
 
+    public function getFiscalYears()
+    {
+        $this->checkAuth();
+        $companyId = $_GET['company_id'] ?? null;
+        if (!$companyId) {
+            echo json_encode(['result' => 0, 'data' => []]);
+            return;
+        }
+        
+        require_once '../app/models/fiscal_years.php';
+        $fiscalYearModel = new FiscalYearsModel();
+        $fiscalYears = $fiscalYearModel->getFiscalYearsByCompany($companyId);
+        
+        echo json_encode(['result' => 1, 'data' => $fiscalYears]);
+    }
+
     public function logout()
     {
         // 1. (Optional) Invalidate token in database if we want strictly stateful JWT

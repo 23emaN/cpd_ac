@@ -557,6 +557,14 @@
 
                 // 4. เลื่อน scroll มาที่ปุ่มที่เลือกอย่างนุ่มนวล
                 element.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+
+                // 5. เก็บค่าลง localStorage
+                localStorage.setItem('bo_selected_company', companyId);
+
+                // 6. โหลดข้อมูลใหม่ผ่าน AJAX
+                if (typeof loadFiscalYears === 'function') {
+                    loadFiscalYears(companyId);
+                }
             }
 
             function selectCompanyById(companyId) {
