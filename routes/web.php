@@ -14,6 +14,18 @@ else if ($url === 'auth/login') {
     $controller = new AuthController();
     $controller->processLogin();
 }
+else if ($url === 'main') {
+    // หน้าหลักหลังจาก Login สำเร็จ
+    require_once '../app/controllers/MainController.php';
+    $controller = new MainController();
+    $controller->index();
+}
+else if ($url === 'logout') {
+    // ออกจากระบบ
+    require_once '../app/controllers/MainController.php';
+    $controller = new MainController();
+    $controller->logout();
+}
 else {
     // ถ้าเข้าหน้าแรกปกติ หรือพิมพ์ URL ผิด ให้เด้งไปหน้า Login อัตโนมัติ
     header("Location: /new_am/public/login");

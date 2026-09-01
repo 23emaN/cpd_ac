@@ -10,14 +10,16 @@
 
         public function __construct() {
    
-            $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+            // แก้ไข Path ให้ถอยไป 3 ระดับเพื่อไปให้ถึงโฟลเดอร์นอกสุด (new_am)
+            $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
             $dotenv->safeLoad();
 
-            $host = $_ENV['DB_HOST'];
-            $db   = $_ENV['DB_NAME'];
-            $user = $_ENV['DB_USER'];
-            $pass = $_ENV['DB_PASS'];
-            $port = $_ENV['DB_PORT'];
+            // แก้ชื่อตัวแปรให้ตรงกับในไฟล์ .env
+            $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
+            $db   = $_ENV['DB_DATABASE'] ?? 'cpd_ac';
+            $user = $_ENV['DB_USERNAME'] ?? 'root';
+            $pass = $_ENV['DB_PASSWORD'] ?? '';
+            $port = $_ENV['DB_PORT'] ?? '3306';
             $charset = 'utf8mb4';
 
             $dsn = "mysql:host=$host;dbname=$db;charset=$charset;port=$port";

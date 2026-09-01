@@ -206,9 +206,8 @@
                 dataType: "json",
                 success: function (response) {
                     if (response.result == 1) {
-                        localStorage.setItem("bo_access_token", response.data.access_token);
                         sessionStorage.setItem("cpdth_show_preloader", "1");
-                        window.location.replace("main/index");
+                        window.location.replace("/new_am/public/main");
                     } else {
                         LoginBusy(false);
                         LoginError(response.msg || "เข้าสู่ระบบไม่สำเร็จ");
