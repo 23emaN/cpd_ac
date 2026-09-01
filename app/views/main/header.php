@@ -430,7 +430,7 @@
         </script>
 
         <?php
-        if (file_exists(__DIR__ . '/sidebar.php')) {
-            include __DIR__ . '/sidebar.php';
-        }
+        // if (file_exists(__DIR__ . '/sidebar.php')) {
+        //     include __DIR__ . '/sidebar.php';
+        // }
         ?>

@@ -238,12 +238,6 @@ require_once __DIR__ . '/header.php';
                     <p class="section-subtitle-text">Accounting</p>
                 </div>
             </div>
-            <!-- <div>
-                <button type="button" class="btn-add-year">
-                    <i class="ri-add-line fs-5"></i>
-                    <span>เพิ่มปี</span>
-                </button>
-            </div> -->
         </div>
 
         <!-- Info Notice Banner -->
@@ -260,15 +254,158 @@ require_once __DIR__ . '/header.php';
 
         <!-- Year Card Grid (Empty Add Year State) -->
         <div class="year-card-grid">
-            <a href="javascript:void(0);" class="year-add-card" title="เพิ่มปีทำงาน">
+            <button type="button" class="year-add-card" onclick="Addyear()">
                 <div class="year-add-icon">
                     <i class="ri-add-line"></i>
                 </div>
                 <span class="year-add-text">เพิ่มปี</span>
                 <span class="year-add-subtext">คลิกเพื่อสร้างปีทำงานใหม่</span>
-            </a>
+            </button>
         </div>
     </div>
 </div>
+
+<!-- Modal เพิ่มปีทำงาน -->
+<div class="modal fade" id="addYearModal" tabindex="-1" aria-labelledby="addYearModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
+                <h5 class="modal-title" id="addYearModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.15rem;">เพิ่มปีทำงาน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.8rem; opacity: 0.5;"></button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <form id="addYearForm">
+                    <!-- ส่ง company_id ปัจจุบันไปด้วย -->
+                    <input type="hidden" name="company_id" value="<?php echo htmlspecialchars($data['companies'][0]['id'] ?? ''); ?>">
+
+                    <!-- ปี พ.ศ. -->
+                    <div class="mb-4">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.9rem; color: #334155;">ปี พ.ศ. <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" name="working_year" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px; padding: 12px 16px; font-weight: 600; color: #1e293b; box-shadow: none;">
+                        <div class="form-text" style="font-size: 0.75rem; color: #94a3b8; margin-top: 6px;">กรอกปี พ.ศ. ระหว่าง 2500 ถึง 2600</div>
+                    </div>
+
+                    <!-- คัดลอกข้อมูลจากปี (แสดงต่อเมื่อมีปีทำงานเก่าให้คัดลอก) -->
+                    <?php if (isset($data['fiscal_years']) && !empty($data['fiscal_years'])): ?>
+                        <div class="mb-4">
+                            <label class="form-label" style="font-weight: 700; font-size: 0.9rem; color: #334155;">คัดลอกข้อมูลจากปี</label>
+                            <select class="form-select" name="copy_from_year" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px; padding: 12px 16px; font-weight: 600; color: #475569; cursor: pointer; box-shadow: none;">
+                                <?php foreach ($data['fiscal_years'] as $fy): ?>
+                                    <option value="<?php echo htmlspecialchars($fy['year_id'] ?? $fy['year']); ?>">ปี <?php echo htmlspecialchars($fy['year']); ?></option>
+                                <?php endforeach; ?>
+                                <option value="">ไม่คัดลอก (เริ่มใหม่ทั้งหมด)</option>
+                            </select>
+                        </div>
+
+                        <!-- ข้อมูลที่ต้องการคัดลอก -->
+                        <div class="copy-options-box" style="border: 1px dashed #cbd5e1; border-radius: 12px; padding: 20px; background-color: #ffffff;">
+                            <label class="form-label" style="font-weight: 700; font-size: 0.9rem; color: #1e293b; margin-bottom: 16px;">ข้อมูลที่ต้องการคัดลอก</label>
+                            
+                            <div class="form-check mb-3 d-flex align-items-center">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" value="customers" id="chkCustomers" checked style="width: 22px; height: 22px; border-radius: 6px; cursor: pointer; border-color: #0066fe; background-color: #0066fe; margin-top: 0;">
+                                <label class="form-check-label ms-3" for="chkCustomers" style="font-weight: 600; color: #64748b; cursor: pointer; font-size: 0.9rem;">
+                                    ข้อมูลลูกค้าที่ใช้งานอยู่
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mb-3 d-flex align-items-center">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" value="employees" id="chkEmployees" checked style="width: 22px; height: 22px; border-radius: 6px; cursor: pointer; border-color: #0066fe; background-color: #0066fe; margin-top: 0;">
+                                <label class="form-check-label ms-3" for="chkEmployees" style="font-weight: 600; color: #64748b; cursor: pointer; font-size: 0.9rem;">
+                                    ข้อมูลพนักงานที่ใช้งานอยู่
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mb-0 d-flex align-items-center">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" value="monthly_jobs" id="chkJobs" checked style="width: 22px; height: 22px; border-radius: 6px; cursor: pointer; border-color: #0066fe; background-color: #0066fe; margin-top: 0;">
+                                <label class="form-check-label ms-3" for="chkJobs" style="font-weight: 600; color: #64748b; cursor: pointer; font-size: 0.9rem;">
+                                    ตั้งค่างานรายเดือน
+                                </label>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 20px 24px; gap: 12px; justify-content: flex-end; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 10px; padding: 10px 24px; border: none; font-size: 0.95rem;">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddYear()" style="background-color: #0066fe; font-weight: 700; border-radius: 10px; padding: 10px 24px; border: none; box-shadow: 0 4px 12px rgba(0,102,254,0.25); font-size: 0.95rem;">สร้างปี</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function Addyear() {
+        // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
+        const form = document.getElementById('addYearForm');
+        if(form) {
+            form.reset();
+        }
+        // 2. สั่งโชว์ Modal ผ่าน Vanilla JS ของ Bootstrap
+        const modalElement = document.getElementById('addYearModal');
+        const myModal = new bootstrap.Modal(modalElement);
+        myModal.show();
+    }
+    
+    function submitAddYear() {
+        var formData = $('#addYearForm').serialize();
+        
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "/cpd_ac/public/fiscal_years/add",
+            data: formData,
+            dataType: "json",
+            success: function(response) {
+                if(response.result === 1) {
+                    // ถ้าบันทึกสำเร็จ แจ้งเตือน Toast และปิด Modal
+                    if(typeof Swal !== 'undefined') {
+                        $('#addYearModal').modal('hide');
+                        Toast.fire({
+                            icon: 'success',
+                            title: response.msg
+                        }).then(() => {
+                            location.reload(); 
+                        });
+                    } else {
+                        alert(response.msg);
+                        location.reload();
+                    }
+                } else {
+                    // ถ้าบันทึกไม่สำเร็จ แจ้งเตือน Error
+                    if(typeof Swal !== 'undefined') {
+                        Toast.fire({
+                            icon: 'error',
+                            title: response.msg
+                        });
+                    } else {
+                        alert(response.msg);
+                    }
+                }
+            },
+            error: function(err) {
+                console.error("AJAX Error:", err);
+                if(typeof Swal !== 'undefined') {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'
+                    });
+                } else {
+                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+                }
+            }
+        });
+    }
+</script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

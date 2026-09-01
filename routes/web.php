@@ -12,7 +12,8 @@ $routes = [
     ],
     'POST' => [
         'auth/login'  => ['AuthController', 'processLogin'],
-        'company/add' => ['MainController', 'addCompany']
+        'company/add' => ['MainController', 'addCompany'],
+        'fiscal_years/add' => ['MainController', 'addFiscalYear']
     ]
 ];
 

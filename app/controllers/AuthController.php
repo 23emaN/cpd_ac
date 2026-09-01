@@ -38,15 +38,14 @@ class AuthController {
 
                 // 3. ตรวจสอบรหัสผ่านที่ถูกเข้ารหัสไว้ด้วย password_verify
                 if (password_verify($password, $user['user_password'])) {
-                    // หากตรงกัน ให้บันทึก Session ไว้ใช้งาน
-                    session_start();
-                    $_SESSION['user_id'] = $user['user_id'];
-                    $_SESSION['user_name'] = $user['user_name'];
-                    $_SESSION['user_firstname'] = $user['user_firstname'];
-                    $_SESSION['user_lastname'] = $user['user_lastname'];
-                    $_SESSION['is_super_admin'] = $user['is_super_admin'];
+                    // หากตรงกัน ให้บันทึก Token
+                    require_once '../app/core/Utility/Auth.php';
+                    $token = \App\Utility\Auth::generateToken($user);
+                    
+                    // Set cookie for 1 day
+                    setcookie('bo_access_token', $token, time() + 86400, '/');
 
-                    echo json_encode(['result' => 1, 'msg' => 'เข้าสู่ระบบสำเร็จ']);
+                    echo json_encode(['result' => 1, 'msg' => 'เข้าสู่ระบบสำเร็จ', 'token' => $token]);
                 } else {
                     echo json_encode(['result' => 0, 'msg' => 'รหัสผ่านไม่ถูกต้อง']);
                 }

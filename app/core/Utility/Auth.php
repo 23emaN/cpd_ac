@@ -95,7 +95,7 @@ class Auth
 
         if (! $envLoaded) {
 
-            Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
+            Dotenv::createImmutable(dirname(__DIR__, 3))->safeLoad();
 
             $envLoaded = true;
 
@@ -140,12 +140,10 @@ class Auth
 
         }
 
-        $db = (new Connection())->getPdo();
+        $db = Connection::getInstance()->getPdo();
 
-        $sql = "SELECT u.user_id, u.user_firstname, u.user_lastname, u.user_email, NULL AS profile_image, NULL AS n_name, 'ผู้ดูแลระบบ' AS access_level, u.is_super_admin
-
+        $sql = "SELECT u.user_id, u.user_name, u.user_firstname, u.user_lastname, NULL AS profile_image, NULL AS n_name, 'ผู้ดูแลระบบ' AS access_level, u.is_super_admin
                 FROM tbl_login_token lt
-
                 JOIN tbl_user u ON lt.user_id = u.user_id
 
                 WHERE lt.token_code = :token_code AND u.user_status = 1 AND lt.end_datetime IS NULL AND lt.expire_datetime > NOW()
@@ -185,7 +183,7 @@ class Auth
 
         $fullname = trim(($row['user_firstname'] ?? '') . ' ' . ($row['user_lastname'] ?? ''));
         if ($fullname === '') {
-            $fullname = $row['user_email'] ?? 'Admin';
+            $fullname = $row['user_name'] ?? 'Admin';
         }
 
         $is_super = (int) ($row['is_super_admin'] ?? 0);
@@ -211,5 +209,99 @@ class Auth
 
     }
 
+    public static function generateToken(array $user): string
+    {
+        static $envLoaded = false;
+        if (! $envLoaded) {
+            Dotenv::createImmutable(dirname(__DIR__, 3))->safeLoad();
+            $envLoaded = true;
+        }
+
+        $secretKey = $_ENV['JWT_SECRET'] ?? '';
+        if ($secretKey === '') {
+            throw new \Exception('JWT_SECRET not found in .env');
+        }
+
+        $db = Connection::getInstance()->getPdo();
+
+        $expireTime = time() + (24 * 60 * 60); // 24 hours
+        $expireDatetime = date('Y-m-d H:i:s', $expireTime);
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+        $sql = "INSERT INTO tbl_login_token (user_id, ip_address, user_agent, expire_datetime, create_datetime) 
+                VALUES (:user_id, :ip_address, :user_agent, :expire_datetime, NOW())";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            ':user_id' => $user['user_id'],
+            ':ip_address' => substr($ipAddress, 0, 20),
+            ':user_agent' => $userAgent,
+            ':expire_datetime' => $expireDatetime
+        ]);
+
+        $tokenCode = $db->lastInsertId();
+
+        $payload = [
+            'iss' => 'cpd_ac',
+            'iat' => time(),
+            'exp' => $expireTime,
+            'jti' => $tokenCode
+        ];
+
+        return JWT::encode($payload, $secretKey, 'HS256');
+    }
+
+    public static function checkWebAuth()
+    {
+        $jwt = self::bearerToken();
+        if ($jwt === '') return null;
+
+        static $envLoaded = false;
+        if (! $envLoaded) {
+            Dotenv::createImmutable(dirname(__DIR__, 3))->safeLoad();
+            $envLoaded = true;
+        }
+
+        $secretKey = $_ENV['JWT_SECRET'] ?? '';
+        if ($secretKey === '') return null;
+
+        try {
+            $token = JWT::decode($jwt, new Key($secretKey, 'HS256'));
+        } catch (Throwable $exception) {
+            return null;
+        }
+
+        if (($token->exp ?? 0) < time()) {
+            return null;
+        }
+
+        // Validate with DB
+        if (empty($token->jti)) return null;
+
+        $db = Connection::getInstance()->getPdo();
+        $sql = "SELECT u.user_id, u.user_name, u.user_firstname, u.user_lastname, u.is_super_admin
+                FROM tbl_login_token lt
+                JOIN tbl_user u ON lt.user_id = u.user_id
+                WHERE lt.token_code = :token_code AND u.user_status = '1' AND lt.end_datetime IS NULL AND lt.expire_datetime > NOW()
+                LIMIT 1";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':token_code' => $token->jti]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (! $row) return null;
+
+        $fullname = trim(($row['user_firstname'] ?? '') . ' ' . ($row['user_lastname'] ?? ''));
+        if ($fullname === '') $fullname = $row['user_name'] ?? 'Admin';
+
+        return [
+            'user_id' => $row['user_id'],
+            'user_name' => $fullname,
+            'user_firstname' => $row['user_firstname'],
+            'user_lastname' => $row['user_lastname'],
+            'is_super_admin' => $row['is_super_admin'],
+            'token_code' => $token->jti
+        ];
+    }
 }
 
