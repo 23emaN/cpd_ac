@@ -25,10 +25,10 @@
     <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/toastr.min.css">
 
     <link rel="stylesheet"
-        href="/cpd_ac/public/template/assets/css/custom.css?ver=<?php echo @filemtime(__DIR__ . '/template/assets/css/custom.css') ?: time(); ?>">
+        href="/cpd_ac/public/template/assets/css/custom.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/custom.css') ?: time(); ?>">
     <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/web.css">
     <link rel="stylesheet"
-        href="/cpd_ac/public/template/assets/css/ui.css?ver=<?php echo @filemtime(__DIR__ . '/template/assets/css/ui.css') ?: time(); ?>">
+        href="/cpd_ac/public/template/assets/css/ui.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/ui.css') ?: time(); ?>">
 </head>
 <style>
     .login-page .main-content {
@@ -57,14 +57,14 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding-right: 60px;
-        padding-left: 60px;
-        padding-bottom: 20px;
-        padding-top: 0px;
+        padding-right: 48px;
+        padding-left: 48px;
+        padding-bottom: 24px;
+        padding-top: 12px;
     }
 
     .login-brand {
-        margin-bottom: 0px !important;
+        margin-bottom: 12px !important;
     }
 </style>
 
@@ -92,6 +92,7 @@
                             <img src="/cpd_ac/public/template/assets/images/login.jpg" alt="" aria-hidden="true">
                         </div> -->
                     <div class="col-lg-12">
+                        <div class="login-form-wrap">
                             <div class="login-brand flex-column align-items-start">
                                 <img src="/cpd_ac/public/assets/images/G_AM_logo-01.jpg" alt="CPDTH"
                                     class="align-self-center"
