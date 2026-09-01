@@ -152,16 +152,148 @@ require_once __DIR__ . '/header.php';
     /* Year Selection Grid & Add Card */
     .year-card-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(290px, 320px));
+        grid-template-columns: repeat(auto-fill, minmax(300px, 340px));
         gap: 24px;
+    }
+
+    /* Fiscal Year Card (ตรงตามภาพ) */
+    .fiscal-year-card {
+        background-color: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 290px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .fiscal-year-card:hover {
+        border-color: #bfdbfe;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .fy-card-icon-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background-color: #eff6ff;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    .fy-badge-active {
+        background-color: #dcfce7;
+        color: #16a34a;
+        font-weight: 700;
+        font-size: 0.78rem;
+        padding: 5px 12px;
+        border-radius: 8px;
+        white-space: nowrap;
+    }
+
+    .fy-label-sub {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #94a3b8;
+        margin: 16px 0 3px 0;
+    }
+
+    .fy-val-title {
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        line-height: 1.1;
+    }
+
+    .fy-divider-dashed {
+        border-top: 1px dashed #e2e8f0;
+        margin: 16px 0;
+    }
+
+    .fy-stat-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .fy-stat-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .fy-stat-val {
+        font-size: 0.92rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .fy-actions-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .btn-fy-select {
+        flex-grow: 1;
+        background-color: #eff6ff;
+        color: #2563eb;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-fy-select:hover {
+        background-color: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .btn-fy-edit {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        flex-shrink: 0;
+    }
+
+    .btn-fy-edit:hover {
+        background-color: #f1f5f9;
+        color: #0f172a;
+        border-color: #e2e8f0;
     }
 
     /* Empty Dashed Add Year Card */
     .year-add-card {
         background-color: #ffffff;
         border: 2px dashed #cbd5e1;
-        border-radius: 14px;
-        min-height: 230px;
+        border-radius: 16px;
+        min-height: 290px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -425,16 +557,53 @@ require_once __DIR__ . '/header.php';
                 if (response.result === 1 && response.data.length > 0) {
                     let optionsHtml = '';
                     response.data.forEach(function(fy) {
-                        // วาดการ์ด (สามารถตกแต่ง HTML การ์ดได้ตามที่ต้องการ)
+                        const yVal = fy.fiscal_years || fy.working_year || fy.year || '2569';
+                        const cCount = (fy.customer_count !== undefined && fy.customer_count !== null) ? fy.customer_count : 'Demo';
+                        const feeMonthly = (fy.monthly_fee !== undefined && fy.monthly_fee !== null) ? fy.monthly_fee : 'Demo';
+                        const isActive = (fy.active_status === '1');
+
+                        // วาดการ์ด (ตรงตามภาพ)
                         let cardHtml = `
-                            <div class="fiscal-year-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                <h4 style="margin: 0; color: #1e293b; font-weight: 700;">ปี ${fy.fiscal_years || fy.working_year || fy.year}</h4>
+                            <div class="fiscal-year-card">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="fy-card-icon-box">
+                                            <i class="ri-calendar-2-line"></i>
+                                        </div>
+                                        ${isActive ? '<span class="fy-badge-active">กำลังใช้งาน</span>' : ''}
+                                    </div>
+                                    <div class="fy-label-sub">ปฏิบัติงานในปี</div>
+                                    <h3 class="fy-val-title">${yVal}</h3>
+                                </div>
+
+                                <div>
+                                    <div class="fy-divider-dashed"></div>
+
+                                    <div class="fy-stat-row">
+                                        <span class="fy-stat-label">จำนวนลูกค้า</span>
+                                        <span class="fy-stat-val">${cCount} ราย</span>
+                                    </div>
+
+                                    <div class="fy-stat-row mb-0">
+                                        <span class="fy-stat-label">ค่าบริการบัญชีต่อเดือน</span>
+                                        <span class="fy-stat-val">${feeMonthly} บาท</span>
+                                    </div>
+
+                                    <div class="fy-actions-row">
+                                        <button type="button" class="btn-fy-select" onclick="selectFiscalYear('${companyId}', '${yVal}', '${fy.fiscal_id || fy.id || ''}')">
+                                            เลือกปีนี้
+                                        </button>
+                                        <button type="button" class="btn-fy-edit" title="แก้ไข">
+                                            <i class="ri-pencil-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         `;
                         // แทรกก่อนปุ่ม "เพิ่มปี"
                         $('.year-add-card').before(cardHtml);
                         
-                        optionsHtml += `<option value="${fy.year_id || fy.id}">ปี ${fy.fiscal_years || fy.working_year || fy.year}</option>`;
+                        optionsHtml += `<option value="${fy.year_id || fy.id || fy.fiscal_id}">ปี ${yVal}</option>`;
                     });
                     
                     // อัปเดต Select คัดลอกข้อมูล
