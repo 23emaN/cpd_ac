@@ -7,9 +7,10 @@ use Dotenv\Dotenv;
 
 class Connection
 {
+    private static $instance = null;
     private $pdo;
 
-    public function __construct()
+    private function __construct()
     {
         // แก้ไข Path ให้ถอยไป 3 ระดับเพื่อไปให้ถึงโฟลเดอร์นอกสุด (cpd_ac)
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
@@ -36,6 +37,14 @@ class Connection
         } catch (PDOException $e) {
             throw new PDOException($e->getMessage(), (int) $e->getCode());
         }
+    }
+
+    public static function getInstance()
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
     }
 
     public function getPdo()

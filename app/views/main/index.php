@@ -221,17 +221,12 @@ require_once __DIR__ . '/header.php';
 </style>
 
 <div class="main-page-wrapper">
-    <!-- 1. Page Header / Breadcrumb (Aligned in the same grid/plane) -->
-    <div class="page-title-section">
-        <h2 class="page-main-heading">เลือกปีทำงาน</h2>
-        <p class="page-breadcrumb-sub">ภาพรวมระบบ • เลือกปีทำงาน</p>
-=======
-        <a href="/cpd_ac/public/logout" class="btn-logout">ออกจากระบบ</a>
->>>>>>> origin/Tanawat
-    </div>
-
     <!-- 2. Main Content Card -->
     <div class="year-container-card">
+        <div class="page-title-section">
+        <h2 class="page-main-heading">เลือกปีทำงาน</h2>
+        <p class="page-breadcrumb-sub">ภาพรวมระบบ • เลือกปีทำงาน</p>
+    </div>
         <!-- Section Header (Title & Add Button) -->
         <div class="section-header-wrap">
             <div class="section-title-box">

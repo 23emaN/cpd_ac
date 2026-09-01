@@ -21,17 +21,13 @@ class AuthController {
             return;
         }
 
-        // 2. โหลด Config และเชื่อมต่อ Database
-        require_once '../vendor/autoload.php';
-        require_once '../app/core/Database/Connection.php';
-        $connection = new \App\Database\Connection();
-        $pdo = $connection->getPdo();
+        // 2. โหลด Model เพื่อดึงข้อมูลผู้ใช้จากฐานข้อมูล
+        require_once '../app/models/UserModel.php';
+        $userModel = new UserModel();
 
         try {
-            // ค้นหาผู้ใช้จากฐานข้อมูล
-            $stmt = $pdo->prepare("SELECT * FROM tbl_user WHERE user_name = :username");
-            $stmt->execute(['username' => $username]);
-            $user = $stmt->fetch();
+            // ค้นหาผู้ใช้จากฐานข้อมูลผ่าน Model
+            $user = $userModel->getUserByUsername($username);
 
             if ($user) {
                 // ตรวจสอบว่าบัญชีถูกระงับหรือไม่ (ถ้า user_status เป็น '1' คือใช้งานได้)

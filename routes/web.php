@@ -1,29 +1,30 @@
 <?php
-// routes/web.php - รับหน้าที่ตรวจสอบ URL ว่าจะให้ไปที่ Controller ไหน
 
-// ตัวแปร $url ถูกส่งมาจาก public/index.php
-if ($url === 'login') {
-    // ถ้าคนเข้าลิงก์ /login ให้เรียกใช้ AuthController
-    require_once '../app/controllers/AuthController.php';
-    $controller = new AuthController();
-    $controller->showLogin();
-} else if ($url === 'auth/login') {
-    // ถ้า Ajax ส่งข้อมูล Login มาที่นี่
-    require_once '../app/controllers/AuthController.php';
-    $controller = new AuthController();
-    $controller->processLogin();
-} else if ($url === 'main') {
-    // หน้าหลักหลังจาก Login สำเร็จ
-    require_once '../app/controllers/MainController.php';
-    $controller = new MainController();
-    $controller->index();
-} else if ($url === 'logout') {
-    // ออกจากระบบ
-    require_once '../app/controllers/MainController.php';
-    $controller = new MainController();
-    $controller->logout();
+// ตรวจสอบ HTTP Method ปัจจุบัน (GET หรือ POST)
+$requestMethod = $_SERVER['REQUEST_METHOD'];
+
+// แยก Route ตาม Method
+$routes = [
+    'GET' => [
+        'login'  => ['AuthController', 'showLogin'],
+        'main'   => ['MainController', 'index'],
+        'logout' => ['MainController', 'logout']
+    ],
+    'POST' => [
+        'auth/login'  => ['AuthController', 'processLogin'],
+        'company/add' => ['MainController', 'addCompany']
+    ]
+];
+
+if (isset($routes[$requestMethod]) && array_key_exists($url, $routes[$requestMethod])) {
+    $controllerName = $routes[$requestMethod][$url][0];
+    $methodName = $routes[$requestMethod][$url][1];
+    
+    require_once "../app/controllers/{$controllerName}.php";
+    $controller = new $controllerName();
+    $controller->$methodName();
 } else {
-    // ถ้าเข้าหน้าแรกปกติ หรือพิมพ์ URL ผิด ให้เด้งไปหน้า Login อัตโนมัติ
-    header("Location: /cpd_ac/public/login");
+    // ถ้าไม่พบ Route, พิมพ์ URL ผิด หรือส่งมาผิด Method ให้เด้งไปหน้า Login อัตโนมัติ
+    header("Location: " . BASE_URL . "/login");
     exit();
 }
