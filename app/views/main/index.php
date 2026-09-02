@@ -564,7 +564,7 @@ require_once __DIR__ . '/header.php';
 
                         // วาดการ์ด (ตรงตามภาพ)
                         let cardHtml = `
-                            <div class="fiscal-year-card">
+                            <div class="fiscal-year-card" style="cursor: pointer;" onclick="selectAndGoToBackoffice('${companyId}', '${yVal}', '${fy.fiscal_id || fy.id || ''}')">
                                 <div>
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="fy-card-icon-box">
@@ -590,10 +590,10 @@ require_once __DIR__ . '/header.php';
                                     </div>
 
                                     <div class="fy-actions-row">
-                                        <button type="button" class="btn-fy-select" onclick="selectFiscalYear('${companyId}', '${yVal}', '${fy.fiscal_id || fy.id || ''}')">
+                                        <button type="button" class="btn-fy-select" onclick="selectAndGoToBackoffice('${companyId}', '${yVal}', '${fy.fiscal_id || fy.id || ''}')">
                                             เลือกปีนี้
                                         </button>
-                                        <button type="button" class="btn-fy-edit" title="แก้ไข">
+                                        <button type="button" class="btn-fy-edit" title="แก้ไข" onclick="event.stopPropagation();">
                                             <i class="ri-pencil-line"></i>
                                         </button>
                                     </div>
@@ -614,6 +614,31 @@ require_once __DIR__ . '/header.php';
             },
             error: function() {
                 $('.year-card-grid .spinner-border').remove();
+            }
+        });
+    }
+
+    function selectAndGoToBackoffice(companyId, year, fiscalId) {
+        // อัปเดตค่าต่างๆ ลง localStorage และ UI ของ header ก่อน
+        if (typeof selectFiscalYear === 'function') {
+            selectFiscalYear(companyId, year, fiscalId);
+        }
+
+        // แจ้งฝั่งเซิร์ฟเวอร์ให้จำค่า session (แบบเดิมของโปรเจกต์)
+        $.ajax({
+            url: '<?php echo BASE_URL; ?>/fiscal_years/set_context',
+            type: 'POST',
+            data: { fiscal_id: fiscalId },
+            success: function(response) {
+                // เปลี่ยนหน้าไปยัง /backoffice
+                window.location.href = '<?php echo BASE_URL; ?>/backoffice';
+            },
+            error: function() {
+                if(typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเลือกปีทำงาน' });
+                } else {
+                    alert('เกิดข้อผิดพลาดในการเลือกปีทำงาน');
+                }
             }
         });
     }
