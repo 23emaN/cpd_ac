@@ -254,7 +254,21 @@ require_once __DIR__ . '/header.php';
 
         <!-- Year Card Grid (Empty Add Year State) -->
         <div class="year-card-grid">
-            <button type="button" class="year-add-card" onclick="Addyear()">
+            <!-- วนลูปแสดงการ์ดของแต่ละปีที่มีในระบบ -->
+            <?php if (isset($data['fiscal_years']) && !empty($data['fiscal_years'])): ?>
+                <?php foreach ($data['fiscal_years'] as $fy): ?>
+                    <button type="button" class="year-add-card fiscal-year-card" style="border-color: #e2e8f0; background-color: #fff;" onclick="selectYear('<?php echo htmlspecialchars($fy['year_id']); ?>')">
+                        <div class="year-add-icon" style="background-color: #f1f5f9; color: #64748b;">
+                            <i class="ri-folder-open-line"></i>
+                        </div>
+                        <span class="year-add-text">ปี <?php echo htmlspecialchars($fy['year']); ?></span>
+                        <span class="year-add-subtext">สถานะ: <?php echo $fy['status'] === 'active' ? 'เปิดใช้งาน' : 'ปิดการใช้งาน'; ?></span>
+                    </button>
+                <?php endforeach; ?>
+            <?php endif; ?>
+
+            <!-- ปุ่มเพิ่มปีทำงานใหม่ -->
+            <button type="button" class="year-add-card" id="btn-add-year-card" onclick="Addyear()">
                 <div class="year-add-icon">
                     <i class="ri-add-line"></i>
                 </div>
@@ -425,16 +439,23 @@ require_once __DIR__ . '/header.php';
                 if (response.result === 1 && response.data.length > 0) {
                     let optionsHtml = '';
                     response.data.forEach(function(fy) {
-                        // วาดการ์ด (สามารถตกแต่ง HTML การ์ดได้ตามที่ต้องการ)
+                        let yearId = fy.year_id || fy.id;
+                        let yearName = fy.fiscal_years || fy.working_year || fy.year;
+                        let statusText = fy.status === 'active' ? 'เปิดใช้งาน' : 'ปิดการใช้งาน';
+                        
                         let cardHtml = `
-                            <div class="fiscal-year-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                                <h4 style="margin: 0; color: #1e293b; font-weight: 700;">ปี ${fy.fiscal_years || fy.working_year || fy.year}</h4>
-                            </div>
+                            <button type="button" class="year-add-card fiscal-year-card" style="border-color: #e2e8f0; background-color: #fff;" onclick="selectYear('${yearId}')">
+                                <div class="year-add-icon" style="background-color: #f1f5f9; color: #64748b;">
+                                    <i class="ri-folder-open-line"></i>
+                                </div>
+                                <span class="year-add-text">ปี ${yearName}</span>
+                                <span class="year-add-subtext">สถานะ: ${statusText}</span>
+                            </button>
                         `;
                         // แทรกก่อนปุ่ม "เพิ่มปี"
-                        $('.year-add-card').before(cardHtml);
+                        $('#btn-add-year-card').before(cardHtml);
                         
-                        optionsHtml += `<option value="${fy.year_id || fy.id}">ปี ${fy.fiscal_years || fy.working_year || fy.year}</option>`;
+                        optionsHtml += `<option value="${yearId}">ปี ${yearName}</option>`;
                     });
                     
                     // อัปเดต Select คัดลอกข้อมูล
@@ -445,6 +466,21 @@ require_once __DIR__ . '/header.php';
             },
             error: function() {
                 $('.year-card-grid .spinner-border').remove();
+            }
+        });
+    }
+
+    function selectYear(fiscal_id) {
+        $.ajax({
+            url: '<?php echo BASE_URL; ?>/fiscal_years/set_context',
+            type: 'POST',
+            data: { fiscal_id: fiscal_id },
+            success: function(response) {
+                // เซิร์ฟเวอร์จำค่าสำเร็จ เปลี่ยนหน้าแบบคลีนๆ ได้เลย
+                window.location.href = '<?php echo BASE_URL; ?>/backoffice';
+            },
+            error: function() {
+                alert('เกิดข้อผิดพลาดในการเลือกปีทำงาน');
             }
         });
     }

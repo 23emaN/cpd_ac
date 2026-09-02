@@ -6,13 +6,15 @@ $routes = [
     'GET' => [
         'login'  => ['AuthController', 'showLogin'],
         'main'   => ['MainController', 'index'],
+        'backoffice' => ['BackofficeController', 'index'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout']
     ],
     'POST' => [
         'auth/login'  => ['AuthController', 'processLogin'],
         'company/add' => ['MainController', 'addCompany'],
-        'fiscal_years/add' => ['MainController', 'addFiscalYear']
+        'fiscal_years/add' => ['MainController', 'addFiscalYear'],
+        'fiscal_years/set_context' => ['MainController', 'setContext']
     ]
 ];
 

@@ -124,6 +124,19 @@ class MainController
         echo json_encode(['result' => 1, 'data' => $fiscalYears]);
     }
 
+    public function setContext()
+    {
+        $this->checkAuth();
+        
+        $fiscal_id = $_POST['fiscal_id'] ?? null;
+        if ($fiscal_id) {
+            $_SESSION['fiscal_year_id'] = $fiscal_id;
+            echo json_encode(['result' => 1, 'msg' => 'Context set']);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'Missing fiscal_id']);
+        }
+    }
+
     public function logout()
     {
         // 1. (Optional) Invalidate token in database if we want strictly stateful JWT

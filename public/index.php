@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // 0. โหลด Composer Autoload
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
