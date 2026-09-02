@@ -40,9 +40,9 @@
     <style>
         /* --- CPD ACC Modern Header & Workspace Dropdown --- */
         .acc-topbar {
-            background-color: #ffffff;
-            border-bottom: 1px solid #edf2f7;
-            padding: 8px 28px;
+            background-color: #F7F9FB;
+            /* border-bottom: 1px solid #edf2f7; */
+            padding: 15px 40px;
             min-height: 68px;
             position: sticky;
             top: 0;
@@ -52,7 +52,7 @@
             justify-content: space-between;
             align-items: center;
             font-family: 'Kanit', sans-serif;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02); */
         }
 
         .acc-brand-wrap {
@@ -144,7 +144,8 @@
         }
 
         .acc-workspace-btn::after {
-            display: none !important; /* Hide default bootstrap dropdown caret */
+            display: none !important;
+            /* Hide default bootstrap dropdown caret */
         }
 
         .acc-workspace-btn:hover {
@@ -243,6 +244,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -577,9 +579,9 @@
         .acc-logout-btn {
             width: 36px;
             height: 36px;
-            border-radius: 8px;
+            /* border-radius: 8px;
             background-color: #fff1f2;
-            border: 1px solid #ffe4e6;
+            border: 1px solid #ffe4e6; */
             color: #e11d48;
             font-size: 18px;
             cursor: pointer;
@@ -591,10 +593,10 @@
         }
 
         .acc-logout-btn:hover {
-            background-color: #e11d48;
-            color: #ffffff;
-            border-color: #e11d48;
-            box-shadow: 0 3px 8px rgba(225, 29, 72, 0.25);
+            /* background-color: #e11d48; */
+            color: #e11d48;
+            /* border-color: #e11d48; */
+            /* box-shadow: 0 3px 8px rgba(225, 29, 72, 0.25); */
         }
     </style>
 </head>
@@ -663,31 +665,25 @@
                             }
                         }
                         ?>
-                        
+
                         <!-- Workspace Dropdown Pill Button (แสดง Popper strategy fixed เพื่อลอยอยู่ด้านหน้า) -->
                         <div class="dropdown acc-workspace-dropdown" data-company-id="<?= $companyId ?>">
-                            <button type="button" 
-                                    class="acc-workspace-btn <?= $isActive ?>" 
-                                    id="wsDropdownBtn_<?= $companyId ?>" 
-                                    data-bs-toggle="dropdown" 
-                                    data-bs-auto-close="true"
-                                    data-bs-popper-config='{"strategy":"fixed"}'
-                                    data-bs-boundary="viewport"
-                                    aria-expanded="false" 
-                                    data-company-id="<?= $companyId ?>"
-                                    data-company-name="<?= $companyName ?>"
-                                    data-active-year="<?= $activeYear ?>"
-                                    data-fiscal-id="<?= $activeFiscalId ?>"
-                                    onclick="selectCompany(this, '<?= $companyId ?>')">
-                                
+                            <button type="button" class="acc-workspace-btn <?= $isActive ?>"
+                                id="wsDropdownBtn_<?= $companyId ?>" data-bs-toggle="dropdown" data-bs-auto-close="true"
+                                data-bs-popper-config='{"strategy":"fixed"}' data-bs-boundary="viewport" aria-expanded="false"
+                                data-company-id="<?= $companyId ?>" data-company-name="<?= $companyName ?>"
+                                data-active-year="<?= $activeYear ?>" data-fiscal-id="<?= $activeFiscalId ?>"
+                                onclick="selectCompany(this, '<?= $companyId ?>')">
+
                                 <div class="acc-workspace-icon">
                                     <i class="ri-bank-line"></i>
                                 </div>
-                                
+
                                 <div class="acc-workspace-info">
                                     <span class="acc-workspace-badge">WORKSPACE</span>
                                     <span class="acc-workspace-name" title="<?= $companyName ?>"><?= $companyName ?></span>
-                                    <span class="acc-workspace-year">ปีทำงาน <span class="ws-year-text"><?= $activeYear ?></span></span>
+                                    <span class="acc-workspace-year">ปีทำงาน <span
+                                            class="ws-year-text"><?= $activeYear ?></span></span>
                                 </div>
 
                                 <i class="ri-arrow-down-s-line acc-workspace-arrow"></i>
@@ -707,14 +703,17 @@
                                 </div>
 
                                 <!-- การ์ดปีที่ใช้งานอยู่ (Active Year Highlight Card) -->
-                                <div class="acc-active-year-card" onclick="selectFiscalYear('<?= $companyId ?>', '<?= $activeYear ?>', '<?= $activeFiscalId ?>')">
+                                <div class="acc-active-year-card"
+                                    onclick="selectFiscalYear('<?= $companyId ?>', '<?= $activeYear ?>', '<?= $activeFiscalId ?>')">
                                     <div class="acc-active-year-left">
                                         <div class="acc-active-year-icon">
                                             <i class="ri-calendar-check-line"></i>
                                         </div>
                                         <div class="acc-active-year-info">
                                             <span class="acc-active-year-label">ปีที่ใช้งานอยู่</span>
-                                            <span class="acc-active-year-val"><?= ($activeYear === 'Demo Year') ? '' : 'ปี ' ?><span class="card-active-year-val"><?= $activeYear ?></span></span>
+                                            <span
+                                                class="acc-active-year-val"><?= ($activeYear === 'Demo Year') ? '' : 'ปี ' ?><span
+                                                    class="card-active-year-val"><?= $activeYear ?></span></span>
                                         </div>
                                     </div>
                                     <span class="acc-active-badge">กำลังใช้งาน</span>
@@ -724,25 +723,24 @@
                                 <div class="acc-other-years-wrap">
                                     <div class="acc-other-years-title">เลือกปีอื่น</div>
                                     <div class="acc-other-years-list" id="otherYearsList_<?= $companyId ?>">
-                                        <?php 
+                                        <?php
                                         $hasOtherYears = false;
-                                        if (!empty($fiscalYears)): 
-                                            foreach ($fiscalYears as $fy): 
+                                        if (!empty($fiscalYears)):
+                                            foreach ($fiscalYears as $fy):
                                                 $yVal = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
                                                 $cCount = $fy['customer_count'] ?? 0;
                                                 $fId = $fy['fiscal_id'] ?? $fy['id'] ?? '';
                                                 $hasOtherYears = true;
-                                            ?>
-                                                <a href="javascript:void(0);" 
-                                                   class="acc-other-year-item" 
-                                                   data-year="<?= $yVal ?>"
-                                                   onclick="selectFiscalYear('<?= $companyId ?>', '<?= $yVal ?>', '<?= $fId ?>')">
+                                                ?>
+                                                <a href="javascript:void(0);" class="acc-other-year-item" data-year="<?= $yVal ?>"
+                                                    onclick="selectFiscalYear('<?= $companyId ?>', '<?= $yVal ?>', '<?= $fId ?>')">
                                                     <div class="acc-other-year-icon">
                                                         <i class="ri-calendar-line"></i>
                                                     </div>
                                                     <div class="acc-other-year-info">
                                                         <span class="acc-other-year-val">ปี <?= $yVal ?></span>
-                                                        <span class="acc-other-year-sub"><?= $cCount > 0 ? $cCount . ' ลูกค้า' : 'ปีทำงาน' ?></span>
+                                                        <span
+                                                            class="acc-other-year-sub"><?= $cCount > 0 ? $cCount . ' ลูกค้า' : 'ปีทำงาน' ?></span>
                                                     </div>
                                                 </a>
                                             <?php endforeach; ?>
@@ -758,7 +756,8 @@
 
                                 <!-- ท้ายเมนู: จัดการปีทำงาน -->
                                 <div class="acc-menu-footer">
-                                    <a href="/cpd_ac/public/main" class="acc-manage-year-btn" onclick="selectCompanyById('<?= $companyId ?>')">
+                                    <a href="/cpd_ac/public/main" class="acc-manage-year-btn"
+                                        onclick="selectCompanyById('<?= $companyId ?>')">
                                         <i class="ri-sound-module-line"></i>
                                         <span>จัดการปีทำงาน</span>
                                     </a>
@@ -804,27 +803,35 @@
     <div class="modal fade" id="addCompanyModal" tabindex="-1" aria-labelledby="addCompanyModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-content"
+                style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
                 <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
-                    <h5 class="modal-title" id="addCompanyModalLabel" style="font-weight: 800; color: #1e293b;">เพิ่มบริษัทใหม่</h5>
+                    <h5 class="modal-title" id="addCompanyModalLabel" style="font-weight: 800; color: #1e293b;">
+                        เพิ่มบริษัทใหม่</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="padding: 24px;">
                     <form id="addCompanyForm">
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.9rem; color: #334155;">ชื่อบริษัท <span class="text-danger">*</span></label>
+                            <label class="form-label"
+                                style="font-weight: 700; font-size: 0.9rem; color: #334155;">ชื่อบริษัท <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="company_name" placeholder="กรอกชื่อบริษัท"
-                                   style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; font-weight: 600;">
+                                style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; font-weight: 600;">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 8px; font-weight: 600;">ยกเลิก</button>
-                    <button type="button" class="btn btn-primary" onclick="addCompany()" style="border-radius: 8px; font-weight: 700; background-color: #0066fe; border: none; padding: 8px 20px;">บันทึก</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                        style="border-radius: 8px; font-weight: 600;">ยกเลิก</button>
+                    <button type="button" class="btn btn-primary" onclick="addCompany()"
+                        style="border-radius: 8px; font-weight: 700; background-color: #0066fe; border: none; padding: 8px 20px;">บันทึก</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="/cpd_ac/public/template/assets/js/jquery-3.1.1.min.js"></script>
 
     <script>
         // 1. ฟังก์ชันเลือกบริษัท

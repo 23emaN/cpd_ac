@@ -2,7 +2,7 @@
 // app/views/main/sidebar.php
 
 // ตรวจสอบ URL ปัจจุบันสำหรับ Active State
-$current_url = $_GET['url'] ?? 'main';
+$current_url = $_GET['url'] ?? 'backoffice';
 $now_page = trim(strtok($current_url, '/'));
 
 $overview_pages       = ['main', 'home', 'backoffice', 'dashboard'];
@@ -23,7 +23,7 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
 <style>
     /* ปรับแต่ง Sidebar ให้ตรงตามภาพต้นแบบ */
     .sidebar-area {
-        background-color: #ffffff;
+        background-color: #F7F9FB;
         border-right: 1px solid #edf2f7;
         font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
         width: 240px;
@@ -107,7 +107,7 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
     }
 
     .sidebar-area .menu-item .menu-link.active,
-    .sidebar-area .menu-item.open > .menu-link {
+    .sidebar-area .menu-item.open>.menu-link {
         background-color: #eff6ff !important;
         color: #0066fe !important;
         font-weight: 700 !important;
@@ -142,7 +142,8 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
 
     <!-- 1. ปุ่มภาพรวมสำนักงาน (การ์ดไฮไลท์ด้านบน) -->
     <div class="sidebar-top-overview">
-        <a href="/cpd_ac/public/backoffice" class="overview-pill-btn <?php echo in_array($now_page, $overview_pages) ? 'active' : '' ?>">
+        <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/backoffice"
+            class="overview-pill-btn <?php echo in_array($now_page, $overview_pages) ? 'active' : '' ?>">
             <i class="ri-home-4-line"></i>
             <span>ภาพรวมสำนักงาน</span>
         </a>
@@ -151,8 +152,9 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
     <aside id="layout-menu" class="layout-menu menu-vertical menu active" data-simplebar>
         <ul class="menu-inner">
 
-         <li class="menu-item <?php echo in_array($now_page, $monthly_dash_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $monthly_dash_pages) ? 'active' : '' ?>">
+            <li class="menu-item <?php echo in_array($now_page, $monthly_dash_pages) ? 'open active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $monthly_dash_pages) ? 'active' : '' ?>">
                     <i class="ri-bar-chart-grouped-line menu-icon"></i>
                     <span class="title">ภาพรวมสำนักงาน</span>
                 </a>
@@ -164,35 +166,40 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $monthly_dash_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $monthly_dash_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $monthly_dash_pages) ? 'active' : '' ?>">
                     <i class="ri-bar-chart-grouped-line menu-icon"></i>
                     <span class="title">แดชบอร์ดรายเดือน</span>
                 </a>
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $yearly_dash_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $yearly_dash_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $yearly_dash_pages) ? 'active' : '' ?>">
                     <i class="ri-line-chart-line menu-icon"></i>
                     <span class="title">แดชบอร์ดรายปี</span>
                 </a>
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $monthly_task_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $monthly_task_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $monthly_task_pages) ? 'active' : '' ?>">
                     <i class="ri-calendar-check-line menu-icon"></i>
                     <span class="title">จัดการงานรายเดือน</span>
                 </a>
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $closing_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $closing_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $closing_pages) ? 'active' : '' ?>">
                     <i class="ri-file-text-line menu-icon"></i>
                     <span class="title">ปิดงบการเงิน</span>
                 </a>
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $registration_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $registration_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $registration_pages) ? 'active' : '' ?>">
                     <i class="ri-file-paper-2-line menu-icon"></i>
                     <span class="title">จัดการงานทะเบียน</span>
                 </a>
@@ -204,21 +211,24 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $customer_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $customer_pages) ? 'active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer"
+                    class="menu-link <?php echo in_array($now_page, $customer_pages) ? 'active' : '' ?>">
                     <i class="ri-user-3-line menu-icon"></i>
                     <span class="title">ลูกค้า</span>
                 </a>
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $employee_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $employee_pages) ? 'active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/employee"
+                    class="menu-link <?php echo in_array($now_page, $employee_pages) ? 'active' : '' ?>">
                     <i class="ri-team-line menu-icon"></i>
                     <span class="title">พนักงาน</span>
                 </a>
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $task_setting_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $task_setting_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $task_setting_pages) ? 'active' : '' ?>">
                     <i class="ri-checkbox-circle-line menu-icon"></i>
                     <span class="title">ตั้งค่างานที่ต้องทำ</span>
                 </a>
@@ -230,14 +240,16 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $message_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $message_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $message_pages) ? 'active' : '' ?>">
                     <i class="ri-chat-3-line menu-icon"></i>
                     <span class="title">ส่งข้อความถึงลูกค้า</span>
                 </a>
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $postit_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $postit_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $postit_pages) ? 'active' : '' ?>">
                     <i class="ri-sticky-note-line menu-icon"></i>
                     <span class="title">Post-it แจ้งเตือน</span>
                 </a>
@@ -249,7 +261,8 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $system_setting_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $system_setting_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $system_setting_pages) ? 'active' : '' ?>">
                     <i class="ri-settings-4-line menu-icon"></i>
                     <span class="title">ตั้งค่าระบบ</span>
                 </a>
@@ -261,7 +274,8 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $manual_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);" class="menu-link <?php echo in_array($now_page, $manual_pages) ? 'active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $manual_pages) ? 'active' : '' ?>">
                     <i class="ri-play-circle-line menu-icon"></i>
                     <span class="title">วิดีโอสอนการใช้งาน</span>
                 </a>
