@@ -392,7 +392,6 @@
 
         .acc-other-year-item:hover {
             background-color: #f8fafc;
-            transform: translateX(2px);
         }
 
         .acc-other-year-icon {
@@ -650,39 +649,17 @@
 
                         // คำนวณปีทำงานที่เปิดใช้งานอยู่
                         $fiscalYears = $company['fiscal_years'] ?? [];
-                        $activeYear = 'Demo Year';
+                        $activeYear = '';
                         $activeFiscalId = '';
 
-                        if (!empty($fiscalYears)) {
-                            $foundActive = false;
-                            
-                            // 1. ตรวจสอบว่าปีนี้คือปีที่ผู้ใช้กดเลือกเข้ามาทำงานใน Backoffice หรือไม่
-                            if (isset($data['fiscal_id']) && !empty($data['fiscal_id'])) {
-                                foreach ($fiscalYears as $fy) {
-                                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                                    if ($fy_id == $data['fiscal_id']) {
-                                        $activeYear = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? 'Demo Year';
-                                        $activeFiscalId = $fy_id;
-                                        $foundActive = true;
-                                        break;
-                                    }
+                        if (!empty($fiscalYears) && isset($data['fiscal_id']) && !empty($data['fiscal_id'])) {
+                            foreach ($fiscalYears as $fy) {
+                                $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                                if ($fy_id == $data['fiscal_id']) {
+                                    $activeYear = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                                    $activeFiscalId = $fy_id;
+                                    break;
                                 }
-                            }
-                            
-                            // 2. ถ้ายังไม่เจอ (ไม่ได้เลือกมา) ให้ใช้ปีที่มีสถานะ active_status เป็น 1 (ปีปัจจุบันของบริษัท)
-                            if (!$foundActive) {
-                                foreach ($fiscalYears as $fy) {
-                                    if (($fy['active_status'] ?? '') === '1') {
-                                        $activeYear = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? 'Demo Year';
-                                        $activeFiscalId = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                                        $foundActive = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (!$foundActive) {
-                                $activeYear = $fiscalYears[0]['fiscal_years'] ?? $fiscalYears[0]['working_year'] ?? $fiscalYears[0]['year'] ?? 'Demo Year';
-                                $activeFiscalId = $fiscalYears[0]['fiscal_id'] ?? $fiscalYears[0]['id'] ?? '';
                             }
                         }
                         ?>
@@ -703,8 +680,7 @@
                                 <div class="acc-workspace-info">
                                     <span class="acc-workspace-badge">WORKSPACE</span>
                                     <span class="acc-workspace-name" title="<?= $companyName ?>"><?= $companyName ?></span>
-                                    <span class="acc-workspace-year">ปีทำงาน <span
-                                            class="ws-year-text"><?= $activeYear ?></span></span>
+                                    <span class="acc-workspace-year"><?= !empty($activeYear) ? 'ปีทำงาน <span class="ws-year-text">' . $activeYear . '</span>' : '<span class="ws-year-text text-muted">ยังไม่ได้เลือกปี</span>' ?></span>
                                 </div>
 
                                 <i class="ri-arrow-down-s-line acc-workspace-arrow"></i>
@@ -725,19 +701,25 @@
 
                                 <!-- การ์ดปีที่ใช้งานอยู่ (Active Year Highlight Card) -->
                                 <div class="acc-active-year-card"
-                                    onclick="selectFiscalYear('<?= $companyId ?>', '<?= $activeYear ?>', '<?= $activeFiscalId ?>')">
+                                    <?= !empty($activeYear) ? "onclick=\"selectFiscalYear('$companyId', '$activeYear', '$activeFiscalId')\"" : "" ?>>
                                     <div class="acc-active-year-left">
                                         <div class="acc-active-year-icon">
                                             <i class="ri-calendar-check-line"></i>
                                         </div>
                                         <div class="acc-active-year-info">
                                             <span class="acc-active-year-label">ปีที่ใช้งานอยู่</span>
-                                            <span
-                                                class="acc-active-year-val"><?= ($activeYear === 'Demo Year') ? '' : 'ปี ' ?><span
-                                                    class="card-active-year-val"><?= $activeYear ?></span></span>
+                                            <span class="acc-active-year-val">
+                                                <?php if (!empty($activeYear)): ?>
+                                                    ปี <span class="card-active-year-val"><?= $activeYear ?></span>
+                                                <?php else: ?>
+                                                    <span class="card-active-year-val text-muted">ยังไม่ได้เลือกปี</span>
+                                                <?php endif; ?>
+                                            </span>
                                         </div>
                                     </div>
-                                    <span class="acc-active-badge">กำลังใช้งาน</span>
+                                    <?php if (!empty($activeYear)): ?>
+                                        <span class="acc-active-badge">กำลังใช้งาน</span>
+                                    <?php endif; ?>
                                 </div>
 
                                 <!-- หมวดหมู่: เลือกปีอื่น -->
@@ -869,7 +851,7 @@
 
             // ดึงชื่อบริษัทและปี
             const name = element.getAttribute('data-company-name') || (element.querySelector('.acc-workspace-name') ? element.querySelector('.acc-workspace-name').textContent.trim() : '');
-            const year = element.getAttribute('data-active-year') || (element.querySelector('.ws-year-text') ? element.querySelector('.ws-year-text').textContent.trim() : 'Demo Year');
+            const year = element.getAttribute('data-active-year') || '';
 
             const workspaceNameEl = document.getElementById('currentWorkspaceName');
             if (name && workspaceNameEl) {
@@ -881,12 +863,18 @@
 
             // เก็บค่าลง localStorage
             localStorage.setItem('bo_selected_company', companyId);
-            localStorage.setItem('bo_selected_year', year);
+            if (year) {
+                localStorage.setItem('bo_selected_year', year);
+            }
 
             // อัปเดตปีที่เลือกในแบนเนอร์หน้า index (ถ้ามี)
             const selectedValEl = document.querySelector('.notice-selected-value');
             if (selectedValEl) {
-                selectedValEl.textContent = 'ปี ' + year;
+                if (year && year !== 'ยังไม่ได้เลือกปี') {
+                    selectedValEl.textContent = 'ปี ' + year;
+                } else {
+                    selectedValEl.textContent = 'ยังไม่ได้เลือก';
+                }
             }
 
             // โหลดข้อมูลปีใหม่ผ่าน AJAX สำหรับหน้า main index
@@ -911,14 +899,22 @@
             if (wsBtn) {
                 wsBtn.setAttribute('data-active-year', year);
                 if (fiscalId) wsBtn.setAttribute('data-fiscal-id', fiscalId);
-                const yrTextEl = wsBtn.querySelector('.ws-year-text');
-                if (yrTextEl) yrTextEl.textContent = year;
+                const yrContainer = wsBtn.querySelector('.acc-workspace-year');
+                if (yrContainer) {
+                    yrContainer.innerHTML = 'ปีทำงาน <span class="ws-year-text">' + year + '</span>';
+                }
 
                 // อัปเดตในการ์ดปีที่ใช้งานอยู่
                 const dropdownWrapper = wsBtn.closest('.acc-workspace-dropdown');
                 if (dropdownWrapper) {
-                    const cardActiveVal = dropdownWrapper.querySelector('.card-active-year-val');
-                    if (cardActiveVal) cardActiveVal.textContent = year;
+                    const activeYearValWrapper = dropdownWrapper.querySelector('.acc-active-year-val');
+                    if (activeYearValWrapper) {
+                        activeYearValWrapper.innerHTML = 'ปี <span class="card-active-year-val">' + year + '</span>';
+                    }
+                    const activeCard = dropdownWrapper.querySelector('.acc-active-year-card');
+                    if (activeCard && !activeCard.querySelector('.acc-active-badge')) {
+                        activeCard.insertAdjacentHTML('beforeend', '<span class="acc-active-badge">กำลังใช้งาน</span>');
+                    }
                 }
             }
 
@@ -970,7 +966,31 @@
             myModal.show();
         }
 
+        let isSubmittingCompany = false;
         function addCompany() {
+            if (isSubmittingCompany) return;
+
+            var companyName = $('input[name="company_name"]').val().trim();
+            if (!companyName) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: 'กรุณากรอกชื่อบริษัท',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                } else {
+                    alert('กรุณากรอกชื่อบริษัท');
+                }
+                return;
+            }
+
+            isSubmittingCompany = true;
+            const submitBtn = $('#addCompanyModal .btn-primary');
+            submitBtn.prop('disabled', true).text('กำลังบันทึก...');
+
             var formData = $('#addCompanyForm').serialize();
             $.ajax({
                 type: "POST",
@@ -978,6 +998,9 @@
                 data: formData,
                 dataType: "json",
                 success: function (response) {
+                    isSubmittingCompany = false;
+                    submitBtn.prop('disabled', false).text('บันทึก');
+
                     if (response.result === 1) {
                         const modalElement = document.getElementById('addCompanyModal');
                         if (modalElement) {
@@ -1018,6 +1041,8 @@
                     }
                 },
                 error: function (err) {
+                    isSubmittingCompany = false;
+                    submitBtn.prop('disabled', false).text('บันทึก');
                     console.error("AJAX Error:", err);
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
@@ -1036,20 +1061,12 @@
             });
         }
 
-        // คืนค่าบริษัทและปีที่เคยเลือกไว้เมื่อเปิดหน้าเว็บ
+        // คืนค่าบริษัทที่เคยเลือกไว้เมื่อเปิดหน้าเว็บ
         $(document).ready(function () {
             let savedCompany = localStorage.getItem('bo_selected_company');
-            let savedYear = localStorage.getItem('bo_selected_year');
 
             if (savedCompany) {
                 selectCompanyById(savedCompany);
-                if (savedYear) {
-                    const wsBtn = document.querySelector('.acc-workspace-btn[data-company-id="' + savedCompany + '"]');
-                    if (wsBtn) {
-                        const yrTextEl = wsBtn.querySelector('.ws-year-text');
-                        if (yrTextEl) yrTextEl.textContent = savedYear;
-                    }
-                }
             } else {
                 let firstCompany = document.querySelector('.acc-workspace-btn');
                 if (firstCompany) {
