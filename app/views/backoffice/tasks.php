@@ -17,10 +17,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         font-family: 'Kanit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .main-content{
-        padding-top: 0px !important;
-    }
-
     .main-page-wrapper {
         padding-top: 0px !important;
         padding: 24px 32px;
