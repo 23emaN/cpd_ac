@@ -47,6 +47,24 @@ function onYearChanged(companyId, year, fiscalId) {
         }
     });
 }
+
+// ตรวจสอบ Toast จาก Session Storage (เช่น หลังจากการเพิ่ม/แก้ไขข้อมูล)
+document.addEventListener('DOMContentLoaded', function() {
+    let tMsg = sessionStorage.getItem('toast_msg');
+    let tIcon = sessionStorage.getItem('toast_icon');
+    if (tMsg && typeof Swal !== 'undefined') {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+        });
+        Toast.fire({ icon: tIcon || 'success', title: tMsg });
+        sessionStorage.removeItem('toast_msg');
+        sessionStorage.removeItem('toast_icon');
+    }
+});
 </script>
 
 </body>

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
@@ -19,7 +19,14 @@ $routes = [
         'company/add' => ['MainController', 'addCompany'],
         'fiscal_years/add' => ['MainController', 'addFiscalYear'],
         'fiscal_years/set_context' => ['MainController', 'setContext'],
-        'task/add_task' => ['BackofficeController', 'addTask']
+        'task/add_task' => ['BackofficeController', 'addTask'],
+        'task/move_task' => ['BackofficeController', 'moveTask'],
+        'task/get_task' => ['BackofficeController', 'getTask'],
+        'task/edit_task' => ['BackofficeController', 'editTask'],
+        'task/delete_task' => ['BackofficeController', 'deleteTask'],
+        'employee/add' => ['BackofficeController', 'addEmployee'],
+        'employee/edit' => ['BackofficeController', 'editEmployee'],
+        'employee/delete' => ['BackofficeController', 'deleteEmployee']
     ]
 ];
 

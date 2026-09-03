@@ -34,8 +34,8 @@ $esc  = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
         <?php if (!empty($list)): ?>
             <?php $n = $from; foreach ($list as $task): ?>
             <tr>
-                <td><?= $n++ ?></td>
-                <td><?= $esc($task['tasks_name'] ?? '') ?></td>
+                <td><?php echo $n++ ?></td>
+                <td><?php echo $esc($task['tasks_name'] ?? '') ?></td>
                 <td>
                     <?php if (($task['is_notify_amount'] ?? 0) == 1): ?>
                         <span class="badge-yes">YES</span>
@@ -45,14 +45,14 @@ $esc  = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
                 </td>
                 <td>
                     <div class="action-btn-group">
-                        <button type="button" class="btn-icon btn-arrow" title="เลื่อนขึ้น"><i class="ri-arrow-up-s-line"></i></button>
-                        <button type="button" class="btn-icon btn-arrow" title="เลื่อนลง"><i class="ri-arrow-down-s-line"></i></button>
+                        <button type="button" class="btn-icon btn-arrow" title="เลื่อนขึ้น" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'up')"><i class="ri-arrow-up-s-line"></i></button>
+                        <button type="button" class="btn-icon btn-arrow" title="เลื่อนลง" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'down')"><i class="ri-arrow-down-s-line"></i></button>
                     </div>
                 </td>
                 <td>
                     <div class="action-btn-group">
-                        <button type="button" class="btn-icon btn-edit" title="แก้ไข"><i class="ri-pencil-line"></i></button>
-                        <button type="button" class="btn-icon btn-delete" title="ลบ"><i class="ri-delete-bin-line"></i></button>
+                        <button type="button" class="btn-icon btn-edit" title="แก้ไข" onclick="modal_edit(<?php echo $task['tasks_id'] ?>)"><i class="ri-pencil-line"></i></button>
+                        <button type="button" class="btn-icon btn-delete" title="ลบ" onclick="delete_task(<?php echo $task['tasks_id'] ?>, '<?php echo $esc($task['tasks_name'] ?? '') ?>')"><i class="ri-delete-bin-line"></i></button>
                     </div>
                 </td>
             </tr>

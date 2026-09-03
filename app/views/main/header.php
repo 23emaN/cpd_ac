@@ -613,7 +613,7 @@
             /* border-color: #e11d48; */
             /* box-shadow: 0 3px 8px rgba(225, 29, 72, 0.25); */
         }
-        
+
         /* --- Sidebar Toggle Button --- */
         .header-burger-menu {
             width: 44px;
@@ -633,7 +633,7 @@
             flex-shrink: 0;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
         }
-        
+
         .header-burger-menu:hover {
             border-color: #3b82f6;
             background-color: #eff6ff;
@@ -677,7 +677,7 @@
                     <p class="acc-brand-subtitle">ระบบบริหารสำนักงานบัญชี</p>
                 </div>
             </a>
-            
+
             <!-- Sidebar Toggle Button -->
             <button type="button" id="header-burger-menu" class="header-burger-menu">
                 <i class="ri-menu-line"></i>
@@ -685,41 +685,41 @@
 
             <!-- Company / Workspace Dropdown List Container (Loop แสดงบริษัทที่มี) -->
             <div class="acc-company-container">
-                <?php if (isset($data['companies']) && !empty($data['companies'])): ?>
+                <?php if (isset($data['companies']) && ! empty($data['companies'])): ?>
                     <?php foreach ($data['companies'] as $index => $company):
-                        $companyId = $company['company_id'] ?? $company['id'] ?? '';
-                        $companyName = htmlspecialchars($company['company_name'] ?? 'ไม่มีชื่อบริษัท');
-                        if (isset($data['active_company_id']) && !empty($data['active_company_id'])) {
-                            $isActive = ($companyId == $data['active_company_id']) ? 'active' : '';
-                        } else {
-                            $isActive = ($index === 0) ? 'active' : '';
-                        }
+                            $companyId   = $company['company_id'] ?? $company['id'] ?? '';
+                            $companyName = htmlspecialchars($company['company_name'] ?? 'ไม่มีชื่อบริษัท');
+                            if (isset($data['active_company_id']) && ! empty($data['active_company_id'])) {
+                                $isActive = ($companyId == $data['active_company_id']) ? 'active' : '';
+                            } else {
+                                $isActive = ($index === 0) ? 'active' : '';
+                            }
 
-                        // คำนวณปีทำงานที่เปิดใช้งานอยู่
-                        $fiscalYears = $company['fiscal_years'] ?? [];
-                        $activeYear = '';
-                        $activeFiscalId = '';
+                            // คำนวณปีทำงานที่เปิดใช้งานอยู่
+                            $fiscalYears    = $company['fiscal_years'] ?? [];
+                            $activeYear     = '';
+                            $activeFiscalId = '';
 
-                        if (!empty($fiscalYears) && isset($data['fiscal_id']) && !empty($data['fiscal_id'])) {
-                            foreach ($fiscalYears as $fy) {
-                                $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                                if ($fy_id == $data['fiscal_id']) {
-                                    $activeYear = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
-                                    $activeFiscalId = $fy_id;
-                                    break;
+                            if (! empty($fiscalYears) && isset($data['fiscal_id']) && ! empty($data['fiscal_id'])) {
+                                foreach ($fiscalYears as $fy) {
+                                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                                    if ($fy_id == $data['fiscal_id']) {
+                                        $activeYear     = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                                        $activeFiscalId = $fy_id;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        ?>
+                    ?>
 
                         <!-- Workspace Dropdown Pill Button (แสดง Popper strategy fixed เพื่อลอยอยู่ด้านหน้า) -->
-                        <div class="dropdown acc-workspace-dropdown" data-company-id="<?= $companyId ?>">
-                            <button type="button" class="acc-workspace-btn <?= $isActive ?>"
-                                id="wsDropdownBtn_<?= $companyId ?>" data-bs-toggle="dropdown" data-bs-auto-close="true"
+                        <div class="dropdown acc-workspace-dropdown" data-company-id="<?php echo $companyId ?>">
+                            <button type="button" class="acc-workspace-btn <?php echo $isActive ?>"
+                                id="wsDropdownBtn_<?php echo $companyId ?>" data-bs-toggle="dropdown" data-bs-auto-close="true"
                                 data-bs-popper-config='{"strategy":"fixed"}' data-bs-boundary="viewport" aria-expanded="false"
-                                data-company-id="<?= $companyId ?>" data-company-name="<?= $companyName ?>"
-                                data-active-year="<?= $activeYear ?>" data-fiscal-id="<?= $activeFiscalId ?>"
-                                onclick="selectCompany(this, '<?= $companyId ?>')">
+                                data-company-id="<?php echo $companyId ?>" data-company-name="<?php echo $companyName ?>"
+                                data-active-year="<?php echo $activeYear ?>" data-fiscal-id="<?php echo $activeFiscalId ?>"
+                                onclick="selectCompany(this, '<?php echo $companyId ?>')">
 
                                 <div class="acc-workspace-icon">
                                     <i class="ri-bank-line"></i>
@@ -727,29 +727,29 @@
 
                                 <div class="acc-workspace-info">
                                     <span class="acc-workspace-badge">WORKSPACE</span>
-                                    <span class="acc-workspace-name" title="<?= $companyName ?>"><?= $companyName ?></span>
-                                    <span class="acc-workspace-year"><?= !empty($activeYear) ? 'ปีทำงาน <span class="ws-year-text">' . $activeYear . '</span>' : '<span class="ws-year-text text-muted">ยังไม่ได้เลือกปี</span>' ?></span>
+                                    <span class="acc-workspace-name" title="<?php echo $companyName ?>"><?php echo $companyName ?></span>
+                                    <span class="acc-workspace-year"><?php echo ! empty($activeYear) ? 'ปีทำงาน <span class="ws-year-text">' . $activeYear . '</span>' : '<span class="ws-year-text text-muted">ยังไม่ได้เลือกปี</span>' ?></span>
                                 </div>
 
                                 <i class="ri-arrow-down-s-line acc-workspace-arrow"></i>
                             </button>
 
                             <!-- Dropdown Menu (ตรงตามรูปภาพ 2) -->
-                            <div class="dropdown-menu acc-workspace-menu" aria-labelledby="wsDropdownBtn_<?= $companyId ?>">
+                            <div class="dropdown-menu acc-workspace-menu" aria-labelledby="wsDropdownBtn_<?php echo $companyId ?>">
                                 <!-- Header Dropdown -->
                                 <div class="acc-menu-header">
                                     <div class="acc-menu-header-icon">
                                         <i class="ri-bank-line"></i>
                                     </div>
                                     <div class="acc-menu-header-text">
-                                        <h6 class="acc-menu-title"><?= $companyName ?></h6>
+                                        <h6 class="acc-menu-title"><?php echo $companyName ?></h6>
                                         <p class="acc-menu-subtitle">เลือกปีทำงานของสำนักงาน</p>
                                     </div>
                                 </div>
 
                                 <!-- การ์ดปีที่ใช้งานอยู่ (Active Year Highlight Card) -->
                                 <div class="acc-active-year-card"
-                                    <?= !empty($activeYear) ? "onclick=\"selectFiscalYear('$companyId', '$activeYear', '$activeFiscalId')\"" : "" ?>>
+                                    <?php echo ! empty($activeYear) ? "onclick=\"selectFiscalYear('$companyId', '$activeYear', '$activeFiscalId')\"" : "" ?>>
                                     <div class="acc-active-year-left">
                                         <div class="acc-active-year-icon">
                                             <i class="ri-calendar-check-line"></i>
@@ -757,15 +757,15 @@
                                         <div class="acc-active-year-info">
                                             <span class="acc-active-year-label">ปีที่ใช้งานอยู่</span>
                                             <span class="acc-active-year-val">
-                                                <?php if (!empty($activeYear)): ?>
-                                                    ปี <span class="card-active-year-val"><?= $activeYear ?></span>
+                                                <?php if (! empty($activeYear)): ?>
+                                                    ปี <span class="card-active-year-val"><?php echo $activeYear ?></span>
                                                 <?php else: ?>
                                                     <span class="card-active-year-val text-muted">ยังไม่ได้เลือกปี</span>
                                                 <?php endif; ?>
                                             </span>
                                         </div>
                                     </div>
-                                    <?php if (!empty($activeYear)): ?>
+                                    <?php if (! empty($activeYear)): ?>
                                         <span class="acc-active-badge">กำลังใช้งาน</span>
                                     <?php endif; ?>
                                 </div>
@@ -773,31 +773,31 @@
                                 <!-- หมวดหมู่: เลือกปีอื่น -->
                                 <div class="acc-other-years-wrap">
                                     <div class="acc-other-years-title">เลือกปีอื่น</div>
-                                    <div class="acc-other-years-list" id="otherYearsList_<?= $companyId ?>">
+                                    <div class="acc-other-years-list" id="otherYearsList_<?php echo $companyId ?>">
                                         <?php
-                                        $hasOtherYears = false;
-                                        if (!empty($fiscalYears)):
-                                            foreach ($fiscalYears as $fy):
-                                                $yVal = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
-                                                $cCount = $fy['customer_count'] ?? 0;
-                                                $fId = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                                                $hasOtherYears = true;
-                                                ?>
-                                                <a href="javascript:void(0);" class="acc-other-year-item" data-year="<?= $yVal ?>"
-                                                    onclick="selectFiscalYear('<?= $companyId ?>', '<?= $yVal ?>', '<?= $fId ?>')">
+                                            $hasOtherYears = false;
+                                            if (! empty($fiscalYears)):
+                                                foreach ($fiscalYears as $fy):
+                                                    $yVal          = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                                                    $cCount        = $fy['customer_count'] ?? 0;
+                                                    $fId           = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                                                    $hasOtherYears = true;
+                                        ?>
+                                                <a href="javascript:void(0);" class="acc-other-year-item" data-year="<?php echo $yVal ?>"
+                                                    onclick="selectFiscalYear('<?php echo $companyId ?>', '<?php echo $yVal ?>', '<?php echo $fId ?>')">
                                                     <div class="acc-other-year-icon">
                                                         <i class="ri-calendar-line"></i>
                                                     </div>
                                                     <div class="acc-other-year-info">
-                                                        <span class="acc-other-year-val">ปี <?= $yVal ?></span>
+                                                        <span class="acc-other-year-val">ปี <?php echo $yVal ?></span>
                                                         <span
-                                                            class="acc-other-year-sub"><?= $cCount > 0 ? $cCount . ' ลูกค้า' : 'ปีทำงาน' ?></span>
+                                                            class="acc-other-year-sub"><?php echo $cCount > 0 ? $cCount . ' ลูกค้า' : 'ปีทำงาน' ?></span>
                                                     </div>
                                                 </a>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
 
-                                        <?php if (!$hasOtherYears): ?>
+                                        <?php if (! $hasOtherYears): ?>
                                             <div class="acc-no-years-sub text-muted px-2 py-1" style="font-size: 0.78rem;">
                                                 ไม่มีปีอื่นให้เลือก
                                             </div>
@@ -808,7 +808,7 @@
                                 <!-- ท้ายเมนู: จัดการปีทำงาน -->
                                 <div class="acc-menu-footer">
                                     <a href="/cpd_ac/public/main" class="acc-manage-year-btn"
-                                        onclick="selectCompanyById('<?= $companyId ?>')">
+                                        onclick="selectCompanyById('<?php echo $companyId ?>')">
                                         <i class="ri-sound-module-line"></i>
                                         <span>จัดการปีทำงาน</span>
                                     </a>
@@ -838,7 +838,7 @@
                         <?php echo htmlspecialchars(trim(($data['firstname'] ?? $_SESSION['user_firstname'] ?? '') . ' ' . ($data['lastname'] ?? $_SESSION['user_lastname'] ?? 'ผู้ใช้งาน'))) ?>
                     </span>
                     <span class="acc-user-role">
-                        <?php echo (!empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
+                        <?php echo(! empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
                     </span>
                 </div>
             </div>

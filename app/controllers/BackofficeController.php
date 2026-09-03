@@ -89,14 +89,16 @@ class BackofficeController
         $userId = $this->userPayload['user_id'] ?? null;
         $companies = $companyModel->getAllCompanies($userId);
 
-        // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+        // หา company_id และปีของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id = '';
+        $active_fiscal_year = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
                 foreach ($company['fiscal_years'] as $fy) {
                     $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
                     if ($fy_id == $fiscal_id) {
                         $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
                         break 2;
                     }
                 }
@@ -113,7 +115,8 @@ class BackofficeController
             'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
-            'active_company_id' => $active_company_id
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year
         ];
 
         // Fetch tasks for the current fiscal_id
@@ -174,6 +177,96 @@ class BackofficeController
         }
     }
 
+    public function moveTask() {
+        $this->checkAuth();
+        $tasks_id = $_POST['tasks_id'] ?? '';
+        $direction = $_POST['direction'] ?? '';
+        $fiscal_id = $_POST['fiscal_id'] ?? '';
+
+        if (!$tasks_id || !$direction || !$fiscal_id) {
+            echo json_encode(['result' => 0, 'msg' => 'ข้อมูลไม่ครบถ้วน']);
+            return;
+        }
+
+        require_once '../app/models/tasks.php';
+        $taskModel = new TasksModel();
+        
+        $success = $taskModel->moveTaskOrder($tasks_id, $direction, $fiscal_id);
+        
+        if ($success) {
+            echo json_encode(['result' => 1, 'msg' => 'เลื่อนลำดับสำเร็จ']);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถเลื่อนลำดับได้ (อาจอยู่บนสุดหรือล่างสุดแล้ว)']);
+        }
+    }
+
+    public function getTask() {
+        $this->checkAuth();
+        $tasks_id = $_POST['tasks_id'] ?? '';
+        
+        if (!$tasks_id) {
+            echo json_encode(['result' => 0, 'msg' => 'ข้อมูลไม่ครบถ้วน']);
+            return;
+        }
+
+        require_once '../app/models/tasks.php';
+        $taskModel = new TasksModel();
+        
+        $task = $taskModel->getTaskById($tasks_id);
+        
+        if ($task) {
+            echo json_encode(['result' => 1, 'data' => $task]);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลงาน']);
+        }
+    }
+
+    public function editTask() {
+        $this->checkAuth();
+        $tasks_id = $_POST['tasks_id'] ?? '';
+        $task_name = $_POST['task_name'] ?? '';
+        $is_notify_amount = $_POST['is_notify_amount'] ?? '0';
+
+        if (!$tasks_id || !$task_name) {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลให้ครบถ้วน']);
+            return;
+        }
+
+        require_once '../app/models/tasks.php';
+        $taskModel = new TasksModel();
+        
+        $success = $taskModel->updateTask($tasks_id, $task_name, $is_notify_amount);
+        
+        if ($success) {
+            echo json_encode(['result' => 1, 'msg' => 'แก้ไขสำเร็จ']);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดในการแก้ไขข้อมูล']);
+        }
+    }
+
+    public function deleteTask() {
+        $this->checkAuth();
+        $tasks_id = $_POST['tasks_id'] ?? '';
+
+        if (!$tasks_id) {
+            echo json_encode(['result' => 0, 'msg' => 'ข้อมูลไม่ครบถ้วน']);
+            return;
+        }
+
+        require_once '../app/models/tasks.php';
+        $taskModel = new TasksModel();
+        
+        $success = $taskModel->softDeleteTask($tasks_id);
+        
+        if ($success) {
+            echo json_encode(['result' => 1, 'msg' => 'ลบข้อมูลสำเร็จ']);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดในการลบข้อมูล']);
+        }
+    }
+
+      /////////////////////////////////////// employee /////////////////////////////////////////////// 
+
     public function employee()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -193,14 +286,16 @@ class BackofficeController
         $userId = $this->userPayload['user_id'] ?? null;
         $companies = $companyModel->getAllCompanies($userId);
 
-        // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+        // หา company_id และปีของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id = '';
+        $active_fiscal_year = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
                 foreach ($company['fiscal_years'] as $fy) {
                     $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
                     if ($fy_id == $fiscal_id) {
                         $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
                         break 2;
                     }
                 }
@@ -217,13 +312,177 @@ class BackofficeController
             'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
-            'active_company_id' => $active_company_id
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year
         ];
+
+        // ดึงข้อมูลทีม
+        require_once '../app/models/TeamModel.php';
+        $teamModel = new TeamModel();
+        $data['teams'] = $teamModel->getAllTeams();
+
+        // ดึงข้อมูลพนักงาน
+        require_once '../app/models/UserModel.php';
+        $userModel = new UserModel();
+        $data['employees'] = $userModel->getEmployeesByFiscalAndCompany($fiscal_id, $active_company_id);
 
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/employee.php';
     }
 
+    public function addEmployee()
+    {
+        $this->checkAuth();
+
+        // 1. รับค่าจากฟอร์ม
+        $fiscal_id = trim($_POST['fiscal_id'] ?? '');
+        $company_id = trim($_POST['company_id'] ?? '');
+        $user_name = trim($_POST['user_name'] ?? '');
+        $user_password = trim($_POST['user_password'] ?? '');
+        $user_firstname = trim($_POST['user_firstname'] ?? '');
+        $user_lastname = trim($_POST['user_lastname'] ?? '');
+        $user_position = trim($_POST['user_position'] ?? '');
+        $team_name = trim($_POST['team_name'] ?? '');
+        
+        // 2. ดักตรวจสอบ (Validation)
+        if ($user_name === '' || $user_password === '' || $user_firstname === '' || $user_lastname === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน']);
+            return;
+        }
+
+        if ($fiscal_id === '' || $company_id === '') {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลปีทำงานหรือบริษัท']);
+            return;
+        }
+
+        require_once '../app/models/UserModel.php';
+        require_once '../app/models/TeamModel.php';
+        $userModel = new UserModel();
+        $teamModel = new TeamModel();
+        
+        try {
+            // เช็คว่า username ซ้ำไหม
+            $existingUser = $userModel->getUserByUsername($user_name);
+            if ($existingUser) {
+                echo json_encode(['result' => 0, 'msg' => 'ชื่อผู้ใช้นี้มีในระบบแล้ว กรุณาใช้ชื่ออื่น']);
+                return;
+            }
+
+            // จัดการเรื่องทีม
+            $team_id = null;
+            if ($team_name !== '') {
+                $existingTeam = $teamModel->getTeamByName($team_name);
+                if ($existingTeam) {
+                    $team_id = $existingTeam['team_id'];
+                } else {
+                    $team_id = $teamModel->addTeam($team_name);
+                }
+            }
+
+            // บันทึก User
+            $userData = [
+                'user_name' => $user_name,
+                'user_password' => password_hash($user_password, PASSWORD_DEFAULT),
+                'user_firstname' => $user_firstname,
+                'user_lastname' => $user_lastname,
+                'position' => $user_position,
+                'team_id' => $team_id
+            ];
+            $newUserId = $userModel->insertUser($userData);
+
+            if ($newUserId) {
+                // เชื่อมพนักงานกับบริษัทและปีทำงาน
+                $userModel->linkUserToCompany($newUserId, $company_id);
+                $userModel->linkUserToFiscalYear($newUserId, $fiscal_id);
+
+                echo json_encode(['result' => 1, 'msg' => 'เพิ่มพนักงานเรียบร้อยแล้ว']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลพนักงานได้']);
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดฐานข้อมูล: ' . $e->getMessage()]);
+        }
+    }
+
+    public function editEmployee()
+    {
+        $this->checkAuth();
+
+        $user_id = trim($_POST['user_id'] ?? '');
+        $user_firstname = trim($_POST['user_firstname'] ?? '');
+        $user_lastname = trim($_POST['user_lastname'] ?? '');
+        $user_position = trim($_POST['user_position'] ?? '');
+        $team_name = trim($_POST['team_name'] ?? '');
+
+        if ($user_id === '' || $user_firstname === '' || $user_lastname === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน']);
+            return;
+        }
+
+        require_once '../app/models/UserModel.php';
+        require_once '../app/models/TeamModel.php';
+        $userModel = new UserModel();
+        $teamModel = new TeamModel();
+
+        try {
+            $team_id = null;
+            if ($team_name !== '') {
+                $existingTeam = $teamModel->getTeamByName($team_name);
+                if ($existingTeam) {
+                    $team_id = $existingTeam['team_id'];
+                } else {
+                    $team_id = $teamModel->addTeam($team_name);
+                }
+            }
+
+            $userData = [
+                'user_id' => $user_id,
+                'user_firstname' => $user_firstname,
+                'user_lastname' => $user_lastname,
+                'position' => $user_position,
+                'team_id' => $team_id
+            ];
+
+            $success = $userModel->updateUser($userData);
+
+            if ($success) {
+                echo json_encode(['result' => 1, 'msg' => 'อัปเดตข้อมูลพนักงานเรียบร้อยแล้ว']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถอัปเดตข้อมูลได้']);
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดฐานข้อมูล: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deleteEmployee()
+    {
+        $this->checkAuth();
+
+        $user_id = trim($_POST['user_id'] ?? '');
+
+        if ($user_id === '') {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบรหัสพนักงาน']);
+            return;
+        }
+
+        require_once '../app/models/UserModel.php';
+        $userModel = new UserModel();
+
+        try {
+            $success = $userModel->deleteUserSoft($user_id);
+
+            if ($success) {
+                echo json_encode(['result' => 1, 'msg' => 'ลบข้อมูลพนักงานเรียบร้อยแล้ว']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถลบข้อมูลพนักงานได้']);
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดฐานข้อมูล: ' . $e->getMessage()]);
+        }
+    }
+
+    /////////////////////////////////////// customer /////////////////////////////////////////////// 
     public function customer()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน

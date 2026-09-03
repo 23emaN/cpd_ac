@@ -284,7 +284,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">ตั้งค่างานที่ต้องทำ</h2>
-                            <p class="page-subtitle">ภาพรวมระบบ - ตั้งค่างานที่ต้องทำ - ปี 2569</p>
+                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <p class="page-subtitle">ภาพรวมระบบ - ตั้งค่างานที่ต้องทำ - ปี <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
                         <button type="button" class="btn-add-task" onclick="modal_addtasks()">
                             <i class="ri-add-line"></i> เพิ่มงาน
@@ -373,7 +374,223 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         </div>
     </div>
 </div>
+<!-- Modal แก้ไขงงาน -->
+<div class="modal fade" id="editTasksModal" tabindex="-1" aria-labelledby="editTasksModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header" style="border-bottom: 1px solid #b4b0b0ff; padding: 24px 32px;">
+                <h5 class="modal-title" id="editTasksModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">แก้ไขงาน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.85rem; opacity: 0.4;"></button>
+            </div>
+            <div class="modal-body" style="padding: 24px 32px;">
+                <form id="editTasksForm">
+                    <input type="hidden" id="edit_tasks_id" name="tasks_id">
+                    
+                    <div class="mb-4">
+                        <label class="form-label" for="edit_task_name" style="font-weight: 700; color: #334155; font-size: 0.95rem; margin-bottom: 10px;">
+                            ชื่องาน <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input class="form-control" type="text" id="edit_task_name" name="task_name" placeholder="เช่น ภ.ง.ด.1" style="background-color: #f8fafc; border-radius: 12px; border: none; padding: 14px 18px; font-weight: 600; font-size: 0.95rem; color: #475569; box-shadow: none;">
+                        <div class="invalid-feedback" style="font-size: 0.85rem; color: #ef4444; font-weight: 500; margin-top: 8px;">
+                            กรุณาระบุชื่องาน
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label" for="edit_is_notify_amount" style="font-weight: 700; color: #334155; font-size: 0.95rem; margin-bottom: 10px;">
+                            ต้องระบุจำนวนเงินสำหรับแจ้งยอดผ่าน LINE ลูกค้า <span style="color: #ef4444;">*</span>
+                        </label>
+                        <select class="form-select" id="edit_is_notify_amount" name="is_notify_amount" style="background-color: #f8fafc; border-radius: 12px; border: none; padding: 14px 18px; font-weight: 600; font-size: 0.95rem; color: #475569; box-shadow: none;">
+                            <option value="1">YES</option>
+                            <option value="0">NO</option>
+                        </select>
+                    </div> 
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #b4b0b0ff; padding: 24px 32px; gap: 12px; justify-content: flex-end; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 10px; padding: 12px 24px; border: none; font-size: 0.95rem;">ยกเลิก</button>
+                <button type="button" class="btn btn-warning" onclick="submitEditTask()" style="background-color: #1b84ff; color: #fff; font-weight: 700; border-radius: 10px; padding: 12px 28px; border: none; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(245,158,11,0.2);">บันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
+    function moveTask(taskId, direction) {
+        const fiscalId = $('input[name="fiscal_id"]').val();
+        if (!fiscalId || !taskId) return;
+
+        $.ajax({
+            url: '<?php echo BASE_URL ?? "/cpd_ac/public"; ?>/task/move_task',
+            type: 'POST',
+            data: { 
+                tasks_id: taskId,
+                direction: direction,
+                fiscal_id: fiscalId
+            },
+            dataType: 'json',
+            success: function(response) {
+                if(response.result === 1) {
+                    location.reload(); // รีเฟรชหน้าเว็บเพื่อดูการเรียงลำดับใหม่
+                } else {
+                    if(typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: response.msg });
+                    } else {
+                        alert(response.msg);
+                    }
+                }
+            },
+            error: function() {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            }
+        });
+    }
+
+    function modal_edit(taskId) {
+        if (!taskId) return;
+        
+        // Fetch task data
+        $.ajax({
+            url: '<?php echo BASE_URL ?? "/cpd_ac/public"; ?>/task/get_task',
+            type: 'POST',
+            data: { tasks_id: taskId },
+            dataType: 'json',
+            success: function(response) {
+                if (response.result === 1 && response.data) {
+                    $('#edit_tasks_id').val(response.data.tasks_id);
+                    $('#edit_task_name').val(response.data.tasks_name);
+                    $('#edit_is_notify_amount').val(response.data.is_notify_amount);
+                    
+                    $('#edit_task_name').removeClass('is-invalid');
+                    var modal = new bootstrap.Modal(document.getElementById('editTasksModal'));
+                    modal.show();
+                } else {
+                    alert('ไม่พบข้อมูลงาน');
+                }
+            },
+            error: function() {
+                alert('เกิดข้อผิดพลาดในการดึงข้อมูล');
+            }
+        });
+    }
+
+    function submitEditTask() {
+        var taskId = $('#edit_tasks_id').val();
+        var taskName = $('#edit_task_name').val().trim();
+        var isNotify = $('#edit_is_notify_amount').val();
+
+        if (taskName === '') {
+            $('#edit_task_name').addClass('is-invalid');
+            return;
+        }
+        $('#edit_task_name').removeClass('is-invalid');
+
+        $.ajax({
+            url: '<?php echo BASE_URL ?? "/cpd_ac/public"; ?>/task/edit_task',
+            type: 'POST',
+            data: { 
+                tasks_id: taskId,
+                task_name: taskName,
+                is_notify_amount: isNotify
+            },
+            dataType: 'json',
+            success: function(response) {
+                if(response.result === 1) {
+                    $('#editTasksModal').modal('hide');
+                    if(typeof Swal !== 'undefined') {
+                        sessionStorage.setItem('toast_msg', 'บันทึกสำเร็จ');
+                        sessionStorage.setItem('toast_icon', 'success');
+                        location.reload(); // รีเฟรชทันที
+                    } else {
+                        alert('บันทึกสำเร็จ');
+                        location.reload();
+                    }
+                } else {
+                    if(typeof Swal !== 'undefined') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({ icon: 'error', title: response.msg });
+                    } else {
+                        alert(response.msg);
+                    }
+                }
+            },
+            error: function() {
+                if(typeof Swal !== 'undefined') {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                    Toast.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+                } else {
+                    alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                }
+            }
+        });
+    }
+
+    function delete_task(taskId, taskName) {
+        if(typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ลบงานนี้?',
+                text: taskName + ' จะถูกลบออกจากปีทำงานนี้',
+                showCancelButton: true,
+                confirmButtonColor: '#e3342f',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'ลบข้อมูล',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    processDeleteTask(taskId);
+                }
+            });
+        } else {
+            if(confirm('คุณแน่ใจหรือไม่ที่จะลบงาน ' + taskName + '?')) {
+                processDeleteTask(taskId);
+            }
+        }
+    }
+
+    function processDeleteTask(taskId) {
+        $.ajax({
+            url: '<?php echo BASE_URL ?? "/cpd_ac/public"; ?>/task/delete_task',
+            type: 'POST',
+            data: { tasks_id: taskId },
+            dataType: 'json',
+            success: function(response) {
+                if(response.result === 1) {
+                    sessionStorage.setItem('toast_msg', 'ลบข้อมูลสำเร็จ');
+                    sessionStorage.setItem('toast_icon', 'success');
+                    location.reload();
+                } else {
+                    if(typeof Swal !== 'undefined') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({ icon: 'error', title: response.msg });
+                    } else {
+                        alert(response.msg);
+                    }
+                }
+            },
+            error: function() {
+                alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+            }
+        });
+    }
+
     let isSubmittingTask = false;
 
     function modal_addtasks() {
@@ -387,6 +604,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         const myModal = new bootstrap.Modal(modalElement);
         myModal.show();
     }   
+
+    
     function submitAddTasks() {
 
         const task_name = $('input[name="task_name"]').val().trim();
@@ -436,12 +655,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             const modalInstance = bootstrap.Modal.getInstance(modalElement);
                             if (modalInstance) modalInstance.hide();
                         }
-                        Toast.fire({
-                            icon: 'success',
-                            title: response.msg
-                        }).then(() => {
-                            location.reload(); 
-                        });
+                        sessionStorage.setItem('toast_msg', response.msg);
+                        sessionStorage.setItem('toast_icon', 'success');
+                        location.reload(); 
                     } else {
                         alert(response.msg);
                         location.reload();

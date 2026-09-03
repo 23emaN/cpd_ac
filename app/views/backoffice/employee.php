@@ -516,10 +516,11 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">พนักงาน</h2>
-                            <p class="page-subtitle">ภาพรวม - พนักงาน - ปี <?php echo htmlspecialchars($selected_year); ?></p>
+                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <p class="page-subtitle">ภาพรวมระบบ - พนักงาน - ปี <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
                         <div class="d-flex align-items-end">
-                            <button type="button" class="btn-add-customer" onclick="AddCustomer()">
+                            <button type="button" class="btn-add-customer" onclick="modal_addemployee()">
                                 <i class="ri-add-line"></i>
                                 <span>เพิ่มพนักงาน</span>
                             </button>
@@ -527,13 +528,31 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </div>
 
                     <!-- Stats Grid (4 กล่องสถิติ) -->
+                    <?php
+                        $employees = $data['employees'] ?? [];
+                        $totalEmployees = count($employees);
+                        $activeEmployees = 0;
+                        $inactiveEmployees = 0;
+                        $uniqueTeams = [];
+                        foreach ($employees as $emp) {
+                            if ($emp['user_status'] == '1') {
+                                $activeEmployees++;
+                            } else {
+                                $inactiveEmployees++;
+                            }
+                            if (!empty($emp['team_name'])) {
+                                $uniqueTeams[$emp['team_name']] = true;
+                            }
+                        }
+                        $totalTeams = count($uniqueTeams);
+                    ?>
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-icon blue">
                                 <i class="ri-checkbox-circle-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo $totalEmployees; ?></span>
                                 <span class="stat-label">พนักงานทั้งหมด</span>
                             </div>
                         </div>
@@ -543,7 +562,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-wallet-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo $activeEmployees; ?></span>
                                 <span class="stat-label">ยังทำงานอยู่</span>
                             </div>
                         </div>
@@ -553,17 +572,17 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-subtract-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo $inactiveEmployees; ?></span>
                                 <span class="stat-label">เลิกจ้าง</span>
                             </div>
                         </div>
 
                         <div class="stat-card">
                             <div class="stat-icon yellow">
-                                <i class="ri-money-dollar-circle-line"></i>
+                                <i class="ri-group-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo $totalTeams; ?></span>
                                 <span class="stat-label">ทีมทั้งหมด</span>
                             </div>
                         </div>
@@ -579,92 +598,20 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <div class="filter-group">
                             <select class="filter-select">
                                 <option value="">ทุกสถานะ</option>
-                                <option value="1">ใช้บริการอยู่</option>
+                                <option value="1">ใช้งานอยู่</option>
                                 <option value="0">เลิกจ้าง</option>
                             </select>
 
                             <select class="filter-select">
                                 <option value="">ทุกทีม</option>
-                                <option value="เมย์">A</option>
-                                <option value="ชมพู่">B</option>
+                                <?php foreach (array_keys($uniqueTeams) as $teamName): ?>
+                                    <option value="<?php echo htmlspecialchars($teamName); ?>"><?php echo htmlspecialchars($teamName); ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Customer Table (ตรงตามภาพ 100%) -->
-                    <div class="customer-table-wrap">
-                        <table class="customer-table">
-                            <thead>
-                                <tr>
-                                    <th class="text-start" style="width: 25%;">ชื่อลูกค้า</th>
-                                    <th class="text-center" style="width: 14%;">สถานะ</th>
-                                    <th class="text-center" style="width: 12%;">วันสิ้นรอบ</th>
-                                    <th class="text-center" style="width: 15%;">ค่าบัญชี</th>
-                                    <th class="text-center" style="width: 12%;">ผู้ดูแล</th>
-                                    <th class="text-center" style="width: 10%;">ติดต่อ</th>
-                                    <th class="text-center" style="width: 12%;">จัดการ</th>
-                                </tr>
-                            </thead>
-                            <!-- <tbody>
-                               
-                                <tr>
-                                    <td class="text-start">
-                                        <div class="customer-name-title">AMLAW</div>
-                                        <div class="customer-team-sub">ยังไม่ระบุทีม</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-service-active">ใช้บริการอยู่</span>
-                                    </td>
-                                    <td class="text-center text-muted">-</td>
-                                    <td class="text-center">
-                                        <span class="fee-amount-text">0 บาท</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">เมย์</span>
-                                    </td>
-                                    <td class="text-center text-muted">-</td>
-                                    <td class="text-center">
-                                        <div class="action-btn-cell">
-                                            <button type="button" class="btn-action-edit" title="แก้ไข">
-                                                <i class="ri-pencil-line"></i>
-                                            </button>
-                                            <button type="button" class="btn-action-delete" title="ลบ">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                        
-                                
-                            </tbody> -->
-                        </table>
-                    </div>
-
-                    <!-- Pagination Toolbar ด้านล่าง -->
-                    <div class="pagination-toolbar">
-                        <div class="per-page-wrap">
-                            <span>แสดง</span>
-                            <select class="per-page-select">
-                                <option value="25" selected>25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                            <span>รายการต่อหน้า</span>
-                        </div>
-
-                        <div class="pagination-info">
-                            รายการที่ 1-2 จาก 2
-                        </div>
-
-                        <div class="pagination-nav">
-                            <button type="button" class="page-btn" title="หน้าแรก"><i class="ri-arrow-left-double-line"></i></button>
-                            <button type="button" class="page-btn" title="ก่อนหน้า"><i class="ri-arrow-left-s-line"></i></button>
-                            <button type="button" class="page-btn active">1</button>
-                            <button type="button" class="page-btn" title="ถัดไป"><i class="ri-arrow-right-s-line"></i></button>
-                            <button type="button" class="page-btn" title="หน้าสุดท้าย"><i class="ri-arrow-right-double-line"></i></button>
-                        </div>
-                    </div>
+                    <?php require_once 'table/employee_table.php'; ?>
 
                 </div> <!-- End .main-card-wrapper -->
             </div>
@@ -672,8 +619,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     </div>
 </div>
 
-<!-- Modal เพิ่มลูกค้าใหม่ (ตรงตามภาพต้นแบบ 100%) -->
-<div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+<!-- Modal เพิ่มพนักงานใหม่ -->
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 820px;">
         <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
             
@@ -685,144 +632,60 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
             <!-- Body -->
             <div class="modal-body" style="padding: 12px 28px 24px 28px;">
-                <form id="addCustomerForm">
+                <form id="addEmployeeForm">
                     <!-- Hidden Fields -->
                     <input type="hidden" name="fiscal_id" value="<?php echo htmlspecialchars($data['fiscal_id'] ?? ''); ?>">
                     <input type="hidden" name="company_id" value="<?php echo htmlspecialchars($data['active_company_id'] ?? ''); ?>">
 
                     <!-- Section: ข้อมูลทั่วไป -->
                     <div class="mb-4">
-                        <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px;">ข้อมูลทั่วไป</h6>
-                        
-                        <!-- ชื่อบริษัท / กิจการ -->
+                        <!-- ชื่อผู้ใช้ / รหัสผ่าน -->
                         <div class="mb-3">
                             <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
-                                ชื่อบริษัท / กิจการ <span style="color: #ef4444;">*</span>
+                               ชื่อผู้ใช้ <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="customer_name" required placeholder="" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control" name="user_name" id="user_name" placeholder="ระบุชื่อผู้ใช้" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อผู้ใช้</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                               รหัสผ่าน <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="user_password" id="user_password" placeholder="ระบุรหัสผ่าน" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุรหัสผ่าน</div>
                         </div>
 
-                        <!-- 3 คอลัมน์: เดือนที่เริ่มให้บริการ / เดือนสิ้นสุด / สถานะลูกค้า -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">เดือนที่เริ่มให้บริการ</label>
-                                <select class="form-select" name="service_start_date" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
-                                    <option value="1" selected>มกราคม</option>
-                                    <option value="2">กุมภาพันธ์</option>
-                                    <option value="3">มีนาคม</option>
-                                    <option value="4">เมษายน</option>
-                                    <option value="5">พฤษภาคม</option>
-                                    <option value="6">มิถุนายน</option>
-                                    <option value="7">กรกฎาคม</option>
-                                    <option value="8">สิงหาคม</option>
-                                    <option value="9">กันยายน</option>
-                                    <option value="10">ตุลาคม</option>
-                                    <option value="11">พฤศจิกายน</option>
-                                    <option value="12">ธันวาคม</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">เดือนสิ้นสุดการให้บริการ</label>
-                                <select class="form-select" name="service_start_end" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
-                                    <option value="" selected>ยังให้บริการอยู่</option>
-                                    <option value="1">มกราคม</option>
-                                    <option value="2">กุมภาพันธ์</option>
-                                    <option value="3">มีนาคม</option>
-                                    <option value="4">เมษายน</option>
-                                    <option value="5">พฤษภาคม</option>
-                                    <option value="6">มิถุนายน</option>
-                                    <option value="7">กรกฎาคม</option>
-                                    <option value="8">สิงหาคม</option>
-                                    <option value="9">กันยายน</option>
-                                    <option value="10">ตุลาคม</option>
-                                    <option value="11">พฤศจิกายน</option>
-                                    <option value="12">ธันวาคม</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">สถานะลูกค้า</label>
-                                <select class="form-select" name="active_status" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
-                                    <option value="1" selected>ใช้บริการอยู่</option>
-                                    <option value="0">เลิกจ้าง</option>
-                                </select>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                               ชื่อพนักงาน <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="user_firstname" id="user_firstname" placeholder="ระบุชื่อพนักงาน" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อพนักงาน</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                               นามสกุล <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="user_lastname" id="user_lastname" placeholder="ระบุนามสกุล" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุนามสกุล</div>
                         </div>
 
-                        <!-- 2 คอลัมน์: ผู้ดูแล / ทีม -->
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ผู้ดูแล</label>
-                                <select class="form-select" name="user_id" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
-                                    <option value="" selected>ยังไม่ระบุผู้ดูแล</option>
-                                    <option value="1">เมย์</option>
-                                    <option value="2">ชมพู่</option>
-                                </select>
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                                   ตำแหน่ง
+                                </label>
+                                <input type="text" class="form-control" name="user_position" id="user_position" placeholder="เช่น Senior Accountant" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
                             </div>
-
                             <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ทีม</label>
-                                <input type="text" class="form-control" name="team_name" placeholder="เช่น ทีม A" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- เส้นประคั่นส่วน -->
-                    <div style="border-top: 1px dashed #e2e8f0; margin: 28px 0 24px 0;"></div>
-
-                    <!-- Section: ข้อมูลบัญชี -->
-                    <div>
-                        <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px;">ข้อมูลบัญชี</h6>
-
-                        <!-- แถวที่ 1: ปิดงบประจำปี / วันสิ้นรอบบัญชี / ค่าทำบัญชีต่อเดือน -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ปิดงบประจำปี</label>
-                                <select class="form-select" name="closing_status" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
-                                    <option value="0" selected>ปิดงบประจำปี</option>
-                                    <option value="1">ไม่ปิดงบ</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">วันสิ้นรอบบัญชี</label>
-                                <div style="position: relative;">
-                                    <input type="text" class="form-control" name="fiscal_closing_date" value="31/12/2026" placeholder="31/12/2026" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 40px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
-                                    <i class="ri-calendar-line" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 18px; pointer-events: none;"></i>
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                                   ทีม
+                                </label>
+                                <div class="position-relative dropdown-autocomplete">
+                                    <input type="text" class="form-control autocomplete-input" name="team_name" id="team_name" placeholder="เช่น ทีมบัญชี A" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; font-weight: 500; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;" autocomplete="off">
+                                    <ul class="dropdown-menu autocomplete-list w-100 shadow-sm" style="max-height: 200px; overflow-y: auto; padding: 0; margin-top: 4px; border: 1px solid #e2e8f0; border-radius: 8px; position: absolute; z-index: 1050;">
+                                    </ul>
                                 </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ค่าทำบัญชีต่อเดือน</label>
-                                <input type="number" step="0.01" class="form-control" name="accounts_amount" value="2000" placeholder="2000" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
-                            </div>
-                        </div>
-
-                        <!-- แถวที่ 2: จด VAT / มีพนักงาน / ประกันสังคม -->
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">จด VAT</label>
-                                <select class="form-select" name="is_vat" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
-                                    <option value="0" selected>ไม่จด VAT</option>
-                                    <option value="1">จด VAT</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">มีพนักงาน</label>
-                                <select class="form-select" name="is_employees" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
-                                    <option value="0" selected>ไม่มีพนักงาน</option>
-                                    <option value="1">มีพนักงาน</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ประกันสังคม</label>
-                                <select class="form-select" name="is_social_security" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
-                                    <option value="0" selected>ไม่มีประกันสังคม</option>
-                                    <option value="1">มีประกันสังคม</option>
-                                </select>
                             </div>
                         </div>
                     </div>
@@ -832,100 +695,505 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             <!-- Footer -->
             <div class="modal-footer" style="border-top: none; padding: 12px 28px 28px 28px; gap: 12px; justify-content: flex-end;">
                 <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">ยกเลิก</button>
-                <button type="button" class="btn" onclick="submitAddCustomer()" style="background-color: #007aff; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 28px; border: none; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(0,122,255,0.25); transition: all 0.2s ease;">บันทึกข้อมูล</button>
+                <button type="button" class="btn" onclick="submit_addemployee()" style="background-color: #007aff; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 28px; border: none; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(0,122,255,0.25); transition: all 0.2s ease;">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal แก้ไขพนักงาน -->
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 820px;">
+        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
+            
+            <!-- Header -->
+            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px;">
+                <h5 class="modal-title" id="editEmployeeModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">แก้ไขข้อมูลพนักงาน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
+                <form id="editEmployeeForm">
+                    <input type="hidden" name="user_id" id="edit_user_id">
+                    
+                    <div class="mb-4">
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                               ชื่อผู้ใช้ <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="user_name" id="edit_user_name" placeholder="ระบุชื่อผู้ใช้" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                               ชื่อพนักงาน <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="user_firstname" id="edit_user_firstname" placeholder="ระบุชื่อพนักงาน" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อพนักงาน</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                               นามสกุล <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="user_lastname" id="edit_user_lastname" placeholder="ระบุนามสกุล" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุนามสกุล</div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                                   ตำแหน่ง
+                                </label>
+                                <input type="text" class="form-control" name="user_position" id="edit_user_position" placeholder="เช่น Senior Accountant" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                                   ทีม
+                                </label>
+                                <div class="position-relative dropdown-autocomplete">
+                                    <input type="text" class="form-control autocomplete-input" name="team_name" id="edit_team_name" placeholder="ระบุชื่อทีม" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; font-weight: 500; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;" autocomplete="off">
+                                    <ul class="dropdown-menu autocomplete-list w-100 shadow-sm" style="max-height: 200px; overflow-y: auto; padding: 0; margin-top: 4px; border: 1px solid #e2e8f0; border-radius: 8px; position: absolute; z-index: 1050;">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 20px 28px; display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">ยกเลิก</button>
+                <button type="button" class="btn" onclick="submit_editemployee()" style="background-color: #007aff; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 28px; border: none; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(0,122,255,0.25); transition: all 0.2s ease;">บันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* SweetAlert2 Custom Style */
+    .custom-swal-popup {
+        border-radius: 16px !important;
+        padding: 2rem !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+    }
+    .custom-swal-title {
+        font-size: 1.2rem !important;
+        font-weight: 800 !important;
+        color: #1e293b !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .custom-swal-text {
+        color: #475569 !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+        margin-bottom: 1.5rem !important;
+    }
+    .custom-swal-actions {
+        gap: 12px !important;
+        margin-top: 1.5rem !important;
+    }
+    .custom-swal-confirm {
+        background-color: #e11d48 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border-radius: 8px !important;
+        padding: 10px 24px !important;
+        border: none !important;
+        font-size: 0.95rem !important;
+        transition: all 0.2s ease !important;
+    }
+    .custom-swal-cancel {
+        background-color: #64748b !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border-radius: 8px !important;
+        padding: 10px 24px !important;
+        border: none !important;
+        font-size: 0.95rem !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    /* Autocomplete Style */
+    .autocomplete-input:focus {
+        border-color: #10b981 !important; /* Green border like the image */
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+    }
+    .autocomplete-list li {
+        padding: 10px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+        color: #475569;
+        display: flex;
+        align-items: center;
+    }
+    .autocomplete-list li::before {
+        content: "•";
+        color: #94a3b8;
+        font-weight: bold;
+        display: inline-block; 
+        width: 1em;
+        margin-right: 8px;
+    }
+    .autocomplete-list li:hover {
+        background-color: #f8fafc;
+        color: #0f172a;
+    }
+    .autocomplete-list li:last-child {
+        border-bottom: none;
+    }
+</style>
 <script>
-    function AddCustomer() {
-        const form = document.getElementById('addCustomerForm');
-        if (form) {
+    const employeesData = <?php echo json_encode($data['employees'] ?? []); ?>;
+    const teamsData = <?php echo json_encode($data['teams'] ?? []); ?>;
+    let isSubmittingTask = false;
+
+    $(document).ready(function() {
+        // Setup Autocomplete
+        function renderAutocomplete(inputElem, listElem, query) {
+            listElem.empty();
+            let matches = teamsData.filter(t => t.team_name.toLowerCase().includes(query.toLowerCase()));
+            
+            // Limit to 5 items
+            matches = matches.slice(0, 5);
+            
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    listElem.append(`<li>${match.team_name}</li>`);
+                });
+                listElem.show();
+            } else {
+                listElem.hide();
+            }
+        }
+
+        $('.autocomplete-input').on('keyup focus', function() {
+            let input = $(this);
+            let list = input.siblings('.autocomplete-list');
+            renderAutocomplete(input, list, input.val());
+        });
+
+        // Click item
+        $(document).on('click', '.autocomplete-list li', function() {
+            let list = $(this).closest('.autocomplete-list');
+            let input = list.siblings('.autocomplete-input');
+            input.val($(this).text());
+            list.hide();
+        });
+
+        // Hide when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.dropdown-autocomplete').length) {
+                $('.autocomplete-list').hide();
+            }
+        });
+    });
+
+
+
+    function modal_addemployee() {
+        // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
+        const form = document.getElementById('addEmployeeForm');
+        if(form) {
             form.reset();
         }
-        const modalElement = document.getElementById('addCustomerModal');
+        // 2. สั่งโชว์ Modal ผ่าน Vanilla JS ของ Bootstrap
+        const modalElement = document.getElementById('addEmployeeModal');
         const myModal = new bootstrap.Modal(modalElement);
         myModal.show();
-    }
+    }   
 
-    let isSubmittingCustomer = false;
-    function submitAddCustomer() {
-        if (isSubmittingCustomer) return;
+    let isSubmittingEmployee = false;
+    function submit_addemployee() {
+        if (isSubmittingEmployee) return;
 
-        const customerName = $('input[name="customer_name"]').val().trim();
-        if (!customerName) {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'warning',
-                    title: 'กรุณากรอกชื่อบริษัท / กิจการ',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-            } else {
-                alert('กรุณากรอกชื่อบริษัท / กิจการ');
-            }
-            return;
+        // Get fields
+        const userName = $('#user_name').val().trim();
+        const userPassword = $('#user_password').val().trim();
+        const userFirstname = $('#user_firstname').val().trim();
+        const userLastname = $('#user_lastname').val().trim();
+
+        let isValid = true;
+
+        // Validate user_name
+        if (!userName) {
+            $('#user_name').addClass('is-invalid');
+            isValid = false;
+        } else {
+            $('#user_name').removeClass('is-invalid');
         }
 
-        isSubmittingCustomer = true;
-        const submitBtn = $('#addCustomerModal .modal-footer button:last-child');
+        // Validate user_password
+        if (!userPassword) {
+            $('#user_password').addClass('is-invalid');
+            isValid = false;
+        } else {
+            $('#user_password').removeClass('is-invalid');
+        }
+
+        // Validate user_firstname
+        if (!userFirstname) {
+            $('#user_firstname').addClass('is-invalid');
+            isValid = false;
+        } else {
+            $('#user_firstname').removeClass('is-invalid');
+        }
+
+        // Validate user_lastname
+        if (!userLastname) {
+            $('#user_lastname').addClass('is-invalid');
+            isValid = false;
+        } else {
+            $('#user_lastname').removeClass('is-invalid');
+        }
+
+        if (!isValid) {
+            return; // หยุดการทำงานถ้ากรอกไม่ครบ
+        }
+
+        isSubmittingEmployee = true;
+        const submitBtn = $('#addEmployeeModal .modal-footer button:last-child');
         const originalBtnText = submitBtn.text();
         submitBtn.prop('disabled', true).text('กำลังบันทึก...');
 
-        var formData = $('#addCustomerForm').serialize();
-
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        });
+        var formData = $('#addEmployeeForm').serialize();
 
         $.ajax({
-            url: '/cpd_ac/public/customer/add',
+            url: '/cpd_ac/public/employee/add', // หรือ route ที่คุณต้องการใช้
             method: 'POST',
             data: formData,
             dataType: 'json',
             success: function(response) {
-                isSubmittingCustomer = false;
+                isSubmittingEmployee = false;
                 submitBtn.prop('disabled', false).text(originalBtnText);
 
                 if (response.result === 1) {
-                    const modalElement = document.getElementById('addCustomerModal');
-                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                    if (modalInstance) modalInstance.hide();
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: response.msg || 'บันทึกข้อมูลลูกค้าเรียบร้อยแล้ว'
-                    }).then(() => {
+                    $('#addEmployeeModal').modal('hide');
+                    if (typeof Swal !== 'undefined') {
+                        sessionStorage.setItem('toast_msg', 'เพิ่มพนักงานสำเร็จ');
+                        sessionStorage.setItem('toast_icon', 'success');
                         location.reload();
-                    });
+                    } else {
+                        alert('เพิ่มพนักงานสำเร็จ');
+                        location.reload();
+                    }
                 } else {
-                    Toast.fire({
-                        icon: 'error',
-                        title: response.msg || 'ไม่สามารถบันทึกข้อมูลได้'
-                    });
+                    if (typeof Swal !== 'undefined') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({ icon: 'error', title: response.msg });
+                    } else {
+                        alert(response.msg);
+                    }
                 }
             },
-            error: function() {
-                isSubmittingCustomer = false;
+            error: function(err) {
+                isSubmittingEmployee = false;
                 submitBtn.prop('disabled', false).text(originalBtnText);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'
-                });
+                console.error("AJAX Error:", err);
+                if (typeof Swal !== 'undefined') {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                    Toast.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์' });
+                } else {
+                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+                }
             }
         });
     }
+
+       function edit_employee(userId) {
+        // หาข้อมูลพนักงานจาก employeesData
+        const emp = employeesData.find(e => e.user_id == userId);
+        if (emp) {
+            $('#edit_user_id').val(emp.user_id);
+            $('#edit_user_name').val(emp.user_name);
+            $('#edit_user_firstname').val(emp.user_firstname);
+            $('#edit_user_lastname').val(emp.user_lastname);
+            $('#edit_user_position').val(emp.position);
+            $('#edit_team_name').val(emp.team_name);
+            
+            const modalElement = document.getElementById('editEmployeeModal');
+            const myModal = new bootstrap.Modal(modalElement);
+            myModal.show();
+        } else {
+            console.error("ไม่พบข้อมูลพนักงาน");
+        }
+    }
+
+    function submit_editemployee() {
+        var userId = $('#edit_user_id').val();
+        var userFirstname = $('#edit_user_firstname').val().trim();
+        var userLastname = $('#edit_user_lastname').val().trim();
+        var userPosition = $('#edit_user_position').val().trim();
+        var userTeamName = $('#edit_team_name').val().trim();
+
+        let isValid = true;
+
+        if (userFirstname === '') {
+            $('#edit_user_firstname').addClass('is-invalid');
+            isValid = false;
+        } else {
+            $('#edit_user_firstname').removeClass('is-invalid');
+        }
+
+        if (userLastname === '') {
+            $('#edit_user_lastname').addClass('is-invalid');
+            isValid = false;
+        } else {
+            $('#edit_user_lastname').removeClass('is-invalid');
+        }
+
+        if (!isValid) {
+            return;
+        }
+
+        const submitBtn = $('#editEmployeeModal .modal-footer button:last-child');
+        const originalBtnText = submitBtn.text();
+        submitBtn.prop('disabled', true).text('กำลังอัปเดต...');
+
+        $.ajax({
+            url: '<?php echo BASE_URL ?? "/cpd_ac/public"; ?>/employee/edit',
+            type: 'POST',
+            data: { 
+                user_id: userId,
+                user_firstname: userFirstname,
+                user_lastname: userLastname,
+                user_position: userPosition,
+                team_name: userTeamName
+            },
+            dataType: 'json',
+            success: function(response) {
+                submitBtn.prop('disabled', false).text(originalBtnText);
+                if(response.result === 1) {
+                    $('#editEmployeeModal').modal('hide');
+                    if(typeof Swal !== 'undefined') {
+                        sessionStorage.setItem('toast_msg', 'อัปเดตข้อมูลพนักงานสำเร็จ');
+                        sessionStorage.setItem('toast_icon', 'success');
+                        location.reload(); 
+                    } else {
+                        alert('อัปเดตข้อมูลพนักงานสำเร็จ');
+                        location.reload();
+                    }
+                } else {
+                    if(typeof Swal !== 'undefined') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({ icon: 'error', title: response.msg });
+                    } else {
+                        alert(response.msg);
+                    }
+                }
+            },
+            error: function(err) {
+                submitBtn.prop('disabled', false).text(originalBtnText);
+                console.error(err);
+                if(typeof Swal !== 'undefined') {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                    Toast.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์' });
+                } else {
+                    alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+                }
+            }
+        });
+    }
+
+    function delete_employee(userId, userFirstname) {
+        if(typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ลบข้อมูลพนักงาน?',
+                text: userFirstname + ' จะถูกลบออกจากปีทำงานนี้',
+                showCancelButton: true,
+                confirmButtonText: 'ลบข้อมูล',
+                cancelButtonText: 'ยกเลิก',
+                reverseButtons: true, // สลับตำแหน่งปุ่มถ้าระบบเอาปุ่มยกเลิกไว้ซ้าย
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'custom-swal-popup',
+                    title: 'custom-swal-title',
+                    htmlContainer: 'custom-swal-text',
+                    actions: 'custom-swal-actions',
+                    confirmButton: 'custom-swal-confirm',
+                    cancelButton: 'custom-swal-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    execute_delete(userId);
+                }
+            });
+        } else {
+            if(confirm('คุณต้องการลบพนักงาน ' + userFirstname + ' ออกจากปีทำงานนี้หรือไม่?')) {
+                execute_delete(userId);
+            }
+        }
+    }
+
+    function execute_delete(userId) {
+        $.ajax({
+            url: '<?php echo BASE_URL ?? "/cpd_ac/public"; ?>/employee/delete',
+            type: 'POST',
+            data: { user_id: userId },
+            dataType: 'json',
+            success: function(response) {
+                if(response.result === 1) {
+                    if(typeof Swal !== 'undefined') {
+                        sessionStorage.setItem('toast_msg', 'ลบพนักงานสำเร็จ');
+                        sessionStorage.setItem('toast_icon', 'success');
+                        location.reload(); 
+                    } else {
+                        alert('ลบพนักงานสำเร็จ');
+                        location.reload();
+                    }
+                } else {
+                    if(typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ผิดพลาด',
+                            text: response.msg
+                        });
+                    } else {
+                        alert(response.msg);
+                    }
+                }
+            },
+            error: function(err) {
+                console.error(err);
+                if(typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ผิดพลาด',
+                        text: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'
+                    });
+                } else {
+                    alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+                }
+            }
+        });
+    }
+
 </script>
 
 <?php 
