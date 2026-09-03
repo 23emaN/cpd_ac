@@ -1,7 +1,7 @@
 <?php
 // app/views/backoffice/tasks.php
 $selected_year = $_GET['year'] ?? '2569';
-$company_name  = $_GET['company'] ?? 'TEST ACCOUNTING';
+$company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
 $show_company_workspace = true;
 
 // 1. นำ Header เข้ามา
@@ -18,9 +18,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     }
 
     .main-page-wrapper {
-        padding-top:-1px;
-        padding-bottom: 32px;
-        padding-left: 20px;
+        padding-top: 0px;
+        padding-left: 250px;
+
         min-height: calc(100vh - 72px);
     }
 
@@ -273,120 +273,54 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     }
 
 </style>
-
-<div class="container-fluid">
-    <div class="main-content d-flex flex-column">
-        <div class="content-wrapper">
-            <div class="main-page-wrapper">
-                
-                <div class="main-card-wrapper">
-                    <!-- Header -->
-        <div class="page-header-box">
-            <div>
-                <h2 class="page-title">ตั้งค่างานที่ต้องทำ</h2>
-                <p class="page-subtitle">ภาพรวมระบบ - ตั้งค่างานที่ต้องทำ - ปี 2569</p>
+<div class="content-wrapper">
+    <div class="main-page-wrapper">
+        <!-- 2. Main Content Card -->
+        <div class="year-container-card">
+            <div class="page-title-section">
+                <h2 class="page-main-heading">เลือกปีทำงาน</h2>
+                <p class="page-breadcrumb-sub">ภาพรวมระบบ • เลือกปีทำงาน</p>
             </div>
-            <button type="button" class="btn-add-task">
-                <i class="ri-add-line"></i> เพิ่มงาน
-            </button>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon blue">
-                    <i class="ri-checkbox-circle-line"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-val">14</span>
-                    <span class="stat-label">งานทั้งหมด</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <i class="ri-wallet-3-line"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-val">8</span>
-                    <span class="stat-label">ต้องระบุจำนวนเงิน</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon purple">
-                    <i class="ri-subtract-line"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-val">6</span>
-                    <span class="stat-label">ไม่ต้องระบุจำนวนเงิน</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Table -->
-        <div class="table-container-card">
-            <div class="table-header-wrap">
-                <h3 class="table-title">รายการงานประจำเดือน</h3>
-                <p class="table-subtitle">ทั้งหมด 14 รายการ</p>
-            </div>
-
-            <table class="task-table">
-                <thead>
-                    <tr>
-                        <th width="10%">ลำดับ</th>
-                        <th width="40%">งาน</th>
-                        <th width="20%">ระบุจำนวนเงิน</th>
-                        <th width="15%">เลื่อน</th>
-                        <th width="15%">จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php 
-                    // Mock Data based on the screenshot
-                    $tasks = [
-                        ['id' => 1, 'name' => 'ภ.ง.ด.1', 'req_amount' => true],
-                        ['id' => 2, 'name' => 'ภ.ง.ด.3', 'req_amount' => true],
-                        ['id' => 3, 'name' => 'ภ.ง.ด.53', 'req_amount' => true],
-                        ['id' => 4, 'name' => 'ภ.ง.ด.54', 'req_amount' => true],
-                        ['id' => 5, 'name' => 'ภ.พ.30', 'req_amount' => true],
-                        ['id' => 6, 'name' => 'ภ.พ.36', 'req_amount' => true],
-                        ['id' => 7, 'name' => 'ประกันสังคม', 'req_amount' => true],
-                    ];
-                    
-                    foreach ($tasks as $task): 
-                    ?>
-                    <tr>
-                        <td><?= $task['id'] ?></td>
-                        <td><?= $task['name'] ?></td>
-                        <td>
-                            <?php if ($task['req_amount']): ?>
-                                <span class="badge-yes">YES</span>
-                            <?php else: ?>
-                                <span class="badge-no">NO</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <div class="action-btn-group">
-                                <button type="button" class="btn-icon btn-arrow" title="เลื่อนขึ้น"><i class="ri-arrow-up-s-line"></i></button>
-                                <button type="button" class="btn-icon btn-arrow" title="เลื่อนลง"><i class="ri-arrow-down-s-line"></i></button>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="action-btn-group">
-                                <button type="button" class="btn-icon btn-edit" title="แก้ไข"><i class="ri-pencil-line"></i></button>
-                                <button type="button" class="btn-icon btn-delete" title="ลบ"><i class="ri-delete-bin-line"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <!-- Section Header (Title & Add Button) -->
+            <div class="section-header-wrap">
+                <div class="section-title-box">
+                    <div class="section-icon-badge">
+                        <i class="ri-calendar-2-line"></i>
                     </div>
+                    <div>
+                        <h3 class="section-title-text">เลือกปีที่ต้องการทำงาน</h3>
+                        <p class="section-subtitle-text">Accounting</p>
+                    </div>
+                </div>
+            </div>
 
-                </div> <!-- End .main-card-wrapper -->
+            <!-- Info Notice Banner -->
+            <div class="year-notice-banner">
+                <div>
+                    <div class="notice-main-text">ปีทำงานจะเป็นตัวกรองหลักของข้อมูลสำนักงาน</div>
+                    <p class="notice-sub-text">เมื่อเลือกปีแล้ว ระบบจะใช้ปีนั้นกับหน้าลูกค้า พนักงาน งานรายเดือน
+                        และรายงานที่จะเพิ่มต่อไป</p>
+                </div>
+                <div class="notice-selected-box">
+                    <span class="notice-selected-label">ปีที่เลือก</span>
+                    <span class="notice-selected-value">ยังไม่ได้เลือก</span>
+                </div>
+            </div>
+
+            <!-- Year Card Grid (Empty Add Year State) -->
+            <div class="year-card-grid">
+                <button type="button" class="year-add-card" onclick="Addyear()">
+                    <div class="year-add-icon">
+                        <i class="ri-add-line"></i>
+                    </div>
+                    <span class="year-add-text">เพิ่มปี</span>
+                    <span class="year-add-subtext">คลิกเพื่อสร้างปีทำงานใหม่</span>
+                </button>
             </div>
         </div>
     </div>
 </div>
+
 
 <?php 
 // 3. นำ Footer เข้ามา
