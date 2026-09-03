@@ -10,6 +10,7 @@ $routes = [
         'tasks' => ['BackofficeController', 'tasks'],
         'customer' => ['BackofficeController', 'customer'],
         'employee' => ['BackofficeController', 'employee'],
+        'register_board' => ['BackofficeController', 'register_board'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout']
     ],

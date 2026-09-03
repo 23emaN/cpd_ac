@@ -10,7 +10,7 @@
     $yearly_dash_pages    = ['yearly_dashboard'];
     $monthly_task_pages   = ['monthly_tasks'];
     $closing_pages        = ['closing', 'financial_statement'];
-    $registration_pages   = ['registration', 'registration_tasks'];
+    $registration_pages   = ['registration', 'register_board'];
     $customer_pages       = ['customer', 'customer_add', 'customer_edit'];
     $employee_pages       = ['employee', 'employee_add', 'employee_edit', 'staff'];
     $task_setting_pages   = ['tasks'];
@@ -224,7 +224,7 @@
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $registration_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/register_board"
                     class="menu-link <?php echo in_array($now_page, $registration_pages) ? 'active' : '' ?>">
                     <i class="ri-file-paper-2-line menu-icon"></i>
                     <span class="title">จัดการงานทะเบียน</span>
