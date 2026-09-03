@@ -5,15 +5,15 @@
 $current_url = $_GET['url'] ?? 'backoffice';
 $now_page = trim(strtok($current_url, '/'));
 
-$overview_pages       = ['main', 'home', 'backoffice', 'dashboard'];
+$overview_pages       = ['backoffice'];
 $monthly_dash_pages   = ['monthly_dashboard'];
 $yearly_dash_pages    = ['yearly_dashboard'];
-$monthly_task_pages   = ['monthly_tasks', 'tasks'];
+$monthly_task_pages   = ['monthly_tasks'];
 $closing_pages        = ['closing', 'financial_statement'];
 $registration_pages   = ['registration', 'registration_tasks'];
 $customer_pages       = ['customer', 'customer_add', 'customer_edit'];
 $employee_pages       = ['employee', 'employee_add', 'employee_edit', 'staff'];
-$task_setting_pages   = ['task_settings', 'task_config'];
+$task_setting_pages   = ['tasks', 'task_settings'];
 $message_pages        = ['messages', 'chat', 'customer_message'];
 $postit_pages         = ['postit', 'notes', 'reminders'];
 $system_setting_pages = ['settings', 'setting', 'system_setting'];
@@ -40,26 +40,35 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
         align-items: center;
         gap: 10px;
         background-color: #ffffff;
-        border: 1.5px solid #dbeafe;
+        border: 1px solid #f1f5f9;
         border-radius: 12px;
         padding: 10px 14px;
-        color: #0066fe;
-        font-weight: 700;
+        color: #64748b;
+        font-weight: 600;
         font-size: 0.90rem;
         text-decoration: none;
-        box-shadow: 0 2px 8px rgba(0, 102, 254, 0.06);
         transition: all 0.2s ease;
     }
 
-    .overview-pill-btn:hover,
+    .overview-pill-btn:hover {
+        background-color: #f8fafc;
+        color: #3b82f6;
+    }
+    
     .overview-pill-btn.active {
-        background-color: #eff6ff;
-        border-color: #93c5fd;
-        color: #0052cc;
+        background-color: #ffffff;
+        border-color: #ffffff;
+        color: #0066fe;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(0, 102, 254, 0.08);
     }
 
     .overview-pill-btn i {
         font-size: 1.25rem;
+        color: inherit;
+    }
+
+    .overview-pill-btn.active i {
         color: #0066fe;
     }
 
@@ -227,7 +236,7 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $task_setting_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                  <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/tasks"
                     class="menu-link <?php echo in_array($now_page, $task_setting_pages) ? 'active' : '' ?>">
                     <i class="ri-checkbox-circle-line menu-icon"></i>
                     <span class="title">ตั้งค่างานที่ต้องทำ</span>

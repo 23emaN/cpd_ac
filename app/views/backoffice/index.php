@@ -321,7 +321,172 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     <div class="main-content d-flex flex-column">
 
         <div class="content-wrapper">
-            ภาพรวมสำนักงาน
+            <!-- Header Row -->
+            <div class="dashboard-header-row">
+                <div>
+                    <h2 class="dashboard-title">ภาพรวมสำนักงาน</h2>
+                    <p class="dashboard-sub">ภาพรวมระบบ - ปี <?php echo htmlspecialchars($selected_year); ?></p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="javascript:void(0);" class="btn-change-year">
+                        <i class="ri-calendar-line"></i> เปลี่ยนปีทำงาน
+                    </a>
+                    <a href="javascript:void(0);" class="btn-manage-month">
+                        <i class="ri-calendar-check-line"></i> จัดการงานเดือนนี้
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4 Stat Cards -->
+            <div class="stat-cards-grid">
+                <!-- Card 1 -->
+                <div class="stat-card-item">
+                    <div class="stat-icon-circle stat-icon-blue">
+                        <i class="ri-user-line"></i>
+                    </div>
+                    <div>
+                        <h3 class="stat-number">2</h3>
+                        <h4 class="stat-label-title">ลูกค้าทั้งหมด</h4>
+                        <p class="stat-sub-desc">ใช้บริการอยู่ 2 ราย</p>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="stat-card-item">
+                    <div class="stat-icon-circle stat-icon-green">
+                        <i class="ri-wallet-3-line"></i>
+                    </div>
+                    <div>
+                        <h3 class="stat-number">99,999</h3>
+                        <h4 class="stat-label-title">ค่าทำบัญชีต่อเดือน</h4>
+                        <p class="stat-sub-desc">จากลูกค้าที่ใช้งานอยู่</p>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="stat-card-item">
+                    <div class="stat-icon-circle stat-icon-purple">
+                        <i class="ri-group-line"></i>
+                    </div>
+                    <div>
+                        <h3 class="stat-number">5</h3>
+                        <h4 class="stat-label-title">พนักงานที่ทำงานอยู่</h4>
+                        <p class="stat-sub-desc">0 ทีม</p>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="stat-card-item">
+                    <div class="stat-icon-circle stat-icon-yellow">
+                        <i class="ri-file-list-3-line"></i>
+                    </div>
+                    <div>
+                        <h3 class="stat-number">2</h3>
+                        <h4 class="stat-label-title">ลูกค้าปิดงบประจำปี</h4>
+                        <p class="stat-sub-desc">ปีทำงาน <?php echo htmlspecialchars($selected_year); ?></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2 Status Cards -->
+            <div class="status-cards-grid">
+                <!-- Status Box 1: Monthly -->
+                <div class="status-box-card">
+                    <div class="status-box-header">
+                        <div class="status-header-title-box">
+                            <div class="status-header-icon stat-icon-blue">
+                                <i class="ri-calendar-event-line"></i>
+                            </div>
+                            <div>
+                                <h4 class="status-header-h4">สถานะงานเดือนกันยายน</h4>
+                                <p class="status-header-p">2 ลูกค้าในรอบงานเดือนนี้</p>
+                            </div>
+                        </div>
+                        <a href="javascript:void(0);" class="btn-badge-link-blue">ดูแดชบอร์ดรายเดือน</a>
+                    </div>
+
+                    <div class="progress-rows-list">
+                        <!-- Row 1 -->
+                        <div class="progress-item-line">
+                            <div class="progress-item-title">ได้รับเอกสารแล้ว</div>
+                            <div class="progress-item-bar"><div class="progress-item-fill" style="width: 0%; background-color: #cbd5e1;"></div></div>
+                            <div class="progress-item-percentage">0/2 &nbsp; 0%</div>
+                        </div>
+                        <!-- Row 2 -->
+                        <div class="progress-item-line">
+                            <div class="progress-item-title">ทำเสร็จแล้ว</div>
+                            <div class="progress-item-bar"><div class="progress-item-fill" style="width: 0%; background-color: #cbd5e1;"></div></div>
+                            <div class="progress-item-percentage">0/2 &nbsp; 0%</div>
+                        </div>
+                        <!-- Row 3 -->
+                        <div class="progress-item-line">
+                            <div class="progress-item-title">ยื่นภาษีแล้ว</div>
+                            <div class="progress-item-bar"><div class="progress-item-fill" style="width: 0%; background-color: #cbd5e1;"></div></div>
+                            <div class="progress-item-percentage">0/2 &nbsp; 0%</div>
+                        </div>
+                        <!-- Row 4 -->
+                        <div class="progress-item-line">
+                            <div class="progress-item-title">เก็บเงินลูกค้าแล้ว</div>
+                            <div class="progress-item-bar"><div class="progress-item-fill" style="width: 0%; background-color: #cbd5e1;"></div></div>
+                            <div class="progress-item-percentage">0/2 &nbsp; 0%</div>
+                        </div>
+                    </div>
+
+                    <a href="javascript:void(0);" class="btn-manage-month btn-card-bottom-action">
+                        <i class="ri-calendar-check-line"></i> จัดการงานรายเดือน
+                    </a>
+                </div>
+
+                <!-- Status Box 2: Yearly -->
+                <div class="status-box-card">
+                    <div class="status-box-header">
+                        <div class="status-header-title-box">
+                            <div class="status-header-icon stat-icon-green">
+                                <i class="ri-file-text-line"></i>
+                            </div>
+                            <div>
+                                <h4 class="status-header-h4">สถานะปิดงบรายปี</h4>
+                                <p class="status-header-p">2 ลูกค้าที่ต้องปิดงบ</p>
+                            </div>
+                        </div>
+                        <a href="javascript:void(0);" class="btn-badge-link-green">ดูแดชบอร์ดรายปี</a>
+                    </div>
+
+                    <div class="progress-rows-list">
+                        <!-- Row 1 -->
+                        <div class="progress-item-line">
+                            <div class="progress-item-title">ปิดงบเสร็จแล้ว</div>
+                            <div class="progress-item-bar"><div class="progress-item-fill" style="width: 50%; background-color: #8b5cf6;"></div></div>
+                            <div class="progress-item-percentage">1/2 &nbsp; 50%</div>
+                        </div>
+                        <!-- Row 2 -->
+                        <div class="progress-item-line">
+                            <div class="progress-item-title">ได้รับงบคืนแล้ว</div>
+                            <div class="progress-item-bar"><div class="progress-item-fill" style="width: 50%; background-color: #22c55e;"></div></div>
+                            <div class="progress-item-percentage">1/2 &nbsp; 50%</div>
+                        </div>
+                        <!-- Row 3 -->
+                        <div class="progress-item-line">
+                            <div class="progress-item-title">บอจ. 5 นำส่งแล้ว</div>
+                            <div class="progress-item-bar"><div class="progress-item-fill" style="width: 50%; background-color: #3b82f6;"></div></div>
+                            <div class="progress-item-percentage">1/2 &nbsp; 50%</div>
+                        </div>
+                        <!-- Row 4 -->
+                        <div class="progress-item-line">
+                            <div class="progress-item-title">DBD E-Filing นำส่งแล้ว</div>
+                            <div class="progress-item-bar"><div class="progress-item-fill" style="width: 0%; background-color: #cbd5e1;"></div></div>
+                            <div class="progress-item-percentage">0/2 &nbsp; 0%</div>
+                        </div>
+                        <!-- Row 5 -->
+                        <div class="progress-item-line">
+                            <div class="progress-item-title">ภ.ง.ด.50 นำส่งแล้ว</div>
+                            <div class="progress-item-bar"><div class="progress-item-fill" style="width: 0%; background-color: #cbd5e1;"></div></div>
+                            <div class="progress-item-percentage">0/2 &nbsp; 0%</div>
+                        </div>
+                    </div>
+
+                    <a href="javascript:void(0);" class="btn-manage-month btn-card-bottom-action" style="background-color: #16a34a; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.2);">
+                        <i class="ri-file-list-3-line"></i> จัดการปิดงบการเงิน
+                    </a>
+                </div>
+            </div>
         </div>
 
         <!--  Footer เข้ามา -->

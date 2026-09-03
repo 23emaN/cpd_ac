@@ -7,6 +7,7 @@ $routes = [
         'login'  => ['AuthController', 'showLogin'],
         'main'   => ['MainController', 'index'],
         'backoffice' => ['BackofficeController', 'index'],
+        'tasks' => ['BackofficeController', 'tasks'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout']
     ],
