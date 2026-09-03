@@ -1,5 +1,6 @@
 /vendor/
 /node_modules/
+.history/
 
 # Ignore the .env file so it doesn't get pushed to version control
 .env
