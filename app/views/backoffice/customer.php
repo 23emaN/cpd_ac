@@ -1,0 +1,942 @@
+<?php
+// app/views/backoffice/customer.php
+$selected_year = $_GET['year'] ?? '2569';
+$company_name  = $_GET['company'] ?? 'TEST ACCOUNTING';
+$show_company_workspace = true;
+
+// 1. นำ Header เข้ามา
+require_once dirname(__DIR__) . '/main/header.php';
+
+// 2. นำ Sidebar เข้ามา
+require_once dirname(__DIR__) . '/main/sidebar.php';
+?>
+
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Kanit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .main-content {
+        padding-top: 0px !important;
+    }
+
+    .main-page-wrapper {
+        padding-top: 0px !important;
+        padding: 24px 32px;
+        min-height: calc(100vh - 72px);
+    }
+
+    /* --- Master Card Wrapper --- */
+    .main-card-wrapper {
+        background-color: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #edf2f7;
+        box-shadow: 0 2px 12px rgba(16, 24, 40, 0.03);
+        padding: 32px;
+    }
+
+    /* --- Header Section --- */
+    .page-header-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .page-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 3px;
+        letter-spacing: -0.2px;
+    }
+
+    .page-subtitle {
+        font-size: 0.78rem;
+        color: #94a3b8;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* --- Excel Action Buttons (Soft Blue Default, Solid Blue on Hover) --- */
+    .btn-excel-action {
+        background-color: #EBF4FF;
+        color: #007aff;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 15px;
+        font-size: 0.80rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-excel-action i {
+        color: #007aff;
+        font-size: 16px;
+        transition: color 0.2s ease;
+    }
+
+    .btn-excel-action:hover {
+        background-color: #007aff;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+    }
+
+    .btn-excel-action:hover i {
+        color: #ffffff !important;
+    }
+
+    .btn-add-customer {
+        background-color: #007aff;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 18px;
+        font-size: 0.80rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-add-customer i {
+        color: #ffffff !important;
+        font-size: 15px;
+    }
+
+    .btn-add-customer:hover {
+        background-color: #0062cc;
+        color: #ffffff !important;
+        box-shadow: 0 6px 16px rgba(0, 122, 255, 0.35);
+    }
+
+    .btn-add-customer:hover i {
+        color: #ffffff !important;
+    }
+
+    /* --- Stats Grid (4 Cards) --- */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .stat-card {
+        background-color: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.blue {
+        background-color: #eff6ff;
+        color: #3b82f6;
+        border: 1px solid #dbeafe;
+    }
+
+    .stat-icon.green {
+        background-color: #f0fdf4;
+        color: #22c55e;
+        border: 1px solid #dcfce7;
+    }
+
+    .stat-icon.purple {
+        background-color: #faf5ff;
+        color: #a855f7;
+        border: 1px solid #f3e8ff;
+    }
+
+    .stat-icon.yellow {
+        background-color: #fefce8;
+        color: #ca8a04;
+        border: 1px solid #fef08a;
+    }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-val {
+        font-size: 1.20rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.1;
+        margin-bottom: 2px;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    /* --- Filter Toolbar (ค้นหา & ตัวกรองสถานะ) --- */
+    .filter-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .search-box-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 360px;
+    }
+
+    .search-box-wrap i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 16px;
+    }
+
+    .search-input {
+        width: 100%;
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 10px;
+        padding: 9px 12px 9px 38px;
+        font-size: 0.80rem;
+        color: #334155;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+        background-color: #ffffff;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-input::placeholder {
+        color: #94a3b8;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-select {
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 10px;
+        padding: 9px 32px 9px 14px;
+        font-size: 0.80rem;
+        font-weight: 600;
+        color: #475569;
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='%2364748b'%3E%3Cpath d='M11.9997 13.1716L16.9495 8.22168L18.3637 9.63589L11.9997 16L5.63574 9.63589L7.04996 8.22168L11.9997 13.1716Z'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        min-width: 130px;
+        transition: all 0.2s ease;
+    }
+
+    .filter-select:focus {
+        background-color: #ffffff;
+        border-color: #3b82f6;
+    }
+
+    /* --- Customer Table Styles --- */
+    .customer-table-wrap {
+        overflow-x: auto;
+    }
+
+    .customer-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .customer-table th {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        padding: 12px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    .customer-table th.text-start {
+        text-align: left;
+    }
+
+    .customer-table th.text-center {
+        text-align: center;
+    }
+
+    .customer-table th.text-end {
+        text-align: right;
+    }
+
+    .customer-table td {
+        padding: 14px 14px;
+        border-bottom: 1px dashed #f1f5f9;
+        vertical-align: middle;
+        font-size: 0.80rem;
+    }
+
+    .customer-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Company & Team Info */
+    .customer-name-title {
+        font-size: 0.84rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 2px;
+    }
+
+    .customer-team-sub {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* Status Badge */
+    .badge-service-active {
+        background-color: #ecfdf5;
+        color: #10b981;
+        font-size: 0.70rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .badge-service-inactive {
+        background-color: #fef2f2;
+        color: #ef4444;
+        font-size: 0.70rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .fee-amount-text {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 0.82rem;
+    }
+
+    .caretaker-text {
+        font-weight: 600;
+        color: #334155;
+        font-size: 0.80rem;
+    }
+
+    /* Action Buttons (Edit & Delete) */
+    .action-btn-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-action-edit {
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        background-color: #ffffff;
+        border: 1px solid #edf2f7;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action-edit:hover {
+        background-color: #eff6ff;
+        color: #2563eb;
+        border-color: #bfdbfe;
+    }
+
+    .btn-action-delete {
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        background-color: #fff1f2;
+        border: 1px solid #ffe4e6;
+        color: #f43f5e;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action-delete:hover {
+        background-color: #ffe4e6;
+        color: #e11d48;
+    }
+
+    /* --- Pagination Section --- */
+    .pagination-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #f8fafc;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .per-page-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .per-page-select {
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 7px;
+        padding: 3px 24px 3px 8px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #334155;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='14' height='14' fill='%2364748b'%3E%3Cpath d='M11.9997 13.1716L16.9495 8.22168L18.3637 9.63589L11.9997 16L5.63574 9.63589L7.04996 8.22168L11.9997 13.1716Z'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 6px center;
+    }
+
+    .pagination-info {
+        font-size: 0.78rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .pagination-nav {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .page-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        border: 1px solid transparent;
+        background-color: transparent;
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .page-btn:hover {
+        background-color: #f1f5f9;
+        color: #0f172a;
+    }
+
+    .page-btn.active {
+        background-color: #007aff;
+        color: #ffffff;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="main-content d-flex flex-column">
+        <div class="content-wrapper">
+            <div class="main-page-wrapper">
+                
+                <div class="main-card-wrapper">
+                    
+                    <!-- Page Header Section -->
+                    <div class="page-header-box">
+                        <div>
+                            <h2 class="page-title">ลูกค้า</h2>
+                            <p class="page-subtitle">ภาพรวม - ลูกค้า - ปี <?php echo htmlspecialchars($selected_year); ?></p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn-excel-action" onclick="alert('Import Excel')">
+                                <i class="ri-file-upload-line"></i>
+                                <span>Import Excel</span>
+                            </button>
+                            <button type="button" class="btn-excel-action" onclick="alert('ส่งออก Excel')">
+                                <i class="ri-upload-2-line"></i>
+                                <span>ส่งออก Excel</span>
+                            </button>
+                            <button type="button" class="btn-add-customer" onclick="AddCustomer()">
+                                <i class="ri-add-line"></i>
+                                <span>เพิ่มลูกค้า</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid (4 กล่องสถิติ) -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="ri-checkbox-circle-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-val">0</span>
+                                <span class="stat-label">ลูกค้าทั้งหมด</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="ri-wallet-3-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-val">0</span>
+                                <span class="stat-label">ใช้บริการอยู่</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <i class="ri-subtract-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-val">0</span>
+                                <span class="stat-label">เลิกจ้าง</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon yellow">
+                                <i class="ri-money-dollar-circle-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-val">0</span>
+                                <span class="stat-label">ค่าบัญชีต่อเดือน</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Toolbar (ค้นหา & ตัวกรองสถานะ) -->
+                    <div class="filter-toolbar">
+                        <div class="search-box-wrap">
+                            <i class="ri-search-line"></i>
+                            <input type="text" class="search-input" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล ทีม">
+                        </div>
+
+                        <div class="filter-group">
+                            <select class="filter-select">
+                                <option value="">ทุกสถานะ</option>
+                                <option value="1">ใช้บริการอยู่</option>
+                                <option value="0">เลิกจ้าง</option>
+                            </select>
+
+                            <select class="filter-select">
+                                <option value="">ทุกผู้ดูแล</option>
+                                <option value="เมย์">เมย์</option>
+                                <option value="ชมพู่">ชมพู่</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Customer Table (ตรงตามภาพ 100%) -->
+                    <div class="customer-table-wrap">
+                        <table class="customer-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-start" style="width: 25%;">ชื่อลูกค้า</th>
+                                    <th class="text-center" style="width: 14%;">สถานะ</th>
+                                    <th class="text-center" style="width: 12%;">วันสิ้นรอบ</th>
+                                    <th class="text-center" style="width: 15%;">ค่าบัญชี</th>
+                                    <th class="text-center" style="width: 12%;">ผู้ดูแล</th>
+                                    <th class="text-center" style="width: 10%;">ติดต่อ</th>
+                                    <th class="text-center" style="width: 12%;">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <!-- <tbody>
+                               
+                                <tr>
+                                    <td class="text-start">
+                                        <div class="customer-name-title">AMLAW</div>
+                                        <div class="customer-team-sub">ยังไม่ระบุทีม</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-service-active">ใช้บริการอยู่</span>
+                                    </td>
+                                    <td class="text-center text-muted">-</td>
+                                    <td class="text-center">
+                                        <span class="fee-amount-text">0 บาท</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">เมย์</span>
+                                    </td>
+                                    <td class="text-center text-muted">-</td>
+                                    <td class="text-center">
+                                        <div class="action-btn-cell">
+                                            <button type="button" class="btn-action-edit" title="แก้ไข">
+                                                <i class="ri-pencil-line"></i>
+                                            </button>
+                                            <button type="button" class="btn-action-delete" title="ลบ">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                        
+                                
+                            </tbody> -->
+                        </table>
+                    </div>
+
+                    <!-- Pagination Toolbar ด้านล่าง -->
+                    <div class="pagination-toolbar">
+                        <div class="per-page-wrap">
+                            <span>แสดง</span>
+                            <select class="per-page-select">
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>รายการต่อหน้า</span>
+                        </div>
+
+                        <div class="pagination-info">
+                            รายการที่ 1-2 จาก 2
+                        </div>
+
+                        <div class="pagination-nav">
+                            <button type="button" class="page-btn" title="หน้าแรก"><i class="ri-arrow-left-double-line"></i></button>
+                            <button type="button" class="page-btn" title="ก่อนหน้า"><i class="ri-arrow-left-s-line"></i></button>
+                            <button type="button" class="page-btn active">1</button>
+                            <button type="button" class="page-btn" title="ถัดไป"><i class="ri-arrow-right-s-line"></i></button>
+                            <button type="button" class="page-btn" title="หน้าสุดท้าย"><i class="ri-arrow-right-double-line"></i></button>
+                        </div>
+                    </div>
+
+                </div> <!-- End .main-card-wrapper -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal เพิ่มลูกค้าใหม่ (ตรงตามภาพต้นแบบ 100%) -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 820px;">
+        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
+            
+            <!-- Header -->
+            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px;">
+                <h5 class="modal-title" id="addCustomerModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">เพิ่มลูกค้าใหม่</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
+                <form id="addCustomerForm">
+                    <!-- Hidden Fields -->
+                    <input type="hidden" name="fiscal_id" value="<?php echo htmlspecialchars($data['fiscal_id'] ?? ''); ?>">
+                    <input type="hidden" name="company_id" value="<?php echo htmlspecialchars($data['active_company_id'] ?? ''); ?>">
+
+                    <!-- Section: ข้อมูลทั่วไป -->
+                    <div class="mb-4">
+                        <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px;">ข้อมูลทั่วไป</h6>
+                        
+                        <!-- ชื่อบริษัท / กิจการ -->
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                                ชื่อบริษัท / กิจการ <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" class="form-control" name="customer_name" required placeholder="" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                        </div>
+
+                        <!-- 3 คอลัมน์: เดือนที่เริ่มให้บริการ / เดือนสิ้นสุด / สถานะลูกค้า -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">เดือนที่เริ่มให้บริการ</label>
+                                <select class="form-select" name="service_start_date" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                    <option value="1" selected>มกราคม</option>
+                                    <option value="2">กุมภาพันธ์</option>
+                                    <option value="3">มีนาคม</option>
+                                    <option value="4">เมษายน</option>
+                                    <option value="5">พฤษภาคม</option>
+                                    <option value="6">มิถุนายน</option>
+                                    <option value="7">กรกฎาคม</option>
+                                    <option value="8">สิงหาคม</option>
+                                    <option value="9">กันยายน</option>
+                                    <option value="10">ตุลาคม</option>
+                                    <option value="11">พฤศจิกายน</option>
+                                    <option value="12">ธันวาคม</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">เดือนสิ้นสุดการให้บริการ</label>
+                                <select class="form-select" name="service_start_end" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                    <option value="" selected>ยังให้บริการอยู่</option>
+                                    <option value="1">มกราคม</option>
+                                    <option value="2">กุมภาพันธ์</option>
+                                    <option value="3">มีนาคม</option>
+                                    <option value="4">เมษายน</option>
+                                    <option value="5">พฤษภาคม</option>
+                                    <option value="6">มิถุนายน</option>
+                                    <option value="7">กรกฎาคม</option>
+                                    <option value="8">สิงหาคม</option>
+                                    <option value="9">กันยายน</option>
+                                    <option value="10">ตุลาคม</option>
+                                    <option value="11">พฤศจิกายน</option>
+                                    <option value="12">ธันวาคม</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">สถานะลูกค้า</label>
+                                <select class="form-select" name="active_status" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                    <option value="1" selected>ใช้บริการอยู่</option>
+                                    <option value="0">เลิกจ้าง</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 2 คอลัมน์: ผู้ดูแล / ทีม -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ผู้ดูแล</label>
+                                <select class="form-select" name="user_id" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                    <option value="" selected>ยังไม่ระบุผู้ดูแล</option>
+                                    <option value="1">เมย์</option>
+                                    <option value="2">ชมพู่</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ทีม</label>
+                                <input type="text" class="form-control" name="team_name" placeholder="เช่น ทีม A" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- เส้นประคั่นส่วน -->
+                    <div style="border-top: 1px dashed #e2e8f0; margin: 28px 0 24px 0;"></div>
+
+                    <!-- Section: ข้อมูลบัญชี -->
+                    <div>
+                        <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px;">ข้อมูลบัญชี</h6>
+
+                        <!-- แถวที่ 1: ปิดงบประจำปี / วันสิ้นรอบบัญชี / ค่าทำบัญชีต่อเดือน -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ปิดงบประจำปี</label>
+                                <select class="form-select" name="closing_status" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                    <option value="0" selected>ปิดงบประจำปี</option>
+                                    <option value="1">ไม่ปิดงบ</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">วันสิ้นรอบบัญชี</label>
+                                <div style="position: relative;">
+                                    <input type="text" class="form-control" name="fiscal_closing_date" value="31/12/2026" placeholder="31/12/2026" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 40px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                                    <i class="ri-calendar-line" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 18px; pointer-events: none;"></i>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ค่าทำบัญชีต่อเดือน</label>
+                                <input type="number" step="0.01" class="form-control" name="accounts_amount" value="2000" placeholder="2000" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            </div>
+                        </div>
+
+                        <!-- แถวที่ 2: จด VAT / มีพนักงาน / ประกันสังคม -->
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">จด VAT</label>
+                                <select class="form-select" name="is_vat" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                    <option value="0" selected>ไม่จด VAT</option>
+                                    <option value="1">จด VAT</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">มีพนักงาน</label>
+                                <select class="form-select" name="is_employees" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                    <option value="0" selected>ไม่มีพนักงาน</option>
+                                    <option value="1">มีพนักงาน</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ประกันสังคม</label>
+                                <select class="form-select" name="is_social_security" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                    <option value="0" selected>ไม่มีประกันสังคม</option>
+                                    <option value="1">มีประกันสังคม</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer" style="border-top: none; padding: 12px 28px 28px 28px; gap: 12px; justify-content: flex-end;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">ยกเลิก</button>
+                <button type="button" class="btn" onclick="submitAddCustomer()" style="background-color: #007aff; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 28px; border: none; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(0,122,255,0.25); transition: all 0.2s ease;">บันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function AddCustomer() {
+        const form = document.getElementById('addCustomerForm');
+        if (form) {
+            form.reset();
+        }
+        const modalElement = document.getElementById('addCustomerModal');
+        const myModal = new bootstrap.Modal(modalElement);
+        myModal.show();
+    }
+
+    let isSubmittingCustomer = false;
+    function submitAddCustomer() {
+        if (isSubmittingCustomer) return;
+
+        const customerName = $('input[name="customer_name"]').val().trim();
+        if (!customerName) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: 'กรุณากรอกชื่อบริษัท / กิจการ',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            } else {
+                alert('กรุณากรอกชื่อบริษัท / กิจการ');
+            }
+            return;
+        }
+
+        isSubmittingCustomer = true;
+        const submitBtn = $('#addCustomerModal .modal-footer button:last-child');
+        const originalBtnText = submitBtn.text();
+        submitBtn.prop('disabled', true).text('กำลังบันทึก...');
+
+        var formData = $('#addCustomerForm').serialize();
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        $.ajax({
+            url: '/cpd_ac/public/customer/add',
+            method: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                isSubmittingCustomer = false;
+                submitBtn.prop('disabled', false).text(originalBtnText);
+
+                if (response.result === 1) {
+                    const modalElement = document.getElementById('addCustomerModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) modalInstance.hide();
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: response.msg || 'บันทึกข้อมูลลูกค้าเรียบร้อยแล้ว'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Toast.fire({
+                        icon: 'error',
+                        title: response.msg || 'ไม่สามารถบันทึกข้อมูลได้'
+                    });
+                }
+            },
+            error: function() {
+                isSubmittingCustomer = false;
+                submitBtn.prop('disabled', false).text(originalBtnText);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'
+                });
+            }
+        });
+    }
+</script>
+
+<?php 
+// 3. นำ Footer เข้ามา
+require_once dirname(__DIR__) . '/main/footer.php'; 
+?>
