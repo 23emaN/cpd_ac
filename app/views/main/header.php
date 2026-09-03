@@ -613,6 +613,33 @@
             /* border-color: #e11d48; */
             /* box-shadow: 0 3px 8px rgba(225, 29, 72, 0.25); */
         }
+        
+        /* --- Sidebar Toggle Button --- */
+        .header-burger-menu {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background-color: #ffffff;
+            border: 1.5px solid #edf2f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-size: 22px;
+            cursor: pointer;
+            margin-left: 16px;
+            margin-right: 8px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+        
+        .header-burger-menu:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 
@@ -650,6 +677,11 @@
                     <p class="acc-brand-subtitle">ระบบบริหารสำนักงานบัญชี</p>
                 </div>
             </a>
+            
+            <!-- Sidebar Toggle Button -->
+            <button type="button" id="header-burger-menu" class="header-burger-menu">
+                <i class="ri-menu-line"></i>
+            </button>
 
             <!-- Company / Workspace Dropdown List Container (Loop แสดงบริษัทที่มี) -->
             <div class="acc-company-container">

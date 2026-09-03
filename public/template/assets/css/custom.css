@@ -70,10 +70,10 @@ body.modal-open { overflow: hidden !important; }
    and is untouched. main-content padding-left keeps the ~12px gap (200 + 12 = 212). */
 @media only screen and (min-width: 1200px) {
     .sidebar-area {
-        width: 240px;
+        width: 260px;
     }
     .main-content {
-        padding-left: 252px;
+        padding-left: 272px;
     }
 }
 
