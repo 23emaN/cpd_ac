@@ -1,7 +1,7 @@
 <?php
 // app/views/backoffice/index.php
 $selected_year = $_GET['year'] ?? '2569';
-$company_name  = $_GET['company'] ?? 'TEST ACCOUNTING';
+$company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
 $show_company_workspace = true;
 
 // 1. นำ Header เข้ามา
@@ -19,7 +19,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     }
 
     .main-page-wrapper {
-        padding: 28px 36px;
+        padding-top: 0px;
+        padding-left: 250px;
         min-height: calc(100vh - 72px);
     }
 
@@ -360,48 +361,49 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     }
 </style>
 <div class="content-wrapper">
-<div class="main-page-wrapper">
-    <!-- 2. Main Content Card -->
-    <div class="year-container-card">
-        <div class="page-title-section">
-        <h2 class="page-main-heading">เลือกปีทำงาน</h2>
-        <p class="page-breadcrumb-sub">ภาพรวมระบบ • เลือกปีทำงาน</p>
-    </div>
-        <!-- Section Header (Title & Add Button) -->
-        <div class="section-header-wrap">
-            <div class="section-title-box">
-                <div class="section-icon-badge">
-                    <i class="ri-calendar-2-line"></i>
+    <div class="main-page-wrapper">
+        <!-- 2. Main Content Card -->
+        <div class="year-container-card">
+            <div class="page-title-section">
+                <h2 class="page-main-heading">เลือกปีทำงาน</h2>
+                <p class="page-breadcrumb-sub">ภาพรวมระบบ • เลือกปีทำงาน</p>
+            </div>
+            <!-- Section Header (Title & Add Button) -->
+            <div class="section-header-wrap">
+                <div class="section-title-box">
+                    <div class="section-icon-badge">
+                        <i class="ri-calendar-2-line"></i>
+                    </div>
+                    <div>
+                        <h3 class="section-title-text">เลือกปีที่ต้องการทำงาน</h3>
+                        <p class="section-subtitle-text">Accounting</p>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Info Notice Banner -->
+            <div class="year-notice-banner">
                 <div>
-                    <h3 class="section-title-text">เลือกปีที่ต้องการทำงาน</h3>
-                    <p class="section-subtitle-text">Accounting</p>
+                    <div class="notice-main-text">ปีทำงานจะเป็นตัวกรองหลักของข้อมูลสำนักงาน</div>
+                    <p class="notice-sub-text">เมื่อเลือกปีแล้ว ระบบจะใช้ปีนั้นกับหน้าลูกค้า พนักงาน งานรายเดือน
+                        และรายงานที่จะเพิ่มต่อไป</p>
+                </div>
+                <div class="notice-selected-box">
+                    <span class="notice-selected-label">ปีที่เลือก</span>
+                    <span class="notice-selected-value">ยังไม่ได้เลือก</span>
                 </div>
             </div>
-        </div>
 
-        <!-- Info Notice Banner -->
-        <div class="year-notice-banner">
-            <div>
-                <div class="notice-main-text">ปีทำงานจะเป็นตัวกรองหลักของข้อมูลสำนักงาน</div>
-                <p class="notice-sub-text">เมื่อเลือกปีแล้ว ระบบจะใช้ปีนั้นกับหน้าลูกค้า พนักงาน งานรายเดือน และรายงานที่จะเพิ่มต่อไป</p>
+            <!-- Year Card Grid (Empty Add Year State) -->
+            <div class="year-card-grid">
+                <button type="button" class="year-add-card" onclick="Addyear()">
+                    <div class="year-add-icon">
+                        <i class="ri-add-line"></i>
+                    </div>
+                    <span class="year-add-text">เพิ่มปี</span>
+                    <span class="year-add-subtext">คลิกเพื่อสร้างปีทำงานใหม่</span>
+                </button>
             </div>
-            <div class="notice-selected-box">
-                <span class="notice-selected-label">ปีที่เลือก</span>
-                <span class="notice-selected-value">ยังไม่ได้เลือก</span>
-            </div>
-        </div>
-
-        <!-- Year Card Grid (Empty Add Year State) -->
-        <div class="year-card-grid">
-            <button type="button" class="year-add-card" onclick="Addyear()">
-                <div class="year-add-icon">
-                    <i class="ri-add-line"></i>
-                </div>
-                <span class="year-add-text">เพิ่มปี</span>
-                <span class="year-add-subtext">คลิกเพื่อสร้างปีทำงานใหม่</span>
-            </button>
         </div>
     </div>
-</div>
 </div>
