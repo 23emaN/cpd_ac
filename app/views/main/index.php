@@ -767,6 +767,31 @@ require_once __DIR__ . '/header.php';
             }
         });
     }
+
+    $(document).ready(function() {
+        // เมื่อคลิกปุ่ม Workspace (บริษัท) ให้โหลดรายการปีใหม่
+        $(document).on('click', '.acc-workspace-btn', function() {
+            let companyId = $(this).attr('data-company-id');
+            if (companyId) {
+                loadFiscalYears(companyId);
+            }
+        });
+
+        // โหลดข้อมูลเริ่มต้นเมื่อเปิดหน้า
+        let savedCompany = localStorage.getItem('bo_selected_company');
+        if (savedCompany) {
+            selectCompanyById(savedCompany);
+            loadFiscalYears(savedCompany);
+        } else {
+            // ค้นหาปุ่มบริษัทแรกแล้วกดคลิก
+            let firstCompany = document.querySelector('.acc-workspace-btn');
+            if (firstCompany) {
+                let companyId = firstCompany.getAttribute('data-company-id');
+                selectCompany(firstCompany, companyId);
+                loadFiscalYears(companyId);
+            }
+        }
+    });
 </script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>
