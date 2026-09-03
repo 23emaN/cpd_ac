@@ -26,7 +26,7 @@
         background-color: #F7F9FB;
         border-right: 1px solid #edf2f7;
         font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
-        width: 240px;
+        width: 300px; /* ขยายจาก 240px เป็น 260px เพื่อไม่ให้ข้อความตกขอบ */
         padding-top: 80px; /* เพิ่ม padding-top เพื่อหลบแถบ Navbar ด้านบน (ทดแทนปุ่มที่ถูกซ่อนไป) */
     }
 
@@ -144,6 +144,24 @@
         overflow: hidden;
         text-overflow: ellipsis;
         flex-grow: 1;
+        white-space: nowrap;
+    }
+
+    /* กฎสำหรับตอนที่หด Sidebar (ย่อเมนู) */
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-title,
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link .title,
+    [sidebar-data-theme="sidebar-hide"] .sidebar-top-overview {
+        display: none !important;
+    }
+
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link {
+        justify-content: center !important;
+        padding: 10px !important;
+    }
+
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link .menu-icon {
+        margin-right: 0 !important;
+        font-size: 1.4rem !important;
     }
 </style>
 
