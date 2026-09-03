@@ -343,9 +343,18 @@ require_once __DIR__ . '/header.php';
         margin-bottom: 4px;
     }
 
+    .year-add-icon i {
+        color: #64748b;
+        transition: color 0.2s ease;
+    }
+
     .year-add-card:hover .year-add-icon {
         background-color: #0066fe;
-        color: #ffffff;
+        color: #ffffff !important;
+    }
+
+    .year-add-card:hover .year-add-icon i {
+        color: #ffffff !important;
     }
 
     .year-add-text {

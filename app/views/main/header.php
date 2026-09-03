@@ -103,7 +103,7 @@
         /* Company / Workspace Tab Bar Container */
         .acc-company-container {
             display: flex;
-            align-items: center;
+            align-items: stretch;
             gap: 10px;
             overflow-x: auto;
             max-width: calc(100vw - 480px);
@@ -124,6 +124,7 @@
         .acc-workspace-dropdown {
             position: relative;
             flex-shrink: 0;
+            display: flex;
         }
 
         /* Sleek Modern Workspace Button (ตามภาพต้นแบบ 1) */
@@ -141,6 +142,9 @@
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
             user-select: none;
+            height: 56px;
+            min-height: 56px;
+            box-sizing: border-box;
         }
 
         .acc-workspace-btn::after {
@@ -469,19 +473,21 @@
 
         /* ปุ่มเพิ่มบริษัท */
         .acc-add-workspace-btn {
-            height: 52px;
+            height: 56px;
+            min-height: 56px;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             background-color: #ffffff;
             border: 1.5px dashed #cbd5e1;
             border-radius: 14px;
-            padding: 6px 14px;
+            padding: 0 16px;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.2s ease;
             color: #475569;
             flex-shrink: 0;
+            box-sizing: border-box;
         }
 
         .acc-add-workspace-btn:hover {
@@ -492,25 +498,35 @@
         }
 
         .acc-add-workspace-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
             background-color: #f1f5f9;
             color: #64748b;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
             transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .acc-add-workspace-icon i {
+            color: #64748b;
+            transition: color 0.2s ease;
         }
 
         .acc-add-workspace-btn:hover .acc-add-workspace-icon {
             background-color: #2563eb;
-            color: #ffffff;
+            color: #ffffff !important;
+        }
+
+        .acc-add-workspace-btn:hover .acc-add-workspace-icon i {
+            color: #ffffff !important;
         }
 
         .acc-add-workspace-text {
-            font-size: 0.82rem;
+            font-size: 0.88rem;
             font-weight: 700;
             letter-spacing: 0.2px;
         }
