@@ -15,7 +15,7 @@ $customer_pages       = ['customer', 'customer_add', 'customer_edit'];
 $employee_pages       = ['employee', 'employee_add', 'employee_edit', 'staff'];
 $task_setting_pages   = ['tasks', 'task_settings'];
 $message_pages        = ['messages', 'chat', 'customer_message'];
-$postit_pages         = ['postit', 'notes', 'reminders'];
+$postit_pages         = ['post_it', 'postit', 'notes', 'reminders'];
 $system_setting_pages = ['settings', 'setting', 'system_setting'];
 $manual_pages         = ['manual', 'tutorial', 'videos'];
 ?>
@@ -257,7 +257,7 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $postit_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/post_it"
                     class="menu-link <?php echo in_array($now_page, $postit_pages) ? 'active' : '' ?>">
                     <i class="ri-sticky-note-line menu-icon"></i>
                     <span class="title">Post-it แจ้งเตือน</span>

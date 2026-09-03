@@ -8,6 +8,8 @@ $routes = [
         'main'   => ['MainController', 'index'],
         'backoffice' => ['BackofficeController', 'index'],
         'tasks' => ['BackofficeController', 'tasks'],
+        'post_it' => ['PostItController', 'index'],
+        'postit' => ['PostItController', 'index'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout']
     ],
