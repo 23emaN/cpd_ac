@@ -885,6 +885,30 @@
     <script src="/cpd_ac/public/template/assets/js/jquery-3.1.1.min.js"></script>
 
     <script>
+        // ตรวจสอบว่าอยู่ในหน้าฝั่ง Backoffice หรือไม่
+        function checkIsBackoffice() {
+            return Boolean(
+                document.querySelector('.sidebar-area') || 
+                window.location.pathname.includes('/backoffice') || 
+                window.location.pathname.includes('/customer') || 
+                window.location.pathname.includes('/employee') || 
+                window.location.pathname.includes('/register_board') || 
+                window.location.pathname.includes('/closing') || 
+                window.location.pathname.includes('/tasks')
+            );
+        }
+
+        // ฟังก์ชันย้ายตำแหน่งการ์ดบริษัทไปหน้าสุด
+        function moveCompanyCardToFront(companyId) {
+            if (!companyId) return;
+            const container = document.querySelector('.acc-company-container');
+            const dropdown = document.querySelector('.acc-workspace-dropdown[data-company-id="' + companyId + '"]');
+            if (container && dropdown) {
+                container.prepend(dropdown);
+                container.scrollTo({ left: 0, behavior: 'smooth' });
+            }
+        }
+
         // 1. ฟังก์ชันเลือกบริษัท
         function selectCompany(element, companyId) {
             if (!element) return;
@@ -942,6 +966,8 @@
         function selectFiscalYear(companyId, year, fiscalId) {
             if (!companyId || !year) return;
 
+            const isBackoffice = checkIsBackoffice();
+
             // อัปเดต Text ในปุ่ม Workspace ของบริษัทนั้น
             const wsBtn = document.querySelector('.acc-workspace-btn[data-company-id="' + companyId + '"]');
             if (wsBtn) {
@@ -978,12 +1004,52 @@
             }
 
             // ปิด Dropdown
-            const openDropdown = bootstrap.Dropdown.getInstance(wsBtn);
-            if (openDropdown) {
-                openDropdown.hide();
+            if (wsBtn) {
+                const openDropdown = bootstrap.Dropdown.getInstance(wsBtn);
+                if (openDropdown) {
+                    openDropdown.hide();
+                }
             }
 
-            // แจ้งเตือนสลับปีสำเร็จ (Toast)
+            // ถ้าอยู่ในหน้า Backoffice: ย้าย Card ไปหน้าสุด และ Switch Session Context
+            if (isBackoffice) {
+                moveCompanyCardToFront(companyId);
+
+                if (fiscalId) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/cpd_ac/public/fiscal_years/set_context",
+                        data: { fiscal_id: fiscalId },
+                        dataType: "json",
+                        success: function (res) {
+                            if (res && res.result === 1) {
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: 'สลับปีทำงาน ' + year + ' เรียบร้อยแล้ว',
+                                        showConfirmButton: false,
+                                        timer: 1000
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                } else {
+                                    window.location.reload();
+                                }
+                            } else {
+                                window.location.reload();
+                            }
+                        },
+                        error: function () {
+                            window.location.reload();
+                        }
+                    });
+                    return;
+                }
+            }
+
+            // แจ้งเตือนสลับปีสำเร็จ (Toast สำหรับหน้าปกติ)
             if (typeof Swal !== 'undefined') {
                 const Toast = Swal.mixin({
                     toast: true,
@@ -1109,17 +1175,29 @@
             });
         }
 
-        // คืนค่าบริษัทที่เคยเลือกไว้เมื่อเปิดหน้าเว็บ
+        // คืนค่าบริษัทที่เคยเลือกไว้เมื่อเปิดหน้าเว็บ และจัดตำแหน่งการ์ดให้อยู่หน้าสุดใน Backoffice
         $(document).ready(function () {
-            let savedCompany = localStorage.getItem('bo_selected_company');
+            const isBackoffice = checkIsBackoffice();
 
-            if (savedCompany) {
-                selectCompanyById(savedCompany);
+            if (isBackoffice) {
+                // หากอยู่ในฝั่ง Backoffice ให้หาการ์ดที่ Active หรือมีข้อมูลอยู่ใน Session/Server
+                let activeBtn = document.querySelector('.acc-workspace-btn.active');
+                if (activeBtn) {
+                    let activeCompanyId = activeBtn.getAttribute('data-company-id');
+                    if (activeCompanyId) {
+                        moveCompanyCardToFront(activeCompanyId);
+                    }
+                }
             } else {
-                let firstCompany = document.querySelector('.acc-workspace-btn');
-                if (firstCompany) {
-                    let companyId = firstCompany.getAttribute('data-company-id');
-                    selectCompany(firstCompany, companyId);
+                let savedCompany = localStorage.getItem('bo_selected_company');
+                if (savedCompany) {
+                    selectCompanyById(savedCompany);
+                } else {
+                    let firstCompany = document.querySelector('.acc-workspace-btn');
+                    if (firstCompany) {
+                        let companyId = firstCompany.getAttribute('data-company-id');
+                        selectCompany(firstCompany, companyId);
+                    }
                 }
             }
         });
