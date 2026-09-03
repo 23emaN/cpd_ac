@@ -30,6 +30,24 @@ class CompanyModel extends Model {
             $stmt = $this->pdo->prepare("SELECT * FROM tbl_companies ORDER BY created_at DESC");
             $stmt->execute();
         }
-        return $stmt->fetchAll();
+        $companies = $stmt->fetchAll();
+
+        foreach ($companies as &$company) {
+            $cId = $company['company_id'] ?? $company['id'] ?? 0;
+            $stmtFy = $this->pdo->prepare(
+                "SELECT 
+                    tbl_fiscal_years.*,
+                    COUNT(tbl_fiscal_year_customers.customer_id) AS customer_count
+                FROM tbl_fiscal_years
+                LEFT JOIN tbl_fiscal_year_customers ON tbl_fiscal_years.fiscal_id = tbl_fiscal_year_customers.fiscal_id
+                WHERE tbl_fiscal_years.company_id = :company_id
+                GROUP BY tbl_fiscal_years.fiscal_id
+                ORDER BY tbl_fiscal_years.fiscal_years DESC"
+            );
+            $stmtFy->execute(['company_id' => $cId]);
+            $company['fiscal_years'] = $stmtFy->fetchAll();
+        }
+
+        return $companies;
     }
 }
