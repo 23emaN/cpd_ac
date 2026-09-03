@@ -642,7 +642,11 @@
                     <?php foreach ($data['companies'] as $index => $company):
                         $companyId = $company['company_id'] ?? $company['id'] ?? '';
                         $companyName = htmlspecialchars($company['company_name'] ?? 'ไม่มีชื่อบริษัท');
-                        $isActive = ($index === 0) ? 'active' : '';
+                        if (isset($data['active_company_id']) && !empty($data['active_company_id'])) {
+                            $isActive = ($companyId == $data['active_company_id']) ? 'active' : '';
+                        } else {
+                            $isActive = ($index === 0) ? 'active' : '';
+                        }
 
                         // คำนวณปีทำงานที่เปิดใช้งานอยู่
                         $fiscalYears = $company['fiscal_years'] ?? [];
@@ -651,12 +655,29 @@
 
                         if (!empty($fiscalYears)) {
                             $foundActive = false;
-                            foreach ($fiscalYears as $fy) {
-                                if (($fy['active_status'] ?? '') === '1') {
-                                    $activeYear = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? 'Demo Year';
-                                    $activeFiscalId = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                                    $foundActive = true;
-                                    break;
+                            
+                            // 1. ตรวจสอบว่าปีนี้คือปีที่ผู้ใช้กดเลือกเข้ามาทำงานใน Backoffice หรือไม่
+                            if (isset($data['fiscal_id']) && !empty($data['fiscal_id'])) {
+                                foreach ($fiscalYears as $fy) {
+                                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                                    if ($fy_id == $data['fiscal_id']) {
+                                        $activeYear = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? 'Demo Year';
+                                        $activeFiscalId = $fy_id;
+                                        $foundActive = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // 2. ถ้ายังไม่เจอ (ไม่ได้เลือกมา) ให้ใช้ปีที่มีสถานะ active_status เป็น 1 (ปีปัจจุบันของบริษัท)
+                            if (!$foundActive) {
+                                foreach ($fiscalYears as $fy) {
+                                    if (($fy['active_status'] ?? '') === '1') {
+                                        $activeYear = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? 'Demo Year';
+                                        $activeFiscalId = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                                        $foundActive = true;
+                                        break;
+                                    }
                                 }
                             }
                             if (!$foundActive) {

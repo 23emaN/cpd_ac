@@ -321,7 +321,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     <div class="main-content d-flex flex-column">
 
         <div class="content-wrapper">
-            
+            ภาพรวมสำนักงาน
         </div>
 
         <!--  Footer เข้ามา -->

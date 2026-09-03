@@ -284,3 +284,47 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
         </ul>
     </aside>
 </div>
+
+<script>
+$(document).ready(function() {
+    // ดักจับการคลิกที่ปุ่มใน Sidebar
+    $(document).on('click', '.overview-pill-btn', function(e) {
+        e.preventDefault(); 
+        
+        let targetUrl = $(this).attr('href');
+        if (!targetUrl || targetUrl === '#' || targetUrl.includes('javascript:')) return;
+
+        // อัปเดตสถานะ Active ของปุ่ม Sidebar
+        $('.overview-pill-btn, .sidebar-area .menu-link').removeClass('active');
+        $(this).addClass('active');
+
+        // แสดง Loading อ่อนๆ ที่พื้นที่เนื้อหา
+        $('.content-wrapper').css('opacity', '0.5');
+
+        // ใช้ AJAX ไปดึงข้อมูลหน้าใหม่มา
+        $.ajax({
+            url: targetUrl,
+            type: 'GET',
+            success: function(response) {
+                // ค้นหาเฉพาะส่วนเนื้อหา (.content-wrapper) จาก HTML ที่โหลดมาใหม่
+                let newContent = $(response).find('.content-wrapper').html();
+                
+                if (newContent !== undefined) {
+                    $('.content-wrapper').html(newContent).css('opacity', '1');
+                    window.history.pushState({path: targetUrl}, '', targetUrl);
+                } else {
+                    window.location.href = targetUrl;
+                }
+            },
+            error: function() {
+                window.location.href = targetUrl;
+            }
+        });
+    });
+
+    // ทำให้เวลากดปุ่ม Back/Forward ของ Browser ทำงานได้ถูกต้อง
+    $(window).on('popstate', function() {
+        window.location.reload();
+    });
+});
+</script>
