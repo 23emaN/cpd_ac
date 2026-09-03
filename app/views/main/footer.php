@@ -10,6 +10,7 @@
 </footer>
 
 <!-- Core Scripts -->
+<!-- Core Scripts -->
 <script src="/cpd_ac/public/template/assets/js/jquery-3.1.1.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/bootstrap.bundle.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/feather.min.js"></script>
@@ -17,6 +18,8 @@
 <script src="/cpd_ac/public/template/assets/js/clipboard.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/Sortable.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/sweetalert2.min.js"></script>
+<script src="/cpd_ac/public/template/assets/js/swiper-bundle.min.js"></script>
+<script src="/cpd_ac/public/template/assets/js/sidebar-menu.js"></script>
 <script src="/cpd_ac/public/template/assets/js/custom/custom.js"></script>
 
 </body>

@@ -44,6 +44,17 @@
 	let menu, animate;
 
 	(function () {
+		// Mock PerfectScrollbar since the template uses SimpleBar (data-simplebar)
+		// but sidebar-menu.js still tries to call new PerfectScrollbar()
+		if (typeof window.PerfectScrollbar === 'undefined') {
+			window.PerfectScrollbar = function() {
+				return {
+					update: function() {},
+					destroy: function() {}
+				};
+			};
+		}
+
 		// Initialize menu
 		let layoutMenuEl = document.querySelectorAll('#layout-menu');
 		layoutMenuEl.forEach(function (element) {
@@ -154,14 +165,17 @@
 	const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
 
 	// Drag & Drop
-	sortable('.js-grid', {
-		forcePlaceholderSize: true,
-		placeholderClass: 'border'
-	});
-	sortable('.o-sortable', {
-		forcePlaceholderSize: true,
-		placeholderClass: 'border'
-	});
+// Drag & Drop
+if (typeof sortable === 'function') {
+    sortable('.js-grid', {
+        forcePlaceholderSize: true,
+        placeholderClass: 'border'
+    });
+    sortable('.o-sortable', {
+        forcePlaceholderSize: true,
+        placeholderClass: 'border'
+    });
+}
 
 	// Multiple Range Sliders
 	const getRangeSlidersId = document.querySelectorAll('slider');

@@ -1,23 +1,23 @@
 <?php
-// app/views/main/sidebar.php
+    // app/views/main/sidebar.php
 
-// ตรวจสอบ URL ปัจจุบันสำหรับ Active State
-$current_url = $_GET['url'] ?? 'backoffice';
-$now_page = trim(strtok($current_url, '/'));
+    // ตรวจสอบ URL ปัจจุบันสำหรับ Active State
+    $current_url = $_GET['url'] ?? 'backoffice';
+    $now_page    = trim(strtok($current_url, '/'));
 
-$overview_pages       = ['backoffice'];
-$monthly_dash_pages   = ['monthly_dashboard'];
-$yearly_dash_pages    = ['yearly_dashboard'];
-$monthly_task_pages   = ['monthly_tasks'];
-$closing_pages        = ['closing', 'financial_statement'];
-$registration_pages   = ['registration', 'registration_tasks'];
-$customer_pages       = ['customer', 'customer_add', 'customer_edit'];
-$employee_pages       = ['employee', 'employee_add', 'employee_edit', 'staff'];
-$task_setting_pages   = ['tasks', 'task_settings'];
-$message_pages        = ['messages', 'chat', 'customer_message'];
-$postit_pages         = ['postit', 'notes', 'reminders'];
-$system_setting_pages = ['settings', 'setting', 'system_setting'];
-$manual_pages         = ['manual', 'tutorial', 'videos'];
+    $overview_pages       = ['backoffice'];
+    $monthly_dash_pages   = ['monthly_dashboard'];
+    $yearly_dash_pages    = ['yearly_dashboard'];
+    $monthly_task_pages   = ['monthly_tasks'];
+    $closing_pages        = ['closing', 'financial_statement'];
+    $registration_pages   = ['registration', 'registration_tasks'];
+    $customer_pages       = ['customer', 'customer_add', 'customer_edit'];
+    $employee_pages       = ['employee', 'employee_add', 'employee_edit', 'staff'];
+    $task_setting_pages   = ['tasks'];
+    $message_pages        = ['messages', 'chat', 'customer_message'];
+    $postit_pages         = ['postit', 'notes', 'reminders'];
+    $system_setting_pages = ['settings', 'setting', 'system_setting'];
+    $manual_pages         = ['manual', 'tutorial', 'videos'];
 ?>
 
 <style>
@@ -27,7 +27,7 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
         border-right: 1px solid #edf2f7;
         font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
         width: 240px;
-        padding-top: 14px;
+        padding-top: 80px; /* เพิ่ม padding-top เพื่อหลบแถบ Navbar ด้านบน (ทดแทนปุ่มที่ถูกซ่อนไป) */
     }
 
     /* ปุ่มภาพรวมสำนักงาน ด้านบนสุด (การ์ดมนขอบสีขาว มีเงาและไอคอนสีฟ้า) */
@@ -54,10 +54,10 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
         background-color: #f8fafc;
         color: #3b82f6;
     }
-    
+
     .overview-pill-btn.active {
-        background-color: #ffffff;
-        border-color: #ffffff;
+        background-color: #eff6ff; /* Changed from #ffffff to match other active menus */
+        border-color: #eff6ff;
         color: #0066fe;
         font-weight: 700;
         box-shadow: 0 4px 12px rgba(0, 102, 254, 0.08);
@@ -150,30 +150,29 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
 <div class="sidebar-area" id="sidebar-area">
 
     <!-- 1. ปุ่มภาพรวมสำนักงาน (การ์ดไฮไลท์ด้านบน) -->
-    <div class="sidebar-top-overview">
-        <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/backoffice"
+    <!-- <div class="sidebar-top-overview">
+        <a href="backoffice"
             class="overview-pill-btn <?php echo in_array($now_page, $overview_pages) ? 'active' : '' ?>">
             <i class="ri-home-4-line"></i>
             <span>ภาพรวมสำนักงาน</span>
         </a>
-    </div>
+    </div> -->
 
     <aside id="layout-menu" class="layout-menu menu-vertical menu active" data-simplebar>
         <ul class="menu-inner">
+            <!-- หมวดหมู่: งานประจำปี -->
 
-            <li class="menu-item <?php echo in_array($now_page, $monthly_dash_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
-                    class="menu-link <?php echo in_array($now_page, $monthly_dash_pages) ? 'active' : '' ?>">
-                    <i class="ri-bar-chart-grouped-line menu-icon"></i>
+
+              <li class="menu-item <?php echo in_array($now_page, $overview_pages) ? 'open active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/backoffice"
+                    class="menu-link <?php echo in_array($now_page, $overview_pages) ? 'active' : '' ?>">
+                    <i class="ri-home-4-line menu-icon"></i>
                     <span class="title">ภาพรวมสำนักงาน</span>
                 </a>
             </li>
-
-            <!-- หมวดหมู่: งานประจำปี -->
-            <li class="menu-title small">
+ <li class="menu-title small">
                 <span class="menu-title-text">งานประจำปี</span>
             </li>
-
             <li class="menu-item <?php echo in_array($now_page, $monthly_dash_pages) ? 'open active' : '' ?>">
                 <a href="javascript:void(0);"
                     class="menu-link <?php echo in_array($now_page, $monthly_dash_pages) ? 'active' : '' ?>">
@@ -296,41 +295,6 @@ $manual_pages         = ['manual', 'tutorial', 'videos'];
 
 <script>
 $(document).ready(function() {
-    // ดักจับการคลิกที่ปุ่มใน Sidebar
-    $(document).on('click', '.overview-pill-btn', function(e) {
-        e.preventDefault(); 
-        
-        let targetUrl = $(this).attr('href');
-        if (!targetUrl || targetUrl === '#' || targetUrl.includes('javascript:')) return;
-
-        // อัปเดตสถานะ Active ของปุ่ม Sidebar
-        $('.overview-pill-btn, .sidebar-area .menu-link').removeClass('active');
-        $(this).addClass('active');
-
-        // แสดง Loading อ่อนๆ ที่พื้นที่เนื้อหา
-        $('.content-wrapper').css('opacity', '0.5');
-
-        // ใช้ AJAX ไปดึงข้อมูลหน้าใหม่มา
-        $.ajax({
-            url: targetUrl,
-            type: 'GET',
-            success: function(response) {
-                // ค้นหาเฉพาะส่วนเนื้อหา (.content-wrapper) จาก HTML ที่โหลดมาใหม่
-                let newContent = $(response).find('.content-wrapper').html();
-                
-                if (newContent !== undefined) {
-                    $('.content-wrapper').html(newContent).css('opacity', '1');
-                    window.history.pushState({path: targetUrl}, '', targetUrl);
-                } else {
-                    window.location.href = targetUrl;
-                }
-            },
-            error: function() {
-                window.location.href = targetUrl;
-            }
-        });
-    });
-
     // ทำให้เวลากดปุ่ม Back/Forward ของ Browser ทำงานได้ถูกต้อง
     $(window).on('popstate', function() {
         window.location.reload();
