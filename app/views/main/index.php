@@ -397,7 +397,7 @@ require_once __DIR__ . '/header.php';
                     <p class="section-subtitle-text">Accounting</p>
                 </div>
             </div>
-        </div>
+        </div>   
 
         <!-- Info Notice Banner -->
         <div class="year-notice-banner">

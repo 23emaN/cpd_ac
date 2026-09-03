@@ -286,7 +286,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <h2 class="page-title">ตั้งค่างานที่ต้องทำ</h2>
                             <p class="page-subtitle">ภาพรวมระบบ - ตั้งค่างานที่ต้องทำ - ปี 2569</p>
                         </div>
-                        <button type="button" class="btn-add-task">
+                        <button type="button" class="btn-add-task" onclick="modal_addtasks()">
                             <i class="ri-add-line"></i> เพิ่มงาน
                         </button>
                     </div>
@@ -298,7 +298,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-checkbox-circle-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">14</span>
+                                <span class="stat-val"><?php echo number_format($data['total_tasks'] ?? 0); ?></span>
                                 <span class="stat-label">งานทั้งหมด</span>
                             </div>
                         </div>
@@ -307,7 +307,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-wallet-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">8</span>
+                                <span class="stat-val"><?php echo number_format($data['req_amount_count'] ?? 0); ?></span>
                                 <span class="stat-label">ต้องระบุจำนวนเงิน</span>
                             </div>
                         </div>
@@ -316,7 +316,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-subtract-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">6</span>
+                                <span class="stat-val"><?php echo number_format($data['no_req_amount_count'] ?? 0); ?></span>
                                 <span class="stat-label">ไม่ต้องระบุจำนวนเงิน</span>
                             </div>
                         </div>
@@ -324,62 +324,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                     <!-- Main Table -->
                     <div class="table-container-card">
-                        <div class="table-header-wrap">
-                            <h3 class="table-title">รายการงานประจำเดือน</h3>
-                            <p class="table-subtitle">ทั้งหมด 14 รายการ</p>
-                        </div>
-
-                        <table class="task-table">
-                            <thead>
-                                <tr>
-                                    <th width="10%">ลำดับ</th>
-                                    <th width="40%">งาน</th>
-                                    <th width="20%">ระบุจำนวนเงิน</th>
-                                    <th width="15%">เลื่อน</th>
-                                    <th width="15%">จัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php 
-                                // Mock Data based on the screenshot
-                                $tasks = [
-                                    ['id' => 1, 'name' => 'ภ.ง.ด.1', 'req_amount' => true],
-                                    ['id' => 2, 'name' => 'ภ.ง.ด.3', 'req_amount' => true],
-                                    ['id' => 3, 'name' => 'ภ.ง.ด.53', 'req_amount' => true],
-                                    ['id' => 4, 'name' => 'ภ.ง.ด.54', 'req_amount' => true],
-                                    ['id' => 5, 'name' => 'ภ.พ.30', 'req_amount' => true],
-                                    ['id' => 6, 'name' => 'ภ.พ.36', 'req_amount' => true],
-                                    ['id' => 7, 'name' => 'ประกันสังคม', 'req_amount' => true],
-                                ];
-                                
-                                foreach ($tasks as $task): 
-                                ?>
-                                <tr>
-                                    <td><?= $task['id'] ?></td>
-                                    <td><?= $task['name'] ?></td>
-                                    <td>
-                                        <?php if ($task['req_amount']): ?>
-                                            <span class="badge-yes">YES</span>
-                                        <?php else: ?>
-                                            <span class="badge-no">NO</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <div class="action-btn-group">
-                                            <button type="button" class="btn-icon btn-arrow" title="เลื่อนขึ้น"><i class="ri-arrow-up-s-line"></i></button>
-                                            <button type="button" class="btn-icon btn-arrow" title="เลื่อนลง"><i class="ri-arrow-down-s-line"></i></button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="action-btn-group">
-                                            <button type="button" class="btn-icon btn-edit" title="แก้ไข"><i class="ri-pencil-line"></i></button>
-                                            <button type="button" class="btn-icon btn-delete" title="ลบ"><i class="ri-delete-bin-line"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                        <?php include 'table/task_table.php'; ?>
                     </div>
 
                 </div> <!-- End .main-card-wrapper -->
@@ -387,6 +332,149 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         </div>
     </div>
 </div>
+<!-- Modal เพิ่มงาน -->
+<div class="modal fade" id="addTasksModal" tabindex="-1" aria-labelledby="addTasksModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header" style="border-bottom: 1px solid #b4b0b0ff; padding: 24px 32px;">
+                <h5 class="modal-title" id="addTasksModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">เพิ่มงานใหม่</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.85rem; opacity: 0.4;"></button>
+            </div>
+            <div class="modal-body" style="padding: 24px 32px;">
+                <form id="addTasksForm">
+                    <!-- ส่ง fiscal_id ปัจจุบันไปด้วย -->
+                    <input type="hidden" name="fiscal_id" value="<?php echo htmlspecialchars($data['fiscal_id'] ?? ''); ?>">
+                            
+                            <div class="mb-4">
+                                <label class="form-label" for="task_name" style="font-weight: 700; color: #334155; font-size: 0.95rem; margin-bottom: 10px;">
+                                    ชื่องาน <span style="color: #ef4444;">*</span>
+                                </label>
+                                <input class="form-control" type="text" id="task_name" name="task_name" placeholder="เช่น ภ.ง.ด.1" style="background-color: #f8fafc; border-radius: 12px; border: none; padding: 14px 18px; font-weight: 600; font-size: 0.95rem; color: #475569; box-shadow: none;">
+                                <div class="invalid-feedback" style="font-size: 0.85rem; color: #ef4444; font-weight: 500; margin-top: 8px;">
+                                    กรุณาระบุชื่องาน
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label class="form-label" for="is_notify_amount" style="font-weight: 700; color: #334155; font-size: 0.95rem; margin-bottom: 10px;">
+                                    ต้องระบุจำนวนเงินสำหรับแจ้งยอดผ่าน LINE ลูกค้า <span style="color: #ef4444;">*</span>
+                                </label>
+                                <select class="form-select" id="is_notify_amount" name="is_notify_amount" style="background-color: #f8fafc; border-radius: 12px; border: none; padding: 14px 18px; font-weight: 600; font-size: 0.95rem; color: #475569; box-shadow: none;">
+                                    <option value="1">YES</option>
+                                    <option value="0">NO</option>
+                                </select>
+                            </div> 
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #b4b0b0ff; padding: 24px 32px; gap: 12px; justify-content: flex-end; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 10px; padding: 12px 24px; border: none; font-size: 0.95rem;">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddTasks()" style="background-color: #1b84ff; font-weight: 700; border-radius: 10px; padding: 12px 28px; border: none; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(27,132,255,0.2);">บันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let isSubmittingTask = false;
+
+    function modal_addtasks() {
+        // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
+        const form = document.getElementById('addTasksForm');
+        if(form) {
+            form.reset();
+        }
+        // 2. สั่งโชว์ Modal ผ่าน Vanilla JS ของ Bootstrap
+        const modalElement = document.getElementById('addTasksModal');
+        const myModal = new bootstrap.Modal(modalElement);
+        myModal.show();
+    }   
+    function submitAddTasks() {
+
+        const task_name = $('input[name="task_name"]').val().trim();
+        const taskNameInput = $('#task_name');
+        
+        if (!task_name) {
+            taskNameInput.addClass('is-invalid');
+            return;
+        } else {
+            taskNameInput.removeClass('is-invalid');
+        }
+
+        if (isSubmittingTask) return;
+        isSubmittingTask = true;
+        const submitBtn = $('#addTasksModal .btn-primary');
+        const originalBtnText = submitBtn.text();
+        submitBtn.prop('disabled', true).text('กำลังบันทึก...');
+
+        var formData = $('#addTasksForm').serialize();
+        
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "/cpd_ac/public/task/add_task",
+            data: formData,
+            dataType: "json",
+            success: function(response) {
+                isSubmittingTask = false;
+                submitBtn.prop('disabled', false).text(originalBtnText);
+
+                if(response.result === 1) {
+                    // ถ้าบันทึกสำเร็จ แจ้งเตือน Toast และปิด Modal
+                    if(typeof Swal !== 'undefined') {
+                        const modalElement = document.getElementById('addTasksModal');
+                        if (modalElement) {
+                            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                            if (modalInstance) modalInstance.hide();
+                        }
+                        Toast.fire({
+                            icon: 'success',
+                            title: response.msg
+                        }).then(() => {
+                            location.reload(); 
+                        });
+                    } else {
+                        alert(response.msg);
+                        location.reload();
+                    }
+                } else {
+                    // ถ้าบันทึกไม่สำเร็จ แจ้งเตือน Error
+                    if(typeof Swal !== 'undefined') {
+                        Toast.fire({
+                            icon: 'error',
+                            title: response.msg
+                        });
+                    } else {
+                        alert(response.msg);
+                    }
+                }
+            },
+            error: function(err) {
+                isSubmittingTask = false;
+                submitBtn.prop('disabled', false).text(originalBtnText);
+                console.error("AJAX Error:", err);
+                if(typeof Swal !== 'undefined') {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'
+                    });
+                } else {
+                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+                }
+            }
+        });
+    }
+    </script>
+
 
 <?php 
 // 3. นำ Footer เข้ามา

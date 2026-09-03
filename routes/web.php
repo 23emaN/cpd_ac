@@ -15,7 +15,8 @@ $routes = [
         'auth/login'  => ['AuthController', 'processLogin'],
         'company/add' => ['MainController', 'addCompany'],
         'fiscal_years/add' => ['MainController', 'addFiscalYear'],
-        'fiscal_years/set_context' => ['MainController', 'setContext']
+        'fiscal_years/set_context' => ['MainController', 'setContext'],
+        'task/add_task' => ['BackofficeController', 'addTask']
     ]
 ];
 

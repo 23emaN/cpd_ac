@@ -18,6 +18,7 @@ class BackofficeController
         $this->userPayload = $user;
     }
 
+    /////////////////////////////////////// index /////////////////////////////////////////////// 
     public function index()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -68,6 +69,7 @@ class BackofficeController
         require_once '../app/views/backoffice/index.php';
     }
 
+    /////////////////////////////////////// tasks /////////////////////////////////////////////// 
     public function tasks()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -114,7 +116,61 @@ class BackofficeController
             'active_company_id' => $active_company_id
         ];
 
+        // Fetch tasks for the current fiscal_id
+        require_once '../app/models/tasks.php';
+        $taskModel = new TasksModel();
+        $tasks_list = $taskModel->getTasksByFiscalId($fiscal_id);
+
+        $data['tasks_list'] = $tasks_list;
+        $data['total_tasks'] = count($tasks_list);
+        
+        $req_amount_count = 0;
+        foreach($tasks_list as $t) {
+            if ($t['is_notify_amount'] == 1) $req_amount_count++;
+        }
+        $data['req_amount_count'] = $req_amount_count;
+        $data['no_req_amount_count'] = $data['total_tasks'] - $req_amount_count;
+
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/tasks.php';
+    }
+
+
+    public function addTask()
+    {
+        $this->checkAuth();
+
+        // 1. รับค่าจากฟอร์ม
+        $task_name = trim($_POST['task_name'] ?? '');
+        $is_notify_amount = trim($_POST['is_notify_amount'] ?? '0');
+        $fiscal_id = trim($_POST['fiscal_id'] ?? '');
+        
+        // 2. ดักตรวจสอบ (Validation)
+        if ($task_name === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกชื่องาน']);
+            return;
+        }
+
+        if ($fiscal_id === '') {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลปีทำงาน (Fiscal ID)']);
+            return;
+        }
+
+        // 3. เรียกใช้งาน TasksModel
+        require_once '../app/models/tasks.php';
+        $taskModel = new TasksModel();
+        
+        try {
+            // ส่งค่าไปบันทึก
+            $success = $taskModel->insertTask($fiscal_id, $task_name, $is_notify_amount);
+
+            if ($success) {
+                echo json_encode(['result' => 1, 'msg' => 'เพิ่มงานเรียบร้อยแล้ว']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้']);
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดฐานข้อมูล: ' . $e->getMessage()]);
+        }
     }
 }
