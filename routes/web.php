@@ -11,6 +11,8 @@ $routes = [
         'customer' => ['BackofficeController', 'customer'],
         'employee' => ['BackofficeController', 'employee'],
         'register_board' => ['BackofficeController', 'register_board'],
+        'post_it' => ['BackofficeController', 'postIt'],
+        'postit' => ['BackofficeController', 'postIt'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout']
     ],
@@ -26,7 +28,8 @@ $routes = [
         'task/delete_task' => ['BackofficeController', 'deleteTask'],
         'employee/add' => ['BackofficeController', 'addEmployee'],
         'employee/edit' => ['BackofficeController', 'editEmployee'],
-        'employee/delete' => ['BackofficeController', 'deleteEmployee']
+        'employee/delete' => ['BackofficeController', 'deleteEmployee'],
+        'post_it/store' => ['BackofficeController', 'storePostIt'],
     ]
 ];
 
