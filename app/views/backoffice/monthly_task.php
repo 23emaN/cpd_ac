@@ -225,29 +225,85 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         margin-bottom: 20px;
     }
 
-    .filter-select {
+    .filter-group .select2-container {
         flex: 1 1 0;
-        width: 100%;
         min-width: 0;
-        background-color: #f8fafc;
-        border: 1px solid #f1f5f9;
-        border-radius: 10px;
-        padding: 9px 32px 9px 14px;
-        color: #475569;
-        cursor: pointer;
-        outline: none;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='%2364748b'%3E%3Cpath d='M11.9997 13.1716L16.9495 8.22168L18.3637 9.63589L11.9997 16L5.63574 9.63589L7.04996 8.22168L11.9997 13.1716Z'%3E%3C/path%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-        transition: all 0.2s ease;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        width: 100% !important;
     }
 
-    .filter-select:focus {
-        background-color: #ffffff;
-        border-color: #3b82f6;
+    /* --- Custom Select2 Pill Design --- */
+    .select2-container--default .select2-selection--single {
+        background-color: #f8fafc !important;
+        border: 1px solid #f1f5f9 !important;
+        border-radius: 14px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        transition: all 0.2s ease !important;
+        box-shadow: none !important;
+    }
+
+    .select2-container--default .select2-selection--single:focus,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        background-color: #ffffff !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #334155 !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        padding-left: 16px !important;
+        padding-right: 36px !important;
+        line-height: 40px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px !important;
+        width: 30px !important;
+        right: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #64748b transparent transparent transparent !important;
+        border-width: 5px 4px 0 4px !important;
+    }
+
+    .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+        border-color: transparent transparent #64748b transparent !important;
+        border-width: 0 4px 5px 4px !important;
+    }
+
+    /* Select2 Dropdown Popup */
+    .select2-dropdown {
+        border: 1px solid #edf2f7 !important;
+        border-radius: 14px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+        overflow: hidden !important;
+        z-index: 9999 !important;
+        font-size: 0.875rem !important;
+        background-color: #ffffff !important;
+    }
+
+    .select2-container--default .select2-results__option {
+        padding: 10px 16px !important;
+        font-weight: 500 !important;
+        color: #475569 !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #3b82f6 !important;
+        color: #ffffff !important;
+    }
+
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+        font-weight: 700 !important;
     }
 
     /* --- Standard Table Styles --- */
@@ -377,7 +433,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-user-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">2</span>
+                                <span class="stat-val">0</span>
                                 <span class="stat-label">ลูกค้าในเดือนนี้</span>
                             </div>
                         </div>
@@ -423,53 +479,65 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
                     </div>
 
+                    <!-- Month Selector Row (Bootstrap Utility Classes) -->
+                    <div class="d-flex align-items-center gap-2 my-4">
+                        <span class=" me-1">เลือกเดือน:</span>
+                        <div class="w-auto">
+                            <select class="form-select" id="monthSelect">
+                                <option value="1">มกราคม</option>
+                                <option value="2">กุมภาพันธ์</option>
+                                <option value="3">มีนาคม</option>
+                                <option value="4">เมษายน</option>
+                                <option value="5">พฤษภาคม</option>
+                                <option value="6">มิถุนายน</option>
+                                <option value="7">กรกฎาคม</option>
+                                <option value="8">สิงหาคม</option>
+                                <option value="9" selected>กันยายน</option>
+                                <option value="10">ตุลาคม</option>
+                                <option value="11">พฤศจิกายน</option>
+                                <option value="12">ธันวาคม</option>
+                            </select>
+                        </div>
+                        <span class="text-muted small ms-2">แสดงลูกค้า - ราย</span>
+                    </div>
+
                     <!-- Filter Toolbar (ค้นหา & ตัวกรองสถานะ) -->
-                    <div class="filter-toolbar">
+                    <div class="filter-toolbar mb-3">
                         <div class="search-box-wrap">
                             <i class="ri-search-line"></i>
-                            <input type="text" class="search-input" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล รอบบัญชี">
+                            <input type="text" class="search-input" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล ทีม">
                         </div>
                     </div>
-                    <div class="filter-group">
-                        <select class="filter-select">
+                    <div class="filter-group mb-4">
+                        <select class="form-select filter-select" id="selUser">
                             <option value="">ทุกผู้ดูแล</option>
                             <option>A</option>
                             <option>B</option>
                             <option>C</option>
-
                         </select>
 
-                        <select class="filter-select">
-                            <option selected value="">ปิดงบ : ทั้งหมด</option>
-                            <option value="1">รอเอกสาร</option>
-                            <option value="2">ได้รับเอกสาร</option>
-                            <option value="3">เสร็จแล้ว</option>
+                        <select class="form-select filter-select" id="selDocument">
+                            <option selected value="">เอกสาร: ทั้งหมด</option>
+                            <option value="1">ได้รับเอกสาร</option>
+                            <option value="2">ยังไม่ได้รับเอกสาร</option>
                         </select>
 
-                        <select class="filter-select">
-                            <option selected value="">ผู้สอบ : ทั้งหมด</option>
-                            <option value="1">ยังไม่ได้ตรวจ</option>
-                            <option value="2">ตรวจแล้ว</option>
-                            <option value="3">ได้รับงานคืนแล้ว</option>
+                        <select class="form-select filter-select" id="selTask">
+                            <option selected value="">งาน: ทั้งหมด</option>
+                            <option value="1">เสร็จแล้ว</option>
+                            <option value="2">กำลังดำเนินงาน</option>
                         </select>
 
-                        <select class="filter-select">
-                            <option selected value="">บอจ5 : ทั้งหมด</option>
-                            <option value="1">ยังไม่ได้ยื่น</option>
-                            <option value="2">นำส่งแล้ว</option>
-                        </select>
-
-                        <select class="filter-select">
-                            <option selected value="">BDB : ทั้งหมด</option>
-                            <option value="1">ยังไม่ได้ยื่น</option>
-                            <option value="2">นำส่งแล้ว</option>
-                        </select>
-
-                        <select class="filter-select">
-                            <option selected value="">ภ.ง.ด 50 : ทั้งหมด</option>
-                            <option value="1">รอเอกสาร</option>
+                        <select class="form-select filter-select" id="selTax">
+                            <option selected value="">ภาษี: ทั้งหมด</option>
+                            <option value="1">ยื่นแล้ว</option>
                             <option value="2">ยังไม่ได้ยื่น</option>
-                            <option value="3">นำส่งแล้ว</option>
+                        </select>
+
+                        <select class="form-select filter-select" id="selPayment">
+                            <option selected value="">เงิน: ทั้งหมด</option>
+                            <option value="1">ได้รับเงินแล้ว</option>
+                            <option value="2">ยังไม่ได้รับเงิน</option>
                         </select>
                     </div>
 
@@ -478,16 +546,15 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <table class="table-custom">
                             <thead>
                                 <tr>
-                                    <th class="text-center" style="width: 4%;">ลำดับ</th>
-                                    <th class="text-start" style="width: 22%;">ลูกค้า</th>
-                                    <th class="text-center" style="width: 9%;">รอบบัญชี</th>
-                                    <th class="text-center" style="width: 9%;">ผู้ดูแล</th>
-                                    <th class="text-center" style="width: 10%;">สถานะปิดงบ</th>
-                                    <th class="text-center" style="width: 10%;">สถานะผู้สอบ</th>
-                                    <th class="text-center" style="width: 9%;">บอจ. 5</th>
-                                    <th class="text-center" style="width: 11%;">DBD E-Filing</th>
-                                    <th class="text-center" style="width: 9%;">ภ.ง.ด.50</th>
-                                    <th class="text-center" style="width: 7%;">จัดการ</th>
+                                    <th class="text-center" style="width: 5%;">ลำดับ</th>
+                                    <th class="text-start" style="width: 20%;">ลูกค้า</th>
+                                    <th class="text-center" style="width: 10%;">ผู้ดูแล</th>
+                                    <th class="text-center" style="width: 10%;">เอกสาร</th>
+                                    <th class="text-center" style="width: 12%;">งานประจำเดือน</th>
+                                    <th class="text-center" style="width: 10%;">รีวิว</th>
+                                    <th class="text-center" style="width: 10%;">ยื่นภาษี</th>
+                                    <th class="text-center" style="width: 10%;">เก็บเงิน</th>
+                                    <th class="text-center" style="width: 8%;">จัดการ</th>
                                 </tr>
                             </thead>
 
@@ -528,6 +595,17 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         </div>
     </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    $('#monthSelect').select2();
+    $('#selUser').select2();
+    $('#selDocument').select2();
+    $('#selTask').select2();
+    $('#selTax').select2();
+    $('#selPayment').select2();
+});
+</script>
 
 <?php
 // 3. นำ Footer เข้ามา

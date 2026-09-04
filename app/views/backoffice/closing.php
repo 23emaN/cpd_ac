@@ -225,29 +225,85 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         margin-bottom: 20px;
     }
 
-    .filter-select {
+    .filter-group .select2-container {
         flex: 1 1 0;
-        width: 100%;
         min-width: 0;
-        background-color: #f8fafc;
-        border: 1px solid #f1f5f9;
-        border-radius: 10px;
-        padding: 9px 32px 9px 14px;
-        color: #475569;
-        cursor: pointer;
-        outline: none;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='%2364748b'%3E%3Cpath d='M11.9997 13.1716L16.9495 8.22168L18.3637 9.63589L11.9997 16L5.63574 9.63589L7.04996 8.22168L11.9997 13.1716Z'%3E%3C/path%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-        transition: all 0.2s ease;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        width: 100% !important;
     }
 
-    .filter-select:focus {
-        background-color: #ffffff;
-        border-color: #3b82f6;
+    /* --- Custom Select2 Pill Design --- */
+    .select2-container--default .select2-selection--single {
+        background-color: #f8fafc !important;
+        border: 1px solid #f1f5f9 !important;
+        border-radius: 14px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        transition: all 0.2s ease !important;
+        box-shadow: none !important;
+    }
+
+    .select2-container--default .select2-selection--single:focus,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        background-color: #ffffff !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #334155 !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        padding-left: 16px !important;
+        padding-right: 36px !important;
+        line-height: 40px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px !important;
+        width: 30px !important;
+        right: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #64748b transparent transparent transparent !important;
+        border-width: 5px 4px 0 4px !important;
+    }
+
+    .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+        border-color: transparent transparent #64748b transparent !important;
+        border-width: 0 4px 5px 4px !important;
+    }
+
+    /* Select2 Dropdown Popup */
+    .select2-dropdown {
+        border: 1px solid #edf2f7 !important;
+        border-radius: 14px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+        overflow: hidden !important;
+        z-index: 9999 !important;
+        font-size: 0.875rem !important;
+        background-color: #ffffff !important;
+    }
+
+    .select2-container--default .select2-results__option {
+        padding: 10px 16px !important;
+        font-weight: 500 !important;
+        color: #475569 !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #3b82f6 !important;
+        color: #ffffff !important;
+    }
+
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+        font-weight: 700 !important;
     }
 
     /* --- Standard Table Styles --- */
@@ -421,41 +477,40 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
                     </div>
                     <div class="filter-group">
-                        <select class="filter-select">
+                        <select class="form-select filter-select" id="selUserClosing">
                             <option value="">ทุกผู้ดูแล</option>
                             <option>A</option>
                             <option>B</option>
                             <option>C</option>
-
                         </select>
 
-                        <select class="filter-select">
+                        <select class="form-select filter-select" id="selClosing">
                             <option selected value="">ปิดงบ : ทั้งหมด</option>
                             <option value="1">รอเอกสาร</option>
                             <option value="2">ได้รับเอกสาร</option>
                             <option value="3">เสร็จแล้ว</option>
                         </select>
 
-                        <select class="filter-select">
+                        <select class="form-select filter-select" id="selAuditor">
                             <option selected value="">ผู้สอบ : ทั้งหมด</option>
                             <option value="1">ยังไม่ได้ตรวจ</option>
                             <option value="2">ตรวจแล้ว</option>
                             <option value="3">ได้รับงานคืนแล้ว</option>
                         </select>
 
-                        <select class="filter-select">
+                        <select class="form-select filter-select" id="selBoj5">
                             <option selected value="">บอจ5 : ทั้งหมด</option>
                             <option value="1">ยังไม่ได้ยื่น</option>
                             <option value="2">นำส่งแล้ว</option>
                         </select>
 
-                        <select class="filter-select">
+                        <select class="form-select filter-select" id="selBdb">
                             <option selected value="">BDB : ทั้งหมด</option>
                             <option value="1">ยังไม่ได้ยื่น</option>
                             <option value="2">นำส่งแล้ว</option>
                         </select>
 
-                        <select class="filter-select">
+                        <select class="form-select filter-select" id="selPnd50">
                             <option selected value="">ภ.ง.ด 50 : ทั้งหมด</option>
                             <option value="1">รอเอกสาร</option>
                             <option value="2">ยังไม่ได้ยื่น</option>
@@ -518,6 +573,17 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         </div>
     </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    $('#selUserClosing').select2();
+    $('#selClosing').select2();
+    $('#selAuditor').select2();
+    $('#selBoj5').select2();
+    $('#selBdb').select2();
+    $('#selPnd50').select2();
+});
+</script>
 
 <?php
 // 3. นำ Footer เข้ามา
