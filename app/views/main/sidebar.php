@@ -1,14 +1,14 @@
 <?php
-    // app/views/main/sidebar.php
+// app/views/main/sidebar.php
 
-    // ตรวจสอบ URL ปัจจุบันสำหรับ Active State
-    $current_url = $_GET['url'] ?? 'backoffice';
-    $now_page    = trim(strtok($current_url, '/'));
+// ตรวจสอบ URL ปัจจุบันสำหรับ Active State
+$current_url = $_GET['url'] ?? 'backoffice';
+$now_page = trim(strtok($current_url, '/'));
 
     $overview_pages       = ['backoffice'];
     $monthly_dash_pages   = ['monthly_dashboard'];
     $yearly_dash_pages    = ['yearly_dashboard'];
-    $monthly_task_pages   = ['monthly_tasks'];
+    $monthly_task_pages   = ['monthly_tasks', 'monthly_task'];
     $closing_pages        = ['closing', 'financial_statement'];
     $registration_pages   = ['registration', 'register_board'];
     $customer_pages       = ['customer', 'customer_add', 'customer_edit'];
@@ -26,8 +26,10 @@
         background-color: #F7F9FB;
         border-right: 1px solid #edf2f7;
         font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
-        width: 300px; /* ขยายจาก 240px เป็น 260px เพื่อไม่ให้ข้อความตกขอบ */
-        padding-top: 80px; /* เพิ่ม padding-top เพื่อหลบแถบ Navbar ด้านบน (ทดแทนปุ่มที่ถูกซ่อนไป) */
+        width: 300px;
+        /* ขยายจาก 240px เป็น 260px เพื่อไม่ให้ข้อความตกขอบ */
+        padding-top: 80px;
+        /* เพิ่ม padding-top เพื่อหลบแถบ Navbar ด้านบน (ทดแทนปุ่มที่ถูกซ่อนไป) */
     }
 
     /* ปุ่มภาพรวมสำนักงาน ด้านบนสุด (การ์ดมนขอบสีขาว มีเงาและไอคอนสีฟ้า) */
@@ -56,7 +58,8 @@
     }
 
     .overview-pill-btn.active {
-        background-color: #eff6ff; /* Changed from #ffffff to match other active menus */
+        background-color: #eff6ff;
+        /* Changed from #ffffff to match other active menus */
         border-color: #eff6ff;
         color: #0066fe;
         font-weight: 700;
@@ -181,14 +184,14 @@
             <!-- หมวดหมู่: งานประจำปี -->
 
 
-              <li class="menu-item <?php echo in_array($now_page, $overview_pages) ? 'open active' : '' ?>">
+            <li class="menu-item <?php echo in_array($now_page, $overview_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/backoffice"
                     class="menu-link <?php echo in_array($now_page, $overview_pages) ? 'active' : '' ?>">
                     <i class="ri-home-4-line menu-icon"></i>
                     <span class="title">ภาพรวมสำนักงาน</span>
                 </a>
             </li>
- <li class="menu-title small">
+            <li class="menu-title small">
                 <span class="menu-title-text">งานประจำปี</span>
             </li>
             <li class="menu-item <?php echo in_array($now_page, $monthly_dash_pages) ? 'open active' : '' ?>">
@@ -208,7 +211,7 @@
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $monthly_task_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/monthly_task"
                     class="menu-link <?php echo in_array($now_page, $monthly_task_pages) ? 'active' : '' ?>">
                     <i class="ri-calendar-check-line menu-icon"></i>
                     <span class="title">จัดการงานรายเดือน</span>
@@ -216,7 +219,7 @@
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $closing_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/closing"
                     class="menu-link <?php echo in_array($now_page, $closing_pages) ? 'active' : '' ?>">
                     <i class="ri-file-text-line menu-icon"></i>
                     <span class="title">ปิดงบการเงิน</span>
@@ -253,7 +256,7 @@
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $task_setting_pages) ? 'open active' : '' ?>">
-                  <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/tasks"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/tasks"
                     class="menu-link <?php echo in_array($now_page, $task_setting_pages) ? 'active' : '' ?>">
                     <i class="ri-checkbox-circle-line menu-icon"></i>
                     <span class="title">ตั้งค่างานที่ต้องทำ</span>
@@ -312,10 +315,10 @@
 </div>
 
 <script>
-$(document).ready(function() {
-    // ทำให้เวลากดปุ่ม Back/Forward ของ Browser ทำงานได้ถูกต้อง
-    $(window).on('popstate', function() {
-        window.location.reload();
+    $(document).ready(function () {
+        // ทำให้เวลากดปุ่ม Back/Forward ของ Browser ทำงานได้ถูกต้อง
+        $(window).on('popstate', function () {
+            window.location.reload();
+        });
     });
-});
 </script>
