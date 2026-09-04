@@ -10,8 +10,8 @@
 </footer>
 
 <!-- Core Scripts -->
-<!-- Core Scripts -->
 <script src="/cpd_ac/public/template/assets/js/jquery-3.1.1.min.js"></script>
+<script src="/cpd_ac/public/template/assets/js/select2.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/bootstrap.bundle.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/feather.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/simplebar.min.js"></script>
