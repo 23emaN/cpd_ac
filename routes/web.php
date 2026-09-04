@@ -8,8 +8,8 @@ $routes = [
         'main'   => ['MainController', 'index'],
         'backoffice' => ['BackofficeController', 'index'],
         'tasks' => ['BackofficeController', 'tasks'],
-        'post_it' => ['PostItController', 'index'],
-        'postit' => ['PostItController', 'index'],
+        'post_it' => ['BackofficeController', 'postIt'],
+        'postit' => ['BackofficeController', 'postIt'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout']
     ],
@@ -17,7 +17,8 @@ $routes = [
         'auth/login'  => ['AuthController', 'processLogin'],
         'company/add' => ['MainController', 'addCompany'],
         'fiscal_years/add' => ['MainController', 'addFiscalYear'],
-        'fiscal_years/set_context' => ['MainController', 'setContext']
+        'fiscal_years/set_context' => ['MainController', 'setContext'],
+        'post_it/store' => ['BackofficeController', 'storePostIt'],
     ]
 ];
 
