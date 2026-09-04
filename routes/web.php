@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
@@ -11,6 +11,8 @@ $routes = [
         'customer' => ['BackofficeController', 'customer'],
         'employee' => ['BackofficeController', 'employee'],
         'register_board' => ['BackofficeController', 'register_board'],
+        'closing' => ['BackofficeController', 'closing'],
+        'monthly_task' => ['BackofficeController', 'monthly_task'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout']
     ],
