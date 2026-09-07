@@ -20,46 +20,48 @@ $esc  = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
     <p class="table-subtitle">ทั้งหมด <?php echo number_format($total); ?> รายการ</p>
 </div>
 
-<table class="task-table">
+<table class="table">
     <thead>
         <tr>
-            <th width="10%">ลำดับ</th>
-            <th width="40%">งาน</th>
-            <th width="20%">ระบุจำนวนเงิน</th>
-            <th width="15%">เลื่อน</th>
-            <th width="15%">จัดการ</th>
+            <th class="text-center" style="width: 10%;">ลำดับ</th>
+            <th class="text-start" style="width: 40%;">งาน</th>
+            <th class="text-center" style="width: 20%;">ระบุจำนวนเงิน</th>
+            <th class="text-center" style="width: 15%;">เลื่อน</th>
+            <th class="text-center" style="width: 15%;">จัดการ</th>
         </tr>
     </thead>
     <tbody>
         <?php if (!empty($list)): ?>
             <?php $n = $from; foreach ($list as $task): ?>
             <tr>
-                <td><?php echo $n++ ?></td>
-                <td><?php echo $esc($task['tasks_name'] ?? '') ?></td>
-                <td>
+                <td class="text-center fw-semibold text-secondary"><?php echo $n++ ?></td>
+                <td class="text-start">
+                    <div class="table-item-title"><?php echo $esc($task['tasks_name'] ?? '') ?></div>
+                </td>
+                <td class="text-center">
                     <?php if (($task['is_notify_amount'] ?? 0) == 1): ?>
-                        <span class="badge-yes">YES</span>
+                        <span class="badge-active">YES</span>
                     <?php else: ?>
-                        <span class="badge-no" style="background-color: #fee2e2; color: #dc2626; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; display: inline-block;">NO</span>
+                        <span class="badge-inactive">NO</span>
                     <?php endif; ?>
                 </td>
-                <td>
+                <td class="text-center">
                     <div class="action-btn-group">
-                        <button type="button" class="btn-icon btn-arrow" title="เลื่อนขึ้น" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'up')"><i class="ri-arrow-up-s-line"></i></button>
-                        <button type="button" class="btn-icon btn-arrow" title="เลื่อนลง" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'down')"><i class="ri-arrow-down-s-line"></i></button>
+                        <button type="button" class="btn-action-edit" title="เลื่อนขึ้น" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'up')"><i class="ri-arrow-up-s-line"></i></button>
+                        <button type="button" class="btn-action-edit" title="เลื่อนลง" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'down')"><i class="ri-arrow-down-s-line"></i></button>
                     </div>
                 </td>
-                <td>
+                <td class="text-center">
                     <div class="action-btn-group">
-                        <button type="button" class="btn-icon btn-edit" title="แก้ไข" onclick="modal_edit(<?php echo $task['tasks_id'] ?>)"><i class="ri-pencil-line"></i></button>
-                        <button type="button" class="btn-icon btn-delete" title="ลบ" onclick="delete_task(<?php echo $task['tasks_id'] ?>, '<?php echo $esc($task['tasks_name'] ?? '') ?>')"><i class="ri-delete-bin-line"></i></button>
+                        <button type="button" class="btn-action-edit" title="แก้ไข" onclick="modal_edit(<?php echo $task['tasks_id'] ?>)"><i class="ri-pencil-line"></i></button>
+                        <button type="button" class="btn-action-delete" title="ลบ" onclick="delete_task(<?php echo $task['tasks_id'] ?>, '<?php echo $esc($task['tasks_name'] ?? '') ?>')"><i class="ri-delete-bin-line"></i></button>
                     </div>
                 </td>
             </tr>
             <?php endforeach; ?>
         <?php else: ?>
             <tr>
-                <td colspan="5" class="text-center py-5">
+                <td colspan="5" class="text-center py-5 text-muted fw-medium">
                     <div class="list-empty-icon mb-2">
                         <span class="material-symbols-outlined" aria-hidden="true" style="font-size: 48px; color: #ccc;">inbox</span>
                     </div>
