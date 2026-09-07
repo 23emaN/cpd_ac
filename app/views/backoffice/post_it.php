@@ -214,6 +214,17 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         color: #15803d;
     }
 
+    .btn-postit-done.active {
+        background-color: #16a34a;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+    }
+
+    .btn-postit-done.active:hover {
+        background-color: #15803d;
+        color: #ffffff;
+    }
+
     .btn-postit-edit {
         background-color: #ffffff;
         color: #334155;
@@ -257,7 +268,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         line-height: 1.5;
         flex: 1;
         margin-bottom: 16px;
-        white-space: pre-wrap;
+        margin-left: 20px;
+        /* white-space: pre-wrap; */
     }
 
     .postit-note-meta {
@@ -604,11 +616,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                         <article class="postit-note"
                                             style="background: <?php echo htmlspecialchars($palette['bg']); ?>; border-color: <?php echo htmlspecialchars($palette['border']); ?>;">
                                             <div class="postit-actions">
-                                                <button type="button" class="postit-action-btn btn-postit-done"
+                                                <button type="button" class="postit-action-btn btn-postit-done <?php echo $item['status'] === '1' ? 'active' : ''; ?>"
                                                     data-id="<?php echo (int) $item['post_id']; ?>" title="สลับสถานะ"
                                                     onclick="changeStatusPostIt(<?php echo (int) $item['post_id']; ?>)">
                                                     <i class="ri-check-line"></i>
                                                 </button>
+                                                <?php if (($item['status'] ?? '0') !== '1'): ?>
                                                 <button type="button" class="postit-action-btn btn-postit-edit"
                                                     data-id="<?php echo (int) $item['post_id']; ?>"
                                                     data-title="<?php echo htmlspecialchars($item['title'] ?? ''); ?>"
@@ -624,6 +637,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                                     data-id="<?php echo (int) $item['post_id']; ?>" title="ลบ">
                                                     <i class="ri-delete-bin-line"></i>
                                                 </button>
+                                                <?php endif; ?>
                                             </div>
                                             <h3 class="postit-note-title"><?php echo htmlspecialchars($item['title'] ?? ''); ?>
                                             </h3>
@@ -631,8 +645,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                                 <i class="ri-user-line"></i>
                                                 <span><?php echo htmlspecialchars($displayName($item)); ?></span>
                                             </div>
-                                            <div class="postit-note-body">
-                                                <?php echo nl2br(htmlspecialchars($item['content'] ?? '')); ?></div>
+                                            <div class="postit-note-body" style="text-align: left; font-size: 12px; padding-top: 0px !important;">
+                                                <?php echo nl2br(htmlspecialchars($item['content'] ?? '')); ?>
+                                            </div>
                                             <div class="postit-note-meta">
                                                 <i class="ri-time-line"></i>
                                                 <span>สร้างเมื่อ
@@ -1190,4 +1205,4 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             });
         });
     }
-</script>
+</script>
