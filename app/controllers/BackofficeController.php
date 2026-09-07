@@ -893,6 +893,38 @@ class BackofficeController
         }
     }
 
+    public function togglePostItStatus()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+
+        $post_id = trim($_POST['post_id'] ?? '');
+        if (!$post_id) {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบ post_id']);
+            return;
+        }
+
+        require_once '../app/models/PostItModel.php';
+        $model = new PostItModel();
+
+        try {
+            $item = $model->findById((int)$post_id);
+            if (!$item) {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูล Post-it']);
+                return;
+            }
+
+            // สลับสถานะ 0 ↔ 1
+            $newStatus = ($item['status'] === '1') ? '0' : '1';
+            $model->updateStatus((int)$post_id, $newStatus);
+
+            $label = $newStatus === '1' ? 'เสร็จแล้ว' : 'รอดำเนินการ';
+            echo json_encode(['result' => 1, 'msg' => 'เปลี่ยนสถานะเป็น: ' . $label, 'new_status' => $newStatus]);
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+        }
+    }
+
 
         /////////////////////////////////////// closing /////////////////////////////////////////////// 
     public function closing()

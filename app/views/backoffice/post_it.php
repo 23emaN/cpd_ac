@@ -605,7 +605,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                             style="background: <?php echo htmlspecialchars($palette['bg']); ?>; border-color: <?php echo htmlspecialchars($palette['border']); ?>;">
                                             <div class="postit-actions">
                                                 <button type="button" class="postit-action-btn btn-postit-done"
-                                                    data-id="<?php echo (int) $item['post_id']; ?>" title="สลับสถานะ">
+                                                    data-id="<?php echo (int) $item['post_id']; ?>" title="สลับสถานะ"
+                                                    onclick="changeStatusPostIt(<?php echo (int) $item['post_id']; ?>)">
                                                     <i class="ri-check-line"></i>
                                                 </button>
                                                 <button type="button" class="postit-action-btn btn-postit-edit"
@@ -1146,4 +1147,47 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 }
             });
     });
-</script>
+
+    function changeStatusPostIt(id){
+        const formData = new FormData();
+        formData.append('post_id', id);
+
+        fetch('<?php echo BASE_URL; ?>/post_it/toggle', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(response => {
+            if (response.result === 1) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: response.msg || 'เปลี่ยนสถานะสำเร็จ',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                }).then(function () { location.reload(); });
+            } else {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: response.msg || 'เกิดข้อผิดพลาด',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        })
+        .catch(() => {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    }
+</script>

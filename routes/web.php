@@ -37,6 +37,7 @@ $routes = [
         'employee/edit' => ['BackofficeController', 'editEmployee'],
         'employee/delete' => ['BackofficeController', 'deleteEmployee'],
         'post_it/store' => ['BackofficeController', 'storePostIt'],
+        'post_it/toggle' => ['BackofficeController', 'togglePostItStatus'],
         'customer/add' => ['BackofficeController', 'addCustomer'],
         'customer/edit' => ['BackofficeController', 'editCustomer'],
         'customer/delete' => ['BackofficeController', 'deleteCustomer'],

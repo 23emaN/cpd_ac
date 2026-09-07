@@ -190,4 +190,18 @@ class PostItModel extends Model
 
         return (int) $this->pdo->lastInsertId();
     }
+
+    public function findById(int $postId): ?array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM tbl_post_it WHERE post_id = :id LIMIT 1");
+        $stmt->execute(['id' => $postId]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public function updateStatus(int $postId, string $status): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE tbl_post_it SET status = :status WHERE post_id = :id");
+        return $stmt->execute(['status' => $status, 'id' => $postId]);
+    }
 }
