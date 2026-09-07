@@ -831,15 +831,14 @@
                 ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
             </div>
 
-            <!-- Middle: Comment Button -->
-           <button type="button" class="btn-task-comment"
-        data-customer-tasks-id="${t.customer_tasks_id}"
-        data-task-name="${t.task_name}"
-        data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
-        title="เพิ่มความคิดเห็น"
-        style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
-    <i class="ri-chat-3-line" style="font-size: 15px;"></i>
-</button>
+             <button type="button" class="btn-task-comment"
+                data-customer-tasks-id="${t.customer_tasks_id}"
+                data-task-name="${t.task_name}"
+                data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
+                title="เพิ่มความคิดเห็น"
+                style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
+                <i class="ri-chat-3-line" style="font-size: 15px;"></i>
+             </button>
 
             <!-- Right side: Select dropdown & Amount Input -->
             <div class="d-flex align-items-center gap-2">
@@ -873,24 +872,20 @@
     const existing = row.nextElementSibling;
     const icon = triggerElement.querySelector('i');
 
-    // ถ้า thread ของแถวนี้เปิดอยู่แล้ว ให้ปิด (toggle)
     if (existing && existing.classList.contains('comment-thread-panel')) {
         existing.style.opacity = '0';
         existing.style.transform = 'translateY(-6px)';
         setTimeout(() => existing.remove(), 180);
 
-        // เปลี่ยนไอคอนกลับเป็นแชท
         if (icon) icon.className = 'ri-chat-3-line';
         return;
     }
 
-    // ปิด thread ของแถวอื่นที่เปิดค้างอยู่ (เปิดได้ทีละแถว) + รีเซ็ตไอคอนของแถวอื่น
     document.querySelectorAll('.comment-thread-panel').forEach(el => el.remove());
     document.querySelectorAll('.btn-task-comment i').forEach(i => {
         i.className = 'ri-chat-3-line';
     });
 
-    // เปลี่ยนไอคอนของปุ่มที่กดเป็นลูกศรขึ้น (บอกว่ากดแล้วจะยุบ)
     if (icon) icon.className = 'ri-arrow-up-s-line';
 
     const panelHtml = `
@@ -1004,7 +999,7 @@ function loadComments(customerTasksId, listEl, countBadge) {
                 listEl.innerHTML = `
                     <div class="text-center py-4">
                         <i class="ri-chat-smile-2-line" style="font-size:1.8rem; display:block; margin-bottom:6px; color:#93c5fd;"></i>
-                        <span style="font-size:0.8rem; color:#94a3b8; font-weight:500;">ยังไม่มีความคิดเห็น เริ่มพูดคุยกันเลย!</span>
+                        <span style="font-size:0.8rem; color:#94a3b8; font-weight:500;">ยังไม่มีความคิดเห็น</span>
                     </div>`;
                 return;
             }
@@ -1033,9 +1028,25 @@ function loadComments(customerTasksId, listEl, countBadge) {
         });
 }
 
+function postComment(customerTasksId, text) {
+    return fetch('<?php echo BASE_URL; ?>/monthly_task/comments/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_tasks_id: customerTasksId, comment_text: text })
+    }).then(res => res.json());
+}
+
+function updateCommentBadge(button, hasComment) {
+    button.style.borderColor = hasComment ? '#93c5fd' : '#e2e8f0';
+    button.style.backgroundColor = hasComment ? '#eff6ff' : '#ffffff';
+    button.style.color = hasComment ? '#2563eb' : '#94a3b8';
+    const icon = button.querySelector('i');
+    if (icon && !icon.className.includes('ri-arrow-up')) {
+        icon.style.color = hasComment ? '#2563eb' : '#94a3b8';
+    }
+}
     </script>
 
     <?php
-        // 3. นำ Footer เข้ามา
     require_once dirname(__DIR__) . '/main/footer.php';
     ?>
