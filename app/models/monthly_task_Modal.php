@@ -159,14 +159,23 @@ class MonthlyTaskModal extends Model
 
     public function addComment(int $customerTasksId, int $userId, string $commentText) {
         $sql = "
-            INSERT INTO tbl_comment_tasks (customer_tasks_id, comment_user_id, comment_detail, create_at)
-            VALUES (:task_id, :user_id, :comment_text, NOW())
+            INSERT INTO tbl_comment_tasks (customer_tasks_id, comment_user_id, comment_detail, create_at, is_read)
+            VALUES (:task_id, :user_id, :comment_text, NOW(), 0)
         ";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([
             'task_id' => $customerTasksId,
             'user_id' => $userId,
             'comment_text' => $commentText
+        ]);
+    }
+
+    public function markCommentsAsRead(int $customerTasksId, int $userId) {
+        $sql = "UPDATE tbl_comment_tasks SET is_read = 1 WHERE customer_tasks_id = :task_id AND comment_user_id != :user_id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            'task_id' => $customerTasksId,
+            'user_id' => $userId
         ]);
     }
 }

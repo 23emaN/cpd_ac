@@ -1010,6 +1010,12 @@ class BackofficeController
         $model = new MonthlyTaskModal();
 
         try {
+            // Mark comments as read before fetching them
+            $user_id = $this->userPayload['user_id'] ?? null;
+            if ($user_id) {
+                $model->markCommentsAsRead((int)$customer_tasks_id, (int)$user_id);
+            }
+
             $comments = $model->getCommentsByTaskId((int)$customer_tasks_id);
             echo json_encode(['result' => 1, 'comments' => $comments]);
         } catch (Throwable $e) {
