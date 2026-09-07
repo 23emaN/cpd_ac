@@ -810,44 +810,166 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
             fetch('<?php echo BASE_URL; ?>/monthly_task/items?period_id=' + period_id)
                 .then(res => res.json())
-                .then(data => {
-                    if (data.result !== 1 || !data.tasks.length) {
-                        taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;">ไม่พบรายการงาน</div>';
-                        taskCount.textContent = '0 งาน';
-                        return;
-                    }
-                    taskCount.textContent = data.tasks.length + ' งาน';
-                    let html = '';
-                    data.tasks.forEach((t, idx) => {
-                        const isLast = idx === data.tasks.length - 1;
-                        const isNotifyAmount = t.is_notify_amount == 1 || t.is_notify_amount === true;
+               .then(data => {
+    if (data.result !== 1 || !data.tasks.length) {
+        taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;">ไม่พบรายการงาน</div>';
+        taskCount.textContent = '0 งาน';
+        return;
+    }
+    taskCount.textContent = data.tasks.length + ' งาน';
+    let html = '';
+    data.tasks.forEach((t, idx) => {
+        const isLast = idx === data.tasks.length - 1;
+        const isNotifyAmount = t.is_notify_amount == 1 || t.is_notify_amount === true;
+        const hasComment = !!(t.comment && t.comment.trim() !== '');
 
-                        html += `
-                        <div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
-                            <!-- Left side: Task Name & Badge -->
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold" style="font-size:0.88rem; color:#1e293b;">${t.task_name}</span>
-                                ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
-                            </div>
+        html += `
+        <div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
+            <!-- Left side: Task Name & Badge -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold" style="font-size:0.88rem; color:#1e293b;">${t.task_name}</span>
+                ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
+            </div>
 
-                            <!-- Right side: Select dropdown & Amount Input -->
-                            <div class="d-flex align-items-center gap-2">
-                                <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0"
-                                        data-customer-tasks-id="${t.customer_tasks_id}"
-                                        style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
-                                    <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
-                                    <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
-                                </select>
-                                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0" placeholder="จำนวนเงิน" value="${t.amount || ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;">` : ''}
-                            </div>
-                    </div>`;
-                    });
-                    taskList.innerHTML = html;
-                })
-                .catch(() => {
-                    taskList.innerHTML = '<div class="text-center text-danger py-3" style="font-size:0.85rem;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+            <!-- Middle: Comment Button -->
+            <button type="button" class="btn-task-comment"
+                    data-customer-tasks-id="${t.customer_tasks_id}"
+                    data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
+                    title="เพิ่มความคิดเห็น"
+                    style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
+                <i class="ri-chat-3-line" style="font-size: 15px;"></i>
+            </button>
+
+            <!-- Right side: Select dropdown & Amount Input -->
+            <div class="d-flex align-items-center gap-2">
+                <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0"
+                        data-customer-tasks-id="${t.customer_tasks_id}"
+                        style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
+                    <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
+                    <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
+                </select>
+                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0" placeholder="จำนวนเงิน" value="${t.amount || ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;">` : ''}
+            </div>
+        </div>`;
+    });
+    taskList.innerHTML = html;
+
+            // Bind comment button click event after rendering
+            document.querySelectorAll('.btn-task-comment').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const taskId = this.dataset.customerTasksId;
+                    toggleCommentThread(taskId, this);
                 });
+            });
+        })
+        .catch(() => {
+            taskList.innerHTML = '<div class="text-center text-danger py-3" style="font-size:0.85rem;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+        });
+    }
+
+    function toggleCommentThread(customerTasksId, triggerElement) {
+        const row = triggerElement.closest('.d-flex.justify-content-between');
+        const existing = row.nextElementSibling;
+
+        // ถ้า thread ของแถวนี้เปิดอยู่แล้ว ให้ปิด (toggle)
+        if (existing && existing.classList.contains('comment-thread-panel')) {
+            existing.remove();
+            return;
         }
+
+        // ปิด thread ของแถวอื่นที่เปิดค้างอยู่ (เปิดได้ทีละแถว)
+        document.querySelectorAll('.comment-thread-panel').forEach(el => el.remove());
+
+        const panelHtml = `
+            <div class="comment-thread-panel" style="padding: 12px 0 16px; border-bottom: 1px dashed #f1f5f9; background:#fafbfc;">
+                <div class="comment-thread-list" style="max-height: 200px; overflow-y:auto; margin-bottom: 10px; padding: 0 12px;">
+                    <div class="text-center text-muted py-2" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>
+                </div>
+                <div class="d-flex gap-2" style="padding: 0 12px;">
+                    <input type="text" class="form-control form-control-sm comment-thread-input" 
+                        placeholder="แสดงความคิดเห็น..." 
+                        style="border-radius:8px; font-size:0.84rem; background:#ffffff; border:1px solid #e2e8f0;">
+                    <button type="button" class="btn btn-sm btn-primary comment-thread-send" style="border-radius:8px; font-size:0.84rem; flex-shrink:0;">ส่ง</button>
+                </div>
+            </div>
+        `;
+
+        row.insertAdjacentHTML('afterend', panelHtml);
+        const panel = row.nextElementSibling;
+        const listEl = panel.querySelector('.comment-thread-list');
+        const inputEl = panel.querySelector('.comment-thread-input');
+        const sendBtn = panel.querySelector('.comment-thread-send');
+
+        loadComments(customerTasksId, listEl);
+
+        function submitComment() {
+            const text = inputEl.value.trim();
+            if (!text) return;
+            sendBtn.disabled = true;
+
+            postComment(customerTasksId, text)
+                .then(() => {
+                    inputEl.value = '';
+                    loadComments(customerTasksId, listEl);
+                    updateCommentBadge(triggerElement, true);
+                })
+                .catch(() => alert('ส่งความคิดเห็นไม่สำเร็จ'))
+                .finally(() => { sendBtn.disabled = false; });
+        }
+
+        sendBtn.addEventListener('click', submitComment);
+        inputEl.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); submitComment(); }
+        });
+    }
+
+    function loadComments(customerTasksId, listEl) {
+        listEl.innerHTML = '<div class="text-center text-muted py-2" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
+
+        fetch('<?php echo BASE_URL; ?>/monthly_task/comments?customer_tasks_id=' + customerTasksId)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.comments || !data.comments.length) {
+                    listEl.innerHTML = '<div class="text-center text-muted py-2" style="font-size:0.8rem;">ยังไม่มีความคิดเห็น</div>';
+                    return;
+                }
+                listEl.innerHTML = data.comments.map(c => `
+                    <div class="d-flex gap-2 mb-2">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0" 
+                             style="width:26px; height:26px; font-size:0.7rem; font-weight:700; color:#64748b;">
+                            ${(c.user_name || '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div class="flex-grow-1" style="background:#fff; border:1px solid #f1f5f9; border-radius:10px; padding:6px 10px;">
+                            <div class="d-flex justify-content-between">
+                                <span style="font-size:0.78rem; font-weight:700; color:#334155;">${c.user_name || 'ไม่ระบุ'}</span>
+                                <span style="font-size:0.7rem; color:#94a3b8;">${c.created_at_display || ''}</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:#475569;">${c.comment_text}</div>
+                        </div>
+                    </div>
+                `).join('');
+                listEl.scrollTop = listEl.scrollHeight;
+            })
+            .catch(() => {
+                listEl.innerHTML = '<div class="text-center text-danger py-2" style="font-size:0.8rem;">โหลดความคิดเห็นไม่สำเร็จ</div>';
+            });
+    }
+
+    function postComment(customerTasksId, text) {
+        return fetch('<?php echo BASE_URL; ?>/monthly_task/comments/store', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customer_tasks_id: customerTasksId, comment_text: text })
+        }).then(res => res.json());
+    }
+
+    function updateCommentBadge(button, hasComment) {
+        button.style.borderColor = hasComment ? '#93c5fd' : '#e2e8f0';
+        button.style.backgroundColor = hasComment ? '#eff6ff' : '#ffffff';
+        button.style.color = hasComment ? '#2563eb' : '#94a3b8';
+        const icon = button.querySelector('i');
+        if (icon) icon.style.color = hasComment ? '#2563eb' : '#94a3b8';
+    }
     </script>
 
     <?php
