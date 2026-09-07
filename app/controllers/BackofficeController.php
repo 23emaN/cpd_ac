@@ -932,7 +932,8 @@ class BackofficeController
         $this->checkAuth();
 
         $postId = trim($_POST['post_id'] ?? '');
-        $assigneeId = trim($_POST['assignee_id'] ?? '');
+        $title = trim($_POST['title'] ?? '');
+        $assigneeId = trim($_POST['user_id'] ?? ''); // แก้เป็น user_id ตามฟอร์ม HTML
         $dueDate = trim($_POST['due_date'] ?? '');
         $status = trim($_POST['status'] ?? '0');
         $content = trim($_POST['content'] ?? '');
@@ -949,6 +950,7 @@ class BackofficeController
         try {
             $postIdInt = (int) $postId;
             $updated = $model->update($postIdInt, [
+                'title' => $title,
                 'user_id' => $assigneeId ? (int)$assigneeId : null,
                 'due_date' => $dueDate ?: null,
                 'status' => $status,

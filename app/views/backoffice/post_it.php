@@ -634,7 +634,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                                     <i class="ri-pencil-line"></i>
                                                 </button>
                                                 <button type="button" class="postit-action-btn btn-postit-delete"
-                                                    data-id="<?php echo (int) $item['post_id']; ?>" title="ลบ" onclick="">
+                                                    title="ลบ" onclick="delete_portit(<?php echo (int) $item['post_id']; ?>)">
                                                     <i class="ri-delete-bin-line"></i>
                                                 </button>
                                                 <?php endif; ?>
@@ -1205,11 +1205,11 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             });
         });
     }
-    function changeStatusPostIt(id){
+    function delete_portit(id){
         const formData = new FormData();
         formData.append('post_id', id);
 
-        fetch('<?php echo BASE_URL; ?>/post_it/toggle', {
+        fetch('<?php echo BASE_URL; ?>/post_it/delete', {
             method: 'POST',
             body: formData
         })
@@ -1247,4 +1247,66 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             });
         });
     }
+
+    function delete_portit(id, name = '') {
+    Swal.fire({
+        icon: 'warning',
+        title: 'ลบข้อมูล Post-it?',
+        html: name ? `<b>${name}</b> จะถูกลบออกจากระบบ` : 'รายการนี้จะถูกลบออกจากระบบ',
+        showCancelButton: true,
+        confirmButtonText: 'ลบข้อมูล',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        customClass: {
+            confirmButton: 'btn-swal-confirm',
+            cancelButton: 'btn-swal-cancel'
+        },
+        buttonsStyling: true
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        const formData = new FormData();
+        formData.append('post_id', id);
+
+        fetch('<?php echo BASE_URL; ?>/post_it/delete', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(response => {
+            if (response.result === 1) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: response.msg || 'ลบข้อมูลสำเร็จ',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                }).then(function () { location.reload(); });
+            } else {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: response.msg || 'เกิดข้อผิดพลาด',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        })
+        .catch(() => {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    });
+}
 </script>
