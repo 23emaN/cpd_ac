@@ -50,7 +50,7 @@ class MonthlyTaskModal extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getTasksByPeriodId($period_id)
+    public function getTasksByPeriodId($period_id, $user_id = null)
     {
         // ===== DEBUG START =====
         error_log("=== getTasksByPeriodId DEBUG ===");
@@ -64,7 +64,8 @@ class MonthlyTaskModal extends Model
                 ct.status,
                 ct.amount,
                 t.tasks_name as task_name,
-                t.is_notify_amount
+                t.is_notify_amount,
+                (SELECT COUNT(*) FROM tbl_comment_tasks c WHERE c.customer_tasks_id = ct.customer_tasks_id AND c.is_read = 0 AND c.comment_user_id != :user_id) as unread_comments
             FROM tbl_customer_tasks ct
             INNER JOIN tbl_tasks t ON ct.task_id = t.tasks_id
             WHERE ct.period_id = :period_id
@@ -73,7 +74,10 @@ class MonthlyTaskModal extends Model
 
         try {
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute(['period_id' => $period_id]);
+            $stmt->execute([
+                'period_id' => $period_id,
+                'user_id' => $user_id ?: 0
+            ]);
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             error_log("rows found = " . count($rows));

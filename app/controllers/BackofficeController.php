@@ -1183,7 +1183,8 @@ class BackofficeController
 
         require_once '../app/models/monthly_task_Modal.php';
         $model = new MonthlyTaskModal();
-        $tasks = $model->getTasksByPeriodId($period_id);
+        $user_id = $this->userPayload['user_id'] ?? null;
+        $tasks = $model->getTasksByPeriodId($period_id, $user_id);
 
         echo json_encode(['result' => 1, 'tasks' => $tasks]);
     }

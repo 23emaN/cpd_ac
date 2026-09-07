@@ -842,13 +842,14 @@
                 ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
             </div>
 
-             <button type="button" class="btn-task-comment"
+             <button type="button" class="btn-task-comment position-relative"
                 data-customer-tasks-id="${t.customer_tasks_id}"
                 data-task-name="${t.task_name}"
                 data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
                 title="เพิ่มความคิดเห็น"
                 style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
                 <i class="ri-chat-3-line" style="font-size: 15px;"></i>
+                ${(t.unread_comments && t.unread_comments > 0) ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 3px 5px; transform: translate(-30%, -30%) !important;">${t.unread_comments}</span>` : ''}
              </button>
 
             <!-- Right side: Select dropdown & Amount Input -->
