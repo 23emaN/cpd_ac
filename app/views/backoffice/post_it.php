@@ -5,19 +5,12 @@ $stats = $data['stats'] ?? ['total' => 0, 'pending' => 0, 'done' => 0, 'overdue'
 $items = $data['items'] ?? [];
 $assignees = $data['assignees'] ?? [];
 $filters = $data['filters'] ?? [];
-$pagination = $data['pagination'] ?? [
-    'page' => 1,
-    'per_page' => 25,
-    'total' => 0,
-    'total_pages' => 1,
-    'from' => 0,
-    'to' => 0,
-];
+
 $isDraft = !empty($data['is_draft']);
 $base = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
 
 $colorMap = [
-    'yellow' => ['bg' => '#FFF8DC', 'border' => '#F5D76E', 'text' => '#A16207'],
+    'yellow' => ['bg' => '#FFFBEB', 'border' => '#FDE68A', 'text' => '#A16207'],
     'pink' => ['bg' => '#FCE7F3', 'border' => '#F9A8D4', 'text' => '#BE185D'],
     'blue' => ['bg' => '#DBEAFE', 'border' => '#93C5FD', 'text' => '#1D4ED8'],
     'green' => ['bg' => '#DCFCE7', 'border' => '#86EFAC', 'text' => '#15803D'],
@@ -27,12 +20,12 @@ $colorMap = [
 
 $statusLabel = static function (string $status, ?string $dueDate): array {
     if ($status === '1') {
-        return ['text' => 'ดำเนินการแล้ว', 'class' => 'done'];
+        return ['text' => 'ดำเนินการแล้ว', 'class' => 'status-done'];
     }
     if ($dueDate && $dueDate < date('Y-m-d')) {
-        return ['text' => 'เลยกำหนด', 'class' => 'overdue'];
+        return ['text' => 'เลยกำหนด', 'class' => 'status-overdue'];
     }
-    return ['text' => 'รอดำเนินการ', 'class' => 'pending'];
+    return ['text' => 'รอดำเนินการ', 'class' => 'status-pending'];
 };
 
 $formatThaiDate = static function (?string $datetime): string {
@@ -66,253 +59,204 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
-    .content-wrapper {
-        padding: 24px 32px 32px;
-        min-height: calc(100vh - 140px);
-        font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
-        background: #f8fafc;
+    .stat-icon.red {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
     }
 
-    .postit-page-card {
-        background: #ffffff;
-        border: 1px solid #eef2f7;
+    /* --- Select2 Custom Styling for Header Filter Group --- */
+    .filter-group .select2-container {
+        min-width: 130px;
+    }
+
+    .select2-container--default .select2-selection--single {
+        background-color: #f8fafc !important;
+        border: 1px solid #f1f5f9 !important;
+        border-radius: 10px !important;
+        height: 40px !important;
+        display: flex !important;
+        align-items: center !important;
+        transition: all 0.2s ease !important;
+        box-shadow: none !important;
+    }
+
+    .select2-container--default .select2-selection--single:focus,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        background-color: #ffffff !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #334155 !important;
+        font-size: 0.84rem !important;
+        font-weight: 600 !important;
+        padding-left: 14px !important;
+        padding-right: 32px !important;
+        line-height: 38px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px !important;
+        width: 28px !important;
+        right: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #edf2f7 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+        overflow: hidden !important;
+        z-index: 9999 !important;
+        font-size: 0.84rem !important;
+        background-color: #ffffff !important;
+    }
+
+    .select2-container--default .select2-results__option {
+        padding: 8px 14px !important;
+        font-weight: 500 !important;
+        color: #475569 !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+    }
+
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+        font-weight: 700 !important;
+    }
+
+    .select2-search--dropdown {
+        padding: 8px 10px !important;
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 6px 12px !important;
+        outline: none !important;
+        font-size: 0.84rem !important;
+    }
+
+    /* Sticky Note Card */
+    .postit-note {
         border-radius: 16px;
-        padding: 22px 24px 24px;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-    }
-
-    .postit-header-row {
+        border: 1px solid #fde68a;
+        background: #fffbeb;
+        padding: 20px;
+        min-height: 180px;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        margin: 0 0 22px;
-        padding: 0;
-        background: transparent;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    .postit-title {
-        font-size: 1.45rem;
-        font-weight: 800;
-        color: #0f172a;
-        margin: 0 0 4px;
-        letter-spacing: -0.2px;
-    }
-
-    .postit-breadcrumb {
-        margin: 0;
-        font-size: 0.84rem;
-        color: #64748b;
-    }
-
-    .btn-create-postit {
-        background: #2563eb;
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 18px;
-        font-size: 0.92rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        text-decoration: none;
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
-        white-space: nowrap;
-    }
-
-    .btn-create-postit:hover {
-        background: #1d4ed8;
-        color: #fff;
-    }
-
-    .postit-stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 16px;
-        margin-bottom: 22px;
-    }
-
-    .postit-stat-card {
-        background: #ffffff !important;
-        border: 1px solid #eef2f7;
-        border-radius: 14px;
-        padding: 18px 20px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-    }
-
-    .postit-stat-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.35rem;
-        flex-shrink: 0;
-    }
-
-    .postit-stat-icon.total { background: #eff6ff; color: #2563eb; }
-    .postit-stat-icon.pending { background: #fefce8; color: #ca8a04; }
-    .postit-stat-icon.done { background: #f0fdf4; color: #16a34a; }
-    .postit-stat-icon.overdue { background: #fef2f2; color: #dc2626; }
-
-    .postit-stat-value {
-        font-size: 1.55rem;
-        font-weight: 800;
-        color: #0f172a;
-        line-height: 1.1;
-    }
-
-    .postit-stat-label {
-        font-size: 0.82rem;
-        color: #64748b;
-        margin-top: 2px;
-    }
-
-    .postit-board-card {
-        background: #ffffff !important;
-        border: 1px solid #e8eef5;
-        border-radius: 16px;
-        box-shadow: none;
-        padding: 20px 20px 16px;
-    }
-
-    .postit-board-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-
-    .postit-board-heading {
-        flex: 0 0 auto;
-        min-width: 140px;
-    }
-
-    .postit-board-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #0f172a;
-        margin: 0 0 2px;
-    }
-
-    .postit-board-sub {
-        margin: 0;
-        font-size: 0.82rem;
-        color: #64748b;
-    }
-
-    .postit-filters {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
-        justify-content: flex-end;
-        margin-bottom: 0;
-        flex: 1 1 520px;
-    }
-
-    .postit-search {
-        position: relative;
-        flex: 1 1 180px;
-        min-width: 160px;
-        max-width: 260px;
-    }
-
-    .postit-search i {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #94a3b8;
-        font-size: 1rem;
-    }
-
-    .postit-search input,
-    .postit-filters select {
-        height: 40px;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        background: #fff;
-        color: #334155;
-        font-size: 0.86rem;
-        outline: none;
-    }
-
-    .postit-search input {
-        width: 100%;
-        padding: 0 12px 0 36px;
-    }
-
-    .postit-filters select {
-        padding: 0 34px 0 12px;
-        min-width: 118px;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-    }
-
-    .postit-search input:focus,
-    .postit-filters select:focus {
-        border-color: #93c5fd;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-
-    .postit-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 16px;
-        min-height: 160px;
+        flex-direction: column;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .postit-note {
-        border-radius: 12px;
-        border: 1px solid #f5d76e;
-        background: #fff8dc;
-        padding: 16px 16px 14px;
-        min-height: 170px;
+        position: relative;
+    }
+
+    .postit-note:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .postit-actions {
+        position: absolute;
+        top: 14px;
+        right: 14px;
         display: flex;
-        flex-direction: column;
-        box-shadow: 0 2px 8px rgba(161, 98, 7, 0.08);
+        align-items: center;
+        gap: 6px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+        z-index: 10;
+    }
+
+    .postit-note:hover .postit-actions {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .postit-action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        padding: 0;
+        line-height: 1;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .postit-action-btn:hover {
+        transform: scale(1.08);
+    }
+
+    .btn-postit-done {
+        background-color: #dcfce7;
+        color: #16a34a;
+    }
+
+    .btn-postit-done:hover {
+        background-color: #bbf7d0;
+        color: #15803d;
+    }
+
+    .btn-postit-edit {
+        background-color: #ffffff;
+        color: #334155;
+    }
+
+    .btn-postit-edit:hover {
+        background-color: #f1f5f9;
+        color: #0f172a;
+    }
+
+    .btn-postit-delete {
+        background-color: #fce7f3;
+        color: #ef4444;
+    }
+
+    .btn-postit-delete:hover {
+        background-color: #fbcfe8;
+        color: #dc2626;
     }
 
     .postit-note-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0 0 8px;
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0 0 6px;
+        padding-right: 105px;
     }
 
     .postit-note-assignee {
         display: flex;
         align-items: center;
         gap: 6px;
-        font-size: 0.84rem;
-        color: #475569;
-        margin-bottom: 10px;
-    }
-
-    .postit-note-assignee i {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         color: #64748b;
+        margin-bottom: 12px;
     }
 
     .postit-note-body {
         font-size: 0.9rem;
         color: #334155;
-        line-height: 1.45;
+        line-height: 1.5;
         flex: 1;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
         white-space: pre-wrap;
     }
 
@@ -320,219 +264,39 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         display: flex;
         align-items: center;
         gap: 6px;
-        font-size: 0.78rem;
-        color: #64748b;
-        margin-bottom: 8px;
-    }
-
-    .postit-note-status {
-        font-size: 0.82rem;
-        font-weight: 600;
-    }
-
-    .postit-note-status.pending { color: #ca8a04; }
-    .postit-note-status.done { color: #16a34a; }
-    .postit-note-status.overdue { color: #dc2626; }
-
-    .postit-empty {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 48px 16px;
+        font-size: 0.8rem;
         color: #94a3b8;
-    }
-
-    .postit-draft-badge {
-        display: inline-block;
-        margin-left: 8px;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: #fff7ed;
-        color: #c2410c;
-        font-size: 0.72rem;
-        font-weight: 600;
-        vertical-align: middle;
-    }
-
-    .postit-pager {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-top: 20px;
-        padding-top: 14px;
-        border-top: 1px solid #f1f5f9;
-        font-size: 0.84rem;
-        color: #64748b;
-    }
-
-    .postit-pager-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .postit-pager-left select {
-        height: 34px;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 0 28px 0 10px;
-        background: #fff;
-        color: #334155;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-    }
-
-    .postit-pager-nav {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .postit-page-btn {
-        min-width: 34px;
-        height: 34px;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        background: #fff;
-        color: #475569;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        font-size: 0.84rem;
-        font-weight: 600;
-    }
-
-    .postit-page-btn.active {
-        background: #2563eb;
-        border-color: #2563eb;
-        color: #fff;
-    }
-
-    .postit-page-btn.disabled {
-        opacity: 0.45;
-        pointer-events: none;
-    }
-
-    @media (max-width: 1100px) {
-        .postit-stats-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 768px) {
-        .content-wrapper {
-            padding: 18px 16px 24px;
-        }
-
-        .postit-header-row {
-            flex-direction: column;
-            align-items: stretch;
-            margin: 0 0 18px;
-            padding: 0;
-        }
-
-        .postit-filters {
-            justify-content: flex-start;
-        }
-
-        .postit-search {
-            max-width: none;
-        }
-
-        .postit-stats-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    #createPostItModal .modal-content {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
-    }
-
-    #createPostItModal .modal-header {
-        border-bottom: 1px solid #f1f5f9;
-        padding: 18px 24px;
-    }
-
-    #createPostItModal .modal-title {
-        font-size: 1.12rem;
-        font-weight: 800;
-        color: #1e293b;
-    }
-
-    #createPostItModal .modal-body {
-        padding: 22px 24px 8px;
-    }
-
-    #createPostItModal .modal-footer {
-        border-top: 1px solid #f1f5f9;
-        padding: 16px 24px 20px;
-        gap: 10px;
-    }
-
-    .postit-form-label {
-        display: block;
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: #334155;
         margin-bottom: 8px;
     }
 
-    .postit-form-control,
-    .postit-form-select,
-    .postit-form-textarea {
-        width: 100%;
-        background: #f8fafc;
-        border: 1px solid #eef2f7;
-        border-radius: 10px;
-        color: #334155;
-        font-size: 0.92rem;
-        box-shadow: none;
-        outline: none;
+    .status-pending {
+        color: #d97706;
+        font-weight: 700;
+        font-size: 0.85rem;
     }
 
-    .postit-form-control,
-    .postit-form-select {
-        height: 44px;
-        padding: 0 14px;
+    .status-done {
+        color: #16a34a;
+        font-weight: 700;
+        font-size: 0.85rem;
     }
 
-    .postit-form-select {
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 14px center;
-        padding-right: 36px;
+    .status-overdue {
+        color: #dc2626;
+        font-weight: 700;
+        font-size: 0.85rem;
     }
 
-    .postit-form-textarea {
-        min-height: 118px;
-        padding: 12px 14px;
-        resize: vertical;
-    }
-
-    .postit-form-control:focus,
-    .postit-form-select:focus,
-    .postit-form-textarea:focus {
-        border-color: #93c5fd;
-        background: #fff;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-
+    /* Datepicker Clear button & wrap */
     .postit-date-wrap {
         position: relative;
     }
 
-    .postit-date-wrap .postit-form-control {
+    .postit-date-wrap .form-control {
         padding-right: 44px;
     }
 
-    .postit-date-wrap.has-date .postit-form-control {
+    .postit-date-wrap.has-date .form-control {
         padding-right: 78px;
     }
 
@@ -575,28 +339,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         color: #2563eb;
     }
 
-    .postit-date-wrap .flatpickr-input,
-    .postit-date-wrap .flatpickr-alt-input {
-        cursor: pointer;
-        background: #f8fafc;
-    }
-
-    #createPostItModal .modal-dialog {
-        max-width: 640px;
-    }
-
-    #createPostItModal .modal-content,
-    #createPostItModal .modal-body {
-        overflow: visible;
-    }
-
+    /* Flatpickr Custom Styling */
     .flatpickr-calendar.postit-calendar {
         border: none;
         border-radius: 16px;
         box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
         padding: 12px 12px 14px;
         width: 278px;
-        font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
         z-index: 2000;
     }
 
@@ -605,50 +354,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         margin-bottom: 8px;
     }
 
-    .flatpickr-calendar.postit-calendar .flatpickr-month {
-        overflow: visible;
-    }
-
     .flatpickr-calendar.postit-calendar .flatpickr-current-month {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding-top: 0;
         font-size: 1rem;
         font-weight: 700;
         color: #1e293b;
-    }
-
-    .flatpickr-calendar.postit-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
-    .flatpickr-calendar.postit-calendar .numInputWrapper {
-        font-weight: 700;
-        color: #1e293b;
-    }
-
-    .flatpickr-calendar.postit-calendar .flatpickr-prev-month,
-    .flatpickr-calendar.postit-calendar .flatpickr-next-month {
-        padding: 6px;
-        color: #64748b;
-    }
-
-    .flatpickr-calendar.postit-calendar .flatpickr-weekdays {
-        height: 32px;
-    }
-
-    .flatpickr-calendar.postit-calendar .flatpickr-weekday {
-        font-weight: 700;
-        color: #1e293b;
-        font-size: 0.82rem;
-    }
-
-    .flatpickr-calendar.postit-calendar .flatpickr-days {
-        width: 100%;
-    }
-
-    .flatpickr-calendar.postit-calendar .dayContainer {
-        width: 100%;
-        min-width: 100%;
-        max-width: 100%;
     }
 
     .flatpickr-calendar.postit-calendar .flatpickr-day {
@@ -656,37 +368,22 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         border: none;
         color: #334155;
         font-weight: 500;
-        max-width: none;
         height: 36px;
         line-height: 36px;
     }
 
-    .flatpickr-calendar.postit-calendar .flatpickr-day.selected,
-    .flatpickr-calendar.postit-calendar .flatpickr-day.selected:hover {
+    .flatpickr-calendar.postit-calendar .flatpickr-day.selected {
         background: #e2e8f0;
         color: #1e293b;
-        border: none;
-        box-shadow: none;
     }
 
-    .flatpickr-calendar.postit-calendar .flatpickr-day.prevMonthDay,
-    .flatpickr-calendar.postit-calendar .flatpickr-day.nextMonthDay {
-        color: #cbd5e1;
-        font-weight: 400;
-    }
-
-    .flatpickr-calendar.postit-calendar .flatpickr-day.today:not(.selected) {
-        border: none;
-        color: #2563eb;
-        font-weight: 700;
-    }
-
+    /* Color picker radio buttons */
     .postit-color-list {
         display: flex;
         align-items: center;
         gap: 10px;
         flex-wrap: wrap;
-        margin-top: 2px;
+        margin-top: 4px;
     }
 
     .postit-color-item {
@@ -694,6 +391,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         width: 28px;
         height: 28px;
         margin: 0;
+        cursor: pointer;
     }
 
     .postit-color-item input {
@@ -713,42 +411,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         cursor: pointer;
     }
 
-    .postit-color-item input:checked + .postit-color-dot {
+    .postit-color-item input:checked+.postit-color-dot {
         box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2563eb;
     }
 
-    .btn-postit-cancel {
-        background: #f1f5f9;
-        color: #334155;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 18px;
-        font-weight: 700;
-        font-size: 0.92rem;
-    }
-
-    .btn-postit-save {
-        background: #2563eb;
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 18px;
-        font-weight: 700;
-        font-size: 0.92rem;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-    }
-
-    .btn-postit-save:hover {
-        background: #1d4ed8;
-        color: #fff;
-    }
-
+    /* Form validation error */
     .postit-field-wrap {
         position: relative;
-    }
-
-    .postit-field-wrap .postit-form-control {
-        padding-right: 42px;
     }
 
     .postit-field-error-icon {
@@ -771,490 +440,710 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
     .postit-field-error-text {
         display: none;
-        margin: 8px 0 0;
+        margin: 6px 0 0;
         font-size: 0.84rem;
         font-weight: 600;
         color: #ef4444;
     }
 
-    .postit-field-wrap.is-invalid .postit-form-control {
+    .postit-field-wrap.is-invalid .form-control {
         border-color: #fecaca;
         background: #fff;
     }
 
     .postit-field-wrap.is-invalid .postit-field-error-icon,
-    .postit-field-wrap.is-invalid + .postit-field-error-text {
+    .postit-field-wrap.is-invalid+.postit-field-error-text {
         display: block;
+    }
+
+    .filter-toolbar {
+        justify-content: start !;
     }
 </style>
 
 <div class="container-fluid">
     <div class="main-content d-flex flex-column">
         <div class="content-wrapper">
-            <div class="postit-page-card">
+            <div class="main-page-wrapper">
 
-            <div class="postit-header-row">
-                <div>
-                    <h1 class="postit-title">Post-it แจ้งเตือน</h1>
-                    <p class="postit-breadcrumb">ภาพรวมระบบ &gt; Post-it แจ้งเตือน</p>
-                </div>
-                <a href="javascript:void(0);" class="btn-create-postit" id="btnCreatePostIt"
-                    data-bs-toggle="modal" data-bs-target="#createPostItModal">
-                    <i class="ri-add-line"></i> สร้าง Post-it
-                </a>
-            </div>
+                <!-- Master Card Wrapper (Inherited from header.php) -->
+                <div class="main-card-wrapper">
 
-            <div class="postit-stats-grid">
-                <div class="postit-stat-card">
-                    <div class="postit-stat-icon total"><i class="ri-sticky-note-line"></i></div>
-                    <div>
-                        <div class="postit-stat-value"><?php echo (int) $stats['total']; ?></div>
-                        <div class="postit-stat-label">Post-it ทั้งหมด</div>
-                    </div>
-                </div>
-                <div class="postit-stat-card">
-                    <div class="postit-stat-icon pending"><i class="ri-time-line"></i></div>
-                    <div>
-                        <div class="postit-stat-value"><?php echo (int) $stats['pending']; ?></div>
-                        <div class="postit-stat-label">รอดำเนินการ</div>
-                    </div>
-                </div>
-                <div class="postit-stat-card">
-                    <div class="postit-stat-icon done"><i class="ri-checkbox-circle-line"></i></div>
-                    <div>
-                        <div class="postit-stat-value"><?php echo (int) $stats['done']; ?></div>
-                        <div class="postit-stat-label">ดำเนินการแล้ว</div>
-                    </div>
-                </div>
-                <div class="postit-stat-card">
-                    <div class="postit-stat-icon overdue"><i class="ri-calendar-close-line"></i></div>
-                    <div>
-                        <div class="postit-stat-value"><?php echo (int) $stats['overdue']; ?></div>
-                        <div class="postit-stat-label">เลยกำหนด</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="postit-board-card">
-                <div class="postit-board-header">
-                    <div class="postit-board-heading">
-                        <h2 class="postit-board-title">บอร์ด Post-it</h2>
-                        <p class="postit-board-sub">ทั้งหมด <?php echo (int) $pagination['total']; ?> รายการ</p>
-                    </div>
-
-                    <form method="get" action="<?php echo htmlspecialchars($base); ?>/post_it" class="postit-filters" id="postitFilterForm">
-                    <div class="postit-search">
-                        <i class="ri-search-line"></i>
-                        <input type="text" name="q" value="<?php echo htmlspecialchars($filters['q'] ?? ''); ?>"
-                            placeholder="ค้นหาหัวข้อ ข้อความ ผู้รับผิดชอบ">
-                    </div>
-
-                    <select name="user_id" onchange="this.form.submit()">
-                        <option value="">ทุกผู้รับผิดชอบ</option>
-                        <?php foreach ($assignees as $person): ?>
-                            <?php
-                            $label = trim($person['full_name'] ?? '');
-                            if ($label === '') {
-                                $label = $person['user_name'] ?? '';
-                            }
-                            ?>
-                            <option value="<?php echo htmlspecialchars((string) ($person['user_id'] ?? '')); ?>"
-                                <?php echo ((string) ($filters['user_id'] ?? '') === (string) ($person['user_id'] ?? '')) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($label); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-
-                    <select name="status" onchange="this.form.submit()">
-                        <option value="">ทุกสถานะ</option>
-                        <option value="0" <?php echo (($filters['status'] ?? '') === '0') ? 'selected' : ''; ?>>รอดำเนินการ</option>
-                        <option value="1" <?php echo (($filters['status'] ?? '') === '1') ? 'selected' : ''; ?>>ดำเนินการแล้ว</option>
-                    </select>
-
-                    <select name="color" onchange="this.form.submit()">
-                        <option value="">ทุกสี</option>
-                        <option value="yellow" <?php echo (($filters['color_code'] ?? '') === 'yellow') ? 'selected' : ''; ?>>เหลือง</option>
-                        <option value="pink" <?php echo (($filters['color_code'] ?? '') === 'pink') ? 'selected' : ''; ?>>ชมพู</option>
-                        <option value="blue" <?php echo (($filters['color_code'] ?? '') === 'blue') ? 'selected' : ''; ?>>ฟ้า</option>
-                        <option value="green" <?php echo (($filters['color_code'] ?? '') === 'green') ? 'selected' : ''; ?>>เขียว</option>
-                        <option value="purple" <?php echo (($filters['color_code'] ?? '') === 'purple') ? 'selected' : ''; ?>>ม่วง</option>
-                        <option value="orange" <?php echo (($filters['color_code'] ?? '') === 'orange') ? 'selected' : ''; ?>>ส้ม</option>
-                    </select>
-
-                    <select name="due" onchange="this.form.submit()">
-                        <option value="">ทุกกำหนดส่ง</option>
-                        <option value="today" <?php echo (($filters['due'] ?? '') === 'today') ? 'selected' : ''; ?>>วันนี้</option>
-                        <option value="week" <?php echo (($filters['due'] ?? '') === 'week') ? 'selected' : ''; ?>>สัปดาห์นี้</option>
-                        <option value="overdue" <?php echo (($filters['due'] ?? '') === 'overdue') ? 'selected' : ''; ?>>เลยกำหนด</option>
-                        <option value="none" <?php echo (($filters['due'] ?? '') === 'none') ? 'selected' : ''; ?>>ไม่มีกำหนด</option>
-                    </select>
-
-                    <select name="sort" onchange="this.form.submit()">
-                        <option value="created_desc" <?php echo (($filters['sort'] ?? '') === 'created_desc') ? 'selected' : ''; ?>>เรียงตามวันที่สร้าง</option>
-                        <option value="created_asc" <?php echo (($filters['sort'] ?? '') === 'created_asc') ? 'selected' : ''; ?>>วันที่สร้างเก่าสุด</option>
-                        <option value="due_asc" <?php echo (($filters['sort'] ?? '') === 'due_asc') ? 'selected' : ''; ?>>กำหนดส่งใกล้สุด</option>
-                        <option value="due_desc" <?php echo (($filters['sort'] ?? '') === 'due_desc') ? 'selected' : ''; ?>>กำหนดส่งไกลสุด</option>
-                    </select>
-
-                    <input type="hidden" name="per_page" value="<?php echo (int) $pagination['per_page']; ?>">
-                    </form>
-                </div>
-
-                <div class="postit-grid">
-                    <?php if (empty($items)): ?>
-                        <div class="postit-empty">
-                            <i class="ri-sticky-note-line" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
-                            ยังไม่มี Post-it
+                    <!-- Header Box (Inherited from header.php) -->
+                    <div class="page-header-box">
+                        <div>
+                            <h2 class="page-title">Post-it แจ้งเตือน</h2>
+                            <p class="page-subtitle">ภาพรวมระบบ • Post-it แจ้งเตือน</p>
                         </div>
-                    <?php else: ?>
-                        <?php foreach ($items as $item): ?>
-                            <?php
-                            $colorKey = $item['color_code'] ?? 'yellow';
-                            $palette = $colorMap[$colorKey] ?? $colorMap['yellow'];
-                            // รองรับกรณีเก็บเป็น hex ใน DB
-                            if (is_string($colorKey) && str_starts_with($colorKey, '#')) {
-                                $palette = ['bg' => $colorKey, 'border' => $colorKey, 'text' => '#854d0e'];
-                            }
-                            $st = $statusLabel((string) ($item['status'] ?? '0'), $item['due_date'] ?? null);
-                            ?>
-                            <article class="postit-note" style="background: <?php echo htmlspecialchars($palette['bg']); ?>; border-color: <?php echo htmlspecialchars($palette['border']); ?>;">
-                                <h3 class="postit-note-title"><?php echo htmlspecialchars($item['title'] ?? ''); ?></h3>
-                                <div class="postit-note-assignee">
-                                    <i class="ri-user-line"></i>
-                                    <span><?php echo htmlspecialchars($displayName($item)); ?></span>
-                                </div>
-                                <div class="postit-note-body"><?php echo nl2br(htmlspecialchars($item['content'] ?? '')); ?></div>
-                                <div class="postit-note-meta">
-                                    <i class="ri-time-line"></i>
-                                    <span>สร้างเมื่อ <?php echo htmlspecialchars($formatThaiDate($item['created_at'] ?? null)); ?></span>
-                                </div>
-                                <div class="postit-note-status <?php echo htmlspecialchars($st['class']); ?>">
-                                    <?php echo htmlspecialchars($st['text']); ?>
-                                </div>
-                            </article>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-
-                <div class="postit-pager">
-                    <div class="postit-pager-left">
-                        <span>แสดง</span>
-                        <select id="postitPerPage" onchange="document.querySelector('#postitFilterForm [name=per_page]').value=this.value; document.getElementById('postitFilterForm').submit();">
-                            <?php foreach ([10, 25, 50, 100] as $n): ?>
-                                <option value="<?php echo $n; ?>" <?php echo ((int) $pagination['per_page'] === $n) ? 'selected' : ''; ?>><?php echo $n; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <span>รายการต่อหน้า</span>
+                        <a href="javascript:void(0);" class="btn-add-action" id="btnCreatePostIt" data-bs-toggle="modal"
+                            data-bs-target="#createPostItModal">
+                            <i class="ri-add-line"></i> สร้าง Post-it
+                        </a>
                     </div>
 
-                    <div>
-                        รายการที่ <?php echo (int) $pagination['from']; ?>-<?php echo (int) $pagination['to']; ?>
-                        จาก <?php echo (int) $pagination['total']; ?>
-                    </div>
-
-                    <div class="postit-pager-nav">
-                        <?php
-                        $qs = $_GET;
-                        $buildPageUrl = static function (int $p) use ($base, $qs): string {
-                            $qs['page'] = $p;
-                            return $base . '/post_it?' . http_build_query($qs);
-                        };
-                        $current = (int) $pagination['page'];
-                        $totalPages = (int) $pagination['total_pages'];
-                        ?>
-                        <a class="postit-page-btn <?php echo $current <= 1 ? 'disabled' : ''; ?>" href="<?php echo htmlspecialchars($buildPageUrl(1)); ?>">&laquo;</a>
-                        <a class="postit-page-btn <?php echo $current <= 1 ? 'disabled' : ''; ?>" href="<?php echo htmlspecialchars($buildPageUrl(max(1, $current - 1))); ?>">&lsaquo;</a>
-                        <?php for ($p = 1; $p <= $totalPages; $p++): ?>
-                            <a class="postit-page-btn <?php echo $p === $current ? 'active' : ''; ?>" href="<?php echo htmlspecialchars($buildPageUrl($p)); ?>"><?php echo $p; ?></a>
-                        <?php endfor; ?>
-                        <a class="postit-page-btn <?php echo $current >= $totalPages ? 'disabled' : ''; ?>" href="<?php echo htmlspecialchars($buildPageUrl(min($totalPages, $current + 1))); ?>">&rsaquo;</a>
-                        <a class="postit-page-btn <?php echo $current >= $totalPages ? 'disabled' : ''; ?>" href="<?php echo htmlspecialchars($buildPageUrl($totalPages)); ?>">&raquo;</a>
-                    </div>
-                </div>
-            </div>
-            </div>
-
-            <div class="modal fade" id="createPostItModal" tabindex="-1" aria-labelledby="createPostItModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="createPostItModalLabel">สร้าง Post-it ใหม่</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <!-- Stats Grid (Inherited from header.php) -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue"><i class="ri-sticky-note-line"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-val"><?php echo (int) $stats['total']; ?></span>
+                                <span class="stat-label">Post-it ทั้งหมด</span>
+                            </div>
                         </div>
-                        <form id="createPostItForm" autocomplete="off" novalidate>
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label class="postit-form-label" for="postitTitle">หัวข้อ <span class="text-danger">*</span></label>
-                                    <div class="postit-field-wrap" id="postitTitleWrap">
-                                        <input type="text" class="postit-form-control" id="postitTitle" name="title" placeholder="หัวข้อ Post-it">
-                                        <span class="postit-field-error-icon">!</span>
-                                    </div>
-                                    <p class="postit-field-error-text">กรุณาระบุหัวข้อ Post-it</p>
-                                </div>
-
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-6">
-                                        <label class="postit-form-label" for="postitAssignee">ผู้รับผิดชอบ</label>
-                                        <select class="postit-form-select" id="postitAssignee" name="user_id">
-                                            <option value="">ยังไม่ระบุผู้รับผิดชอบ</option>
-                                            <?php foreach ($assignees as $person): ?>
-                                                <?php
-                                                $personId = (string) ($person['user_id'] ?? '');
-                                                if ($personId === '' || $personId === '0') {
-                                                    continue;
-                                                }
-                                                $label = trim($person['full_name'] ?? '');
-                                                if ($label === '') {
-                                                    $label = $person['user_name'] ?? '';
-                                                }
-                                                ?>
-                                                <option value="<?php echo htmlspecialchars($personId); ?>">
-                                                    <?php echo htmlspecialchars($label); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="postit-form-label" for="postitDueDate">กำหนดส่ง</label>
-                                        <div class="postit-date-wrap" id="postitDateWrap">
-                                            <input type="text" class="postit-form-control" id="postitDueDate" name="due_date" value="" placeholder="เลือกวันที่" readonly>
-                                            <i class="ri-calendar-line"></i>
-                                            <button type="button" class="postit-date-clear" id="postitDueDateClear">ล้าง</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="postit-form-label" for="postitStatus">สถานะ</label>
-                                    <select class="postit-form-select" id="postitStatus" name="status">
-                                        <option value="0" selected>รอดำเนินการ</option>
-                                        <option value="1">ดำเนินการแล้ว</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="postit-form-label" for="postitContent">ข้อความ</label>
-                                    <textarea class="postit-form-textarea" id="postitContent" name="content" placeholder="รายละเอียด..."></textarea>
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="postit-form-label">สี</label>
-                                    <div class="postit-color-list">
-                                        <label class="postit-color-item">
-                                            <input type="radio" name="color_code" value="yellow" checked>
-                                            <span class="postit-color-dot" style="background:#FDE68A;"></span>
-                                        </label>
-                                        <label class="postit-color-item">
-                                            <input type="radio" name="color_code" value="pink">
-                                            <span class="postit-color-dot" style="background:#F9A8D4;"></span>
-                                        </label>
-                                        <label class="postit-color-item">
-                                            <input type="radio" name="color_code" value="blue">
-                                            <span class="postit-color-dot" style="background:#93C5FD;"></span>
-                                        </label>
-                                        <label class="postit-color-item">
-                                            <input type="radio" name="color_code" value="green">
-                                            <span class="postit-color-dot" style="background:#86EFAC;"></span>
-                                        </label>
-                                        <label class="postit-color-item">
-                                            <input type="radio" name="color_code" value="purple">
-                                            <span class="postit-color-dot" style="background:#D8B4FE;"></span>
-                                        </label>
-                                        <label class="postit-color-item">
-                                            <input type="radio" name="color_code" value="orange">
-                                            <span class="postit-color-dot" style="background:#FDBA74;"></span>
-                                        </label>
-                                    </div>
-                                </div>
+                        <div class="stat-card">
+                            <div class="stat-icon yellow"><i class="ri-time-line"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-val"><?php echo (int) $stats['pending']; ?></span>
+                                <span class="stat-label">รอดำเนินการ</span>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn-postit-cancel" data-bs-dismiss="modal">ยกเลิก</button>
-                                <button type="submit" class="btn-postit-save">บันทึกข้อมูล</button>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green"><i class="ri-checkbox-circle-line"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-val"><?php echo (int) $stats['done']; ?></span>
+                                <span class="stat-label">ดำเนินการแล้ว</span>
                             </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon red"><i class="ri-calendar-close-line"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-val"><?php echo (int) $stats['overdue']; ?></span>
+                                <span class="stat-label">เลยกำหนด</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inner Board Container Card (Inherited from header.php) -->
+                    <div class="table-container-card p-3 p-md-4">
+                        <div class="mb-3">
+                            <h3 class="page-title fs-5">บอร์ด Post-it</h3>
+                            <p class="page-subtitle">ทั้งหมด <?php echo count($items); ?> รายการ</p>
+                        </div>
+
+                        <!-- Filter Toolbar (Inherited from header.php) -->
+                        <form method="get" action="<?php echo htmlspecialchars($base); ?>/post_it" id="postitFilterForm"
+                            class="filter-toolbar mb-4">
+                            <div class="search-box-wrap">
+                                <i class="ri-search-line"></i>
+                                <input type="text" class="search-input" name="q"
+                                    value="<?php echo htmlspecialchars($filters['q'] ?? ''); ?>"
+                                    placeholder="ค้นหาหัวข้อ ข้อความ ผู้รับผิดชอบ">
+                            </div>
+
+                            <div class="filter-group">
+                                <select class="filter-select select2" name="user_id">
+                                    <option value="">ทุกผู้รับผิดชอบ</option>
+                                    <?php foreach ($assignees as $person): ?>
+                                        <?php
+                                        $label = trim($person['full_name'] ?? '');
+                                        if ($label === '') {
+                                            $label = $person['user_name'] ?? '';
+                                        }
+                                        ?>
+                                        <option value="<?php echo htmlspecialchars((string) ($person['user_id'] ?? '')); ?>"
+                                            <?php echo ((string) ($filters['user_id'] ?? '') === (string) ($person['user_id'] ?? '')) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($label); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+
+                                <select class="filter-select select2" name="status">
+                                    <option value="">ทุกสถานะ</option>
+                                    <option value="0" <?php echo (($filters['status'] ?? '') === '0') ? 'selected' : ''; ?>>รอดำเนินการ</option>
+                                    <option value="1" <?php echo (($filters['status'] ?? '') === '1') ? 'selected' : ''; ?>>ดำเนินการแล้ว</option>
+                                </select>
+
+                                <select class="filter-select select2" name="color">
+                                    <option value="">ทุกสี</option>
+                                    <option value="yellow" <?php echo (($filters['color_code'] ?? '') === 'yellow') ? 'selected' : ''; ?>>เหลือง</option>
+                                    <option value="pink" <?php echo (($filters['color_code'] ?? '') === 'pink') ? 'selected' : ''; ?>>ชมพู</option>
+                                    <option value="blue" <?php echo (($filters['color_code'] ?? '') === 'blue') ? 'selected' : ''; ?>>ฟ้า</option>
+                                    <option value="green" <?php echo (($filters['color_code'] ?? '') === 'green') ? 'selected' : ''; ?>>เขียว</option>
+                                    <option value="purple" <?php echo (($filters['color_code'] ?? '') === 'purple') ? 'selected' : ''; ?>>ม่วง</option>
+                                    <option value="orange" <?php echo (($filters['color_code'] ?? '') === 'orange') ? 'selected' : ''; ?>>ส้ม</option>
+                                </select>
+
+                                <select class="filter-select select2" name="due">
+                                    <option value="">ทุกกำหนดส่ง</option>
+                                    <option value="today" <?php echo (($filters['due'] ?? '') === 'today') ? 'selected' : ''; ?>>วันนี้</option>
+                                    <option value="week" <?php echo (($filters['due'] ?? '') === 'week') ? 'selected' : ''; ?>>สัปดาห์นี้</option>
+                                    <option value="overdue" <?php echo (($filters['due'] ?? '') === 'overdue') ? 'selected' : ''; ?>>เลยกำหนด</option>
+                                    <option value="none" <?php echo (($filters['due'] ?? '') === 'none') ? 'selected' : ''; ?>>ไม่มีกำหนด</option>
+                                </select>
+
+                                <select class="filter-select select2" name="sort">
+                                    <option value="created_desc" <?php echo (($filters['sort'] ?? '') === 'created_desc') ? 'selected' : ''; ?>>เรียงตามวันที่สร้าง</option>
+                                    <option value="created_asc" <?php echo (($filters['sort'] ?? '') === 'created_asc') ? 'selected' : ''; ?>>วันที่สร้างเก่าสุด</option>
+                                    <option value="due_asc" <?php echo (($filters['sort'] ?? '') === 'due_asc') ? 'selected' : ''; ?>>กำหนดส่งใกล้สุด</option>
+                                    <option value="due_desc" <?php echo (($filters['sort'] ?? '') === 'due_desc') ? 'selected' : ''; ?>>กำหนดส่งไกลสุด</option>
+                                </select>
+                            </div>
+
+
                         </form>
+
+                        <!-- Post-it Notes Grid -->
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3 mb-4"
+                            style="min-height: 180px;">
+                            <?php if (empty($items)): ?>
+                                <div class="col-12 text-center py-5 text-muted">
+                                    <i class="ri-sticky-note-line fs-1 d-block mb-2 text-secondary"></i>
+                                    <span>ยังไม่มี Post-it</span>
+                                </div>
+                            <?php else: ?>
+                                <?php foreach ($items as $item): ?>
+                                    <?php
+                                    $colorKey = $item['color_code'] ?? 'yellow';
+                                    $palette = $colorMap[$colorKey] ?? $colorMap['yellow'];
+                                    if (is_string($colorKey) && str_starts_with($colorKey, '#')) {
+                                        $palette = ['bg' => $colorKey, 'border' => $colorKey, 'text' => '#854d0e'];
+                                    }
+                                    $st = $statusLabel((string) ($item['status'] ?? '0'), $item['due_date'] ?? null);
+                                    ?>
+                                    <div class="col">
+                                        <article class="postit-note"
+                                            style="background: <?php echo htmlspecialchars($palette['bg']); ?>; border-color: <?php echo htmlspecialchars($palette['border']); ?>;">
+                                            <div class="postit-actions">
+                                                <button type="button" class="postit-action-btn btn-postit-done"
+                                                    data-id="<?php echo (int) $item['post_id']; ?>" title="สลับสถานะ">
+                                                    <i class="ri-check-line"></i>
+                                                </button>
+                                                <button type="button" class="postit-action-btn btn-postit-edit"
+                                                    data-id="<?php echo (int) $item['post_id']; ?>"
+                                                    data-title="<?php echo htmlspecialchars($item['title'] ?? ''); ?>"
+                                                    data-user-id="<?php echo htmlspecialchars((string) ($item['user_id'] ?? '')); ?>"
+                                                    data-due-date="<?php echo htmlspecialchars($item['due_date'] ?? ''); ?>"
+                                                    data-status="<?php echo htmlspecialchars((string) ($item['status'] ?? '0')); ?>"
+                                                    data-content="<?php echo htmlspecialchars($item['content'] ?? ''); ?>"
+                                                    data-color="<?php echo htmlspecialchars($item['color_code'] ?? 'yellow'); ?>"
+                                                    title="แก้ไข">
+                                                    <i class="ri-pencil-line"></i>
+                                                </button>
+                                                <button type="button" class="postit-action-btn btn-postit-delete"
+                                                    data-id="<?php echo (int) $item['post_id']; ?>" title="ลบ">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </div>
+                                            <h3 class="postit-note-title"><?php echo htmlspecialchars($item['title'] ?? ''); ?>
+                                            </h3>
+                                            <div class="postit-note-assignee">
+                                                <i class="ri-user-line"></i>
+                                                <span><?php echo htmlspecialchars($displayName($item)); ?></span>
+                                            </div>
+                                            <div class="postit-note-body">
+                                                <?php echo nl2br(htmlspecialchars($item['content'] ?? '')); ?></div>
+                                            <div class="postit-note-meta">
+                                                <i class="ri-time-line"></i>
+                                                <span>สร้างเมื่อ
+                                                    <?php echo htmlspecialchars($formatThaiDate($item['created_at'] ?? null)); ?></span>
+                                            </div>
+                                            <div class="<?php echo htmlspecialchars($st['class']); ?>">
+                                                <?php echo htmlspecialchars($st['text']); ?>
+                                            </div>
+                                        </article>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+
+
                     </div>
+
                 </div>
             </div>
-
-            <?php require_once dirname(__DIR__) . '/main/footer.php'; ?>
         </div>
     </div>
 </div>
 
+<!-- Create Post-It Modal (Using Keen/Metronic standard modal classes from header.php) -->
+<div class="modal fade" id="createPostItModal" tabindex="-1" aria-labelledby="createPostItModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-600px">
+        <div class="modal-content modal-content-keen">
+            <div class="modal-header modal-header-keen">
+                <h4 class="modal-title modal-title-keen" id="createPostItModalLabel">สร้าง Post-it ใหม่</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createPostItForm" autocomplete="off" novalidate>
+                <input type="hidden" id="postitId" name="post_id" value="">
+                <div class="modal-body modal-body-keen">
+                    <div class="mb-4">
+                        <label class="form-label-keen required" for="postitTitle">หัวข้อ</label>
+                        <div class="postit-field-wrap" id="postitTitleWrap">
+                            <input type="text" class="form-control form-control-solid" id="postitTitle" name="title"
+                                placeholder="หัวข้อ Post-it">
+                            <span class="postit-field-error-icon">!</span>
+                        </div>
+                        <p class="postit-field-error-text">กรุณาระบุหัวข้อ Post-it</p>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label-keen" for="postitAssignee">ผู้รับผิดชอบ</label>
+                            <select class="form-select form-select-solid select2-modal" id="postitAssignee"
+                                name="user_id">
+                                <option value="">ยังไม่ระบุผู้รับผิดชอบ</option>
+                                <?php foreach ($assignees as $person): ?>
+                                    <?php
+                                    $personId = (string) ($person['user_id'] ?? '');
+                                    if ($personId === '' || $personId === '0') {
+                                        continue;
+                                    }
+                                    $label = trim($person['full_name'] ?? '');
+                                    if ($label === '') {
+                                        $label = $person['user_name'] ?? '';
+                                    }
+                                    ?>
+                                    <option value="<?php echo htmlspecialchars($personId); ?>">
+                                        <?php echo htmlspecialchars($label); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-keen" for="postitDueDate">กำหนดส่ง</label>
+                            <div class="postit-date-wrap" id="postitDateWrap">
+                                <input type="text" class="form-control form-control-solid" id="postitDueDate"
+                                    name="due_date" value="" placeholder="เลือกวันที่" readonly>
+                                <i class="ri-calendar-line"></i>
+                                <button type="button" class="postit-date-clear" id="postitDueDateClear">ล้าง</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label-keen" for="postitStatus">สถานะ</label>
+                        <select class="form-select form-select-solid select2-modal" id="postitStatus" name="status">
+                            <option value="0" selected>รอดำเนินการ</option>
+                            <option value="1">ดำเนินการแล้ว</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label-keen" for="postitContent">ข้อความ</label>
+                        <textarea class="form-control form-control-solid" id="postitContent" name="content" rows="4"
+                            placeholder="รายละเอียด..."></textarea>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label-keen">สี</label>
+                        <div class="postit-color-list">
+                            <label class="postit-color-item">
+                                <input type="radio" name="color_code" value="yellow" checked>
+                                <span class="postit-color-dot" style="background:#FDE68A;"></span>
+                            </label>
+                            <label class="postit-color-item">
+                                <input type="radio" name="color_code" value="pink">
+                                <span class="postit-color-dot" style="background:#F9A8D4;"></span>
+                            </label>
+                            <label class="postit-color-item">
+                                <input type="radio" name="color_code" value="blue">
+                                <span class="postit-color-dot" style="background:#93C5FD;"></span>
+                            </label>
+                            <label class="postit-color-item">
+                                <input type="radio" name="color_code" value="green">
+                                <span class="postit-color-dot" style="background:#86EFAC;"></span>
+                            </label>
+                            <label class="postit-color-item">
+                                <input type="radio" name="color_code" value="purple">
+                                <span class="postit-color-dot" style="background:#D8B4FE;"></span>
+                            </label>
+                            <label class="postit-color-item">
+                                <input type="radio" name="color_code" value="orange">
+                                <span class="postit-color-dot" style="background:#FDBA74;"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer modal-footer-keen">
+                    <button type="button" class="btn-light-keen btn-postit-cancel"
+                        data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn-primary-keen btn-postit-save">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php require_once dirname(__DIR__) . '/main/footer.php'; ?>
+
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
 <script>
-document.querySelector('.postit-search input')?.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('postitFilterForm').submit();
-    }
-});
+    // Select2 Initialization
+    if (typeof jQuery !== 'undefined') {
+        jQuery(document).ready(function ($) {
+            if (typeof $.fn.select2 === 'function') {
+                $('.select2').select2({
+                    width: 'auto'
+                }).on('change', function () {
+                    if (this.form) {
+                        this.form.submit();
+                    }
+                });
 
-const postitTitleInput = document.getElementById('postitTitle');
-const postitTitleWrap = document.getElementById('postitTitleWrap');
-
-function setPostItTitleError(show) {
-    postitTitleWrap?.classList.toggle('is-invalid', show);
-}
-
-postitTitleInput?.addEventListener('input', function () {
-    if (this.value.trim()) {
-        setPostItTitleError(false);
-    }
-});
-
-let postitPicker = null;
-
-if (typeof flatpickr === 'function') {
-    const dateWrap = document.getElementById('postitDateWrap');
-    const clearBtn = document.getElementById('postitDueDateClear');
-
-    function togglePostItClear(hasDate) {
-        dateWrap?.classList.toggle('has-date', !!hasDate);
-    }
-
-    postitPicker = flatpickr('#postitDueDate', {
-        locale: 'th',
-        dateFormat: 'Y-m-d',
-        altInput: true,
-        altFormat: 'd/m/Y',
-        allowInput: false,
-        disableMobile: true,
-        appendTo: document.body,
-        monthSelectorType: 'static',
-        onReady: function (selectedDates, dateStr, instance) {
-            instance.calendarContainer.classList.add('postit-calendar');
-            if (instance.altInput) {
-                instance.altInput.className = 'postit-form-control';
-                instance.altInput.setAttribute('placeholder', 'เลือกวันที่');
+                $('#createPostItModal .select2-modal').select2({
+                    dropdownParent: $('#createPostItModal'),
+                    width: '100%'
+                });
             }
-            togglePostItClear(selectedDates.length > 0);
-        },
-        onChange: function (selectedDates) {
-            togglePostItClear(selectedDates.length > 0);
-        },
-        onOpen: function (selectedDates, dateStr, instance) {
-            const cal = instance.calendarContainer;
-            const modal = document.querySelector('#createPostItModal .modal-content');
-            if (!cal || !modal) return;
-            requestAnimationFrame(function () {
-                const modalRect = modal.getBoundingClientRect();
-                const calRect = cal.getBoundingClientRect();
-                const overflow = calRect.right - (modalRect.right - 16);
-                if (overflow > 0) {
-                    const currentLeft = parseFloat(cal.style.left || '0');
-                    cal.style.left = (currentLeft - overflow) + 'px';
+        });
+    }
+
+    document.querySelector('.search-input[name="q"]')?.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('postitFilterForm').submit();
+        }
+    });
+
+    const postitTitleInput = document.getElementById('postitTitle');
+    const postitTitleWrap = document.getElementById('postitTitleWrap');
+
+    function setPostItTitleError(show) {
+        postitTitleWrap?.classList.toggle('is-invalid', show);
+    }
+
+    postitTitleInput?.addEventListener('input', function () {
+        if (this.value.trim()) {
+            setPostItTitleError(false);
+        }
+    });
+
+    let postitPicker = null;
+
+    if (typeof flatpickr === 'function') {
+        const dateWrap = document.getElementById('postitDateWrap');
+        const clearBtn = document.getElementById('postitDueDateClear');
+
+        function togglePostItClear(hasDate) {
+            dateWrap?.classList.toggle('has-date', !!hasDate);
+        }
+
+        postitPicker = flatpickr('#postitDueDate', {
+            locale: 'th',
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd/m/Y',
+            allowInput: false,
+            disableMobile: true,
+            appendTo: document.body,
+            monthSelectorType: 'static',
+            onReady: function (selectedDates, dateStr, instance) {
+                instance.calendarContainer.classList.add('postit-calendar');
+                if (instance.altInput) {
+                    instance.altInput.className = 'form-control form-control-solid';
+                    instance.altInput.setAttribute('placeholder', 'เลือกวันที่');
                 }
-            });
+                togglePostItClear(selectedDates.length > 0);
+            },
+            onChange: function (selectedDates) {
+                togglePostItClear(selectedDates.length > 0);
+            },
+            onOpen: function (selectedDates, dateStr, instance) {
+                const cal = instance.calendarContainer;
+                const modal = document.querySelector('#createPostItModal .modal-content');
+                if (!cal || !modal) return;
+                requestAnimationFrame(function () {
+                    const modalRect = modal.getBoundingClientRect();
+                    const calRect = cal.getBoundingClientRect();
+                    const overflow = calRect.right - (modalRect.right - 16);
+                    if (overflow > 0) {
+                        const currentLeft = parseFloat(cal.style.left || '0');
+                        cal.style.left = (currentLeft - overflow) + 'px';
+                    }
+                });
+            }
+        });
+
+        clearBtn?.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            postitPicker.clear();
+            togglePostItClear(false);
+        });
+    }
+
+    document.getElementById('createPostItModal')?.addEventListener('hidden.bs.modal', function () {
+        setPostItTitleError(false);
+        document.getElementById('postitId').value = '';
+        document.getElementById('createPostItModalLabel').textContent = 'สร้าง Post-it ใหม่';
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 === 'function') {
+            $('#createPostItModal .select2-modal').val('').trigger('change.select2');
+            $('#postitStatus').val('0').trigger('change.select2');
         }
     });
 
-    clearBtn?.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        postitPicker.clear();
-        togglePostItClear(false);
+    // Handle Create Button click to reset modal
+    document.getElementById('btnCreatePostIt')?.addEventListener('click', function () {
+        document.getElementById('createPostItForm')?.reset();
+        document.getElementById('postitId').value = '';
+        document.getElementById('createPostItModalLabel').textContent = 'สร้าง Post-it ใหม่';
+        document.querySelector('input[name="color_code"][value="yellow"]')?.click();
+        if (postitPicker) postitPicker.clear();
+        document.getElementById('postitDateWrap')?.classList.remove('has-date');
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 === 'function') {
+            $('#createPostItModal .select2-modal').val('').trigger('change.select2');
+            $('#postitStatus').val('0').trigger('change.select2');
+        }
     });
-}
 
-document.getElementById('createPostItModal')?.addEventListener('hidden.bs.modal', function () {
-    setPostItTitleError(false);
-});
+    // Handle Edit Button Click
+    document.querySelectorAll('.btn-postit-edit').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-document.getElementById('createPostItForm')?.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const form = this;
-    const title = postitTitleInput?.value.trim();
-    if (!title) {
-        setPostItTitleError(true);
-        postitTitleInput?.focus();
-        return;
-    }
-    setPostItTitleError(false);
+            const id = this.dataset.id;
+            const title = this.dataset.title || '';
+            const userId = this.dataset.userId || '';
+            const dueDate = this.dataset.dueDate || '';
+            const status = this.dataset.status || '0';
+            const content = this.dataset.content || '';
+            const color = this.dataset.color || 'yellow';
 
-    const submitBtn = form.querySelector('.btn-postit-save');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'กำลังบันทึก...';
-    }
+            document.getElementById('postitId').value = id;
+            document.getElementById('createPostItModalLabel').textContent = 'แก้ไข Post-it';
+            if (postitTitleInput) postitTitleInput.value = title;
+            document.getElementById('postitContent').value = content;
 
-    const formData = new FormData(form);
+            // Set Color Radio
+            const colorRadio = document.querySelector('input[name="color_code"][value="' + color + '"]');
+            if (colorRadio) {
+                colorRadio.checked = true;
+            }
 
-    fetch('<?php echo htmlspecialchars($base); ?>/post_it/store', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(function (res) { return res.json(); })
-    .then(function (response) {
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'บันทึกข้อมูล';
-        }
+            // Set Select2 values
+            if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 === 'function') {
+                $('#postitAssignee').val(userId).trigger('change.select2');
+                $('#postitStatus').val(status).trigger('change.select2');
+            } else {
+                if (document.getElementById('postitAssignee')) document.getElementById('postitAssignee').value = userId;
+                if (document.getElementById('postitStatus')) document.getElementById('postitStatus').value = status;
+            }
 
-        if (response.result === 1) {
+            // Set Flatpickr Date
+            if (postitPicker) {
+                if (dueDate) {
+                    postitPicker.setDate(dueDate, true);
+                    togglePostItClear(true);
+                } else {
+                    postitPicker.clear();
+                    togglePostItClear(false);
+                }
+            } else {
+                const dateInput = document.getElementById('postitDueDate');
+                if (dateInput) dateInput.value = dueDate;
+            }
+
+            // Open Modal
             const modalElement = document.getElementById('createPostItModal');
             if (modalElement && typeof bootstrap !== 'undefined') {
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) modalInstance.hide();
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+                modalInstance.show();
             }
-
-            form.reset();
-            document.querySelector('input[name="color_code"][value="yellow"]')?.click();
-            if (postitPicker) postitPicker.clear();
-            document.getElementById('postitDateWrap')?.classList.remove('has-date');
-
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: response.msg || 'บันทึกสำเร็จ',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: true
-                }).then(function () {
-                    location.reload();
-                });
-            } else {
-                alert(response.msg || 'บันทึกสำเร็จ');
-                location.reload();
-            }
-        } else {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: response.msg || 'บันทึกไม่สำเร็จ',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            } else {
-                alert(response.msg || 'บันทึกไม่สำเร็จ');
-            }
-        }
-    })
-    .catch(function () {
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'บันทึกข้อมูล';
-        }
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'error',
-                title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ',
-                showConfirmButton: false,
-                timer: 3000
-            });
-        } else {
-            alert('เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ');
-        }
+        });
     });
-});
+
+    // Handle Done (Toggle Status) Button Click
+    document.querySelectorAll('.btn-postit-done').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const postId = this.dataset.id;
+            if (!postId) return;
+
+            const formData = new FormData();
+            formData.append('post_id', postId);
+
+            fetch('<?php echo htmlspecialchars($base); ?>/post_it/toggle_status', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (response) {
+                    if (response.result === 1) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: response.msg || 'อัปเดตสถานะสำเร็จ',
+                                showConfirmButton: false,
+                                timer: 1200
+                            }).then(function () { location.reload(); });
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: response.msg || 'เกิดข้อผิดพลาด', showConfirmButton: false, timer: 2000 });
+                        }
+                    }
+                });
+        });
+    });
+
+    // Handle Delete Button Click
+    document.querySelectorAll('.btn-postit-delete').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const postId = this.dataset.id;
+            if (!postId) return;
+
+            const doDelete = function () {
+                const formData = new FormData();
+                formData.append('post_id', postId);
+
+                fetch('<?php echo htmlspecialchars($base); ?>/post_it/delete', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                    .then(function (res) { return res.json(); })
+                    .then(function (response) {
+                        if (response.result === 1) {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: response.msg || 'ลบ Post-it สำเร็จ',
+                                    showConfirmButton: false,
+                                    timer: 1200
+                                }).then(function () { location.reload(); });
+                            } else {
+                                location.reload();
+                            }
+                        } else {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: response.msg || 'เกิดข้อผิดพลาด', showConfirmButton: false, timer: 2000 });
+                            }
+                        }
+                    });
+            };
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'ยืนยันการลบ Post-it?',
+                    text: "คุณจะไม่สามารถย้อนกลับรายการนี้ได้!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'ใช่, ลบเลย!',
+                    cancelButtonText: 'ยกเลิก'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        doDelete();
+                    }
+                });
+            } else {
+                if (confirm('คุณต้องการลบ Post-it นี้ใช่หรือไม่?')) {
+                    doDelete();
+                }
+            }
+        });
+    });
+
+    document.getElementById('createPostItForm')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const form = this;
+        const title = postitTitleInput?.value.trim();
+        if (!title) {
+            setPostItTitleError(true);
+            postitTitleInput?.focus();
+            return;
+        }
+        setPostItTitleError(false);
+
+        const submitBtn = form.querySelector('.btn-postit-save');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'กำลังบันทึก...';
+        }
+
+        const formData = new FormData(form);
+        const postId = document.getElementById('postitId')?.value;
+        const targetUrl = postId ? '<?php echo htmlspecialchars($base); ?>/post_it/update' : '<?php echo htmlspecialchars($base); ?>/post_it/store';
+
+        fetch(targetUrl, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (response) {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'บันทึกข้อมูล';
+                }
+
+                if (response.result === 1) {
+                    const modalElement = document.getElementById('createPostItModal');
+                    if (modalElement && typeof bootstrap !== 'undefined') {
+                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        if (modalInstance) modalInstance.hide();
+                    }
+
+                    form.reset();
+                    document.getElementById('postitId').value = '';
+                    document.querySelector('input[name="color_code"][value="yellow"]')?.click();
+                    if (postitPicker) postitPicker.clear();
+                    document.getElementById('postitDateWrap')?.classList.remove('has-date');
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: response.msg || 'บันทึกสำเร็จ',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        alert(response.msg || 'บันทึกสำเร็จ');
+                        location.reload();
+                    }
+                } else {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: response.msg || 'บันทึกไม่สำเร็จ',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    } else {
+                        alert(response.msg || 'บันทึกไม่สำเร็จ');
+                    }
+                }
+            })
+            .catch(function () {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'บันทึกข้อมูล';
+                }
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                } else {
+                    alert('เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ');
+                }
+            });
+    });
 </script>
