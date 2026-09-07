@@ -16,6 +16,7 @@ $routes = [
         'closing' => ['BackofficeController', 'closing'],
         'yearly_dash' => ['BackofficeController', 'yearly_dash'],
         'monthly_dash' => ['BackofficeController', 'monthly_dash'],
+        'customer_message' => ['BackofficeController', 'customer_message'],
         'monthly_task' => ['BackofficeController', 'monthly_task'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout'],

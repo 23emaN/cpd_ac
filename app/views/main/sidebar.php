@@ -24,7 +24,7 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
     /* ปรับแต่ง Sidebar ให้ตรงตามภาพต้นแบบ */
     .sidebar-area {
         background-color: #F7F9FB;
-        
+
         font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
         width: 250px;
         /* ขยายจาก 240px เป็น 260px เพื่อไม่ให้ข้อความตกขอบ */
@@ -63,7 +63,7 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
         border-color: #eff6ff;
         color: #0066fe;
         font-weight: 700;
-        
+
     }
 
     .overview-pill-btn i {
@@ -163,7 +163,7 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
         justify-content: center !important;
         padding: 10px !important;
         background-color: transparent !important;
-        
+
     }
 
     [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link .menu-icon {
@@ -286,7 +286,7 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $message_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer_message"
                     class="menu-link <?php echo in_array($now_page, $message_pages) ? 'active' : '' ?>">
                     <i class="ri-chat-3-line menu-icon"></i>
                     <span class="title">ส่งข้อความถึงลูกค้า</span>
