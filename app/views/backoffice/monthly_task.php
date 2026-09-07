@@ -647,8 +647,10 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div>
                         <h5 class="modal-title fw-bold" id="manageModalLabel"
                             style="color: #1e293b; font-size: 1.15rem;">อัปเดตงานรายเดือน</h5>
-                        <div class="text-muted mt-1" id="manageModalSubtitle" style="font-size: 0.85rem;">AMLAW ·
-                            กันยายน ปี -</div>
+                        <div class="text-muted mt-1" id="manageModalSubtitle" style="font-size: 0.85rem;">
+                            <?php echo htmlspecialchars($task['customer_name']); ?>
+                            <?php echo htmlspecialchars($task['month_year']); ?>
+                        </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
                         style="margin-top: -15px; margin-right: -10px;"></button>
@@ -676,8 +678,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label fw-semibold text-secondary mb-0"
                                     style="font-size: 0.85rem;">รายการงานประจำเดือน</label>
-                                <span id="modalTaskCount" class="text-muted fw-semibold" style="font-size: 0.8rem;">-
-                                    งาน</span>
+                                <span id="modalTaskCount" class="text-muted fw-semibold" style="font-size: 0.8rem;">-งาน</span>
                             </div>
 
                             <div id="modalTaskList" class="task-list-container"
@@ -788,9 +789,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             $('#selPayment').select2();
         });
 
-        function Modal_manage(period_id) {
+        function Modal_manage(period_id, subtitleStr) {
             const modalElement = document.getElementById('manageModal');
             const myModal = new bootstrap.Modal(modalElement);
+
+            if (subtitleStr) {
+                document.getElementById('manageModalSubtitle').textContent = subtitleStr;
+            }
+
             myModal.show();
 
             // โหลด tasks จาก DB ตาม period_id

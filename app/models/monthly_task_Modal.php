@@ -51,13 +51,15 @@ class MonthlyTaskModal extends Model {
         error_log("=== getTasksByPeriodId DEBUG ===");
         error_log("period_id = " . var_export($period_id, true));
 
-        $sql = "
+       $sql = "
             SELECT 
                 ct.customer_tasks_id,
                 ct.period_id,
                 ct.task_id,
                 ct.status,
-                t.tasks_name as task_name
+                ct.amount,
+                t.tasks_name as task_name,
+                t.is_notify_amount
             FROM tbl_customer_tasks ct
             INNER JOIN tbl_tasks t ON ct.task_id = t.tasks_id
             WHERE ct.period_id = :period_id

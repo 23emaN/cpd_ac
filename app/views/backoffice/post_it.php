@@ -635,7 +635,7 @@
                                                 </button>
                                                <button type="button" class="postit-action-btn btn-postit-delete"title="ลบ"
                                                     onclick="delete_portit(<?php echo (int) $item['post_id']; ?>, '<?php echo htmlspecialchars($item['title'] ?? '', ENT_QUOTES); ?>')">
-                                                        <i class="ri-delete-bin-line"></i>
+                                                    <i class="ri-delete-bin-line"></i>
                                                 </button>
                                                 <?php endif; ?>
                                             </div>

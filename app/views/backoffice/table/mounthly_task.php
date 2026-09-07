@@ -123,7 +123,14 @@
 
             <td class="text-center">
                 <div class="action-btn-group">
-                    <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข" onclick="Modal_manage(<?php echo (int)$task['period_id']; ?>)"><i class="ri-pencil-line"></i></button>
+                    <?php
+                        $m = (int)($task['period_month'] ?? 0);
+                        $monthNames = [1=>'มกราคม',2=>'กุมภาพันธ์',3=>'มีนาคม',4=>'เมษายน',5=>'พฤษภาคม',6=>'มิถุนายน',7=>'กรกฎาคม',8=>'สิงหาคม',9=>'กันยายน',10=>'ตุลาคม',11=>'พฤศจิกายน',12=>'ธันวาคม'];
+                        $mName = $monthNames[$m] ?? '';
+                        $yName = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : '';
+                        $subtitle = $task['customer_name'] . ' · ' . $mName . ' ปี ' . $yName;
+                    ?>
+                    <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข" onclick="Modal_manage(<?php echo (int)$task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><i class="ri-pencil-line"></i></button>
                     <button type="button" class="btn-action-message" title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
                 </div>
             </td>
