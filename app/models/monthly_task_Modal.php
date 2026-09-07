@@ -1,9 +1,11 @@
 <?php
 require_once '../app/models/Model.php';
 
-class MonthlyTaskModal extends Model {
+class MonthlyTaskModal extends Model
+{
 
-    public function getMonthlyTasks($fiscalId, $month = null) {
+    public function getMonthlyTasks($fiscalId, $month = null)
+    {
         $sql = "
             SELECT 
                 p.period_id,
@@ -35,18 +37,20 @@ class MonthlyTaskModal extends Model {
         $params = ['fiscal_id' => $fiscalId];
 
         if ($month !== null && $month !== '') {
-            $sql .= " AND p.period_month = :month";
+            $sql .= " AND (p.period_month = :month OR CAST(p.period_month AS UNSIGNED) = :month_int)";
             $params['month'] = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $params['month_int'] = (int) $month;
         }
 
         $sql .= " ORDER BY c.created_at ASC";
-        
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getTasksByPeriodId($period_id) {
+    public function getTasksByPeriodId($period_id)
+    {
         // ===== DEBUG START =====
         error_log("=== getTasksByPeriodId DEBUG ===");
         error_log("period_id = " . var_export($period_id, true));
@@ -57,7 +61,9 @@ class MonthlyTaskModal extends Model {
                 ct.period_id,
                 ct.task_id,
                 ct.status,
-                t.tasks_name as task_name
+                ct.amount,
+                t.tasks_name as task_name,
+                t.is_notify_amount
             FROM tbl_customer_tasks ct
             INNER JOIN tbl_tasks t ON ct.task_id = t.tasks_id
             WHERE ct.period_id = :period_id
@@ -83,7 +89,7 @@ class MonthlyTaskModal extends Model {
                 'debug_error' => $e->getMessage(),
                 'debug_period_id' => $period_id,
             ]);
-            exit;
         }
     }
 }
+

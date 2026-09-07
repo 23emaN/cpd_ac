@@ -1220,7 +1220,14 @@ class BackofficeController
             }
         }
 
-        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
+        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
+        $month = $_GET['month'] ?? date('m');
+        $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
+
+        require_once '../app/models/MonthlyDashModel.php';
+        $monthlyDashModel = new MonthlyDashModel();
+        $dashboardData = $monthlyDashModel->getDashboardStats($fiscal_id, $monthStr);
+
         $data = [
             'title' => 'ระบบ Backoffice',
             'user' => $this->userPayload,
@@ -1231,13 +1238,14 @@ class BackofficeController
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
             'active_company_id' => $active_company_id,
-            'active_fiscal_year' => $active_fiscal_year
+            'active_fiscal_year' => $active_fiscal_year,
+            'selected_month' => $monthStr,
+            'stats' => $dashboardData
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/monthly_dash.php';
     }
-
 
     public function customer_message()
     {
