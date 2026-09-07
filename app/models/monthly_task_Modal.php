@@ -88,4 +88,36 @@ class MonthlyTaskModal extends Model {
             exit;
         }
     }
+    public function getCommentsByTaskId(int $customerTasksId) {
+        $sql = "
+            SELECT 
+                c.comment_id,
+                c.customer_tasks_id,
+                c.comment_user_id,
+                c.comment_detail AS comment_text,
+                c.create_at,
+                u.user_firstname AS user_name,
+                DATE_FORMAT(c.create_at, '%d/%m/%Y %H:%i') AS created_at_display
+            FROM tbl_comment_tasks c
+            LEFT JOIN tbl_user u ON c.comment_user_id = u.user_id
+            WHERE c.customer_tasks_id = :task_id
+            ORDER BY c.create_at ASC
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['task_id' => $customerTasksId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function addComment(int $customerTasksId, int $userId, string $commentText) {
+        $sql = "
+            INSERT INTO tbl_comment_tasks (customer_tasks_id, comment_user_id, comment_detail, create_at)
+            VALUES (:task_id, :user_id, :comment_text, NOW())
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            'task_id' => $customerTasksId,
+            'user_id' => $userId,
+            'comment_text' => $commentText
+        ]);
+    }
 }

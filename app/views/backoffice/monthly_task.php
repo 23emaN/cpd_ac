@@ -1,14 +1,14 @@
 <?php
-// app/views/backoffice/closing.php
-$selected_year = $_GET['year'] ?? '2569';
-$company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
-$show_company_workspace = true;
+    // app/views/backoffice/closing.php
+    $selected_year          = $_GET['year'] ?? '2569';
+    $company_name           = $_GET['company'] ?? 'TEST ACCOUNTING';
+    $show_company_workspace = true;
 
-// 1. นำ Header เข้ามา
-require_once dirname(__DIR__) . '/main/header.php';
+    // 1. นำ Header เข้ามา
+    require_once dirname(__DIR__) . '/main/header.php';
 
-// 2. นำ Sidebar เข้ามา
-require_once dirname(__DIR__) . '/main/sidebar.php';
+    // 2. นำ Sidebar เข้ามา
+    require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
@@ -490,7 +490,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">จัดการงานรายเดือน</h2>
-                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <?php $fy_display = ! empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
                             <p class="page-subtitle">ภาพรวมระบบ - งานรายเดือน - ปี
                                 <?php echo htmlspecialchars($fy_display); ?>
                             </p>
@@ -562,25 +562,25 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <div class="w-auto">
                             <select class="form-select" id="monthSelect">
                                 <?php
-                                $selectedMonth = (int) ($data['selected_month'] ?? date('n'));
-                                $months = [
-                                    1 => 'มกราคม',
-                                    2 => 'กุมภาพันธ์',
-                                    3 => 'มีนาคม',
-                                    4 => 'เมษายน',
-                                    5 => 'พฤษภาคม',
-                                    6 => 'มิถุนายน',
-                                    7 => 'กรกฎาคม',
-                                    8 => 'สิงหาคม',
-                                    9 => 'กันยายน',
-                                    10 => 'ตุลาคม',
-                                    11 => 'พฤศจิกายน',
-                                    12 => 'ธันวาคม',
-                                ];
-                                foreach ($months as $num => $name) {
-                                    $isSelected = ($num === $selectedMonth) ? 'selected' : '';
-                                    echo "<option value=\"$num\" $isSelected>$name</option>";
-                                }
+                                    $selectedMonth = (int) ($data['selected_month'] ?? date('n'));
+                                    $months        = [
+                                        1  => 'มกราคม',
+                                        2  => 'กุมภาพันธ์',
+                                        3  => 'มีนาคม',
+                                        4  => 'เมษายน',
+                                        5  => 'พฤษภาคม',
+                                        6  => 'มิถุนายน',
+                                        7  => 'กรกฎาคม',
+                                        8  => 'สิงหาคม',
+                                        9  => 'กันยายน',
+                                        10 => 'ตุลาคม',
+                                        11 => 'พฤศจิกายน',
+                                        12 => 'ธันวาคม',
+                                    ];
+                                    foreach ($months as $num => $name) {
+                                        $isSelected = ($num === $selectedMonth) ? 'selected' : '';
+                                        echo "<option value=\"$num\" $isSelected>$name</option>";
+                                    }
                                 ?>
                             </select>
                         </div>
@@ -594,7 +594,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                         <div class="filter-group mb-4">
                             <?php
-                            $users = ['เมย์', 'ชมพู่', 'นิว'];
+                                $users = ['เมย์', 'ชมพู่', 'นิว'];
                             ?>
                             <select class="form-select filter-select" id="selUser">
                                 <option value="">ทุกผู้ดูแล</option>
@@ -832,13 +832,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             </div>
 
             <!-- Middle: Comment Button -->
-            <button type="button" class="btn-task-comment"
-                    data-customer-tasks-id="${t.customer_tasks_id}"
-                    data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
-                    title="เพิ่มความคิดเห็น"
-                    style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
-                <i class="ri-chat-3-line" style="font-size: 15px;"></i>
-            </button>
+           <button type="button" class="btn-task-comment"
+        data-customer-tasks-id="${t.customer_tasks_id}"
+        data-task-name="${t.task_name}"
+        data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
+        title="เพิ่มความคิดเห็น"
+        style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
+    <i class="ri-chat-3-line" style="font-size: 15px;"></i>
+</button>
 
             <!-- Right side: Select dropdown & Amount Input -->
             <div class="d-flex align-items-center gap-2">
@@ -854,125 +855,187 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     });
     taskList.innerHTML = html;
 
-            // Bind comment button click event after rendering
-            document.querySelectorAll('.btn-task-comment').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const taskId = this.dataset.customerTasksId;
-                    toggleCommentThread(taskId, this);
-                });
-            });
+    document.querySelectorAll('.btn-task-comment').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const taskId = this.dataset.customerTasksId;
+            const taskName = this.dataset.taskName || 'ความคิดเห็น';
+            toggleCommentThread(taskId, taskName, this);
+        });
+    });
         })
         .catch(() => {
             taskList.innerHTML = '<div class="text-center text-danger py-3" style="font-size:0.85rem;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
         });
     }
 
-    function toggleCommentThread(customerTasksId, triggerElement) {
-        const row = triggerElement.closest('.d-flex.justify-content-between');
-        const existing = row.nextElementSibling;
+    function toggleCommentThread(customerTasksId, taskName, triggerElement) {
+    const row = triggerElement.closest('.d-flex.justify-content-between');
+    const existing = row.nextElementSibling;
+    const icon = triggerElement.querySelector('i');
 
-        // ถ้า thread ของแถวนี้เปิดอยู่แล้ว ให้ปิด (toggle)
-        if (existing && existing.classList.contains('comment-thread-panel')) {
-            existing.remove();
-            return;
-        }
+    // ถ้า thread ของแถวนี้เปิดอยู่แล้ว ให้ปิด (toggle)
+    if (existing && existing.classList.contains('comment-thread-panel')) {
+        existing.style.opacity = '0';
+        existing.style.transform = 'translateY(-6px)';
+        setTimeout(() => existing.remove(), 180);
 
-        // ปิด thread ของแถวอื่นที่เปิดค้างอยู่ (เปิดได้ทีละแถว)
-        document.querySelectorAll('.comment-thread-panel').forEach(el => el.remove());
-
-        const panelHtml = `
-            <div class="comment-thread-panel" style="padding: 12px 0 16px; border-bottom: 1px dashed #f1f5f9; background:#fafbfc;">
-                <div class="comment-thread-list" style="max-height: 200px; overflow-y:auto; margin-bottom: 10px; padding: 0 12px;">
-                    <div class="text-center text-muted py-2" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>
-                </div>
-                <div class="d-flex gap-2" style="padding: 0 12px;">
-                    <input type="text" class="form-control form-control-sm comment-thread-input" 
-                        placeholder="แสดงความคิดเห็น..." 
-                        style="border-radius:8px; font-size:0.84rem; background:#ffffff; border:1px solid #e2e8f0;">
-                    <button type="button" class="btn btn-sm btn-primary comment-thread-send" style="border-radius:8px; font-size:0.84rem; flex-shrink:0;">ส่ง</button>
-                </div>
-            </div>
-        `;
-
-        row.insertAdjacentHTML('afterend', panelHtml);
-        const panel = row.nextElementSibling;
-        const listEl = panel.querySelector('.comment-thread-list');
-        const inputEl = panel.querySelector('.comment-thread-input');
-        const sendBtn = panel.querySelector('.comment-thread-send');
-
-        loadComments(customerTasksId, listEl);
-
-        function submitComment() {
-            const text = inputEl.value.trim();
-            if (!text) return;
-            sendBtn.disabled = true;
-
-            postComment(customerTasksId, text)
-                .then(() => {
-                    inputEl.value = '';
-                    loadComments(customerTasksId, listEl);
-                    updateCommentBadge(triggerElement, true);
-                })
-                .catch(() => alert('ส่งความคิดเห็นไม่สำเร็จ'))
-                .finally(() => { sendBtn.disabled = false; });
-        }
-
-        sendBtn.addEventListener('click', submitComment);
-        inputEl.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); submitComment(); }
-        });
+        // เปลี่ยนไอคอนกลับเป็นแชท
+        if (icon) icon.className = 'ri-chat-3-line';
+        return;
     }
 
-    function loadComments(customerTasksId, listEl) {
-        listEl.innerHTML = '<div class="text-center text-muted py-2" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
+    // ปิด thread ของแถวอื่นที่เปิดค้างอยู่ (เปิดได้ทีละแถว) + รีเซ็ตไอคอนของแถวอื่น
+    document.querySelectorAll('.comment-thread-panel').forEach(el => el.remove());
+    document.querySelectorAll('.btn-task-comment i').forEach(i => {
+        i.className = 'ri-chat-3-line';
+    });
 
-        fetch('<?php echo BASE_URL; ?>/monthly_task/comments?customer_tasks_id=' + customerTasksId)
-            .then(res => res.json())
-            .then(data => {
-                if (!data.comments || !data.comments.length) {
-                    listEl.innerHTML = '<div class="text-center text-muted py-2" style="font-size:0.8rem;">ยังไม่มีความคิดเห็น</div>';
-                    return;
-                }
-                listEl.innerHTML = data.comments.map(c => `
-                    <div class="d-flex gap-2 mb-2">
-                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0" 
-                             style="width:26px; height:26px; font-size:0.7rem; font-weight:700; color:#64748b;">
-                            ${(c.user_name || '?').charAt(0).toUpperCase()}
-                        </div>
-                        <div class="flex-grow-1" style="background:#fff; border:1px solid #f1f5f9; border-radius:10px; padding:6px 10px;">
-                            <div class="d-flex justify-content-between">
-                                <span style="font-size:0.78rem; font-weight:700; color:#334155;">${c.user_name || 'ไม่ระบุ'}</span>
-                                <span style="font-size:0.7rem; color:#94a3b8;">${c.created_at_display || ''}</span>
-                            </div>
-                            <div style="font-size:0.82rem; color:#475569;">${c.comment_text}</div>
-                        </div>
-                    </div>
-                `).join('');
-                listEl.scrollTop = listEl.scrollHeight;
+    // เปลี่ยนไอคอนของปุ่มที่กดเป็นลูกศรขึ้น (บอกว่ากดแล้วจะยุบ)
+    if (icon) icon.className = 'ri-arrow-up-s-line';
+
+    const panelHtml = `
+        <div class="comment-thread-panel" style="
+            background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            margin: 6px 0 16px;
+            padding: 16px;
+            border: 1.5px solid #dbeafe;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.06);
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        ">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <div style="width:26px; height:26px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 6px rgba(37,99,235,0.35);">
+                    <i class="ri-chat-3-fill" style="color:#fff; font-size:0.75rem;"></i>
+                </div>
+                <span style="font-size:0.82rem; font-weight:800; color:#1e3a8a; letter-spacing:0.2px;">${taskName}</span>
+                <span class="comment-count-badge" style="font-size:0.68rem; font-weight:700; color:#2563eb; background:#dbeafe; padding:2px 8px; border-radius:20px; margin-left:auto;">…</span>
+            </div>
+            <div class="comment-thread-list" style="max-height: 240px; overflow-y:auto; margin-bottom: 14px; padding-right: 4px;">
+                <div class="text-center text-muted py-3" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <input type="text" class="form-control comment-thread-input" 
+                    placeholder="พิมพ์ความคิดเห็น..." 
+                    style="border-radius:24px; font-size:0.85rem; background:#ffffff; border:1.5px solid #dbeafe; padding: 10px 18px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);">
+                <button type="button" class="comment-thread-send" 
+                    style="width:42px; height:42px; flex-shrink:0; border-radius:50%; border:none; background: linear-gradient(135deg, #3b82f6, #2563eb); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 3px 10px rgba(37,99,235,0.35); transition: transform 0.15s ease, box-shadow 0.15s ease;">
+                    <i class="ri-send-plane-fill" style="font-size:1rem;"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+    row.insertAdjacentHTML('afterend', panelHtml);
+    const panel = row.nextElementSibling;
+    const listEl = panel.querySelector('.comment-thread-list');
+    const inputEl = panel.querySelector('.comment-thread-input');
+    const sendBtn = panel.querySelector('.comment-thread-send');
+    const countBadge = panel.querySelector('.comment-count-badge');
+
+    sendBtn.addEventListener('mouseenter', () => {
+        sendBtn.style.transform = 'scale(1.08)';
+        sendBtn.style.boxShadow = '0 5px 14px rgba(37,99,235,0.45)';
+    });
+    sendBtn.addEventListener('mouseleave', () => {
+        sendBtn.style.transform = 'scale(1)';
+        sendBtn.style.boxShadow = '0 3px 10px rgba(37,99,235,0.35)';
+    });
+
+    requestAnimationFrame(() => {
+        panel.style.opacity = '1';
+        panel.style.transform = 'translateY(0)';
+    });
+
+    loadComments(customerTasksId, listEl, countBadge);
+
+    function submitComment() {
+        const text = inputEl.value.trim();
+        if (!text) return;
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.6';
+
+        postComment(customerTasksId, text)
+            .then(() => {
+                inputEl.value = '';
+                loadComments(customerTasksId, listEl, countBadge);
+                updateCommentBadge(triggerElement, true);
             })
-            .catch(() => {
-                listEl.innerHTML = '<div class="text-center text-danger py-2" style="font-size:0.8rem;">โหลดความคิดเห็นไม่สำเร็จ</div>';
+            .catch(() => alert('ส่งความคิดเห็นไม่สำเร็จ'))
+            .finally(() => {
+                sendBtn.disabled = false;
+                sendBtn.style.opacity = '1';
             });
     }
 
-    function postComment(customerTasksId, text) {
-        return fetch('<?php echo BASE_URL; ?>/monthly_task/comments/store', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ customer_tasks_id: customerTasksId, comment_text: text })
-        }).then(res => res.json());
-    }
+    sendBtn.addEventListener('click', submitComment);
+    inputEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); submitComment(); }
+    });
+    inputEl.focus();
+}
 
-    function updateCommentBadge(button, hasComment) {
-        button.style.borderColor = hasComment ? '#93c5fd' : '#e2e8f0';
-        button.style.backgroundColor = hasComment ? '#eff6ff' : '#ffffff';
-        button.style.color = hasComment ? '#2563eb' : '#94a3b8';
-        const icon = button.querySelector('i');
-        if (icon) icon.style.color = hasComment ? '#2563eb' : '#94a3b8';
-    }
+function getAvatarColor(name) {
+    const colors = [
+        { bg: 'linear-gradient(135deg,#60a5fa,#2563eb)' },
+        { bg: 'linear-gradient(135deg,#f472b6,#db2777)' },
+        { bg: 'linear-gradient(135deg,#34d399,#059669)' },
+        { bg: 'linear-gradient(135deg,#fbbf24,#d97706)' },
+        { bg: 'linear-gradient(135deg,#a78bfa,#7c3aed)' },
+        { bg: 'linear-gradient(135deg,#fb923c,#ea580c)' },
+    ];
+    const str = name || '?';
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+}
+
+function loadComments(customerTasksId, listEl, countBadge) {
+    listEl.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
+
+    fetch('<?php echo BASE_URL; ?>/monthly_task/comments?customer_tasks_id=' + customerTasksId)
+        .then(res => res.json())
+        .then(data => {
+            const comments = data.comments || [];
+            if (countBadge) countBadge.textContent = comments.length + ' ข้อความ';
+
+            if (!comments.length) {
+                listEl.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="ri-chat-smile-2-line" style="font-size:1.8rem; display:block; margin-bottom:6px; color:#93c5fd;"></i>
+                        <span style="font-size:0.8rem; color:#94a3b8; font-weight:500;">ยังไม่มีความคิดเห็น เริ่มพูดคุยกันเลย!</span>
+                    </div>`;
+                return;
+            }
+            listEl.innerHTML = comments.map(c => {
+                const name = c.user_name || 'ไม่ระบุ';
+                const avatar = getAvatarColor(name);
+                return `
+                <div class="d-flex gap-2 mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                         style="width:34px; height:34px; font-size:0.85rem; font-weight:800; background:${avatar.bg}; color:#fff; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                        ${name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="flex-grow-1" style="background:#fff; border-left: 3px solid #93c5fd; border-radius: 4px 14px 14px 14px; padding:10px 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.05);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span style="font-size:0.8rem; font-weight:800; color:#1e293b;">${name}</span>
+                            <span style="font-size:0.68rem; color:#94a3b8; font-weight:600;">${c.created_at_display || ''}</span>
+                        </div>
+                        <div style="font-size:0.85rem; color:#334155; line-height:1.5; word-break:break-word;">${c.comment_text}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            listEl.scrollTop = listEl.scrollHeight;
+        })
+        .catch(() => {
+            listEl.innerHTML = '<div class="text-center text-dark py-3" style="font-size:0.8rem;">ยังไม่มีข้อมูล</div>';
+        });
+}
+
     </script>
 
     <?php
-    // 3. นำ Footer เข้ามา
+        // 3. นำ Footer เข้ามา
     require_once dirname(__DIR__) . '/main/footer.php';
     ?>

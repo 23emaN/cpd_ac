@@ -995,7 +995,57 @@ class BackofficeController
         }
     }
 
+    public function getMonthlyTaskComments()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
 
+        $customer_tasks_id = $_GET['customer_tasks_id'] ?? '';
+        if (!$customer_tasks_id) {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลงาน']);
+            return;
+        }
+
+        require_once '../app/models/monthly_task_Modal.php';
+        $model = new MonthlyTaskModal();
+
+        try {
+            $comments = $model->getCommentsByTaskId((int)$customer_tasks_id);
+            echo json_encode(['result' => 1, 'comments' => $comments]);
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+        }
+    }
+
+    public function storeMonthlyTaskComment()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $customer_tasks_id = $input['customer_tasks_id'] ?? '';
+        $comment_text = trim($input['comment_text'] ?? '');
+        $user_id = $this->userPayload['user_id'] ?? null;
+
+        if (!$customer_tasks_id || $comment_text === '' || !$user_id) {
+            echo json_encode(['result' => 0, 'msg' => 'ข้อมูลไม่ครบถ้วน']);
+            return;
+        }
+
+        require_once '../app/models/monthly_task_Modal.php';
+        $model = new MonthlyTaskModal();
+
+        try {
+            $success = $model->addComment((int)$customer_tasks_id, (int)$user_id, $comment_text);
+            if ($success) {
+                echo json_encode(['result' => 1, 'msg' => 'บันทึกความคิดเห็นสำเร็จ']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'บันทึกไม่สำเร็จ']);
+            }
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+        }
+    }
 
 
 
