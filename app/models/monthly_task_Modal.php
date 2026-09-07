@@ -92,6 +92,51 @@ class MonthlyTaskModal extends Model
             ]);
         }
     }
+    public function updatePeriodData(int $periodId, array $data) {
+        // Convert flatpickr dates (d/m/Y) to Y-m-d format
+        $docDate = !empty($data['doc_date']) ? DateTime::createFromFormat('d/m/Y', $data['doc_date'])->format('Y-m-d') : null;
+        $completedDate = !empty($data['completed_date']) ? DateTime::createFromFormat('d/m/Y', $data['completed_date'])->format('Y-m-d') : null;
+        $taxDate = !empty($data['tax_date']) ? DateTime::createFromFormat('d/m/Y', $data['tax_date'])->format('Y-m-d') : null;
+
+        $sql = "UPDATE tbl_customer_work_periods SET 
+                doc_date = :doc_date,
+                completed_date = :completed_date,
+                tax_date = :tax_date,
+                review1_status = :r1,
+                review2_status = :r2,
+                review3_status = :r3,
+                payment_status = :payment,
+                tax_status = :tax
+                WHERE period_id = :id";
+                
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'doc_date' => $docDate,
+            'completed_date' => $completedDate,
+            'tax_date' => $taxDate,
+            'r1' => $data['review1_status'],
+            'r2' => $data['review2_status'],
+            'r3' => $data['review3_status'],
+            'payment' => $data['payment_status'],
+            'tax' => $data['tax_status'],
+            'id' => $periodId
+        ]);
+    }
+
+    public function updateTaskData(int $periodId, array $tasks) {
+        $sql = "UPDATE tbl_customer_tasks SET status = :status, amount = :amount WHERE customer_tasks_id = :id AND period_id = :pid";
+        $stmt = $this->pdo->prepare($sql);
+        
+        foreach ($tasks as $task) {
+            $stmt->execute([
+                'status' => $task['status'],
+                'amount' => $task['amount'] ?? 0,
+                'id' => $task['customer_tasks_id'],
+                'pid' => $periodId
+            ]);
+        }
+    }
+
     public function getCommentsByTaskId(int $customerTasksId) {
         $sql = "
             SELECT 

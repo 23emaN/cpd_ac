@@ -709,27 +709,27 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-secondary"
                                     style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 1)</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review1_status"
                                     style="border-radius: 8px; font-size: 0.9rem;">
-                                    <option value="" selected>ยังไม่ได้รีวิว</option>
+                                    <option value="0" selected>ยังไม่ได้รีวิว</option>
                                     <option value="1">ชมพู่</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-secondary"
                                     style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว2)</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review2_status"
                                     style="border-radius: 8px; font-size: 0.9rem;">
-                                    <option value="" selected>ยังไม่ได้รีวิว</option>
+                                    <option value="0" selected>ยังไม่ได้รีวิว</option>
                                     <option value="1">ชมพู่</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-secondary"
                                     style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว3)</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review3_status"
                                     style="border-radius: 8px; font-size: 0.9rem;">
-                                    <option value="" selected>ยังไม่ได้รีวิว</option>
+                                    <option value="0" selected>ยังไม่ได้รีวิว</option>
                                     <option value="1">ชมพู่</option>
                                 </select>
                             </div>
@@ -741,7 +741,7 @@
                             <div class="col-md-6 mt-3 mt-md-0">
                                 <label class="form-label fw-semibold text-secondary"
                                     style="font-size: 0.85rem;">สถานะการเก็บเงิน</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_payment_status"
                                     style="border-radius: 8px; font-size: 0.9rem;">
                                     <option value="0" selected>ยังไม่ได้รับ</option>
                                     <option value="1">ได้รับเงินแล้ว</option>
@@ -750,7 +750,7 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-secondary"
                                     style="font-size: 0.85rem;">สถานะการยื่นภาษี</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_tax_status"
                                     style="border-radius: 8px; font-size: 0.9rem;">
                                     <option value="0" selected>ยังไม่ได้ยื่น</option>
                                     <option value="1">ยื่นแล้ว</option>
@@ -769,7 +769,7 @@
                 <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e2e8f0;">
                     <button type="button" class="btn btn-light px-4 fw-semibold" data-bs-dismiss="modal"
                         style="border-radius: 8px; color: #475569; background-color: #f8fafc;">ยกเลิก</button>
-                    <button type="button" class="btn btn-primary px-4 fw-semibold"
+                    <button type="button" class="btn btn-primary px-4 fw-semibold" onclick="saveManageTask()"
                         style="border-radius: 8px; background-color: #2563eb; border-color: #2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">บันทึกข้อมูล</button>
                 </div>
             </div>
@@ -1040,6 +1040,75 @@ function updateCommentBadge(button, hasComment) {
     if (icon && !icon.className.includes('ri-arrow-up')) {
         icon.style.color = hasComment ? '#2563eb' : '#94a3b8';
     }
+}
+
+function saveManageTask() {
+    if (!currentManagePeriodId) return;
+
+    const payload = {
+        period_id: currentManagePeriodId,
+        doc_date: document.getElementById('modal_doc_date').value,
+        completed_date: document.getElementById('modal_completed_date').value,
+        tax_date: document.getElementById('modal_tax_date').value,
+        review1_status: document.getElementById('modal_review1_status').value,
+        review2_status: document.getElementById('modal_review2_status').value,
+        review3_status: document.getElementById('modal_review3_status').value,
+        payment_status: document.getElementById('modal_payment_status').value,
+        tax_status: document.getElementById('modal_tax_status').value,
+        tasks: []
+    };
+
+    // Collect tasks data
+    const taskSelects = document.querySelectorAll('.task-status-select');
+    taskSelects.forEach(select => {
+        const ctid = select.getAttribute('data-customer-tasks-id');
+        const status = select.value;
+        const amountInput = document.querySelector(`.task-amount-input[data-customer-tasks-id="${ctid}"]`);
+        const amount = amountInput ? amountInput.value : 0;
+        payload.tasks.push({
+            customer_tasks_id: ctid,
+            status: status,
+            amount: amount
+        });
+    });
+
+    Swal.fire({
+        title: 'กำลังบันทึก...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    fetch('<?php echo BASE_URL; ?>/monthly_task/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'บันทึกสำเร็จ',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: data.message || 'ไม่สามารถบันทึกได้'
+            });
+        }
+    })
+    .catch(err => {
+        Swal.fire({
+            icon: 'error',
+            title: 'ข้อผิดพลาดระบบ',
+            text: err.message
+        });
+    });
 }
     </script>
 

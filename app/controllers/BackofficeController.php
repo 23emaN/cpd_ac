@@ -1181,7 +1181,45 @@ class BackofficeController
 
         echo json_encode(['result' => 1, 'tasks' => $tasks]);
     }
+    public function updateMonthlyTask()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
 
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input || empty($input['period_id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'ข้อมูลไม่ครบถ้วน']);
+            return;
+        }
+
+        require_once '../app/models/monthly_task_Modal.php';
+        $model = new MonthlyTaskModal();
+
+        $periodId = $input['period_id'];
+        
+        $periodData = [
+            'doc_date' => $input['doc_date'] ?? null,
+            'completed_date' => $input['completed_date'] ?? null,
+            'tax_date' => $input['tax_date'] ?? null,
+            'review1_status' => $input['review1_status'] ?? '0',
+            'review2_status' => $input['review2_status'] ?? '0',
+            'review3_status' => $input['review3_status'] ?? '0',
+            'payment_status' => $input['payment_status'] ?? '0',
+            'tax_status' => $input['tax_status'] ?? '0'
+        ];
+        
+        $tasksData = $input['tasks'] ?? [];
+
+        try {
+            $model->updatePeriodData($periodId, $periodData);
+            if (!empty($tasksData)) {
+                $model->updateTaskData($periodId, $tasksData);
+            }
+            echo json_encode(['status' => 'success', 'message' => 'บันทึกสำเร็จ']);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
 
         /////////////////////////////////////// yearly_dash /////////////////////////////////////////////// 
     public function yearly_dash()

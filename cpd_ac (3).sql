@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 04, 2026 at 09:18 AM
+-- Generation Time: Sep 07, 2026 at 04:01 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -34,6 +34,13 @@ CREATE TABLE `tbl_comment_tasks` (
   `comment_detail` text NOT NULL,
   `create_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_comment_tasks`
+--
+
+INSERT INTO `tbl_comment_tasks` (`comment_id`, `customer_tasks_id`, `comment_user_id`, `comment_detail`, `create_at`) VALUES
+(1, 27, 1, 'เจิดจรัส', '2026-09-07 16:19:28');
 
 -- --------------------------------------------------------
 
@@ -85,8 +92,17 @@ CREATE TABLE `tbl_customers` (
   `sso_user` varchar(100) DEFAULT NULL COMMENT 'Username สำนักงานประกันสังคม',
   `sso_password` varchar(255) DEFAULT NULL COMMENT 'Password สำนักงานประกันสังคม ',
   `created_at` datetime NOT NULL DEFAULT current_timestamp() COMMENT 'วันเวลาที่สร้างข้อมูล',
-  `updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp() COMMENT 'วันเวลาที่มีการอัปเดตข้อมูลล่าสุด'
+  `updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp() COMMENT 'วันเวลาที่มีการอัปเดตข้อมูลล่าสุด',
+  `delete_at` datetime DEFAULT NULL COMMENT 'วันที่มีการลบรายการลูกค้า'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='ตารางเก็บข้อมูลโปรไฟล์และข้อมูลการทำบัญชีของลูกค้า';
+
+--
+-- Dumping data for table `tbl_customers`
+--
+
+INSERT INTO `tbl_customers` (`customer_id`, `customer_name`, `active_status`, `customer_phone`, `customer_email`, `line_id`, `line_group_token`, `doc_folder_url`, `closing_status`, `fiscal_closing_date`, `is_vat`, `is_employees`, `is_social_security`, `accounts_amount`, `rn_user`, `rn_password`, `dbd_user`, `dbd_password`, `sso_user`, `sso_password`, `created_at`, `updated_at`, `delete_at`) VALUES
+(1, 'name_test', 1, '0903319035', '', '', '', '', '0', '2026-12-31', 1, 1, 1, 2500.00, 'rn', '12345', 'dbd', '12345', 'scs', '12345', '2026-09-07 10:59:55', NULL, NULL),
+(2, 'fortest', 1, '0903319035', 'test@mail.com', '0965508301', 'https://app.iliketax.com/accfirm/tb-acc/monthly', 'https://www.figma.com/make/gcVXAV3NxP6V6kcqUk7Y3X/Accounting-Firm-Website-Template?t=ekpX72Ne1KpV67Vn-0', '0', '2026-12-31', 1, 1, 1, 2500.00, 'test1', '12345', 'test2', '12345', 'test3', '12345', '2026-09-07 13:05:42', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -105,6 +121,138 @@ CREATE TABLE `tbl_customer_tasks` (
   `update_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `tbl_customer_tasks`
+--
+
+INSERT INTO `tbl_customer_tasks` (`customer_tasks_id`, `fiscal_year_id`, `task_id`, `period_id`, `status`, `amount`, `created_at`, `update_at`) VALUES
+(1, 3, 1, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(2, 3, 1, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(3, 3, 2, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(4, 3, 2, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(5, 3, 3, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(6, 3, 3, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(7, 3, 4, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(8, 3, 4, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(9, 3, 5, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(10, 3, 5, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(11, 3, 6, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(12, 3, 6, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(13, 3, 7, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(14, 3, 7, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(15, 3, 8, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(16, 3, 8, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(17, 3, 9, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(18, 3, 9, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(19, 3, 12, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(20, 3, 12, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(21, 3, 13, 1, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(22, 3, 13, 2, '0', 0.00, '2026-09-07 10:59:55', NULL),
+(23, 3, 1, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(24, 3, 1, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(25, 3, 1, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(26, 3, 1, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(27, 3, 1, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(28, 3, 1, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(29, 3, 1, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(30, 3, 1, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(31, 3, 2, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(32, 3, 2, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(33, 3, 2, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(34, 3, 2, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(35, 3, 2, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(36, 3, 2, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(37, 3, 2, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(38, 3, 2, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(39, 3, 3, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(40, 3, 3, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(41, 3, 3, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(42, 3, 3, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(43, 3, 3, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(44, 3, 3, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(45, 3, 3, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(46, 3, 3, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(47, 3, 4, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(48, 3, 4, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(49, 3, 4, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(50, 3, 4, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(51, 3, 4, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(52, 3, 4, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(53, 3, 4, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(54, 3, 4, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(55, 3, 5, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(56, 3, 5, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(57, 3, 5, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(58, 3, 5, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(59, 3, 5, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(60, 3, 5, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(61, 3, 5, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(62, 3, 5, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(63, 3, 6, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(64, 3, 6, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(65, 3, 6, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(66, 3, 6, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(67, 3, 6, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(68, 3, 6, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(69, 3, 6, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(70, 3, 6, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(71, 3, 7, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(72, 3, 7, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(73, 3, 7, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(74, 3, 7, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(75, 3, 7, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(76, 3, 7, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(77, 3, 7, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(78, 3, 7, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(79, 3, 9, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(80, 3, 9, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(81, 3, 9, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(82, 3, 9, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(83, 3, 9, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(84, 3, 9, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(85, 3, 9, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(86, 3, 9, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(87, 3, 10, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(88, 3, 10, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(89, 3, 10, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(90, 3, 10, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(91, 3, 10, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(92, 3, 10, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(93, 3, 10, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(94, 3, 10, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(95, 3, 11, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(96, 3, 11, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(97, 3, 11, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(98, 3, 11, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(99, 3, 11, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(100, 3, 11, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(101, 3, 11, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(102, 3, 11, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(103, 3, 12, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(104, 3, 12, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(105, 3, 12, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(106, 3, 12, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(107, 3, 12, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(108, 3, 12, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(109, 3, 12, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(110, 3, 12, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(111, 3, 13, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(112, 3, 13, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(113, 3, 13, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(114, 3, 13, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(115, 3, 13, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(116, 3, 13, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(117, 3, 13, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(118, 3, 13, 10, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(119, 3, 14, 3, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(120, 3, 14, 4, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(121, 3, 14, 5, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(122, 3, 14, 6, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(123, 3, 14, 7, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(124, 3, 14, 8, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(125, 3, 14, 9, '0', 0.00, '2026-09-07 13:05:42', NULL),
+(126, 3, 14, 10, '0', 0.00, '2026-09-07 13:05:42', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -122,8 +270,26 @@ CREATE TABLE `tbl_customer_work_periods` (
   `created_at` datetime NOT NULL,
   `review1_status` varchar(1) NOT NULL DEFAULT '0' COMMENT '0 = ยังไม่ได้รีวิว\r\n1 = รีวิวแล้ว',
   `review2_status` varchar(1) NOT NULL DEFAULT '0' COMMENT '0 = ยังไม่ได้รีวิว\r\n1 = รีวิวแล้ว',
-  `review3_status` varchar(1) NOT NULL DEFAULT '0' COMMENT '0 = ยังไม่ได้รีวิว\r\n1 = รีวิวแล้ว'
+  `review3_status` varchar(1) NOT NULL DEFAULT '0' COMMENT '0 = ยังไม่ได้รีวิว\r\n1 = รีวิวแล้ว',
+  `complate_status` varchar(1) NOT NULL DEFAULT '0' COMMENT 'ทำงานเสร็จทุกขั้นตอน',
+  `tax_create_at` datetime DEFAULT NULL COMMENT 'วันที่ยื่นภาษี'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_customer_work_periods`
+--
+
+INSERT INTO `tbl_customer_work_periods` (`period_id`, `customer_id`, `fiscal_year_id`, `period_month`, `doc_status`, `tax_status`, `payment_status`, `created_at`, `review1_status`, `review2_status`, `review3_status`, `complate_status`, `tax_create_at`) VALUES
+(1, 1, 3, '11', '0', '0', '0', '2026-09-07 10:59:55', '0', '0', '0', '0', NULL),
+(2, 1, 3, '12', '0', '0', '0', '2026-09-07 10:59:55', '0', '0', '0', '0', NULL),
+(3, 2, 3, '05', '0', '0', '0', '2026-09-07 13:05:42', '0', '0', '0', '0', NULL),
+(4, 2, 3, '06', '0', '0', '0', '2026-09-07 13:05:42', '0', '0', '0', '0', NULL),
+(5, 2, 3, '07', '0', '0', '0', '2026-09-07 13:05:42', '0', '0', '0', '0', NULL),
+(6, 2, 3, '08', '0', '0', '0', '2026-09-07 13:05:42', '0', '0', '0', '0', NULL),
+(7, 2, 3, '09', '0', '0', '0', '2026-09-07 13:05:42', '0', '0', '0', '0', NULL),
+(8, 2, 3, '10', '0', '0', '0', '2026-09-07 13:05:42', '0', '0', '0', '0', NULL),
+(9, 2, 3, '11', '0', '0', '0', '2026-09-07 13:05:42', '0', '0', '0', '0', NULL),
+(10, 2, 3, '12', '0', '0', '0', '2026-09-07 13:05:42', '0', '0', '0', '0', NULL);
 
 -- --------------------------------------------------------
 
@@ -166,6 +332,14 @@ CREATE TABLE `tbl_fiscal_year_customers` (
   `accounts_amount` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `tbl_fiscal_year_customers`
+--
+
+INSERT INTO `tbl_fiscal_year_customers` (`fiscal_year_id`, `fiscal_id`, `customer_id`, `service_start_date`, `service_start_end`, `user_id`, `team_id`, `created_at`, `accounts_amount`) VALUES
+(1, 3, 1, '11', '0', 3, 3, '2026-09-07 10:59:55', 2500),
+(2, 3, 2, '5', '0', 4, 2, '2026-09-07 13:05:42', 2500);
+
 -- --------------------------------------------------------
 
 --
@@ -185,7 +359,8 @@ CREATE TABLE `tbl_fiscal_year_user` (
 
 INSERT INTO `tbl_fiscal_year_user` (`fiscal_employee_id`, `fiscal_id`, `user_id`, `created_at`) VALUES
 (1, 3, 2, '2026-09-03 15:50:41'),
-(2, 3, 3, '2026-09-03 15:54:13');
+(2, 3, 3, '2026-09-03 15:54:13'),
+(3, 3, 4, '2026-09-04 14:27:15');
 
 -- --------------------------------------------------------
 
@@ -223,7 +398,8 @@ INSERT INTO `tbl_login_token` (`token_code`, `user_id`, `ip_address`, `user_agen
 (14, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36', '2026-09-04 09:32:48', NULL, '2026-09-03 14:32:48', NULL),
 (15, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36', '2026-09-05 03:12:52', NULL, '2026-09-04 08:12:52', NULL),
 (16, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36', '2026-09-05 05:20:42', NULL, '2026-09-04 10:20:42', NULL),
-(17, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36', '2026-09-05 06:13:05', NULL, '2026-09-04 11:13:05', NULL);
+(17, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36', '2026-09-05 06:13:05', NULL, '2026-09-04 11:13:05', NULL),
+(18, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36', '2026-09-08 04:10:02', NULL, '2026-09-07 09:10:02', NULL);
 
 -- --------------------------------------------------------
 
@@ -249,7 +425,7 @@ CREATE TABLE `tbl_post_it` (
 --
 
 INSERT INTO `tbl_post_it` (`post_id`, `fiscal_year_id`, `title`, `user_id`, `due_date`, `status`, `content`, `color_code`, `created_user_id`, `created_at`) VALUES
-(1, 3, 'เทสๆๆๆ', 3, '2026-09-30', '0', 'ทดสอบบบ', 'orange', 1, '2026-09-04 08:53:45');
+(2, 3, 'ทดสอบการบันทึกข้อมูล', 4, '2026-09-30', '0', 'ทดสอบบ', 'purple', 1, '2026-09-07 15:13:26');
 
 -- --------------------------------------------------------
 
@@ -373,7 +549,8 @@ CREATE TABLE `tbl_user` (
 
 INSERT INTO `tbl_user` (`user_id`, `user_name`, `user_password`, `user_firstname`, `user_lastname`, `user_status`, `create_at`, `is_super_admin`, `position`, `team_id`) VALUES
 (1, 'cpdth12345@am-amaudit.com', '$2y$10$sxnYoO0UfANJ7wTwbqxkR.O4jjSUGwaxlpNjL7CrhXSJFKisR4sba', 'admin', 'cpdth', '1', '2026-09-01 04:23:56', '1', NULL, NULL),
-(3, 'name_test', '$2y$10$Oy6lda8dWkpoHWku5.zuxuNrWoI3GwtRuJ8MSgK11ZVJ8DdgxcnA2', 'ธีรพัฒน์', 'คุชิตา', '1', '2026-09-03 15:54:13', '0', 'ผู้ทดสอบ', 3);
+(3, 'name_test', '$2y$10$Oy6lda8dWkpoHWku5.zuxuNrWoI3GwtRuJ8MSgK11ZVJ8DdgxcnA2', 'ธีรพัฒน์', 'คุชิตา', '1', '2026-09-03 15:54:13', '0', 'ผู้ทดสอบ', 3),
+(4, 'test', '$2y$10$yG4w9S3mKWuigwJfG6nUXe8Pka0aoeS7tp6yIYyT.rfuZY5e/hhjK', 'TEERAPAT', 'KHUCHITA', '1', '2026-09-04 14:27:15', '0', 'ทดสอบ', 2);
 
 -- --------------------------------------------------------
 
@@ -393,7 +570,8 @@ CREATE TABLE `tbl_user_companies` (
 
 INSERT INTO `tbl_user_companies` (`id`, `user_id`, `company_id`) VALUES
 (NULL, 2, 1),
-(NULL, 3, 1);
+(NULL, 3, 1),
+(NULL, 4, 1);
 
 --
 -- Indexes for dumped tables
@@ -498,7 +676,7 @@ ALTER TABLE `tbl_user`
 -- AUTO_INCREMENT for table `tbl_comment_tasks`
 --
 ALTER TABLE `tbl_comment_tasks`
-  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbl_companies`
@@ -510,19 +688,19 @@ ALTER TABLE `tbl_companies`
 -- AUTO_INCREMENT for table `tbl_customers`
 --
 ALTER TABLE `tbl_customers`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'รหัสลูกค้า (Primary Key)';
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'รหัสลูกค้า (Primary Key)', AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tbl_customer_tasks`
 --
 ALTER TABLE `tbl_customer_tasks`
-  MODIFY `customer_tasks_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `customer_tasks_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=127;
 
 --
 -- AUTO_INCREMENT for table `tbl_customer_work_periods`
 --
 ALTER TABLE `tbl_customer_work_periods`
-  MODIFY `period_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `period_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `tbl_fiscal_years`
@@ -534,25 +712,25 @@ ALTER TABLE `tbl_fiscal_years`
 -- AUTO_INCREMENT for table `tbl_fiscal_year_customers`
 --
 ALTER TABLE `tbl_fiscal_year_customers`
-  MODIFY `fiscal_year_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `fiscal_year_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tbl_fiscal_year_user`
 --
 ALTER TABLE `tbl_fiscal_year_user`
-  MODIFY `fiscal_employee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `fiscal_employee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tbl_login_token`
 --
 ALTER TABLE `tbl_login_token`
-  MODIFY `token_code` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `token_code` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `tbl_post_it`
 --
 ALTER TABLE `tbl_post_it`
-  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tbl_registration`
@@ -582,7 +760,7 @@ ALTER TABLE `tbl_team`
 -- AUTO_INCREMENT for table `tbl_user`
 --
 ALTER TABLE `tbl_user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

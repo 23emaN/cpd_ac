@@ -45,6 +45,7 @@ $routes = [
         'customer/edit' => ['BackofficeController', 'editCustomer'],
         'customer/delete' => ['BackofficeController', 'deleteCustomer'],
         'monthly_task/comments/store' => ['BackofficeController', 'storeMonthlyTaskComment'],
+        'monthly_task/update' => ['BackofficeController', 'updateMonthlyTask'],
     ]
 ];
 
