@@ -704,63 +704,55 @@
                         </div>
 
 
-                        <!-- Row 3: Reviewer & Payment -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-secondary"
-                                    style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 1)</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review1_status"
-                                    style="border-radius: 8px; font-size: 0.9rem;">
-                                    <option value="0" selected>ยังไม่ได้รีวิว</option>
-                                    <option value="1">ชมพู่</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-secondary"
-                                    style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว2)</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review2_status"
-                                    style="border-radius: 8px; font-size: 0.9rem;">
-                                    <option value="0" selected>ยังไม่ได้รีวิว</option>
-                                    <option value="1">ชมพู่</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-secondary"
-                                    style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว3)</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review3_status"
-                                    style="border-radius: 8px; font-size: 0.9rem;">
-                                    <option value="0" selected>ยังไม่ได้รีวิว</option>
-                                    <option value="1">ชมพู่</option>
-                                </select>
-                            </div>
-
-                        </div>
-
-                        <!-- Row 4: Tax Status & Date -->
+                        <!-- Row 3 & 4: Reviewer & Status (Two Columns Layout) -->
                         <div class="row">
-                            <div class="col-md-6 mt-3 mt-md-0">
-                                <label class="form-label fw-semibold text-secondary"
-                                    style="font-size: 0.85rem;">สถานะการเก็บเงิน</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_payment_status"
-                                    style="border-radius: 8px; font-size: 0.9rem;">
-                                    <option value="0" selected>ยังไม่ได้รับ</option>
-                                    <option value="1">ได้รับเงินแล้ว</option>
-                                </select>
+                            <!-- Left Column: Reviews -->
+                            <div class="col-md-6 pe-md-4 border-end">
+                                <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #334155;">การสอบทาน (Review)</h6>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 1)</label>
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review1_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                        <option value="0" selected>ยังไม่ได้รีวิว</option>
+                                        <option value="1">ชมพู่</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 2)</label>
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review2_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                        <option value="0" selected>ยังไม่ได้รีวิว</option>
+                                        <option value="1">ชมพู่</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 3)</label>
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review3_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                        <option value="0" selected>ยังไม่ได้รีวิว</option>
+                                        <option value="1">ชมพู่</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-secondary"
-                                    style="font-size: 0.85rem;">สถานะการยื่นภาษี</label>
-                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_tax_status"
-                                    style="border-radius: 8px; font-size: 0.9rem;">
-                                    <option value="0" selected>ยังไม่ได้ยื่น</option>
-                                    <option value="1">ยื่นแล้ว</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mt-3 mt-md-3">
-                                <label class="form-label fw-semibold text-secondary"
-                                    style="font-size: 0.85rem;">วันที่ยื่นภาษี</label>
-                                <input type="text" class="form-control bg-light border-0 py-2 text-muted fw-semibold flatpickr-date"
-                                    id="modal_tax_date" placeholder="วัน/เดือน/ปี" style="border-radius: 8px; font-size: 0.9rem;">
+
+                            <!-- Right Column: Status & Dates -->
+                            <div class="col-md-6 ps-md-4 mt-4 mt-md-0">
+                                <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #334155;">สถานะเพิ่มเติม</h6>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการเก็บเงิน</label>
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_payment_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                        <option value="0" selected>ยังไม่ได้รับ</option>
+                                        <option value="1">ได้รับเงินแล้ว</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการยื่นภาษี</label>
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_tax_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                        <option value="0" selected>ยังไม่ได้ยื่น</option>
+                                        <option value="1">ยื่นแล้ว</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">วันที่ยื่นภาษี</label>
+                                    <input type="text" class="form-control bg-light border-0 py-2 text-muted fw-semibold flatpickr-date" id="modal_tax_date" placeholder="วัน/เดือน/ปี" style="border-radius: 8px; font-size: 0.9rem;">
+                                </div>
                             </div>
                         </div>
                     </form>
