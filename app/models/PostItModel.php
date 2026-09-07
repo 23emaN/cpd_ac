@@ -229,4 +229,12 @@ class PostItModel extends Model
         $stmt = $this->pdo->prepare("DELETE FROM tbl_post_it WHERE post_id = :id");
         return $stmt->execute(['id' => $postId]);
     }
+
+    public function count_comment()
+    {
+        $sql = "SELECT COUNT(*) as count FROM tbl_comment_tasks";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    }
 }

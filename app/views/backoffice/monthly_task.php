@@ -971,21 +971,6 @@
     inputEl.focus();
 }
 
-function getAvatarColor(name) {
-    const colors = [
-        { bg: 'linear-gradient(135deg,#60a5fa,#2563eb)' },
-        { bg: 'linear-gradient(135deg,#f472b6,#db2777)' },
-        { bg: 'linear-gradient(135deg,#34d399,#059669)' },
-        { bg: 'linear-gradient(135deg,#fbbf24,#d97706)' },
-        { bg: 'linear-gradient(135deg,#a78bfa,#7c3aed)' },
-        { bg: 'linear-gradient(135deg,#fb923c,#ea580c)' },
-    ];
-    const str = name || '?';
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    return colors[Math.abs(hash) % colors.length];
-}
-
 function loadComments(customerTasksId, listEl, countBadge) {
     listEl.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
 
@@ -993,7 +978,7 @@ function loadComments(customerTasksId, listEl, countBadge) {
         .then(res => res.json())
         .then(data => {
             const comments = data.comments || [];
-            if (countBadge) countBadge.textContent = comments.length + ' ข้อความ';
+            // if (countBadge) countBadge.textContent = comments.length + ' ข้อความ';
 
             if (!comments.length) {
                 listEl.innerHTML = `
@@ -1005,19 +990,14 @@ function loadComments(customerTasksId, listEl, countBadge) {
             }
             listEl.innerHTML = comments.map(c => {
                 const name = c.user_name || 'ไม่ระบุ';
-                const avatar = getAvatarColor(name);
                 return `
-                <div class="d-flex gap-2 mb-3">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                         style="width:34px; height:34px; font-size:0.85rem; font-weight:800; background:${avatar.bg}; color:#fff; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
-                        ${name.charAt(0).toUpperCase()}
-                    </div>
-                    <div class="flex-grow-1" style="background:#fff; border-left: 3px solid #93c5fd; border-radius: 4px 14px 14px 14px; padding:10px 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.05);">
+                <div class="mb-2">
+                    <div style="background:#fff; border-left: 3px solid #93c5fd; border-radius: 4px; padding:8px 12px; box-shadow: 0 1px 4px rgba(15,23,42,0.04);">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span style="font-size:0.8rem; font-weight:800; color:#1e293b;">${name}</span>
-                            <span style="font-size:0.68rem; color:#94a3b8; font-weight:600;">${c.created_at_display || ''}</span>
+                            <span style="font-size:0.75rem; font-weight:800; color:#475569;">${name}</span>
+                            <span style="font-size:0.65rem; color:#94a3b8; font-weight:600;">${c.created_at_display || ''}</span>
                         </div>
-                        <div style="font-size:0.85rem; color:#334155; line-height:1.5; word-break:break-word;">${c.comment_text}</div>
+                        <div style="font-size:0.8rem; color:#334155; line-height:1.4; word-break:break-word;">${c.comment_text}</div>
                     </div>
                 </div>`;
             }).join('');
