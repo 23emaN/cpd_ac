@@ -42,7 +42,11 @@
                 <span class="caretaker-text">ทดสอบ</span>
             </td>
             <td class="text-center">
-                <span class="badge bg-danger">3</span>
+                <?php if (!empty($task['total_comments']) && $task['total_comments'] > 0): ?>
+                    <span class="badge bg-danger" style="cursor: pointer;" title="มี <?php echo $task['total_comments']; ?> ความคิดเห็นในเดือนนี้" onclick="Modal_manage(<?php echo (int)$task['period_id']; ?>)"><?php echo $task['total_comments']; ?></span>
+                <?php else: ?>
+                    <span class="text-muted">-</span>
+                <?php endif; ?>
             </td>
             <td class="text-center">
                 <span class="caretaker-text"><?php echo htmlspecialchars($task['caretaker_firstname'] ?? '-'); ?></span>

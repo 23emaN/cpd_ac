@@ -230,11 +230,11 @@ class PostItModel extends Model
         return $stmt->execute(['id' => $postId]);
     }
 
-    public function count_comment()
+    public function count_comment($customer_tasks_id)
     {
-        $sql = "SELECT COUNT(*) as count FROM tbl_comment_tasks";
+        $sql = "SELECT COUNT(*) as count FROM tbl_comment_tasks WHERE customer_tasks_id = :customer_tasks_id";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
+        $stmt->execute(['customer_tasks_id' => $customer_tasks_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     }
 }
