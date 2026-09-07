@@ -858,13 +858,13 @@
 
             <!-- Right side: Select dropdown & Amount Input -->
             <div class="d-flex align-items-center gap-2">
-                <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0"
+                <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0 task-status-select"
                         data-customer-tasks-id="${t.customer_tasks_id}"
                         style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
                     <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
                     <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
                 </select>
-                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0" placeholder="จำนวนเงิน" value="${t.amount || ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;">` : ''}
+                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;">` : ''}
             </div>
         </div>`;
     });
