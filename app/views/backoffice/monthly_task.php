@@ -1,20 +1,33 @@
 <?php
-    // app/views/backoffice/closing.php
-    $selected_year          = $_GET['year'] ?? '2569';
-    $company_name           = $_GET['company'] ?? 'TEST ACCOUNTING';
-    $show_company_workspace = true;
+// app/views/backoffice/closing.php
+$selected_year = $_GET['year'] ?? '2569';
+$company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
+$show_company_workspace = true;
 
-    // 1. นำ Header เข้ามา
-    require_once dirname(__DIR__) . '/main/header.php';
+// 1. นำ Header เข้ามา
+require_once dirname(__DIR__) . '/main/header.php';
 
-    // 2. นำ Sidebar เข้ามา
-    require_once dirname(__DIR__) . '/main/sidebar.php';
+// 2. นำ Sidebar เข้ามา
+require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
     body {
         background-color: #f8fafc;
         font-family: 'Kanit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body.modal-open {
+        overflow: hidden !important;
+    }
+
+    .flatpickr-calendar {
+        z-index: 1060 !important;
+    }
+
+    .flatpickr-wrapper {
+        display: block !important;
+        width: 100% !important;
     }
 
     .main-content {
@@ -477,8 +490,10 @@
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">จัดการงานรายเดือน</h2>
-                            <?php $fy_display = ! empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
-                            <p class="page-subtitle">ภาพรวมระบบ - งานรายเดือน - ปี <?php echo htmlspecialchars($fy_display); ?></p>
+                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <p class="page-subtitle">ภาพรวมระบบ - งานรายเดือน - ปี
+                                <?php echo htmlspecialchars($fy_display); ?>
+                            </p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn-excel-action">
@@ -547,25 +562,25 @@
                         <div class="w-auto">
                             <select class="form-select" id="monthSelect">
                                 <?php
-                                    $selectedMonth = (int) ($data['selected_month'] ?? date('n'));
-                                    $months        = [
-                                        1  => 'มกราคม',
-                                        2  => 'กุมภาพันธ์',
-                                        3  => 'มีนาคม',
-                                        4  => 'เมษายน',
-                                        5  => 'พฤษภาคม',
-                                        6  => 'มิถุนายน',
-                                        7  => 'กรกฎาคม',
-                                        8  => 'สิงหาคม',
-                                        9  => 'กันยายน',
-                                        10 => 'ตุลาคม',
-                                        11 => 'พฤศจิกายน',
-                                        12 => 'ธันวาคม',
-                                    ];
-                                    foreach ($months as $num => $name) {
-                                        $isSelected = ($num === $selectedMonth) ? 'selected' : '';
-                                        echo "<option value=\"$num\" $isSelected>$name</option>";
-                                    }
+                                $selectedMonth = (int) ($data['selected_month'] ?? date('n'));
+                                $months = [
+                                    1 => 'มกราคม',
+                                    2 => 'กุมภาพันธ์',
+                                    3 => 'มีนาคม',
+                                    4 => 'เมษายน',
+                                    5 => 'พฤษภาคม',
+                                    6 => 'มิถุนายน',
+                                    7 => 'กรกฎาคม',
+                                    8 => 'สิงหาคม',
+                                    9 => 'กันยายน',
+                                    10 => 'ตุลาคม',
+                                    11 => 'พฤศจิกายน',
+                                    12 => 'ธันวาคม',
+                                ];
+                                foreach ($months as $num => $name) {
+                                    $isSelected = ($num === $selectedMonth) ? 'selected' : '';
+                                    echo "<option value=\"$num\" $isSelected>$name</option>";
+                                }
                                 ?>
                             </select>
                         </div>
@@ -579,12 +594,14 @@
 
                         <div class="filter-group mb-4">
                             <?php
-                                $users = ['เมย์', 'ชมพู่', 'นิว'];
+                            $users = ['เมย์', 'ชมพู่', 'นิว'];
                             ?>
                             <select class="form-select filter-select" id="selUser">
                                 <option value="">ทุกผู้ดูแล</option>
                                 <?php foreach ($users as $user): ?>
-                                    <option value="<?php echo htmlspecialchars($user); ?>"><?php echo htmlspecialchars($user); ?></option>
+                                    <option value="<?php echo htmlspecialchars($user); ?>">
+                                        <?php echo htmlspecialchars($user); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
 
@@ -616,167 +633,218 @@
 
                     <!-- Table Container -->
 
-                        <?php include 'table/mounthly_task.php'; ?>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="manageModal" tabindex="-1" aria-labelledby="manageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <div class="modal-header" style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0;">
-                <div>
-                    <h5 class="modal-title fw-bold" id="manageModalLabel" style="color: #1e293b; font-size: 1.15rem;">อัปเดตงานรายเดือน</h5>
-                    <div class="text-muted mt-1" id="manageModalSubtitle" style="font-size: 0.85rem;">AMLAW · กันยายน ปี 2569</div>
+                    <?php include 'table/mounthly_task.php'; ?>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="margin-top: -15px; margin-right: -10px;"></button>
-            </div>
-
-            <div class="modal-body" style="padding: 24px;">
-                <form id="formManageTask">
-                    <!-- Row 1: Dates -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">วันที่ได้รับเอกสาร</label>
-                            <input type="date" class="form-control bg-light border-0 py-2 text-muted" value="2026-12-31" style="border-radius: 8px; font-size: 0.9rem;">
-                        </div>
-                        <div class="col-md-6 mt-3 mt-md-0">
-                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">วันที่ทำเสร็จ</label>
-                            <input type="date" class="form-control bg-light border-0 py-2 text-muted" value="2026-12-31" style="border-radius: 8px; font-size: 0.9rem;">
-                        </div>
-                    </div>
-
-                    <!-- รายการงานประจำเดือน (โหลดจาก DB ผ่าน AJAX) -->
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label fw-semibold text-secondary mb-0" style="font-size: 0.85rem;">รายการงานประจำเดือน</label>
-                            <span class="text-muted fw-semibold" id="modalTaskCount" style="font-size: 0.8rem;">- งาน</span>
-                        </div>
-                        <div class="task-list-container" id="modalTaskList" style="max-height: 250px; overflow-y: auto; padding: 0 16px; border-radius: 10px; border: 1px solid #e2e8f0; background-color: #ffffff;">
-                            <div class="text-center text-muted py-3" style="font-size:0.85rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>
-                        </div>
-                    </div>
-
-
-                    <!-- Row 3: Reviewer & Payment -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 1)</label>
-                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
-                                <option value="" selected>ยังไม่ได้รีวิว</option>
-                                <option value="1">ชมพู่</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว2)</label>
-                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
-                                <option value="" selected>ยังไม่ได้รีวิว</option>
-                                <option value="1">ชมพู่</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว3)</label>
-                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
-                                <option value="" selected>ยังไม่ได้รีวิว</option>
-                                <option value="1">ชมพู่</option>
-                            </select>
-                        </div>
-                       
-                    </div>
-
-                    <!-- Row 4: Tax Status & Date -->
-                    <div class="row">
-                         <div class="col-md-6 mt-3 mt-md-0">
-                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการเก็บเงิน</label>
-                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
-                                <option value="0" selected>ยังไม่ได้รับ</option>
-                                <option value="1">ได้รับเงินแล้ว</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการยื่นภาษี</label>
-                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
-                                <option value="0" selected>ยังไม่ได้ยื่น</option>
-                                <option value="1">ยื่นแล้ว</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mt-3 mt-md-0">
-                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">วันที่ยื่นภาษี</label>
-                            <input type="date" class="form-control bg-light border-0 py-2 text-muted fw-semibold" value="2026-12-31" style="border-radius: 8px; font-size: 0.9rem;">
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e2e8f0;">
-                <button type="button" class="btn btn-light px-4 fw-semibold" data-bs-dismiss="modal" style="border-radius: 8px; color: #475569; background-color: #f8fafc;">ยกเลิก</button>
-                <button type="button" class="btn btn-primary px-4 fw-semibold" style="border-radius: 8px; background-color: #2563eb; border-color: #2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    $(document).ready(function () {
-        $('#monthSelect').select2().on('change', function() {
-            var selectedMonth = $(this).val();
-            // รีเฟรชหน้าและส่ง param month ไปทาง URL
-            window.location.href = '<?php echo BASE_URL; ?>/monthly_task?month=' + selectedMonth;
+    <div class="modal fade" id="manageModal" tabindex="-1" aria-labelledby="manageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content"
+                style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div class="modal-header" style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0;">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="manageModalLabel"
+                            style="color: #1e293b; font-size: 1.15rem;">อัปเดตงานรายเดือน</h5>
+                        <div class="text-muted mt-1" id="manageModalSubtitle" style="font-size: 0.85rem;">AMLAW ·
+                            กันยายน ปี -</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        style="margin-top: -15px; margin-right: -10px;"></button>
+                </div>
+
+                <div class="modal-body" style="padding: 24px;">
+                    <form id="formManageTask">
+                        <!-- Row 1: Dates -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-secondary"
+                                    style="font-size: 0.85rem;">วันที่ได้รับเอกสาร</label>
+                                <input type="text" class="form-control bg-light border-0 py-2 text-muted flatpickr-date"
+                                    id="modal_doc_date" placeholder="วัน/เดือน/ปี" style="border-radius: 8px; font-size: 0.9rem;">
+                            </div>
+                            <div class="col-md-6 mt-3 mt-md-0">
+                                <label class="form-label fw-semibold text-secondary"
+                                    style="font-size: 0.85rem;">วันที่ทำเสร็จ</label>
+                                <input type="text" class="form-control bg-light border-0 py-2 text-muted flatpickr-date"
+                                    id="modal_completed_date" placeholder="วัน/เดือน/ปี" style="border-radius: 8px; font-size: 0.9rem;">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-semibold text-secondary mb-0"
+                                    style="font-size: 0.85rem;">รายการงานประจำเดือน</label>
+                                <span id="modalTaskCount" class="text-muted fw-semibold" style="font-size: 0.8rem;">-
+                                    งาน</span>
+                            </div>
+
+                            <div id="modalTaskList" class="task-list-container"
+                                style="max-height: 280px; overflow-y: auto; padding: 0 16px; border-radius: 10px; border: 1px solid #e2e8f0; background-color: #ffffff;">
+                                <!-- Task items will be populated by JS -->
+                            </div>
+                        </div>
+
+
+                        <!-- Row 3: Reviewer & Payment -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-secondary"
+                                    style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 1)</label>
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                    style="border-radius: 8px; font-size: 0.9rem;">
+                                    <option value="" selected>ยังไม่ได้รีวิว</option>
+                                    <option value="1">ชมพู่</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-secondary"
+                                    style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว2)</label>
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                    style="border-radius: 8px; font-size: 0.9rem;">
+                                    <option value="" selected>ยังไม่ได้รีวิว</option>
+                                    <option value="1">ชมพู่</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-secondary"
+                                    style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว3)</label>
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                    style="border-radius: 8px; font-size: 0.9rem;">
+                                    <option value="" selected>ยังไม่ได้รีวิว</option>
+                                    <option value="1">ชมพู่</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <!-- Row 4: Tax Status & Date -->
+                        <div class="row">
+                            <div class="col-md-6 mt-3 mt-md-0">
+                                <label class="form-label fw-semibold text-secondary"
+                                    style="font-size: 0.85rem;">สถานะการเก็บเงิน</label>
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                    style="border-radius: 8px; font-size: 0.9rem;">
+                                    <option value="0" selected>ยังไม่ได้รับ</option>
+                                    <option value="1">ได้รับเงินแล้ว</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-secondary"
+                                    style="font-size: 0.85rem;">สถานะการยื่นภาษี</label>
+                                <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                    style="border-radius: 8px; font-size: 0.9rem;">
+                                    <option value="0" selected>ยังไม่ได้ยื่น</option>
+                                    <option value="1">ยื่นแล้ว</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mt-3 mt-md-3">
+                                <label class="form-label fw-semibold text-secondary"
+                                    style="font-size: 0.85rem;">วันที่ยื่นภาษี</label>
+                                <input type="text" class="form-control bg-light border-0 py-2 text-muted fw-semibold flatpickr-date"
+                                    id="modal_tax_date" placeholder="วัน/เดือน/ปี" style="border-radius: 8px; font-size: 0.9rem;">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e2e8f0;">
+                    <button type="button" class="btn btn-light px-4 fw-semibold" data-bs-dismiss="modal"
+                        style="border-radius: 8px; color: #475569; background-color: #f8fafc;">ยกเลิก</button>
+                    <button type="button" class="btn btn-primary px-4 fw-semibold"
+                        style="border-radius: 8px; background-color: #2563eb; border-color: #2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">บันทึกข้อมูล</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flatpickr JS & Thai locale -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr('.flatpickr-date', {
+                    dateFormat: 'd/m/Y',
+                    locale: typeof flatpickr.l10ns !== 'undefined' && flatpickr.l10ns.th ? flatpickr.l10ns.th : 'default',
+                    allowInput: true,
+                    static: true,
+                    disableMobile: true
+                });
+            }
+
+            $('#monthSelect').select2().on('change', function () {
+                var selectedMonth = $(this).val();
+                // รีเฟรชหน้าและส่ง param month ไปทาง URL
+                window.location.href = '<?php echo BASE_URL; ?>/monthly_task?month=' + selectedMonth;
+            });
+
+            $('#selUser').select2();
+            $('#selDocument').select2();
+            $('#selTask').select2();
+            $('#selTax').select2();
+            $('#selPayment').select2();
         });
 
-        $('#selUser').select2();
-        $('#selDocument').select2();
-        $('#selTask').select2();
-        $('#selTax').select2();
-        $('#selPayment').select2();
-    });
+        function Modal_manage(period_id) {
+            const modalElement = document.getElementById('manageModal');
+            const myModal = new bootstrap.Modal(modalElement);
+            myModal.show();
 
-     function Modal_manage(period_id) {
-        const modalElement = document.getElementById('manageModal');
-        const myModal = new bootstrap.Modal(modalElement);
-        myModal.show();
+            // โหลด tasks จาก DB ตาม period_id
+            const taskList = document.getElementById('modalTaskList');
+            const taskCount = document.getElementById('modalTaskCount');
 
-        // โหลด tasks จาก DB ตาม period_id
-        const taskList = document.getElementById('modalTaskList');
-        const taskCount = document.getElementById('modalTaskCount');
+            taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
+            taskCount.textContent = '- งาน';
 
-        taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
-        taskCount.textContent = '- งาน';
+            if (!period_id) return;
 
-        if (!period_id) return;
+            fetch('<?php echo BASE_URL; ?>/monthly_task/items?period_id=' + period_id)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.result !== 1 || !data.tasks.length) {
+                        taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;">ไม่พบรายการงาน</div>';
+                        taskCount.textContent = '0 งาน';
+                        return;
+                    }
+                    taskCount.textContent = data.tasks.length + ' งาน';
+                    let html = '';
+                    data.tasks.forEach((t, idx) => {
+                        const isLast = idx === data.tasks.length - 1;
+                        const isNotifyAmount = t.is_notify_amount == 1 || t.is_notify_amount === true;
 
-        fetch('<?php echo BASE_URL; ?>/monthly_task/items?period_id=' + period_id)
-            .then(res => res.json())
-            .then(data => {
-                if (data.result !== 1 || !data.tasks.length) {
-                    taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;">ไม่พบรายการงาน</div>';
-                    taskCount.textContent = '0 งาน';
-                    return;
-                }
-                taskCount.textContent = data.tasks.length + ' งาน';
-                let html = '';
-                data.tasks.forEach((t, idx) => {
-                    const isLast = idx === data.tasks.length - 1;
-                    html += `<div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
-                        <span class="fw-bold flex-grow-1" style="font-size:0.85rem; color:#1e293b;">${t.task_name}</span>
-                        <select class="form-select form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0"
-                                data-customer-tasks-id="${t.customer_tasks_id}"
-                                style="width:140px; border-radius:6px; padding-top:6px; padding-bottom:6px;">
-                            <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
-                            <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
-                        </select>
+                        html += `
+                        <div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
+                            <!-- Left side: Task Name & Badge -->
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold" style="font-size:0.88rem; color:#1e293b;">${t.task_name}</span>
+                                ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
+                            </div>
+
+                            <!-- Right side: Select dropdown & Amount Input -->
+                            <div class="d-flex align-items-center gap-2">
+                                <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0"
+                                        data-customer-tasks-id="${t.customer_tasks_id}"
+                                        style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
+                                    <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
+                                    <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
+                                </select>
+                                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0" placeholder="จำนวนเงิน" value="${t.amount || ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;">` : ''}
+                            </div>
                     </div>`;
+                    });
+                    taskList.innerHTML = html;
+                })
+                .catch(() => {
+                    taskList.innerHTML = '<div class="text-center text-danger py-3" style="font-size:0.85rem;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
                 });
-                taskList.innerHTML = html;
-            })
-            .catch(() => {
-                taskList.innerHTML = '<div class="text-center text-danger py-3" style="font-size:0.85rem;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
-            });
-    }
-</script>
+        }
+    </script>
 
-<?php
+    <?php
     // 3. นำ Footer เข้ามา
-require_once dirname(__DIR__) . '/main/footer.php';
-?>
+    require_once dirname(__DIR__) . '/main/footer.php';
+    ?>
