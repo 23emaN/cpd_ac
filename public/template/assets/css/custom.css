@@ -69,12 +69,39 @@ body.modal-open { overflow: hidden !important; }
    the collapsed state ([sidebar-data-theme=sidebar-hide]) has higher specificity
    and is untouched. main-content padding-left keeps the ~12px gap (200 + 12 = 212). */
 @media only screen and (min-width: 1200px) {
-    .sidebar-area {
-        width: 260px;
+    body:not([sidebar-data-theme="sidebar-hide"]) .sidebar-area {
+        width: 250px;
     }
-    .main-content {
-        padding-left: 272px;
+    body:not([sidebar-data-theme="sidebar-hide"]) .main-content {
+        padding-left: 250px !important;
     }
+}
+
+body[sidebar-data-theme="sidebar-hide"] .sidebar-area {
+    width: 80px !important;
+}
+
+body[sidebar-data-theme="sidebar-hide"] .main-content {
+    padding-left: 80px !important;
+}
+
+body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.active,
+body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item.open>.menu-link {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.active .menu-icon,
+body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link:hover .menu-icon {
+    color: #0066fe !important;
+}
+
+/* ซ่อนขีดสีม่วง/น้ำเงินด้านข้างแถบเมนู Active */
+.sidebar-area .menu-item .menu-link.active::before,
+.sidebar-area .menu-vertical .menu-item .menu-link.active::before,
+body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.active::before {
+    display: none !important;
+    content: none !important;
 }
 
 /* เว้นระยะด้านบนของเนื้อหา (หลังเอา breadcrumb header ออกทุกหน้า ไม่งั้นการ์ดชิดบนเกินไป) */

@@ -640,6 +640,776 @@
             color: #1d4ed8;
             transform: translateY(-1px);
         }
+
+        /* --- Global Keen/Metronic Modal & Form Utilities --- */
+        .mw-550px { max-width: 550px !important; }
+        .mw-600px { max-width: 600px !important; }
+        .mw-650px { max-width: 650px !important; }
+        .mw-700px { max-width: 700px !important; }
+        .mw-800px { max-width: 800px !important; }
+
+        .modal-content-keen {
+            border: none !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+            background-color: #ffffff;
+        }
+
+        .modal-header-keen {
+            border-bottom: 1px solid #f1f5f9 !important;
+            padding: 20px 28px !important;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title-keen {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1.15rem;
+            margin: 0;
+        }
+
+        .modal-body-keen {
+            padding: 24px 28px !important;
+        }
+
+        .modal-footer-keen {
+            border-top: 1px solid #f1f5f9 !important;
+            padding: 16px 28px !important;
+            gap: 12px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .form-label-keen {
+            font-weight: 500;
+            color: #334155;
+            font-size: 0.90rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-label-keen.required::after,
+        .form-label-keen .req-star {
+            content: " *";
+            color: #ef4444;
+        }
+
+        .form-control-solid,
+        .form-select-solid {
+            background-color: #f8fafc !important;
+            border: 1px solid #f1f5f9 !important;
+            border-radius: 10px !important;
+            padding: 12px 16px !important;
+            font-weight: 500 !important;
+            font-size: 0.90rem !important;
+            color: #334155 !important;
+            box-shadow: none !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .form-control-solid:focus,
+        .form-select-solid:focus {
+            background-color: #ffffff !important;
+            border-color: #0066fe !important;
+            box-shadow: 0 0 0 3px rgba(0, 102, 254, 0.1) !important;
+        }
+
+        .btn-light-keen {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 10px 20px;
+            border: none;
+            font-size: 0.90rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-light-keen:hover {
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .btn-primary-keen {
+            background-color: #0066fe;
+            color: #ffffff;
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 10px 22px;
+            border: none;
+            font-size: 0.90rem;
+            box-shadow: 0 4px 12px rgba(0, 102, 254, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary-keen:hover {
+            background-color: #0052cc;
+            color: #ffffff;
+        }
+
+        /* --- Master Page Layout & Card Wrapper --- */
+        @media only screen and (min-width: 1200px) {
+            body:not([sidebar-data-theme="sidebar-hide"]) .sidebar-area {
+                width: 250px !important;
+            }
+            body:not([sidebar-data-theme="sidebar-hide"]) .main-content {
+                padding-left: 250px !important;
+                padding-right: 0 !important;
+                padding-top: 0 !important;
+            }
+        }
+
+        body[sidebar-data-theme="sidebar-hide"] .sidebar-area {
+            width: 80px !important;
+        }
+
+        body[sidebar-data-theme="sidebar-hide"] .main-content {
+            padding-left: 80px !important;
+            padding-right: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .container-fluid {
+            padding-left: 0 !important;
+            padding-right: 14px !important;
+        }
+
+        .main-page-wrapper {
+            padding-top: 0px !important;
+            padding: 20px 0px !important;
+            min-height: calc(100vh - 72px);
+        }
+
+        .main-card-wrapper {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 2px 12px rgba(16, 24, 40, 0.03);
+            padding: 24px 20px;
+        }
+
+        .page-header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .page-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 3px;
+            letter-spacing: -0.2px;
+        }
+
+        .page-subtitle {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        /* --- Master Action Buttons --- */
+        .btn-excel-action {
+            background-color: #EBF4FF;
+            color: #007aff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 15px;
+            font-size: 0.80rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-excel-action i {
+            color: #007aff;
+            font-size: 16px;
+            transition: color 0.2s ease;
+        }
+
+        .btn-excel-action:hover {
+            background-color: #007aff;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+        }
+
+        .btn-excel-action:hover i {
+            color: #ffffff !important;
+        }
+
+        .btn-add-action {
+            background-color: #007aff;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 18px;
+            font-size: 0.80rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-add-action i {
+            color: #ffffff !important;
+            font-size: 15px;
+        }
+
+        .btn-add-action:hover {
+            background-color: #0062cc;
+            color: #ffffff !important;
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.35);
+        }
+
+        /* --- Stats Grid --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            border: 1px solid #edf2f7;
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.blue { background-color: #eff6ff; color: #3b82f6; border: 1px solid #dbeafe; }
+        .stat-icon.green { background-color: #f0fdf4; color: #22c55e; border: 1px solid #dcfce7; }
+        .stat-icon.purple { background-color: #faf5ff; color: #a855f7; border: 1px solid #f3e8ff; }
+        .stat-icon.yellow { background-color: #fefce8; color: #ca8a04; border: 1px solid #fef08a; }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-val {
+            font-size: 1.20rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* --- Filter Toolbar --- */
+        .filter-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .search-box-wrap {
+            position: relative;
+            flex: 1;
+            max-width: 360px;
+        }
+
+        .search-box-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: 10px;
+            padding: 9px 12px 9px 38px;
+            font-size: 0.80rem;
+            color: #334155;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            background-color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-select {
+            background-color: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: 10px;
+            padding: 9px 32px 9px 14px;
+            font-size: 0.80rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='%2364748b'%3E%3Cpath d='M11.9997 13.1716L16.9495 8.22168L18.3637 9.63589L11.9997 16L5.63574 9.63589L7.04996 8.22168L11.9997 13.1716Z'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            min-width: 130px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-select:focus {
+            background-color: #ffffff;
+            border-color: #3b82f6;
+        }
+
+        /* --- Universal Master Table Styles --- */
+        .table-container-card {
+            background-color: #ffffff;
+            border: 1px solid #edf2f7;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .table-header-wrap {
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .table-subtitle {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-wrap::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-wrap::-webkit-scrollbar-track {
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .table-wrap::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .table-wrap::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 0;
+        }
+
+        .table th {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #94a3b8;
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            white-space: nowrap;
+            background-color: transparent;
+            vertical-align: middle;
+        }
+
+        .table th.text-start { text-align: left; }
+        .table th.text-center { text-align: center; }
+        .table th.text-end { text-align: right; }
+
+        .table td {
+            padding: 14px 14px;
+            border-bottom: 1px dashed #f1f5f9;
+            vertical-align: middle;
+            font-size: 0.80rem;
+            color: #475569;
+            background-color: transparent;
+            white-space: nowrap;
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Generic Table Helpers */
+        .table-item-title {
+            font-size: 0.84rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .table-item-sub {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .badge-active {
+            background-color: #ecfdf5;
+            color: #10b981;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .badge-inactive {
+            background-color: #f1f5f9;
+            color: #64748b;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .badge-warning {
+            background-color: #fffbe6;
+            color: #d48806;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .badge-info {
+            background-color: #eff6ff;
+            color: #2563eb;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .badge-subtext {
+            font-size: 0.70rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-top: 3px;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .fee-amount-text {
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 0.82rem;
+        }
+
+        .caretaker-text {
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.80rem;
+        }
+
+        /* Generic Action Buttons */
+        .action-btn-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-action-edit {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action-edit:hover {
+            background-color: #ffffff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+            
+        }
+
+        .btn-action-message {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: #eff6ff;
+            border: 1px solid #dbeafe;
+            color: #2563eb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action-message:hover {
+            background-color: #dbeafe;
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+
+        .btn-action-message:hover i {
+            color: #2563eb !important;
+        }
+
+        
+
+        
+
+        .btn-action-delete {
+            width: 32px;
+            height: 32px;
+            border-radius: 7px;
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #ef4444;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action-delete:hover {
+            background-color: #fca5a5;
+            color: #dc2626;
+            border-color: #f87171;
+        }
+
+        /* --- Pagination Toolbar --- */
+        .pagination-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #f8fafc;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .per-page-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .per-page-select {
+            background-color: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: 7px;
+            padding: 3px 24px 3px 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #334155;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='14' height='14' fill='%2364748b'%3E%3Cpath d='M11.9997 13.1716L16.9495 8.22168L18.3637 9.63589L11.9997 16L5.63574 9.63589L7.04996 8.22168L11.9997 13.1716Z'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+        }
+
+        .pagination-info {
+            font-size: 0.78rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .pagination-nav {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .page-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            border: 1px solid transparent;
+            background-color: transparent;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .page-btn:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+
+
+        /* --- SweetAlert2 Custom Styling (ขนาดกะทัดรัด) --- */
+        .swal2-popup:not(.swal2-toast) {
+            width: 360px !important;
+            max-width: 90vw !important;
+            padding: 24px 20px !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10) !important;
+            font-family: 'Kanit', sans-serif !important;
+        }
+
+        .swal2-popup:not(.swal2-toast) .swal2-icon {
+            transform: scale(0.85) !important;
+            margin: 8px auto 0 auto !important;
+        }
+
+        .swal2-popup:not(.swal2-toast) .swal2-title {
+            font-size: 17px !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+            margin-top: 8px !important;
+            margin-bottom: 6px !important;
+        }
+
+        .swal2-popup:not(.swal2-toast) .swal2-html-container {
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            color: #475569 !important;
+            margin: 6px 0 14px 0 !important;
+        }
+
+        .swal2-actions {
+            gap: 8px !important;
+            margin-top: 12px !important;
+        }
+
+        .swal2-styled {
+            padding: 7px 18px !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
+        }
+
+        .swal2-styled.swal2-confirm {
+            background-color: #e11d48 !important;
+            color: #ffffff !important;
+        }
+
+        .swal2-styled.swal2-cancel {
+            background-color: #64748b !important;
+            color: #ffffff !important;
+        }
+
+        /* --- Toast Specific Sleek Styling --- */
+        .swal2-container.swal2-top-end .swal2-toast,
+        .swal2-toast {
+            width: auto !important;
+            min-width: 240px !important;
+            max-width: 380px !important;
+            padding: 10px 16px !important;
+            border-radius: 12px !important;
+            background: #ffffff !important;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12) !important;
+            border: 1px solid #f1f5f9 !important;
+            display: flex !important;
+            align-items: center !important;
+            font-family: 'Kanit', sans-serif !important;
+        }
+
+        .swal2-toast .swal2-icon {
+            transform: scale(0.75) !important;
+            margin: 0 10px 0 0 !important;
+            flex-shrink: 0 !important;
+        }
+
+        .swal2-toast .swal2-title {
+            font-size: 0.88rem !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.3 !important;
+        }
+
+        .swal2-toast .swal2-timer-progress-bar {
+            background: #3b82f6 !important;
+            height: 3px !important;
+            border-radius: 0 0 12px 12px !important;
+        }
     </style>
 </head>
 
@@ -685,32 +1455,32 @@
 
             <!-- Company / Workspace Dropdown List Container (Loop แสดงบริษัทที่มี) -->
             <div class="acc-company-container">
-                <?php if (isset($data['companies']) && ! empty($data['companies'])): ?>
+                <?php if (isset($data['companies']) && !empty($data['companies'])): ?>
                     <?php foreach ($data['companies'] as $index => $company):
-                            $companyId   = $company['company_id'] ?? $company['id'] ?? '';
-                            $companyName = htmlspecialchars($company['company_name'] ?? 'ไม่มีชื่อบริษัท');
-                            if (isset($data['active_company_id']) && ! empty($data['active_company_id'])) {
-                                $isActive = ($companyId == $data['active_company_id']) ? 'active' : '';
-                            } else {
-                                $isActive = ($index === 0) ? 'active' : '';
-                            }
+                        $companyId = $company['company_id'] ?? $company['id'] ?? '';
+                        $companyName = htmlspecialchars($company['company_name'] ?? 'ไม่มีชื่อบริษัท');
+                        if (isset($data['active_company_id']) && !empty($data['active_company_id'])) {
+                            $isActive = ($companyId == $data['active_company_id']) ? 'active' : '';
+                        } else {
+                            $isActive = ($index === 0) ? 'active' : '';
+                        }
 
-                            // คำนวณปีทำงานที่เปิดใช้งานอยู่
-                            $fiscalYears    = $company['fiscal_years'] ?? [];
-                            $activeYear     = '';
-                            $activeFiscalId = '';
+                        // คำนวณปีทำงานที่เปิดใช้งานอยู่
+                        $fiscalYears = $company['fiscal_years'] ?? [];
+                        $activeYear = '';
+                        $activeFiscalId = '';
 
-                            if (! empty($fiscalYears) && isset($data['fiscal_id']) && ! empty($data['fiscal_id'])) {
-                                foreach ($fiscalYears as $fy) {
-                                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                                    if ($fy_id == $data['fiscal_id']) {
-                                        $activeYear     = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
-                                        $activeFiscalId = $fy_id;
-                                        break;
-                                    }
+                        if (!empty($fiscalYears) && isset($data['fiscal_id']) && !empty($data['fiscal_id'])) {
+                            foreach ($fiscalYears as $fy) {
+                                $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                                if ($fy_id == $data['fiscal_id']) {
+                                    $activeYear = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                                    $activeFiscalId = $fy_id;
+                                    break;
                                 }
                             }
-                    ?>
+                        }
+                        ?>
 
                         <!-- Workspace Dropdown Pill Button (แสดง Popper strategy fixed เพื่อลอยอยู่ด้านหน้า) -->
                         <div class="dropdown acc-workspace-dropdown" data-company-id="<?php echo $companyId ?>">
@@ -727,15 +1497,18 @@
 
                                 <div class="acc-workspace-info">
                                     <span class="acc-workspace-badge">WORKSPACE</span>
-                                    <span class="acc-workspace-name" title="<?php echo $companyName ?>"><?php echo $companyName ?></span>
-                                    <span class="acc-workspace-year"><?php echo ! empty($activeYear) ? 'ปีทำงาน <span class="ws-year-text">' . $activeYear . '</span>' : '<span class="ws-year-text text-muted">ยังไม่ได้เลือกปี</span>' ?></span>
+                                    <span class="acc-workspace-name"
+                                        title="<?php echo $companyName ?>"><?php echo $companyName ?></span>
+                                    <span
+                                        class="acc-workspace-year"><?php echo !empty($activeYear) ? 'ปีทำงาน <span class="ws-year-text">' . $activeYear . '</span>' : '<span class="ws-year-text text-muted">ยังไม่ได้เลือกปี</span>' ?></span>
                                 </div>
 
                                 <i class="ri-arrow-down-s-line acc-workspace-arrow"></i>
                             </button>
 
                             <!-- Dropdown Menu (ตรงตามรูปภาพ 2) -->
-                            <div class="dropdown-menu acc-workspace-menu" aria-labelledby="wsDropdownBtn_<?php echo $companyId ?>">
+                            <div class="dropdown-menu acc-workspace-menu"
+                                aria-labelledby="wsDropdownBtn_<?php echo $companyId ?>">
                                 <!-- Header Dropdown -->
                                 <div class="acc-menu-header">
                                     <div class="acc-menu-header-icon">
@@ -748,8 +1521,7 @@
                                 </div>
 
                                 <!-- การ์ดปีที่ใช้งานอยู่ (Active Year Highlight Card) -->
-                                <div class="acc-active-year-card"
-                                    <?php echo ! empty($activeYear) ? "onclick=\"selectFiscalYear('$companyId', '$activeYear', '$activeFiscalId')\"" : "" ?>>
+                                <div class="acc-active-year-card" <?php echo !empty($activeYear) ? "onclick=\"selectFiscalYear('$companyId', '$activeYear', '$activeFiscalId')\"" : "" ?>>
                                     <div class="acc-active-year-left">
                                         <div class="acc-active-year-icon">
                                             <i class="ri-calendar-check-line"></i>
@@ -757,7 +1529,7 @@
                                         <div class="acc-active-year-info">
                                             <span class="acc-active-year-label">ปีที่ใช้งานอยู่</span>
                                             <span class="acc-active-year-val">
-                                                <?php if (! empty($activeYear)): ?>
+                                                <?php if (!empty($activeYear)): ?>
                                                     ปี <span class="card-active-year-val"><?php echo $activeYear ?></span>
                                                 <?php else: ?>
                                                     <span class="card-active-year-val text-muted">ยังไม่ได้เลือกปี</span>
@@ -765,7 +1537,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <?php if (! empty($activeYear)): ?>
+                                    <?php if (!empty($activeYear)): ?>
                                         <span class="acc-active-badge">กำลังใช้งาน</span>
                                     <?php endif; ?>
                                 </div>
@@ -775,15 +1547,16 @@
                                     <div class="acc-other-years-title">เลือกปีอื่น</div>
                                     <div class="acc-other-years-list" id="otherYearsList_<?php echo $companyId ?>">
                                         <?php
-                                            $hasOtherYears = false;
-                                            if (! empty($fiscalYears)):
-                                                foreach ($fiscalYears as $fy):
-                                                    $yVal          = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
-                                                    $cCount        = $fy['customer_count'] ?? 0;
-                                                    $fId           = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                                                    $hasOtherYears = true;
-                                        ?>
-                                                <a href="javascript:void(0);" class="acc-other-year-item" data-year="<?php echo $yVal ?>"
+                                        $hasOtherYears = false;
+                                        if (!empty($fiscalYears)):
+                                            foreach ($fiscalYears as $fy):
+                                                $yVal = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                                                $cCount = $fy['customer_count'] ?? 0;
+                                                $fId = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                                                $hasOtherYears = true;
+                                                ?>
+                                                <a href="javascript:void(0);" class="acc-other-year-item"
+                                                    data-year="<?php echo $yVal ?>"
                                                     onclick="selectFiscalYear('<?php echo $companyId ?>', '<?php echo $yVal ?>', '<?php echo $fId ?>')">
                                                     <div class="acc-other-year-icon">
                                                         <i class="ri-calendar-line"></i>
@@ -797,7 +1570,7 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
 
-                                        <?php if (! $hasOtherYears): ?>
+                                        <?php if (!$hasOtherYears): ?>
                                             <div class="acc-no-years-sub text-muted px-2 py-1" style="font-size: 0.78rem;">
                                                 ไม่มีปีอื่นให้เลือก
                                             </div>
@@ -838,7 +1611,7 @@
                         <?php echo htmlspecialchars(trim(($data['firstname'] ?? $_SESSION['user_firstname'] ?? '') . ' ' . ($data['lastname'] ?? $_SESSION['user_lastname'] ?? 'ผู้ใช้งาน'))) ?>
                     </span>
                     <span class="acc-user-role">
-                        <?php echo(! empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
+                        <?php echo (!empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
                     </span>
                 </div>
             </div>

@@ -21,9 +21,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         padding-top: 0px !important;
     }
 
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 14px !important;
+    }
+
     .main-page-wrapper {
         padding-top: 0px !important;
-        padding: 24px 32px;
+        padding: 20px 0px !important;
         min-height: calc(100vh - 72px);
     }
 
@@ -33,7 +38,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         border-radius: 16px;
         border: 1px solid #edf2f7;
         box-shadow: 0 2px 12px rgba(16, 24, 40, 0.03);
-        padding: 32px;
+        padding: 24px 20px;
     }
 
     /* --- Header Section --- */
@@ -353,6 +358,63 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         border-color: #bfdbfe;
     }
 
+    .btn-action-search {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        padding: 4px 10px;
+        min-width: 80px;
+        height: 32px;
+        border-radius: 8px;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        line-height: 1;
+    }
+
+    .btn-action-search:hover {
+        background-color: #eff6ff;
+        color: #2563eb;
+        border-color: #bfdbfe;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
+    }
+
+    .btn-action-search i {
+        font-size: 14px;
+        color: #64748b;
+        transition: color 0.2s ease;
+    }
+
+    .btn-action-search:hover i {
+        color: #2563eb;
+    }
+
+    .badge-info {
+        background-color: #eff6ff;
+        color: #2563eb;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .badge-subtext {
+        font-size: 0.70rem;
+        color: #64748b;
+        font-weight: 600;
+        margin-top: 3px;
+        display: block;
+        line-height: 1.2;
+    }
+
     /* --- Pagination Section --- */
     .pagination-toolbar {
         display: flex;
@@ -426,14 +488,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
                     </div>
 
-                    <!-- Stats Grid (กล่องสถิติการจัดการงานรายเดือน) -->
+                    <!-- Stats Grid -->
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-icon blue">
                                 <i class="ri-user-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val">2</span>
                                 <span class="stat-label">ลูกค้าในเดือนนี้</span>
                             </div>
                         </div>
@@ -443,7 +505,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-draft-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val">1</span>
                                 <span class="stat-label">ได้รับเอกสาร</span>
                             </div>
                         </div>
@@ -453,7 +515,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-checkbox-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val">1</span>
                                 <span class="stat-label">งานเสร็จแล้ว</span>
                             </div>
                         </div>
@@ -463,7 +525,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-mail-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val">1</span>
                                 <span class="stat-label">ยื่นภาษีแล้ว</span>
                             </div>
                         </div>
@@ -473,7 +535,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-wallet-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val">1</span>
                                 <span class="stat-label">ได้รับเงินแล้ว</span>
                             </div>
                         </div>
@@ -498,7 +560,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <option value="12">ธันวาคม</option>
                             </select>
                         </div>
-                        <span class="text-muted small ms-2">แสดงลูกค้า - ราย</span>
+                        <span class="text-muted small ms-2">แสดงลูกค้า 3 ราย</span>
                     </div>
 
                     <!-- Filter Toolbar (ค้นหา & ตัวกรองสถานะ) -->
@@ -507,57 +569,235 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <i class="ri-search-line"></i>
                             <input type="text" class="search-input" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล ทีม">
                         </div>
-                    </div>
-                    <div class="filter-group mb-4">
-                        <select class="form-select filter-select" id="selUser">
-                            <option value="">ทุกผู้ดูแล</option>
-                            <option>A</option>
-                            <option>B</option>
-                            <option>C</option>
-                        </select>
 
-                        <select class="form-select filter-select" id="selDocument">
-                            <option selected value="">เอกสาร: ทั้งหมด</option>
-                            <option value="1">ได้รับเอกสาร</option>
-                            <option value="2">ยังไม่ได้รับเอกสาร</option>
-                        </select>
+                        <div class="filter-group mb-4">
+                            <select class="form-select filter-select" id="selUser">
+                                <option value="">ทุกผู้ดูแล</option>
+                                <option value="เมย์">เมย์</option>
+                                <option value="ชมพู่">ชมพู่</option>
+                                <option value="นิว">นิว</option>
+                            </select>
 
-                        <select class="form-select filter-select" id="selTask">
-                            <option selected value="">งาน: ทั้งหมด</option>
-                            <option value="1">เสร็จแล้ว</option>
-                            <option value="2">กำลังดำเนินงาน</option>
-                        </select>
+                            <select class="form-select filter-select" id="selDocument">
+                                <option selected value="">เอกสาร: ทั้งหมด</option>
+                                <option value="1">ได้รับเอกสาร</option>
+                                <option value="2">ยังไม่ได้รับเอกสาร</option>
+                            </select>
 
-                        <select class="form-select filter-select" id="selTax">
-                            <option selected value="">ภาษี: ทั้งหมด</option>
-                            <option value="1">ยื่นแล้ว</option>
-                            <option value="2">ยังไม่ได้ยื่น</option>
-                        </select>
+                            <select class="form-select filter-select" id="selTask">
+                                <option selected value="">งาน: ทั้งหมด</option>
+                                <option value="1">เสร็จแล้ว</option>
+                                <option value="2">กำลังดำเนินงาน</option>
+                            </select>
 
-                        <select class="form-select filter-select" id="selPayment">
-                            <option selected value="">เงิน: ทั้งหมด</option>
-                            <option value="1">ได้รับเงินแล้ว</option>
-                            <option value="2">ยังไม่ได้รับเงิน</option>
-                        </select>
+                            <select class="form-select filter-select" id="selTax">
+                                <option selected value="">ภาษี: ทั้งหมด</option>
+                                <option value="1">ยื่นแล้ว</option>
+                                <option value="2">ยังไม่ได้ยื่น</option>
+                            </select>
+
+                            <select class="form-select filter-select" id="selPayment">
+                                <option selected value="">เงิน: ทั้งหมด</option>
+                                <option value="1">ได้รับเงินแล้ว</option>
+                                <option value="2">ยังไม่ได้รับเงิน</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Table Container -->
-                    <div class="table-responsive">
-                        <table class="table-custom">
+                    <div class="table-wrap">
+                        <table class="table" style="min-width: 1250px;">
                             <thead>
                                 <tr>
-                                    <th class="text-center" style="width: 5%;">ลำดับ</th>
-                                    <th class="text-start" style="width: 20%;">ลูกค้า</th>
-                                    <th class="text-center" style="width: 10%;">ผู้ดูแล</th>
-                                    <th class="text-center" style="width: 10%;">เอกสาร</th>
-                                    <th class="text-center" style="width: 12%;">งานประจำเดือน</th>
-                                    <th class="text-center" style="width: 10%;">รีวิว</th>
-                                    <th class="text-center" style="width: 10%;">ยื่นภาษี</th>
-                                    <th class="text-center" style="width: 10%;">เก็บเงิน</th>
-                                    <th class="text-center" style="width: 8%;">จัดการ</th>
+                                    <th rowspan="2" class="text-center" style="width: 5%;">ลำดับ</th>
+                                    <th rowspan="2" class="text-start" style="width: 20%;">ลูกค้า</th>
+                                    <th rowspan="2" class="text-center" style="width: 8%;">เลขที่ผู้ทำบัญชี</th>
+                                    <th rowspan="2" class="text-center" style="width: 8%;">เลขที่ผู้สอบบัญชี</th>
+                                    <th rowspan="2" class="text-center" style="width: 8%;"></th>
+                                    <th rowspan="2" class="text-center" style="width: 8%;">ผู้ดูแล</th>
+                                    <th rowspan="2" class="text-center" style="width: 9%;">เอกสาร</th>
+                                    <th rowspan="2" class="text-center" style="width: 10%;">งานประจำเดือน</th>
+                                    <th colspan="3" class="text-center"
+                                        style="border-bottom: 1px solid #e2e8f0; background-color: #f8fafc; color: #475569; font-weight: 800;">
+                                        รีวิว</th>
+                                    <th rowspan="2" class="text-center" style="width: 8%;">ยื่นภาษี</th>
+                                    <th rowspan="2" class="text-center" style="width: 9%;">เก็บเงิน</th>
+                                    <th rowspan="2" class="text-center" style="width: 7%;">จัดการ</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 1
+                                    </th>
+                                    <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 2
+                                    </th>
+                                    <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 3
+                                    </th>
                                 </tr>
                             </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center fw-semibold text-secondary">1</td>
+                                    <td class="text-start">
+                                        <div class="table-item-title">บริษัท เอบีซี เทรดดิ้ง จำกัด</div>
+                                        <div class="table-item-sub">ทีมบัญชี A</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">123456789</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">98764321</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn-action-search" title="comment">
+                                            <span>3</span>
+                                            <i class="ri-search-line"></i>
+                                        </button>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">พนักงาน ก.</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-active">ได้รับเอกสาร</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-active">เสร็จแล้ว</span>
+                                        <div class="badge-subtext">14/14 งาน</div>
+                                    </td>
+                                    <td class="text-center">
+                                       <span class="badge-active">รีวิวแล้ว</span>
+                                        <div class="badge-subtext">แก้ว</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-active">รีวิวแล้ว</span>
+                                        <div class="badge-subtext">แจกัน</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-active">รีวิวแล้ว</span>
+                                        <div class="badge-subtext">ดรีม</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-active">ยื่นแล้ว</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-active">ได้รับเงินแล้ว</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="action-btn-group">
+                                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"><i
+                                                    class="ri-pencil-line"></i></button>
+                                            <button type="button" class="btn-action-message"
+                                                title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center fw-semibold text-secondary">2</td>
+                                    <td class="text-start">
+                                        <div class="table-item-title">บริษัท สยาม อินโนเวชั่น จำกัด</div>
+                                        <div class="table-item-sub">ทีมบัญชี B</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">123456789</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">98764321</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn-action-search" title="comment">
+                                            <span>5</span>
+                                            <i class="ri-search-line"></i>
+                                        </button>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">พนักงาน ข.</span>
+                                    </td>
 
+                                    <td class="text-center">
+                                        <span class="badge-active">ได้รับเอกสาร</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-info">กำลังดำเนินงาน</span>
+                                        <div class="badge-subtext">2/14 งาน</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-active">รีวิวแล้ว</span>
+                                        <div class="badge-subtext">ดรีม</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-warning">รอรีวิว</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-inactive">ยังไม่รีวิว</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-inactive">ยังไม่ได้ยื่น</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-inactive">ยังไม่ได้รับเงิน</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="action-btn-group">
+                                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"><i
+                                                    class="ri-pencil-line"></i></button>
+                                            <button type="button" class="btn-action-message"
+                                                title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center fw-semibold text-secondary">3</td>
+                                    <td class="text-start">
+                                        <div class="table-item-title">บริษัท โกลบอล เน็ตเวิร์ค จำกัด</div>
+                                        <div class="table-item-sub">ทีมบัญชี C</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">123456789</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">98764321</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn-action-search" title="comment">
+                                            <span>2</span>
+                                            <i class="ri-search-line"></i>
+                                        </button>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="caretaker-text">พนักงาน ค.</span>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <span class="badge-inactive">ยังไม่ได้รับ</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-info">กำลังดำเนินงาน</span>
+                                        <div class="badge-subtext">0/12 งาน</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-active">รีวิวแล้ว</span>
+                                        <div class="badge-subtext">ชมพู่</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-inactive">ยังไม่รีวิว</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-inactive">ยังไม่รีวิว</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-inactive">ยังไม่ได้ยื่น</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-inactive">ยังไม่ได้รับเงิน</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="action-btn-group">
+                                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"><i
+                                                    class="ri-pencil-line"></i></button>
+                                            <button type="button" class="btn-action-message"
+                                                title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
 
@@ -574,7 +814,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
 
                         <div class="text-muted">
-                            รายการที่ 1-1 จาก 1
+                            รายการที่ 1-3 จาก 3
                         </div>
 
                         <div class="d-flex align-items-center gap-1">
@@ -597,14 +837,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 </div>
 
 <script>
-$(document).ready(function() {
-    $('#monthSelect').select2();
-    $('#selUser').select2();
-    $('#selDocument').select2();
-    $('#selTask').select2();
-    $('#selTax').select2();
-    $('#selPayment').select2();
-});
+    $(document).ready(function () {
+        $('#monthSelect').select2();
+        $('#selUser').select2();
+        $('#selDocument').select2();
+        $('#selTask').select2();
+        $('#selTax').select2();
+        $('#selPayment').select2();
+    });
 </script>
 
 <?php
