@@ -45,4 +45,45 @@ class MonthlyTaskModal extends Model {
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getTasksByPeriodId($period_id) {
+        // ===== DEBUG START =====
+        error_log("=== getTasksByPeriodId DEBUG ===");
+        error_log("period_id = " . var_export($period_id, true));
+
+        $sql = "
+            SELECT 
+                ct.customer_tasks_id,
+                ct.period_id,
+                ct.task_id,
+                ct.status,
+                t.tasks_name as task_name
+            FROM tbl_customer_tasks ct
+            INNER JOIN tbl_tasks t ON ct.task_id = t.tasks_id
+            WHERE ct.period_id = :period_id
+            ORDER BY t.list_order ASC
+        ";
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['period_id' => $period_id]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            error_log("rows found = " . count($rows));
+            error_log("result = " . json_encode($rows, JSON_UNESCAPED_UNICODE));
+            // ===== DEBUG END =====
+
+            return $rows;
+        } catch (\PDOException $e) {
+            error_log("PDOException: " . $e->getMessage());
+            // ส่ง error กลับเป็น JSON เพื่อดูใน browser
+            header('Content-Type: application/json');
+            echo json_encode([
+                'result' => 0,
+                'debug_error' => $e->getMessage(),
+                'debug_period_id' => $period_id,
+            ]);
+            exit;
+        }
+    }
 }

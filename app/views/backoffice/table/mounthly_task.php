@@ -123,7 +123,7 @@
 
             <td class="text-center">
                 <div class="action-btn-group">
-                    <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข" onclick="Modal_manage()"><i class="ri-pencil-line"></i></button>
+                    <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข" onclick="Modal_manage(<?php echo (int)$task['period_id']; ?>)"><i class="ri-pencil-line"></i></button>
                     <button type="button" class="btn-action-message" title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
                 </div>
             </td>

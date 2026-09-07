@@ -1008,6 +1008,24 @@ class BackofficeController
         require_once '../app/views/backoffice/monthly_task.php';
     }
 
+    public function getMonthlyTaskItems()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+
+        $period_id = $_GET['period_id'] ?? '';
+        if (!$period_id) {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบ period_id']);
+            return;
+        }
+
+        require_once '../app/models/monthly_task_Modal.php';
+        $model = new MonthlyTaskModal();
+        $tasks = $model->getTasksByPeriodId($period_id);
+
+        echo json_encode(['result' => 1, 'tasks' => $tasks]);
+    }
+
 
         /////////////////////////////////////// yearly_dash /////////////////////////////////////////////// 
     public function yearly_dash()

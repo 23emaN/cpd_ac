@@ -647,60 +647,53 @@
                         </div>
                     </div>
 
-                    <?php
-                        $dummyTasks = ['BBL', 'KBANK', 'UOB', 'TTB', 'SCB', 'กระทบ Bank'];
-                    ?>
+                    <!-- รายการงานประจำเดือน (โหลดจาก DB ผ่าน AJAX) -->
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <label class="form-label fw-semibold text-secondary mb-0" style="font-size: 0.85rem;">รายการงานประจำเดือน</label>
-                            <span class="text-muted fw-semibold" style="font-size: 0.8rem;"><?php echo count($dummyTasks); ?> งาน</span>
+                            <span class="text-muted fw-semibold" id="modalTaskCount" style="font-size: 0.8rem;">- งาน</span>
+                        </div>
+                        <div class="task-list-container" id="modalTaskList" style="max-height: 250px; overflow-y: auto; padding: 0 16px; border-radius: 10px; border: 1px solid #e2e8f0; background-color: #ffffff;">
+                            <div class="text-center text-muted py-3" style="font-size:0.85rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>
                         </div>
                     </div>
-
-                   <?php
-                        $dummyTasks = ['BBL', 'KBANK', 'UOB', 'TTB', 'SCB', 'กระทบ Bank'];
-                   ?>
-                   <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label fw-semibold text-secondary mb-0" style="font-size: 0.85rem;">รายการงานประจำเดือน</label>
-                            <span class="text-muted fw-semibold" style="font-size: 0.8rem;"><?php echo count($dummyTasks); ?> งาน</span>
-                        </div>
-
-                    <div class="task-list-container" style="max-height: 250px; overflow-y: auto; padding: 0 16px; border-radius: 10px; border: 1px solid #e2e8f0; background-color: #ffffff;">
-                        <!-- Task Items -->
-                    <?php foreach ($dummyTasks as $idx => $t): ?>
-                        <div class="d-flex justify-content-between align-items-center w-100 py-3 <?php echo $idx < count($dummyTasks) - 1 ? 'border-bottom' : ''; ?>" style="<?php echo $idx < count($dummyTasks) - 1 ? 'border-color: #f1f5f9 !important;' : ''; ?>">
-                        <span class="fw-bold flex-grow-1" style="font-size: 0.85rem; color: #1e293b;"><?php echo $t; ?></span>
-                    <select class="form-select form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0" style="width: 140px; border-radius: 6px; padding-top: 6px; padding-bottom: 6px;">
-                <option value="1" <?php echo $idx < 2 ? 'selected' : ''; ?>>เสร็จแล้ว</option>
-                <option value="0" <?php echo $idx >= 2 ? 'selected' : ''; ?>>รอดำเนินการ</option>
-            </select>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
 
 
                     <!-- Row 3: Reviewer & Payment -->
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว)</label>
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 1)</label>
                             <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
                                 <option value="" selected>ยังไม่ได้รีวิว</option>
                                 <option value="1">ชมพู่</option>
                             </select>
                         </div>
-                        <div class="col-md-6 mt-3 mt-md-0">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว2)</label>
+                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
+                                <option value="" selected>ยังไม่ได้รีวิว</option>
+                                <option value="1">ชมพู่</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว3)</label>
+                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
+                                <option value="" selected>ยังไม่ได้รีวิว</option>
+                                <option value="1">ชมพู่</option>
+                            </select>
+                        </div>
+                       
+                    </div>
+
+                    <!-- Row 4: Tax Status & Date -->
+                    <div class="row">
+                         <div class="col-md-6 mt-3 mt-md-0">
                             <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการเก็บเงิน</label>
                             <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
                                 <option value="0" selected>ยังไม่ได้รับ</option>
                                 <option value="1">ได้รับเงินแล้ว</option>
                             </select>
                         </div>
-                    </div>
-
-                    <!-- Row 4: Tax Status & Date -->
-                    <div class="row">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการยื่นภาษี</label>
                             <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
@@ -739,11 +732,47 @@
         $('#selPayment').select2();
     });
 
-     function Modal_manage() {
-        // 2. สั่งโชว์ Modal ผ่าน Vanilla JS ของ Bootstrap
+     function Modal_manage(period_id) {
         const modalElement = document.getElementById('manageModal');
         const myModal = new bootstrap.Modal(modalElement);
         myModal.show();
+
+        // โหลด tasks จาก DB ตาม period_id
+        const taskList = document.getElementById('modalTaskList');
+        const taskCount = document.getElementById('modalTaskCount');
+
+        taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
+        taskCount.textContent = '- งาน';
+
+        if (!period_id) return;
+
+        fetch('<?php echo BASE_URL; ?>/monthly_task/items?period_id=' + period_id)
+            .then(res => res.json())
+            .then(data => {
+                if (data.result !== 1 || !data.tasks.length) {
+                    taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;">ไม่พบรายการงาน</div>';
+                    taskCount.textContent = '0 งาน';
+                    return;
+                }
+                taskCount.textContent = data.tasks.length + ' งาน';
+                let html = '';
+                data.tasks.forEach((t, idx) => {
+                    const isLast = idx === data.tasks.length - 1;
+                    html += `<div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
+                        <span class="fw-bold flex-grow-1" style="font-size:0.85rem; color:#1e293b;">${t.task_name}</span>
+                        <select class="form-select form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0"
+                                data-customer-tasks-id="${t.customer_tasks_id}"
+                                style="width:140px; border-radius:6px; padding-top:6px; padding-bottom:6px;">
+                            <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
+                            <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
+                        </select>
+                    </div>`;
+                });
+                taskList.innerHTML = html;
+            })
+            .catch(() => {
+                taskList.innerHTML = '<div class="text-center text-danger py-3" style="font-size:0.85rem;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+            });
     }
 </script>
 
