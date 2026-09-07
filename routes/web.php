@@ -16,7 +16,8 @@ $routes = [
         'closing' => ['BackofficeController', 'closing'],
         'monthly_task' => ['BackofficeController', 'monthly_task'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
-        'logout' => ['MainController', 'logout']
+        'logout' => ['MainController', 'logout'],
+        'customer/get' => ['BackofficeController', 'getCustomer']
     ],
     'POST' => [
         'auth/login'  => ['AuthController', 'processLogin'],
@@ -32,6 +33,8 @@ $routes = [
         'employee/edit' => ['BackofficeController', 'editEmployee'],
         'employee/delete' => ['BackofficeController', 'deleteEmployee'],
         'post_it/store' => ['BackofficeController', 'storePostIt'],
+        'customer/add' => ['BackofficeController', 'addCustomer'],
+        'customer/edit' => ['BackofficeController', 'editCustomer'],
     ]
 ];
 
