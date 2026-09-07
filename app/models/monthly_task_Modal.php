@@ -25,7 +25,8 @@ class MonthlyTaskModal extends Model
                 t.team_name,
                 u.user_firstname as caretaker_firstname,
                 (SELECT COUNT(*) FROM tbl_customer_tasks ct WHERE ct.period_id = p.period_id) as total_tasks,
-                (SELECT COUNT(*) FROM tbl_customer_tasks ct WHERE ct.period_id = p.period_id AND ct.status = '1') as completed_tasks
+                (SELECT COUNT(*) FROM tbl_customer_tasks ct WHERE ct.period_id = p.period_id AND ct.status = '1') as completed_tasks,
+                (SELECT COUNT(*) FROM tbl_comment_tasks cmt INNER JOIN tbl_customer_tasks ct2 ON cmt.customer_tasks_id = ct2.customer_tasks_id WHERE ct2.period_id = p.period_id) as total_comments
             FROM tbl_customer_work_periods p
             INNER JOIN tbl_customers c ON p.customer_id = c.customer_id
             LEFT JOIN tbl_fiscal_year_customers fyc ON p.customer_id = fyc.customer_id AND p.fiscal_year_id = fyc.fiscal_id
@@ -55,7 +56,7 @@ class MonthlyTaskModal extends Model
         error_log("=== getTasksByPeriodId DEBUG ===");
         error_log("period_id = " . var_export($period_id, true));
 
-        $sql = "
+       $sql = "
             SELECT 
                 ct.customer_tasks_id,
                 ct.period_id,
@@ -90,6 +91,38 @@ class MonthlyTaskModal extends Model
                 'debug_period_id' => $period_id,
             ]);
         }
+    }
+    public function getCommentsByTaskId(int $customerTasksId) {
+        $sql = "
+            SELECT 
+                c.comment_id,
+                c.customer_tasks_id,
+                c.comment_user_id,
+                c.comment_detail AS comment_text,
+                c.create_at,
+                u.user_firstname AS user_name,
+                DATE_FORMAT(c.create_at, '%d/%m/%Y %H:%i') AS created_at_display
+            FROM tbl_comment_tasks c
+            LEFT JOIN tbl_user u ON c.comment_user_id = u.user_id
+            WHERE c.customer_tasks_id = :task_id
+            ORDER BY c.create_at ASC
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['task_id' => $customerTasksId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function addComment(int $customerTasksId, int $userId, string $commentText) {
+        $sql = "
+            INSERT INTO tbl_comment_tasks (customer_tasks_id, comment_user_id, comment_detail, create_at)
+            VALUES (:task_id, :user_id, :comment_text, NOW())
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            'task_id' => $customerTasksId,
+            'user_id' => $userId,
+            'comment_text' => $commentText
+        ]);
     }
 }
 

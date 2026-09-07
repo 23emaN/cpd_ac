@@ -1,14 +1,14 @@
 <?php
-// app/views/backoffice/closing.php
-$selected_year = $_GET['year'] ?? '2569';
-$company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
-$show_company_workspace = true;
+    // app/views/backoffice/closing.php
+    $selected_year          = $_GET['year'] ?? '2569';
+    $company_name           = $_GET['company'] ?? 'TEST ACCOUNTING';
+    $show_company_workspace = true;
 
-// 1. นำ Header เข้ามา
-require_once dirname(__DIR__) . '/main/header.php';
+    // 1. นำ Header เข้ามา
+    require_once dirname(__DIR__) . '/main/header.php';
 
-// 2. นำ Sidebar เข้ามา
-require_once dirname(__DIR__) . '/main/sidebar.php';
+    // 2. นำ Sidebar เข้ามา
+    require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
@@ -490,7 +490,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">จัดการงานรายเดือน</h2>
-                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <?php $fy_display = ! empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
                             <p class="page-subtitle">ภาพรวมระบบ - งานรายเดือน - ปี
                                 <?php echo htmlspecialchars($fy_display); ?>
                             </p>
@@ -504,13 +504,30 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </div>
 
                     <!-- Stats Grid -->
+                    <?php
+                    $monthly_tasks_list = $data['monthly_tasks'] ?? [];
+                    $total_customers_count = count($monthly_tasks_list);
+                    $doc_received_count = 0;
+                    $completed_count = 0;
+                    $tax_count = 0;
+                    $payment_count = 0;
+
+                    foreach ($monthly_tasks_list as $t_item) {
+                        if (($t_item['doc_status'] ?? '0') === '1') $doc_received_count++;
+                        $tot = (int)($t_item['total_tasks'] ?? 0);
+                        $comp = (int)($t_item['completed_tasks'] ?? 0);
+                        if ($tot > 0 && $tot === $comp) $completed_count++;
+                        if (($t_item['tax_status'] ?? '0') === '1') $tax_count++;
+                        if (($t_item['payment_status'] ?? '0') === '1') $payment_count++;
+                    }
+                    ?>
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-icon blue">
                                 <i class="ri-user-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">2</span>
+                                <span class="stat-val"><?php echo number_format($total_customers_count); ?></span>
                                 <span class="stat-label">ลูกค้าในเดือนนี้</span>
                             </div>
                         </div>
@@ -520,7 +537,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-draft-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">1</span>
+                                <span class="stat-val"><?php echo number_format($doc_received_count); ?></span>
                                 <span class="stat-label">ได้รับเอกสาร</span>
                             </div>
                         </div>
@@ -530,7 +547,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-checkbox-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">1</span>
+                                <span class="stat-val"><?php echo number_format($completed_count); ?></span>
                                 <span class="stat-label">งานเสร็จแล้ว</span>
                             </div>
                         </div>
@@ -540,7 +557,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-mail-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">1</span>
+                                <span class="stat-val"><?php echo number_format($tax_count); ?></span>
                                 <span class="stat-label">ยื่นภาษีแล้ว</span>
                             </div>
                         </div>
@@ -550,7 +567,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-wallet-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">1</span>
+                                <span class="stat-val"><?php echo number_format($payment_count); ?></span>
                                 <span class="stat-label">ได้รับเงินแล้ว</span>
                             </div>
                         </div>
@@ -562,25 +579,25 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <div class="w-auto">
                             <select class="form-select" id="monthSelect">
                                 <?php
-                                $selectedMonth = (int) ($data['selected_month'] ?? date('n'));
-                                $months = [
-                                    1 => 'มกราคม',
-                                    2 => 'กุมภาพันธ์',
-                                    3 => 'มีนาคม',
-                                    4 => 'เมษายน',
-                                    5 => 'พฤษภาคม',
-                                    6 => 'มิถุนายน',
-                                    7 => 'กรกฎาคม',
-                                    8 => 'สิงหาคม',
-                                    9 => 'กันยายน',
-                                    10 => 'ตุลาคม',
-                                    11 => 'พฤศจิกายน',
-                                    12 => 'ธันวาคม',
-                                ];
-                                foreach ($months as $num => $name) {
-                                    $isSelected = ($num === $selectedMonth) ? 'selected' : '';
-                                    echo "<option value=\"$num\" $isSelected>$name</option>";
-                                }
+                                    $selectedMonth = (int) ($data['selected_month'] ?? date('n'));
+                                    $months        = [
+                                        1  => 'มกราคม',
+                                        2  => 'กุมภาพันธ์',
+                                        3  => 'มีนาคม',
+                                        4  => 'เมษายน',
+                                        5  => 'พฤษภาคม',
+                                        6  => 'มิถุนายน',
+                                        7  => 'กรกฎาคม',
+                                        8  => 'สิงหาคม',
+                                        9  => 'กันยายน',
+                                        10 => 'ตุลาคม',
+                                        11 => 'พฤศจิกายน',
+                                        12 => 'ธันวาคม',
+                                    ];
+                                    foreach ($months as $num => $name) {
+                                        $isSelected = ($num === $selectedMonth) ? 'selected' : '';
+                                        echo "<option value=\"$num\" $isSelected>$name</option>";
+                                    }
                                 ?>
                             </select>
                         </div>
@@ -594,7 +611,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                         <div class="filter-group mb-4">
                             <?php
-                            $users = ['เมย์', 'ชมพู่', 'นิว'];
+                                $users = ['เมย์', 'ชมพู่', 'นิว'];
                             ?>
                             <select class="form-select filter-select" id="selUser">
                                 <option value="">ทุกผู้ดูแล</option>
@@ -647,8 +664,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div>
                         <h5 class="modal-title fw-bold" id="manageModalLabel"
                             style="color: #1e293b; font-size: 1.15rem;">อัปเดตงานรายเดือน</h5>
-                        <div class="text-muted mt-1" id="manageModalSubtitle" style="font-size: 0.85rem;">AMLAW ·
-                            กันยายน ปี -</div>
+                        <div class="text-muted mt-1" id="manageModalSubtitle" style="font-size: 0.85rem;">
+                            <!-- Subtitle will be set dynamically via JavaScript Modal_manage() -->
+                        </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
                         style="margin-top: -15px; margin-right: -10px;"></button>
@@ -676,8 +694,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label fw-semibold text-secondary mb-0"
                                     style="font-size: 0.85rem;">รายการงานประจำเดือน</label>
-                                <span id="modalTaskCount" class="text-muted fw-semibold" style="font-size: 0.8rem;">-
-                                    งาน</span>
+                                <span id="modalTaskCount" class="text-muted fw-semibold" style="font-size: 0.8rem;">-งาน</span>
                             </div>
 
                             <div id="modalTaskList" class="task-list-container"
@@ -788,9 +805,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             $('#selPayment').select2();
         });
 
-        function Modal_manage(period_id) {
+        function Modal_manage(period_id, subtitleStr) {
             const modalElement = document.getElementById('manageModal');
             const myModal = new bootstrap.Modal(modalElement);
+
+            if (subtitleStr) {
+                document.getElementById('manageModalSubtitle').textContent = subtitleStr;
+            }
+
             myModal.show();
 
             // โหลด tasks จาก DB ตาม period_id
@@ -804,47 +826,223 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
             fetch('<?php echo BASE_URL; ?>/monthly_task/items?period_id=' + period_id)
                 .then(res => res.json())
-                .then(data => {
-                    if (data.result !== 1 || !data.tasks.length) {
-                        taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;">ไม่พบรายการงาน</div>';
-                        taskCount.textContent = '0 งาน';
-                        return;
-                    }
-                    taskCount.textContent = data.tasks.length + ' งาน';
-                    let html = '';
-                    data.tasks.forEach((t, idx) => {
-                        const isLast = idx === data.tasks.length - 1;
-                        const isNotifyAmount = t.is_notify_amount == 1 || t.is_notify_amount === true;
+               .then(data => {
+    if (data.result !== 1 || !data.tasks.length) {
+        taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;">ไม่พบรายการงาน</div>';
+        taskCount.textContent = '0 งาน';
+        return;
+    }
+    taskCount.textContent = data.tasks.length + ' งาน';
+    let html = '';
+    data.tasks.forEach((t, idx) => {
+        const isLast = idx === data.tasks.length - 1;
+        const isNotifyAmount = t.is_notify_amount == 1 || t.is_notify_amount === true;
+        const hasComment = !!(t.comment && t.comment.trim() !== '');
 
-                        html += `
-                        <div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
-                            <!-- Left side: Task Name & Badge -->
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold" style="font-size:0.88rem; color:#1e293b;">${t.task_name}</span>
-                                ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
-                            </div>
+        html += `
+        <div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
+            <!-- Left side: Task Name & Badge -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold" style="font-size:0.88rem; color:#1e293b;">${t.task_name}</span>
+                ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
+            </div>
 
-                            <!-- Right side: Select dropdown & Amount Input -->
-                            <div class="d-flex align-items-center gap-2">
-                                <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0"
-                                        data-customer-tasks-id="${t.customer_tasks_id}"
-                                        style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
-                                    <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
-                                    <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
-                                </select>
-                                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0" placeholder="จำนวนเงิน" value="${t.amount || ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;">` : ''}
-                            </div>
+             <button type="button" class="btn-task-comment"
+                data-customer-tasks-id="${t.customer_tasks_id}"
+                data-task-name="${t.task_name}"
+                data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
+                title="เพิ่มความคิดเห็น"
+                style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
+                <i class="ri-chat-3-line" style="font-size: 15px;"></i>
+             </button>
+
+            <!-- Right side: Select dropdown & Amount Input -->
+            <div class="d-flex align-items-center gap-2">
+                <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0"
+                        data-customer-tasks-id="${t.customer_tasks_id}"
+                        style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
+                    <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
+                    <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
+                </select>
+                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0" placeholder="จำนวนเงิน" value="${t.amount || ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;">` : ''}
+            </div>
+        </div>`;
+    });
+    taskList.innerHTML = html;
+
+    document.querySelectorAll('.btn-task-comment').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const taskId = this.dataset.customerTasksId;
+            const taskName = this.dataset.taskName || 'ความคิดเห็น';
+            toggleCommentThread(taskId, taskName, this);
+        });
+    });
+        })
+        .catch(() => {
+            taskList.innerHTML = '<div class="text-center text-danger py-3" style="font-size:0.85rem;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+        });
+    }
+
+    function toggleCommentThread(customerTasksId, taskName, triggerElement) {
+    const row = triggerElement.closest('.d-flex.justify-content-between');
+    const existing = row.nextElementSibling;
+    const icon = triggerElement.querySelector('i');
+
+    if (existing && existing.classList.contains('comment-thread-panel')) {
+        existing.style.opacity = '0';
+        existing.style.transform = 'translateY(-6px)';
+        setTimeout(() => existing.remove(), 180);
+
+        if (icon) icon.className = 'ri-chat-3-line';
+        return;
+    }
+
+    document.querySelectorAll('.comment-thread-panel').forEach(el => el.remove());
+    document.querySelectorAll('.btn-task-comment i').forEach(i => {
+        i.className = 'ri-chat-3-line';
+    });
+
+    if (icon) icon.className = 'ri-arrow-up-s-line';
+
+    const panelHtml = `
+        <div class="comment-thread-panel" style="
+            background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            margin: 6px 0 16px;
+            padding: 16px;
+            border: 1.5px solid #dbeafe;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.06);
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        ">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <div style="width:26px; height:26px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 6px rgba(37,99,235,0.35);">
+                    <i class="ri-chat-3-fill" style="color:#fff; font-size:0.75rem;"></i>
+                </div>
+                <span style="font-size:0.82rem; font-weight:800; color:#1e3a8a; letter-spacing:0.2px;">${taskName}</span>
+                <span class="comment-count-badge" style="font-size:0.68rem; font-weight:700; color:#2563eb; background:#dbeafe; padding:2px 8px; border-radius:20px; margin-left:auto;">…</span>
+            </div>
+            <div class="comment-thread-list" style="max-height: 240px; overflow-y:auto; margin-bottom: 14px; padding-right: 4px;">
+                <div class="text-center text-muted py-3" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <input type="text" class="form-control comment-thread-input" 
+                    placeholder="พิมพ์ความคิดเห็น..." 
+                    style="border-radius:24px; font-size:0.85rem; background:#ffffff; border:1.5px solid #dbeafe; padding: 10px 18px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);">
+                <button type="button" class="comment-thread-send" 
+                    style="width:42px; height:42px; flex-shrink:0; border-radius:50%; border:none; background: linear-gradient(135deg, #3b82f6, #2563eb); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 3px 10px rgba(37,99,235,0.35); transition: transform 0.15s ease, box-shadow 0.15s ease;">
+                    <i class="ri-send-plane-fill" style="font-size:1rem;"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+    row.insertAdjacentHTML('afterend', panelHtml);
+    const panel = row.nextElementSibling;
+    const listEl = panel.querySelector('.comment-thread-list');
+    const inputEl = panel.querySelector('.comment-thread-input');
+    const sendBtn = panel.querySelector('.comment-thread-send');
+    const countBadge = panel.querySelector('.comment-count-badge');
+
+    sendBtn.addEventListener('mouseenter', () => {
+        sendBtn.style.transform = 'scale(1.08)';
+        sendBtn.style.boxShadow = '0 5px 14px rgba(37,99,235,0.45)';
+    });
+    sendBtn.addEventListener('mouseleave', () => {
+        sendBtn.style.transform = 'scale(1)';
+        sendBtn.style.boxShadow = '0 3px 10px rgba(37,99,235,0.35)';
+    });
+
+    requestAnimationFrame(() => {
+        panel.style.opacity = '1';
+        panel.style.transform = 'translateY(0)';
+    });
+
+    loadComments(customerTasksId, listEl, countBadge);
+
+    function submitComment() {
+        const text = inputEl.value.trim();
+        if (!text) return;
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.6';
+
+        postComment(customerTasksId, text)
+            .then(() => {
+                inputEl.value = '';
+                loadComments(customerTasksId, listEl, countBadge);
+                updateCommentBadge(triggerElement, true);
+            })
+            .catch(() => alert('ส่งความคิดเห็นไม่สำเร็จ'))
+            .finally(() => {
+                sendBtn.disabled = false;
+                sendBtn.style.opacity = '1';
+            });
+    }
+
+    sendBtn.addEventListener('click', submitComment);
+    inputEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); submitComment(); }
+    });
+    inputEl.focus();
+}
+
+function loadComments(customerTasksId, listEl, countBadge) {
+    listEl.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
+
+    fetch('<?php echo BASE_URL; ?>/monthly_task/comments?customer_tasks_id=' + customerTasksId)
+        .then(res => res.json())
+        .then(data => {
+            const comments = data.comments || [];
+            // if (countBadge) countBadge.textContent = comments.length + ' ข้อความ';
+
+            if (!comments.length) {
+                listEl.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="ri-chat-smile-2-line" style="font-size:1.8rem; display:block; margin-bottom:6px; color:#93c5fd;"></i>
+                        <span style="font-size:0.8rem; color:#94a3b8; font-weight:500;">ยังไม่มีความคิดเห็น</span>
                     </div>`;
-                    });
-                    taskList.innerHTML = html;
-                })
-                .catch(() => {
-                    taskList.innerHTML = '<div class="text-center text-danger py-3" style="font-size:0.85rem;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
-                });
-        }
+                return;
+            }
+            listEl.innerHTML = comments.map(c => {
+                const name = c.user_name || 'ไม่ระบุ';
+                return `
+                <div class="mb-2">
+                    <div style="background:#fff; border-left: 3px solid #93c5fd; border-radius: 4px; padding:8px 12px; box-shadow: 0 1px 4px rgba(15,23,42,0.04);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span style="font-size:0.75rem; font-weight:800; color:#475569;">${name}</span>
+                            <span style="font-size:0.65rem; color:#94a3b8; font-weight:600;">${c.created_at_display || ''}</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:#334155; line-height:1.4; word-break:break-word;">${c.comment_text}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            listEl.scrollTop = listEl.scrollHeight;
+        })
+        .catch(() => {
+            listEl.innerHTML = '<div class="text-center text-dark py-3" style="font-size:0.8rem;">ยังไม่มีข้อมูล</div>';
+        });
+}
+
+function postComment(customerTasksId, text) {
+    return fetch('<?php echo BASE_URL; ?>/monthly_task/comments/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_tasks_id: customerTasksId, comment_text: text })
+    }).then(res => res.json());
+}
+
+function updateCommentBadge(button, hasComment) {
+    button.style.borderColor = hasComment ? '#93c5fd' : '#e2e8f0';
+    button.style.backgroundColor = hasComment ? '#eff6ff' : '#ffffff';
+    button.style.color = hasComment ? '#2563eb' : '#94a3b8';
+    const icon = button.querySelector('i');
+    if (icon && !icon.className.includes('ri-arrow-up')) {
+        icon.style.color = hasComment ? '#2563eb' : '#94a3b8';
+    }
+}
     </script>
 
     <?php
-    // 3. นำ Footer เข้ามา
     require_once dirname(__DIR__) . '/main/footer.php';
     ?>

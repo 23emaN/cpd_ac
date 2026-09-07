@@ -19,6 +19,7 @@ $routes = [
         'customer_message' => ['BackofficeController', 'customer_message'],
         'monthly_task' => ['BackofficeController', 'monthly_task'],
         'monthly_task/items' => ['BackofficeController', 'getMonthlyTaskItems'],
+        'monthly_task/comments' => ['BackofficeController', 'getMonthlyTaskComments'],
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout'],
         'customer/get' => ['BackofficeController', 'getCustomer']
@@ -43,6 +44,7 @@ $routes = [
         'customer/add' => ['BackofficeController', 'addCustomer'],
         'customer/edit' => ['BackofficeController', 'editCustomer'],
         'customer/delete' => ['BackofficeController', 'deleteCustomer'],
+        'monthly_task/comments/store' => ['BackofficeController', 'storeMonthlyTaskComment'],
     ]
 ];
 
