@@ -616,12 +616,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                         <article class="postit-note"
                                             style="background: <?php echo htmlspecialchars($palette['bg']); ?>; border-color: <?php echo htmlspecialchars($palette['border']); ?>;">
                                             <div class="postit-actions">
-                                                <button type="button" class="postit-action-btn btn-postit-done <?php echo $item['status'] === '1' ? 'active' : ''; ?>"
+                                                <?php if (($item['status'] ?? '0') !== '1'): ?>
+                                                <button type="button" class="postit-action-btn btn-postit-done"
                                                     data-id="<?php echo (int) $item['post_id']; ?>" title="สลับสถานะ"
                                                     onclick="changeStatusPostIt(<?php echo (int) $item['post_id']; ?>)">
                                                     <i class="ri-check-line"></i>
                                                 </button>
-                                                <?php if (($item['status'] ?? '0') !== '1'): ?>
                                                 <button type="button" class="postit-action-btn btn-postit-edit"
                                                     data-id="<?php echo (int) $item['post_id']; ?>"
                                                     data-title="<?php echo htmlspecialchars($item['title'] ?? ''); ?>"
