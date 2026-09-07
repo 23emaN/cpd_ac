@@ -590,27 +590,20 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             Swal.fire({
                 icon: 'warning',
                 title: 'ลบข้อมูลพนักงาน?',
-                text: userFirstname + ' จะถูกลบออกจากปีทำงานนี้',
+                text: userFirstname + ' จะถูกลบออกจากระบบ',
                 showCancelButton: true,
+                confirmButtonColor: '#e3342f',
+                cancelButtonColor: '#6c757d',
                 confirmButtonText: 'ลบข้อมูล',
                 cancelButtonText: 'ยกเลิก',
-                reverseButtons: true, // สลับตำแหน่งปุ่มถ้าระบบเอาปุ่มยกเลิกไว้ซ้าย
-                buttonsStyling: false,
-                customClass: {
-                    popup: 'custom-swal-popup',
-                    title: 'custom-swal-title',
-                    htmlContainer: 'custom-swal-text',
-                    actions: 'custom-swal-actions',
-                    confirmButton: 'custom-swal-confirm',
-                    cancelButton: 'custom-swal-cancel'
-                }
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     execute_delete(userId);
                 }
             });
         } else {
-            if(confirm('คุณต้องการลบพนักงาน ' + userFirstname + ' ออกจากปีทำงานนี้หรือไม่?')) {
+            if(confirm('คุณต้องการลบพนักงาน ' + userFirstname + ' ออกจากระบบหรือไม่?')) {
                 execute_delete(userId);
             }
         }

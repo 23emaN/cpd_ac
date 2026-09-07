@@ -1,14 +1,14 @@
 <?php
-// app/views/backoffice/closing.php
-$selected_year = $_GET['year'] ?? '2569';
-$company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
-$show_company_workspace = true;
+    // app/views/backoffice/closing.php
+    $selected_year          = $_GET['year'] ?? '2569';
+    $company_name           = $_GET['company'] ?? 'TEST ACCOUNTING';
+    $show_company_workspace = true;
 
-// 1. นำ Header เข้ามา
-require_once dirname(__DIR__) . '/main/header.php';
+    // 1. นำ Header เข้ามา
+    require_once dirname(__DIR__) . '/main/header.php';
 
-// 2. นำ Sidebar เข้ามา
-require_once dirname(__DIR__) . '/main/sidebar.php';
+    // 2. นำ Sidebar เข้ามา
+    require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
@@ -28,7 +28,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
     .main-page-wrapper {
         padding-top: 0px !important;
-        padding: 20px 0px !important;
+        /* padding: 20px 0px !important; */
         min-height: calc(100vh - 72px);
     }
 
@@ -476,9 +476,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <!-- Page Header Section -->
                     <div class="page-header-box">
                         <div>
-                            <h4 class="page-title">จัดการงานรายเดือน</h2>
-                                <p class="page-subtitle">ภาพรวม - จัดการงานรายเดือน - เดือน... ปี...
-                                    <!-- <?php echo htmlspecialchars($selected_year); ?></p> -->
+                            <h2 class="page-title">จัดการงานรายเดือน</h2>
+                            <?php $fy_display = ! empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <p class="page-subtitle">ภาพรวมระบบ - งานรายเดือน - ปี <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn-excel-action">
@@ -546,23 +546,30 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <span class=" me-1">เลือกเดือน:</span>
                         <div class="w-auto">
                             <select class="form-select" id="monthSelect">
-                                <option value="1">มกราคม</option>
-                                <option value="2">กุมภาพันธ์</option>
-                                <option value="3">มีนาคม</option>
-                                <option value="4">เมษายน</option>
-                                <option value="5">พฤษภาคม</option>
-                                <option value="6">มิถุนายน</option>
-                                <option value="7">กรกฎาคม</option>
-                                <option value="8">สิงหาคม</option>
-                                <option value="9" selected>กันยายน</option>
-                                <option value="10">ตุลาคม</option>
-                                <option value="11">พฤศจิกายน</option>
-                                <option value="12">ธันวาคม</option>
+                                <?php
+                                    $selectedMonth = (int) ($data['selected_month'] ?? date('n'));
+                                    $months        = [
+                                        1  => 'มกราคม',
+                                        2  => 'กุมภาพันธ์',
+                                        3  => 'มีนาคม',
+                                        4  => 'เมษายน',
+                                        5  => 'พฤษภาคม',
+                                        6  => 'มิถุนายน',
+                                        7  => 'กรกฎาคม',
+                                        8  => 'สิงหาคม',
+                                        9  => 'กันยายน',
+                                        10 => 'ตุลาคม',
+                                        11 => 'พฤศจิกายน',
+                                        12 => 'ธันวาคม',
+                                    ];
+                                    foreach ($months as $num => $name) {
+                                        $isSelected = ($num === $selectedMonth) ? 'selected' : '';
+                                        echo "<option value=\"$num\" $isSelected>$name</option>";
+                                    }
+                                ?>
                             </select>
                         </div>
-                        <span class="text-muted small ms-2">แสดงลูกค้า 3 ราย</span>
                     </div>
-
                     <!-- Filter Toolbar (ค้นหา & ตัวกรองสถานะ) -->
                     <div class="filter-toolbar mb-3">
                         <div class="search-box-wrap">
@@ -571,11 +578,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
 
                         <div class="filter-group mb-4">
+                            <?php
+                                $users = ['เมย์', 'ชมพู่', 'นิว'];
+                            ?>
                             <select class="form-select filter-select" id="selUser">
                                 <option value="">ทุกผู้ดูแล</option>
-                                <option value="เมย์">เมย์</option>
-                                <option value="ชมพู่">ชมพู่</option>
-                                <option value="นิว">นิว</option>
+                                <?php foreach ($users as $user): ?>
+                                    <option value="<?php echo htmlspecialchars($user); ?>"><?php echo htmlspecialchars($user); ?></option>
+                                <?php endforeach; ?>
                             </select>
 
                             <select class="form-select filter-select" id="selDocument">
@@ -605,232 +615,110 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </div>
 
                     <!-- Table Container -->
-                    <div class="table-wrap">
-                        <table class="table" style="min-width: 1250px;">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2" class="text-center" style="width: 5%;">ลำดับ</th>
-                                    <th rowspan="2" class="text-start" style="width: 20%;">ลูกค้า</th>
-                                    <th rowspan="2" class="text-center" style="width: 8%;">เลขที่ผู้ทำบัญชี</th>
-                                    <th rowspan="2" class="text-center" style="width: 8%;">เลขที่ผู้สอบบัญชี</th>
-                                    <th rowspan="2" class="text-center" style="width: 8%;"></th>
-                                    <th rowspan="2" class="text-center" style="width: 8%;">ผู้ดูแล</th>
-                                    <th rowspan="2" class="text-center" style="width: 9%;">เอกสาร</th>
-                                    <th rowspan="2" class="text-center" style="width: 10%;">งานประจำเดือน</th>
-                                    <th colspan="3" class="text-center"
-                                        style="border-bottom: 1px solid #e2e8f0; background-color: #f8fafc; color: #475569; font-weight: 800;">
-                                        รีวิว</th>
-                                    <th rowspan="2" class="text-center" style="width: 8%;">ยื่นภาษี</th>
-                                    <th rowspan="2" class="text-center" style="width: 9%;">เก็บเงิน</th>
-                                    <th rowspan="2" class="text-center" style="width: 7%;">จัดการ</th>
-                                </tr>
-                                <tr>
-                                    <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 1
-                                    </th>
-                                    <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 2
-                                    </th>
-                                    <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 3
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="text-center fw-semibold text-secondary">1</td>
-                                    <td class="text-start">
-                                        <div class="table-item-title">บริษัท เอบีซี เทรดดิ้ง จำกัด</div>
-                                        <div class="table-item-sub">ทีมบัญชี A</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">123456789</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">98764321</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn-action-search" title="comment">
-                                            <span>3</span>
-                                            <i class="ri-search-line"></i>
-                                        </button>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">พนักงาน ก.</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">ได้รับเอกสาร</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">เสร็จแล้ว</span>
-                                        <div class="badge-subtext">14/14 งาน</div>
-                                    </td>
-                                    <td class="text-center">
-                                       <span class="badge-active">รีวิวแล้ว</span>
-                                        <div class="badge-subtext">แก้ว</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">รีวิวแล้ว</span>
-                                        <div class="badge-subtext">แจกัน</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">รีวิวแล้ว</span>
-                                        <div class="badge-subtext">ดรีม</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">ยื่นแล้ว</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">ได้รับเงินแล้ว</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="action-btn-group">
-                                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"><i
-                                                    class="ri-pencil-line"></i></button>
-                                            <button type="button" class="btn-action-message"
-                                                title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center fw-semibold text-secondary">2</td>
-                                    <td class="text-start">
-                                        <div class="table-item-title">บริษัท สยาม อินโนเวชั่น จำกัด</div>
-                                        <div class="table-item-sub">ทีมบัญชี B</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">123456789</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">98764321</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn-action-search" title="comment">
-                                            <span>5</span>
-                                            <i class="ri-search-line"></i>
-                                        </button>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">พนักงาน ข.</span>
-                                    </td>
 
-                                    <td class="text-center">
-                                        <span class="badge-active">ได้รับเอกสาร</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-info">กำลังดำเนินงาน</span>
-                                        <div class="badge-subtext">2/14 งาน</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">รีวิวแล้ว</span>
-                                        <div class="badge-subtext">ดรีม</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-warning">รอรีวิว</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-inactive">ยังไม่รีวิว</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-inactive">ยังไม่ได้ยื่น</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-inactive">ยังไม่ได้รับเงิน</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="action-btn-group">
-                                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"><i
-                                                    class="ri-pencil-line"></i></button>
-                                            <button type="button" class="btn-action-message"
-                                                title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center fw-semibold text-secondary">3</td>
-                                    <td class="text-start">
-                                        <div class="table-item-title">บริษัท โกลบอล เน็ตเวิร์ค จำกัด</div>
-                                        <div class="table-item-sub">ทีมบัญชี C</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">123456789</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">98764321</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn-action-search" title="comment">
-                                            <span>2</span>
-                                            <i class="ri-search-line"></i>
-                                        </button>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">พนักงาน ค.</span>
-                                    </td>
+                        <?php include 'table/mounthly_task.php'; ?>
+            </div>
+        </div>
+    </div>
+</div>
 
-                                    <td class="text-center">
-                                        <span class="badge-inactive">ยังไม่ได้รับ</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-info">กำลังดำเนินงาน</span>
-                                        <div class="badge-subtext">0/12 งาน</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">รีวิวแล้ว</span>
-                                        <div class="badge-subtext">ชมพู่</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-inactive">ยังไม่รีวิว</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-inactive">ยังไม่รีวิว</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-inactive">ยังไม่ได้ยื่น</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-inactive">ยังไม่ได้รับเงิน</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="action-btn-group">
-                                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"><i
-                                                    class="ri-pencil-line"></i></button>
-                                            <button type="button" class="btn-action-message"
-                                                title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+<div class="modal fade" id="manageModal" tabindex="-1" aria-labelledby="manageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header" style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0;">
+                <div>
+                    <h5 class="modal-title fw-bold" id="manageModalLabel" style="color: #1e293b; font-size: 1.15rem;">อัปเดตงานรายเดือน</h5>
+                    <div class="text-muted mt-1" id="manageModalSubtitle" style="font-size: 0.85rem;">AMLAW · กันยายน ปี 2569</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="margin-top: -15px; margin-right: -10px;"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 24px;">
+                <form id="formManageTask">
+                    <!-- Row 1: Dates -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">วันที่ได้รับเอกสาร</label>
+                            <input type="date" class="form-control bg-light border-0 py-2 text-muted" value="2026-12-31" style="border-radius: 8px; font-size: 0.9rem;">
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">วันที่ทำเสร็จ</label>
+                            <input type="date" class="form-control bg-light border-0 py-2 text-muted" value="2026-12-31" style="border-radius: 8px; font-size: 0.9rem;">
+                        </div>
                     </div>
 
-                    <!-- Pagination Toolbar -->
-                    <div class="pagination-toolbar">
-                        <div class="d-flex align-items-center gap-2 text-muted">
-                            <span>แสดง</span>
-                            <select class="per-page-select">
-                                <option value="25" selected>25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                    <?php
+                        $dummyTasks = ['BBL', 'KBANK', 'UOB', 'TTB', 'SCB', 'กระทบ Bank'];
+                    ?>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-semibold text-secondary mb-0" style="font-size: 0.85rem;">รายการงานประจำเดือน</label>
+                            <span class="text-muted fw-semibold" style="font-size: 0.8rem;"><?php echo count($dummyTasks); ?> งาน</span>
+                        </div>
+                    </div>
+
+                   <?php
+                        $dummyTasks = ['BBL', 'KBANK', 'UOB', 'TTB', 'SCB', 'กระทบ Bank'];
+                   ?>
+                   <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-semibold text-secondary mb-0" style="font-size: 0.85rem;">รายการงานประจำเดือน</label>
+                            <span class="text-muted fw-semibold" style="font-size: 0.8rem;"><?php echo count($dummyTasks); ?> งาน</span>
+                        </div>
+
+                    <div class="task-list-container" style="max-height: 250px; overflow-y: auto; padding: 0 16px; border-radius: 10px; border: 1px solid #e2e8f0; background-color: #ffffff;">
+                        <!-- Task Items -->
+                    <?php foreach ($dummyTasks as $idx => $t): ?>
+                        <div class="d-flex justify-content-between align-items-center w-100 py-3 <?php echo $idx < count($dummyTasks) - 1 ? 'border-bottom' : ''; ?>" style="<?php echo $idx < count($dummyTasks) - 1 ? 'border-color: #f1f5f9 !important;' : ''; ?>">
+                        <span class="fw-bold flex-grow-1" style="font-size: 0.85rem; color: #1e293b;"><?php echo $t; ?></span>
+                    <select class="form-select form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0" style="width: 140px; border-radius: 6px; padding-top: 6px; padding-bottom: 6px;">
+                <option value="1" <?php echo $idx < 2 ? 'selected' : ''; ?>>เสร็จแล้ว</option>
+                <option value="0" <?php echo $idx >= 2 ? 'selected' : ''; ?>>รอดำเนินการ</option>
+            </select>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+
+                    <!-- Row 3: Reviewer & Payment -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว)</label>
+                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
+                                <option value="" selected>ยังไม่ได้รีวิว</option>
+                                <option value="1">ชมพู่</option>
                             </select>
-                            <span>รายการต่อหน้า</span>
                         </div>
-
-                        <div class="text-muted">
-                            รายการที่ 1-3 จาก 3
-                        </div>
-
-                        <div class="d-flex align-items-center gap-1">
-                            <button type="button" class="page-btn" title="หน้าแรก"><i
-                                    class="ri-arrow-left-double-line"></i></button>
-                            <button type="button" class="page-btn" title="ก่อนหน้า"><i
-                                    class="ri-arrow-left-s-line"></i></button>
-                            <button type="button" class="page-btn active">1</button>
-                            <button type="button" class="page-btn" title="ถัดไป"><i
-                                    class="ri-arrow-right-s-line"></i></button>
-                            <button type="button" class="page-btn" title="หน้าสุดท้าย"><i
-                                    class="ri-arrow-right-double-line"></i></button>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการเก็บเงิน</label>
+                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
+                                <option value="0" selected>ยังไม่ได้รับ</option>
+                                <option value="1">ได้รับเงินแล้ว</option>
+                            </select>
                         </div>
                     </div>
 
-                </div> <!-- End .main-card-wrapper -->
+                    <!-- Row 4: Tax Status & Date -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการยื่นภาษี</label>
+                            <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" style="border-radius: 8px; font-size: 0.9rem;">
+                                <option value="0" selected>ยังไม่ได้ยื่น</option>
+                                <option value="1">ยื่นแล้ว</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">วันที่ยื่นภาษี</label>
+                            <input type="date" class="form-control bg-light border-0 py-2 text-muted fw-semibold" value="2026-12-31" style="border-radius: 8px; font-size: 0.9rem;">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e2e8f0;">
+                <button type="button" class="btn btn-light px-4 fw-semibold" data-bs-dismiss="modal" style="border-radius: 8px; color: #475569; background-color: #f8fafc;">ยกเลิก</button>
+                <button type="button" class="btn btn-primary px-4 fw-semibold" style="border-radius: 8px; background-color: #2563eb; border-color: #2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
@@ -838,16 +726,28 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
 <script>
     $(document).ready(function () {
-        $('#monthSelect').select2();
+        $('#monthSelect').select2().on('change', function() {
+            var selectedMonth = $(this).val();
+            // รีเฟรชหน้าและส่ง param month ไปทาง URL
+            window.location.href = '<?php echo BASE_URL; ?>/monthly_task?month=' + selectedMonth;
+        });
+
         $('#selUser').select2();
         $('#selDocument').select2();
         $('#selTask').select2();
         $('#selTax').select2();
         $('#selPayment').select2();
     });
+
+     function Modal_manage() {
+        // 2. สั่งโชว์ Modal ผ่าน Vanilla JS ของ Bootstrap
+        const modalElement = document.getElementById('manageModal');
+        const myModal = new bootstrap.Modal(modalElement);
+        myModal.show();
+    }
 </script>
 
 <?php
-// 3. นำ Footer เข้ามา
+    // 3. นำ Footer เข้ามา
 require_once dirname(__DIR__) . '/main/footer.php';
 ?>

@@ -38,6 +38,7 @@ $routes = [
         'post_it/store' => ['BackofficeController', 'storePostIt'],
         'customer/add' => ['BackofficeController', 'addCustomer'],
         'customer/edit' => ['BackofficeController', 'editCustomer'],
+        'customer/delete' => ['BackofficeController', 'deleteCustomer'],
     ]
 ];
 

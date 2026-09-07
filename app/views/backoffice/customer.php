@@ -238,7 +238,8 @@
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">ลูกค้า</h2>
-                            <p class="page-subtitle">ภาพรวม - ลูกค้า - ปี <?php echo htmlspecialchars($selected_year); ?></p>
+                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <p class="page-subtitle">ภาพรวมระบบ - ลูกค้า - ปี <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn-excel-action" onclick="alert('Import Excel')">
@@ -608,7 +609,7 @@
                                     <div class="d-flex flex-column gap-2">
                                         <?php foreach ($leftTasks as $task): ?>
                                             <label class="d-flex align-items-center modal-checkbox-item">
-                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['task_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
+                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['tasks_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
                                                 <span class="modal-checkbox-label"><?php echo htmlspecialchars($task['tasks_name'] ?? ''); ?></span>
                                             </label>
                                         <?php endforeach; ?>
@@ -620,7 +621,7 @@
                                     <div class="d-flex flex-column gap-2">
                                         <?php foreach ($rightTasks as $task): ?>
                                             <label class="d-flex align-items-center modal-checkbox-item">
-                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['task_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
+                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['tasks_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
                                                 <span class="modal-checkbox-label"><?php echo htmlspecialchars($task['tasks_name'] ?? ''); ?></span>
                                             </label>
                                         <?php endforeach; ?>
@@ -832,6 +833,10 @@
                         });
                     }
                     
+                    if(data.debug_query) {
+                        console.log("🔥 DEBUG QUERY:", data.debug_query);
+                    }
+                    
                     // 2. สั่งโชว์ Modal
                     const modalElement = document.getElementById('addCustomerModal');
                     const myModal = new bootstrap.Modal(modalElement);
@@ -842,6 +847,61 @@
             },
             error: function() {
                 alert('เกิดข้อผิดพลาดในการโหลดข้อมูลลูกค้า');
+            }
+        });
+    }
+
+    function deleteCustomer(customer_id) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ลบข้อมูลลูกค้า?',
+                text: 'ข้อมูลลูกค้านี้จะถูกลบออกจากระบบ',
+                showCancelButton: true,
+                confirmButtonColor: '#e3342f',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'ลบข้อมูล',
+                cancelButtonText: 'ยกเลิก',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    processDeleteCustomer(customer_id);
+                }
+            });
+        } else {
+            if (confirm('ต้องการลบข้อมูลลูกค้าหรือไม่?')) {
+                processDeleteCustomer(customer_id);
+            }
+        }
+    }
+
+    function processDeleteCustomer(customer_id) {
+        $.ajax({
+            url: '/cpd_ac/public/customer/delete',
+            method: 'POST',
+            data: { customer_id: customer_id }, // ส่งผ่าน POST Data เพื่อความปลอดภัยกว่าการต่อ URL ตรงๆ
+            dataType: 'json',
+            success: function(response) {
+                if (response.result === 1) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire('สำเร็จ!', response.msg, 'success').then(() => location.reload());
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire('ผิดพลาด', response.msg || 'ไม่สามารถลบข้อมูลได้', 'error');
+                    } else {
+                        alert(response.msg || 'ไม่สามารถลบข้อมูลได้');
+                    }
+                }
+            },
+            error: function() {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า', 'error');
+                } else {
+                    alert('เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า');
+                }
             }
         });
     }
