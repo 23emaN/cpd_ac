@@ -888,12 +888,12 @@
         // ตรวจสอบว่าอยู่ในหน้าฝั่ง Backoffice หรือไม่
         function checkIsBackoffice() {
             return Boolean(
-                document.querySelector('.sidebar-area') || 
-                window.location.pathname.includes('/backoffice') || 
-                window.location.pathname.includes('/customer') || 
-                window.location.pathname.includes('/employee') || 
-                window.location.pathname.includes('/register_board') || 
-                window.location.pathname.includes('/closing') || 
+                document.querySelector('.sidebar-area') ||
+                window.location.pathname.includes('/backoffice') ||
+                window.location.pathname.includes('/customer') ||
+                window.location.pathname.includes('/employee') ||
+                window.location.pathname.includes('/register_board') ||
+                window.location.pathname.includes('/closing') ||
                 window.location.pathname.includes('/tasks')
             );
         }

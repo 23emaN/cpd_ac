@@ -503,6 +503,215 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         background-color: #007aff;
         color: #ffffff;
     }
+
+    /* ==================================================
+       --- Add Customer Modal (Custom Classes) ---
+       ================================================== */
+    .modal-content-custom {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        background-color: #ffffff;
+    }
+
+    /* Header: sticky ให้ค้างด้านบนเสมอ ไม่ว่าจะ scroll body ไปแค่ไหน */
+    .modal-header-custom {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 24px 28px 16px 28px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #ffffff;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .modal-title-custom {
+        font-weight: 800;
+        color: #1e293b;
+        font-size: 1.25rem;
+        margin: 0;
+    }
+
+    .modal-close-custom {
+        font-size: 0.9rem;
+        opacity: 0.4;
+    }
+
+    /* Body: มีแต่ตัวนี้เท่านั้นที่ scroll ได้ (จัดการโดย .modal-dialog-scrollable ของ Bootstrap) */
+    .modal-body-custom {
+        padding: 20px 28px;
+        overflow-x: hidden;
+    }
+
+    /* Footer: sticky ให้ค้างด้านล่างเสมอ ไม่ว่าจะ scroll body ไปแค่ไหน */
+    .modal-footer-custom {
+        border-top: 1px solid #f1f5f9;
+        padding: 16px 28px;
+        gap: 12px;
+        justify-content: flex-end;
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        background-color: #ffffff;
+        border-radius: 0 0 20px 20px;
+    }
+
+    .modal-dialog-custom {
+        max-width: 1000px;
+    }
+
+    /* --- Form Elements ภายใน Modal --- */
+    .modal-section-title {
+        font-weight: 800;
+        color: #1e293b;
+        font-size: 1.05rem;
+        margin-bottom: 16px;
+    }
+
+    .modal-section-divider {
+        border-top: 1px dashed #e2e8f0;
+        margin: 28px 0 24px 0;
+    }
+
+    .modal-form-label {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    .modal-form-label-required {
+        font-weight: 1000;
+        font-size: 0.88rem;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    .modal-required-mark {
+        color: #ef4444;
+    }
+
+    .modal-form-control {
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.92rem;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .modal-form-control-highlight {
+        background-color: #eff6ff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.92rem;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .modal-form-select {
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        padding: 12px 36px 12px 16px;
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.92rem;
+        outline: none;
+        box-shadow: none;
+        cursor: pointer;
+    }
+
+    .modal-input-icon-wrap {
+        position: relative;
+    }
+
+    .modal-input-with-icon {
+        padding-right: 40px;
+    }
+
+    .modal-input-icon {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 18px;
+    }
+
+    .modal-input-icon-static {
+        pointer-events: none;
+    }
+
+    .modal-input-icon-clickable {
+        cursor: pointer;
+    }
+
+    .modal-video-btn {
+        background-color: #eff6ff;
+        color: #3b82f6;
+        font-weight: 600;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        border: none;
+        padding: 4px 10px;
+    }
+
+    .modal-checkbox-item {
+        background-color: #ffffff;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .modal-checkbox-input {
+        width: 20px;
+        height: 20px;
+        margin-top: 0;
+        margin-right: 12px;
+        border-radius: 50%;
+        border-color: #cbd5e1;
+        background-color: #ffffff;
+        box-shadow: none;
+        cursor: pointer;
+    }
+
+    .modal-checkbox-label {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #334155;
+    }
+
+    .modal-btn-cancel {
+        background-color: #f8fafc;
+        color: #334155;
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 10px 24px;
+        border: none;
+        font-size: 0.92rem;
+        transition: all 0.2s ease;
+    }
+
+    .modal-btn-save {
+        background-color: #007aff;
+        color: #ffffff;
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 10px 28px;
+        border: none;
+        font-size: 0.92rem;
+        box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
+        transition: all 0.2s ease;
+    }
 </style>
 
 <div class="container-fluid">
@@ -527,7 +736,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-upload-2-line"></i>
                                 <span>ส่งออก Excel</span>
                             </button>
-                            <button type="button" class="btn-add-customer" onclick="AddCustomer()">
+                            <button type="button" class="btn-add-customer" onclick="modal_add_customer()">
                                 <i class="ri-add-line"></i>
                                 <span>เพิ่มลูกค้า</span>
                             </button>
@@ -680,19 +889,19 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     </div>
 </div>
 
-<!-- Modal เพิ่มลูกค้าใหม่ (ตรงตามภาพต้นแบบ 100%) -->
+<!-- Modal เพิ่มลูกค้าใหม่ (Header/Footer Fixed, มีแต่ Body ที่ Scroll) -->
 <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 820px;">
-        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
-            
-            <!-- Header -->
-            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px;">
-                <h5 class="modal-title" id="addCustomerModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">เพิ่มลูกค้าใหม่</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-dialog-custom">
+        <div class="modal-content modal-content-custom">
+
+            <!-- Header (Fixed) -->
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title modal-title-custom" id="addCustomerModalLabel">เพิ่มลูกค้าใหม่</h5>
+                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <!-- Body -->
-            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
+            <!-- Body (Scrollable) -->
+            <div class="modal-body modal-body-custom">
                 <form id="addCustomerForm">
                     <!-- Hidden Fields -->
                     <input type="hidden" name="fiscal_id" value="<?php echo htmlspecialchars($data['fiscal_id'] ?? ''); ?>">
@@ -700,21 +909,21 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                     <!-- Section: ข้อมูลทั่วไป -->
                     <div class="mb-4">
-                        <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px;">ข้อมูลทั่วไป</h6>
+                        <h6 class="modal-section-title">ข้อมูลทั่วไป</h6>
                         
                         <!-- ชื่อบริษัท / กิจการ -->
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
-                                ชื่อบริษัท / กิจการ <span style="color: #ef4444;">*</span>
+                            <label class="form-label modal-form-label-required">
+                                ชื่อบริษัท / กิจการ <span class="modal-required-mark">*</span>
                             </label>
-                            <input type="text" class="form-control" name="customer_name" required placeholder="" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="customer_name" required placeholder="">
                         </div>
 
                         <!-- 3 คอลัมน์: เดือนที่เริ่มให้บริการ / เดือนสิ้นสุด / สถานะลูกค้า -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">เดือนที่เริ่มให้บริการ</label>
-                                <select class="form-select" name="service_start_date" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                <label class="form-label modal-form-label">เดือนที่เริ่มให้บริการ</label>
+                                <select class="form-select modal-form-select" name="service_start_date">
                                     <option value="1" selected>มกราคม</option>
                                     <option value="2">กุมภาพันธ์</option>
                                     <option value="3">มีนาคม</option>
@@ -731,8 +940,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">เดือนสิ้นสุดการให้บริการ</label>
-                                <select class="form-select" name="service_start_end" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                <label class="form-label modal-form-label">เดือนสิ้นสุดการให้บริการ</label>
+                                <select class="form-select modal-form-select" name="service_start_end">
                                     <option value="" selected>ยังให้บริการอยู่</option>
                                     <option value="1">มกราคม</option>
                                     <option value="2">กุมภาพันธ์</option>
@@ -750,8 +959,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">สถานะลูกค้า</label>
-                                <select class="form-select" name="active_status" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                <label class="form-label modal-form-label">สถานะลูกค้า</label>
+                                <select class="form-select modal-form-select" name="active_status">
                                     <option value="1" selected>ใช้บริการอยู่</option>
                                     <option value="0">เลิกจ้าง</option>
                                 </select>
@@ -761,8 +970,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <!-- 2 คอลัมน์: ผู้ดูแล / ทีม -->
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ผู้ดูแล</label>
-                                <select class="form-select" name="user_id" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                <label class="form-label modal-form-label">ผู้ดูแล</label>
+                                <select class="form-select modal-form-select" name="user_id">
                                     <option value="" selected>ยังไม่ระบุผู้ดูแล</option>
                                     <option value="1">เมย์</option>
                                     <option value="2">ชมพู่</option>
@@ -770,170 +979,282 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ทีม</label>
-                                <input type="text" class="form-control" name="team_name" placeholder="เช่น ทีม A" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                                <label class="form-label modal-form-label">ทีม</label>
+                                <input type="text" class="form-control modal-form-control" name="team_name" placeholder="เช่น ทีม A">
                             </div>
                         </div>
                     </div>
 
                     <!-- เส้นประคั่นส่วน -->
-                    <div style="border-top: 1px dashed #e2e8f0; margin: 28px 0 24px 0;"></div>
+                    <div class="modal-section-divider"></div>
 
                     <!-- Section: ข้อมูลบัญชี -->
                     <div>
-                        <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px;">ข้อมูลบัญชี</h6>
+                        <h6 class="modal-section-title">ข้อมูลบัญชี</h6>
 
                         <!-- แถวที่ 1: ปิดงบประจำปี / วันสิ้นรอบบัญชี / ค่าทำบัญชีต่อเดือน -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ปิดงบประจำปี</label>
-                                <select class="form-select" name="closing_status" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                <label class="form-label modal-form-label">ปิดงบประจำปี</label>
+                                <select class="form-select modal-form-select" name="closing_status">
                                     <option value="0" selected>ปิดงบประจำปี</option>
                                     <option value="1">ไม่ปิดงบ</option>
                                 </select>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">วันสิ้นรอบบัญชี</label>
-                                <div style="position: relative;">
-                                    <input type="text" class="form-control" name="fiscal_closing_date" value="31/12/2026" placeholder="31/12/2026" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 40px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
-                                    <i class="ri-calendar-line" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 18px; pointer-events: none;"></i>
+                                <label class="form-label modal-form-label">วันสิ้นรอบบัญชี</label>
+                                <div class="modal-input-icon-wrap">
+                                    <input type="text" class="form-control modal-form-control modal-input-with-icon" name="fiscal_closing_date" value="31/12/2026" placeholder="31/12/2026">
+                                    <i class="ri-calendar-line modal-input-icon modal-input-icon-static"></i>
                                 </div>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ค่าทำบัญชีต่อเดือน</label>
-                                <input type="number" step="0.01" class="form-control" name="accounts_amount" value="2000" placeholder="2000" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                                <label class="form-label modal-form-label">ค่าทำบัญชีต่อเดือน</label>
+                                <input type="number" step="0.01" class="form-control modal-form-control" name="accounts_amount" value="2000" placeholder="2000">
                             </div>
                         </div>
 
                         <!-- แถวที่ 2: จด VAT / มีพนักงาน / ประกันสังคม -->
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">จด VAT</label>
-                                <select class="form-select" name="is_vat" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                <label class="form-label modal-form-label">จด VAT</label>
+                                <select class="form-select modal-form-select" name="is_vat">
                                     <option value="0" selected>ไม่จด VAT</option>
                                     <option value="1">จด VAT</option>
                                 </select>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">มีพนักงาน</label>
-                                <select class="form-select" name="is_employees" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                <label class="form-label modal-form-label">มีพนักงาน</label>
+                                <select class="form-select modal-form-select" name="is_employees">
                                     <option value="0" selected>ไม่มีพนักงาน</option>
                                     <option value="1">มีพนักงาน</option>
                                 </select>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">ประกันสังคม</label>
-                                <select class="form-select" name="is_social_security" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 36px 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none; cursor: pointer;">
+                                <label class="form-label modal-form-label">ประกันสังคม</label>
+                                <select class="form-select modal-form-select" name="is_social_security">
                                     <option value="0" selected>ไม่มีประกันสังคม</option>
                                     <option value="1">มีประกันสังคม</option>
                                 </select>
                             </div>
                         </div>
                     </div>
+
+                    <!-- เส้นประคั่นส่วน -->
+                    <div class="modal-section-divider"></div>
+
+                    <!-- Section: ข้อมูลติดต่อและเอกสาร -->
+                    <div>
+                        <h6 class="modal-section-title">ข้อมูลติดต่อและเอกสาร</h6>
+                        
+                        <!-- แถวที่ 1: เบอร์ติดต่อ / อีเมล / LINE ID -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label modal-form-label">เบอร์ติดต่อ</label>
+                                <input type="text" class="form-control modal-form-control" name="contact_tel" placeholder="">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label modal-form-label">อีเมล</label>
+                                <input type="email" class="form-control modal-form-control" name="contact_email" placeholder="">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label modal-form-label">LINE ID</label>
+                                <input type="text" class="form-control modal-form-control-highlight" name="contact_line_id" placeholder="TBacc">
+                            </div>
+                        </div>
+
+                        <!-- URL เก็บไฟล์เอกสารลูกค้า -->
+                        <div class="mb-3">
+                            <label class="form-label modal-form-label">URL เก็บไฟล์เอกสารลูกค้า</label>
+                            <input type="text" class="form-control modal-form-control" name="doc_url" placeholder="เช่น https://drive.google.com/...">
+                        </div>
+
+                        <!-- LINE Group ID / Token -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label modal-form-label mb-0">LINE Group ID / Token</label>
+                                <button type="button" class="btn btn-sm modal-video-btn">
+                                    <i class="ri-play-circle-line" style="margin-right: 4px;"></i> ดูวิดีโอสอน
+                                </button>
+                            </div>
+                            <input type="text" class="form-control modal-form-control" name="line_token" placeholder="กรอก LINE Group ID หรือ Token สำหรับส่งข้อความ">
+                        </div>
+                    </div>
+
+                    <!-- เส้นประคั่นส่วน -->
+                    <div class="modal-section-divider"></div>
+
+                    <!-- Section: ระบบราชการ -->
+                    <div>
+                        <h6 class="modal-section-title">ระบบราชการ</h6>
+                        
+                        <!-- กรมสรรพากร -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label modal-form-label">กรมสรรพากร - User</label>
+                                <input type="text" class="form-control modal-form-control" name="rd_user" placeholder="">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label modal-form-label">กรมสรรพากร - Password</label>
+                                <div class="modal-input-icon-wrap">
+                                    <input type="password" class="form-control modal-form-control-highlight modal-input-with-icon" name="rd_password" placeholder="••••••••">
+                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="const input = this.previousElementSibling; if(input.type === 'password'){ input.type='text'; this.classList.remove('ri-eye-line'); this.classList.add('ri-eye-off-line'); } else { input.type='password'; this.classList.remove('ri-eye-off-line'); this.classList.add('ri-eye-line'); }"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- กรมพัฒน์ -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label modal-form-label">กรมพัฒน์ - User</label>
+                                <input type="text" class="form-control modal-form-control" name="dbd_user" placeholder="">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label modal-form-label">กรมพัฒน์ - Password</label>
+                                <div class="modal-input-icon-wrap">
+                                    <input type="password" class="form-control modal-form-control modal-input-with-icon" name="dbd_password" placeholder="">
+                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="const input = this.previousElementSibling; if(input.type === 'password'){ input.type='text'; this.classList.remove('ri-eye-line'); this.classList.add('ri-eye-off-line'); } else { input.type='password'; this.classList.remove('ri-eye-off-line'); this.classList.add('ri-eye-line'); }"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ประกันสังคม -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label modal-form-label">ประกันสังคม - User</label>
+                                <input type="text" class="form-control modal-form-control" name="sso_user" placeholder="">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label modal-form-label">ประกันสังคม - Password</label>
+                                <div class="modal-input-icon-wrap">
+                                    <input type="password" class="form-control modal-form-control modal-input-with-icon" name="sso_password" placeholder="">
+                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="const input = this.previousElementSibling; if(input.type === 'password'){ input.type='text'; this.classList.remove('ri-eye-line'); this.classList.add('ri-eye-off-line'); } else { input.type='password'; this.classList.remove('ri-eye-off-line'); this.classList.add('ri-eye-line'); }"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- เส้นประคั่นส่วน -->
+                    <div class="modal-section-divider"></div>
+
+                    <!-- Section: งานรายเดือนที่ไม่ต้องทำ -->
+                    <div>
+                        <h6 class="modal-section-title">งานรายเดือนที่ไม่ต้องทำ</h6>
+                        
+                        <!-- Checkboxes Grid -->
+                        <div class="row g-3">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <div class="d-flex flex-column gap-2">
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="pnd1" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">ภ.ง.ด.1</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="pnd53" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">ภ.ง.ด.53</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="pp30" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">ภ.พ.30</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="sso" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">ประกันสังคม</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="bbl" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">BBL</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="uob" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">UOB</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="scb" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">SCB</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <div class="d-flex flex-column gap-2">
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="pnd3" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">ภ.ง.ด.3</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="pnd54" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">ภ.ง.ด.54</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="pp36" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">ภ.พ.36</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="kor_yor_sor" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">ก.ย.ศ.</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="kbank" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">KBANK</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="ttb" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">TTB</span>
+                                    </label>
+                                    
+                                    <label class="d-flex align-items-center modal-checkbox-item">
+                                        <input type="checkbox" name="monthly_skip[]" value="reconcile_bank" class="form-check-input modal-checkbox-input">
+                                        <span class="modal-checkbox-label">กระทบ Bank</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
 
-            <!-- Footer -->
-            <div class="modal-footer" style="border-top: none; padding: 12px 28px 28px 28px; gap: 12px; justify-content: flex-end;">
-                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">ยกเลิก</button>
-                <button type="button" class="btn" onclick="submitAddCustomer()" style="background-color: #007aff; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 28px; border: none; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(0,122,255,0.25); transition: all 0.2s ease;">บันทึกข้อมูล</button>
+            <!-- Footer (Fixed) -->
+            <div class="modal-footer modal-footer-custom">
+                <button type="button" class="btn modal-btn-cancel" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn modal-btn-save" onclick="submitAddCustomer()">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function AddCustomer() {
+
+    function modal_add_customer() {
+        // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
         const form = document.getElementById('addCustomerForm');
-        if (form) {
+        if(form) {
             form.reset();
         }
+        // 2. สั่งโชว์ Modal ผ่าน Vanilla JS ของ Bootstrap
         const modalElement = document.getElementById('addCustomerModal');
         const myModal = new bootstrap.Modal(modalElement);
         myModal.show();
-    }
+    }   
 
-    let isSubmittingCustomer = false;
-    function submitAddCustomer() {
-        if (isSubmittingCustomer) return;
-
-        const customerName = $('input[name="customer_name"]').val().trim();
-        if (!customerName) {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'warning',
-                    title: 'กรุณากรอกชื่อบริษัท / กิจการ',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-            } else {
-                alert('กรุณากรอกชื่อบริษัท / กิจการ');
-            }
-            return;
-        }
-
-        isSubmittingCustomer = true;
-        const submitBtn = $('#addCustomerModal .modal-footer button:last-child');
-        const originalBtnText = submitBtn.text();
-        submitBtn.prop('disabled', true).text('กำลังบันทึก...');
-
-        var formData = $('#addCustomerForm').serialize();
-
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        });
-
-        $.ajax({
-            url: '/cpd_ac/public/customer/add',
-            method: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function(response) {
-                isSubmittingCustomer = false;
-                submitBtn.prop('disabled', false).text(originalBtnText);
-
-                if (response.result === 1) {
-                    const modalElement = document.getElementById('addCustomerModal');
-                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                    if (modalInstance) modalInstance.hide();
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: response.msg || 'บันทึกข้อมูลลูกค้าเรียบร้อยแล้ว'
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Toast.fire({
-                        icon: 'error',
-                        title: response.msg || 'ไม่สามารถบันทึกข้อมูลได้'
-                    });
-                }
-            },
-            error: function() {
-                isSubmittingCustomer = false;
-                submitBtn.prop('disabled', false).text(originalBtnText);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'
-                });
-            }
-        });
-    }
+  
 </script>
 
 <?php 

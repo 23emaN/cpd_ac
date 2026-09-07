@@ -503,6 +503,79 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         background-color: #007aff;
         color: #ffffff;
     }
+
+     /* SweetAlert2 Custom Style */
+    .custom-swal-popup {
+        border-radius: 16px !important;
+        padding: 2rem !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+    }
+    .custom-swal-title {
+        font-size: 1.2rem !important;
+        font-weight: 800 !important;
+        color: #1e293b !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .custom-swal-text {
+        color: #475569 !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+        margin-bottom: 1.5rem !important;
+    }
+    .custom-swal-actions {
+        gap: 12px !important;
+        margin-top: 1.5rem !important;
+    }
+    .custom-swal-confirm {
+        background-color: #e11d48 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border-radius: 8px !important;
+        padding: 10px 24px !important;
+        border: none !important;
+        font-size: 0.95rem !important;
+        transition: all 0.2s ease !important;
+    }
+    .custom-swal-cancel {
+        background-color: #64748b !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border-radius: 8px !important;
+        padding: 10px 24px !important;
+        border: none !important;
+        font-size: 0.95rem !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    /* Autocomplete Style */
+    .autocomplete-input:focus {
+        border-color: #10b981 !important; /* Green border like the image */
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+    }
+    .autocomplete-list li {
+        padding: 10px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+        color: #475569;
+        display: flex;
+        align-items: center;
+    }
+    .autocomplete-list li::before {
+        content: "•";
+        color: #94a3b8;
+        font-weight: bold;
+        display: inline-block; 
+        width: 1em;
+        margin-right: 8px;
+    }
+    .autocomplete-list li:hover {
+        background-color: #f8fafc;
+        color: #0f172a;
+    }
+    .autocomplete-list li:last-child {
+        border-bottom: none;
+    }
 </style>
 
 <div class="container-fluid">
@@ -770,80 +843,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     </div>
 </div>
 
-<style>
-    /* SweetAlert2 Custom Style */
-    .custom-swal-popup {
-        border-radius: 16px !important;
-        padding: 2rem !important;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
-    }
-    .custom-swal-title {
-        font-size: 1.2rem !important;
-        font-weight: 800 !important;
-        color: #1e293b !important;
-        margin-bottom: 0.5rem !important;
-    }
-    .custom-swal-text {
-        color: #475569 !important;
-        font-size: 0.95rem !important;
-        font-weight: 500 !important;
-        margin-bottom: 1.5rem !important;
-    }
-    .custom-swal-actions {
-        gap: 12px !important;
-        margin-top: 1.5rem !important;
-    }
-    .custom-swal-confirm {
-        background-color: #e11d48 !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        border-radius: 8px !important;
-        padding: 10px 24px !important;
-        border: none !important;
-        font-size: 0.95rem !important;
-        transition: all 0.2s ease !important;
-    }
-    .custom-swal-cancel {
-        background-color: #64748b !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        border-radius: 8px !important;
-        padding: 10px 24px !important;
-        border: none !important;
-        font-size: 0.95rem !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    /* Autocomplete Style */
-    .autocomplete-input:focus {
-        border-color: #10b981 !important; /* Green border like the image */
-        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
-    }
-    .autocomplete-list li {
-        padding: 10px 16px;
-        cursor: pointer;
-        border-bottom: 1px solid #f1f5f9;
-        font-size: 0.9rem;
-        color: #475569;
-        display: flex;
-        align-items: center;
-    }
-    .autocomplete-list li::before {
-        content: "•";
-        color: #94a3b8;
-        font-weight: bold;
-        display: inline-block; 
-        width: 1em;
-        margin-right: 8px;
-    }
-    .autocomplete-list li:hover {
-        background-color: #f8fafc;
-        color: #0f172a;
-    }
-    .autocomplete-list li:last-child {
-        border-bottom: none;
-    }
-</style>
+
 <script>
     const employeesData = <?php echo json_encode($data['employees'] ?? []); ?>;
     const teamsData = <?php echo json_encode($data['teams'] ?? []); ?>;
