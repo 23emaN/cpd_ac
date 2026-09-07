@@ -634,7 +634,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                                     <i class="ri-pencil-line"></i>
                                                 </button>
                                                 <button type="button" class="postit-action-btn btn-postit-delete"
-                                                    data-id="<?php echo (int) $item['post_id']; ?>" title="ลบ">
+                                                    data-id="<?php echo (int) $item['post_id']; ?>" title="ลบ" onclick="">
                                                     <i class="ri-delete-bin-line"></i>
                                                 </button>
                                                 <?php endif; ?>
@@ -1163,6 +1163,48 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             });
     });
 
+    function changeStatusPostIt(id){
+        const formData = new FormData();
+        formData.append('post_id', id);
+
+        fetch('<?php echo BASE_URL; ?>/post_it/toggle', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(response => {
+            if (response.result === 1) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: response.msg || 'เปลี่ยนสถานะสำเร็จ',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                }).then(function () { location.reload(); });
+            } else {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: response.msg || 'เกิดข้อผิดพลาด',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        })
+        .catch(() => {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    }
     function changeStatusPostIt(id){
         const formData = new FormData();
         formData.append('post_id', id);

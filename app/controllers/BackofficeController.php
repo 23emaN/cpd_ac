@@ -926,6 +926,78 @@ class BackofficeController
     }
 
 
+    public function updatePostIt()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+
+        $postId = trim($_POST['post_id'] ?? '');
+        $assigneeId = trim($_POST['assignee_id'] ?? '');
+        $dueDate = trim($_POST['due_date'] ?? '');
+        $status = trim($_POST['status'] ?? '0');
+        $content = trim($_POST['content'] ?? '');
+        $colorCode = trim($_POST['color_code'] ?? 'yellow');
+
+        if (!$postId) {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบ post_id']);
+            return;
+        }
+
+        require_once '../app/models/PostItModel.php';
+        $model = new PostItModel();
+
+        try {
+            $postIdInt = (int) $postId;
+            $updated = $model->update($postIdInt, [
+                'user_id' => $assigneeId ? (int)$assigneeId : null,
+                'due_date' => $dueDate ?: null,
+                'status' => $status,
+                'content' => $content,
+                'color_code' => $colorCode,
+            ]);
+
+            if ($updated) {
+                echo json_encode(['result' => 1, 'msg' => 'อัปเดต Post-it เรียบร้อยแล้ว']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถอัปเดตข้อมูลได้']);
+            }
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดของฐานข้อมูล: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deletePostIt()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+
+        $postId = trim($_POST['post_id'] ?? '');
+        if (!$postId) {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบ post_id']);
+            return;
+        }
+
+        require_once '../app/models/PostItModel.php';
+        $model = new PostItModel();
+
+        try {
+            $deleted = $model->delete((int) $postId);
+
+            if ($deleted) {
+                echo json_encode(['result' => 1, 'msg' => 'ลบ Post-it เรียบร้อยแล้ว']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถลบข้อมูลได้']);
+            }
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดของฐานข้อมูล: ' . $e->getMessage()]);
+        }
+    }
+
+
+
+
+
+
         /////////////////////////////////////// closing /////////////////////////////////////////////// 
     public function closing()
     {

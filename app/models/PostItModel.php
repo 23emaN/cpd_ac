@@ -204,4 +204,29 @@ class PostItModel extends Model
         $stmt = $this->pdo->prepare("UPDATE tbl_post_it SET status = :status WHERE post_id = :id");
         return $stmt->execute(['status' => $status, 'id' => $postId]);
     }
+
+    public function update(int $postId, array $data): bool
+    {
+        $setClauses = [];
+        $params = ['id' => $postId];
+
+        foreach ($data as $key => $value) {
+            $setClauses[] = "{$key} = :{$key}";
+            $params[$key] = $value;
+        }
+
+        if (empty($setClauses)) {
+            return false; // ไม่มีข้อมูลให้แก้ไข
+        }
+
+        $sql = "UPDATE tbl_post_it SET " . implode(', ', $setClauses) . " WHERE post_id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    public function delete(int $postId): bool
+    {
+        $stmt = $this->pdo->prepare("DELETE FROM tbl_post_it WHERE post_id = :id");
+        return $stmt->execute(['id' => $postId]);
+    }
 }
