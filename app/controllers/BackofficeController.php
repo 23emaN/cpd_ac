@@ -984,6 +984,11 @@ class BackofficeController
         }
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
+        $month = $_GET['month'] ?? '09'; // Default to month 09 or current month
+        require_once '../app/models/monthly_task_Modal.php';
+        $monthlyTaskModel = new MonthlyTaskModal();
+        $monthly_tasks = $monthlyTaskModel->getMonthlyTasks($fiscal_id, $month);
+
         $data = [
             'title' => 'ระบบ Backoffice',
             'user' => $this->userPayload,
@@ -994,7 +999,9 @@ class BackofficeController
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
             'active_company_id' => $active_company_id,
-            'active_fiscal_year' => $active_fiscal_year
+            'active_fiscal_year' => $active_fiscal_year,
+            'monthly_tasks' => $monthly_tasks,
+            'selected_month' => $month
         ];
 
         // 4. ดึงหน้า View มาแสดงผล

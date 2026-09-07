@@ -2,10 +2,10 @@
                         <table class="table" style="min-width: 1250px;">
                             <thead>
                                 <tr>
-                                    <th rowspan="2" class="text-center" style="width: 5%;">ลำดับ</th>
-                                    <th rowspan="2" class="text-start" style="width: 20%;">ลูกค้า</th>
-                                    <th rowspan="2" class="text-center" style="width: 8%;">เลขที่ผู้ทำบัญชี</th>
-                                    <th rowspan="2" class="text-center" style="width: 8%;">เลขที่ผู้สอบบัญชี</th>
+                                    <th rowspan="2" class="text-center" style="width: 60px; min-width: 60px; max-width: 60px; position: sticky; left: 0; z-index: 3; background-color: #ffffff; border-right: 1px solid #e2e8f0; white-space: nowrap; vertical-align: middle;">ลำดับ</th>
+                                    <th rowspan="2" class="text-start" style="width: 250px; min-width: 250px; max-width: 250px; position: sticky; left: 60px; z-index: 3; background-color: #ffffff; border-right: 2px solid #e2e8f0; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); white-space: nowrap; vertical-align: middle;">ลูกค้า</th>
+                                    <th rowspan="2" class="text-center" style="width: 8%;">ผู้ทำบัญชี</th>
+                                    <th rowspan="2" class="text-center" style="width: 8%;">ผู้สอบบัญชี</th>
                                     <th rowspan="2" class="text-center" style="width: 8%;"></th>
                                     <th rowspan="2" class="text-center" style="width: 8%;">ผู้ดูแล</th>
                                     <th rowspan="2" class="text-center" style="width: 9%;">เอกสาร</th>
@@ -27,62 +27,114 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="text-center fw-semibold text-secondary">1</td>
-                                    <td class="text-start">
-                                        <div class="table-item-title">บริษัท เอบีซี เทรดดิ้ง จำกัด</div>
-                                        <div class="table-item-sub">ทีมบัญชี A</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">123456789</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">98764321</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn-action-search" title="comment">
-                                            <span>3</span>
-                                            <i class="ri-search-line"></i>
-                                        </button>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">พนักงาน ก.</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">ได้รับเอกสาร</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">เสร็จแล้ว</span>
-                                        <div class="badge-subtext">14/14 งาน</div>
-                                    </td>
-                                    <td class="text-center">
-                                       <span class="badge-active">รีวิวแล้ว</span>
-                                        <div class="badge-subtext">แก้ว</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">รีวิวแล้ว</span>
-                                        <div class="badge-subtext">แจกัน</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">รีวิวแล้ว</span>
-                                        <div class="badge-subtext">ดรีม</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">ยื่นแล้ว</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-active">ได้รับเงินแล้ว</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="action-btn-group">
-                                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"><i
-                                                    class="ri-pencil-line"></i></button>
-                                            <button type="button" class="btn-action-message"
-                                                title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
+    <?php if (! empty($data['monthly_tasks'])): ?>
+        <?php foreach ($data['monthly_tasks'] as $index => $task): ?>
+        <tr>
+            <td class="text-center fw-semibold text-secondary" style="width: 60px; min-width: 60px; max-width: 60px; position: sticky; left: 0; z-index: 2; background-color: #ffffff; border-right: 1px solid #e2e8f0; white-space: nowrap; vertical-align: middle;"><?php echo $index + 1; ?></td>
+            <td class="text-start" style="width: 250px; min-width: 250px; max-width: 250px; position: sticky; left: 60px; z-index: 2; background-color: #ffffff; border-right: 2px solid #e2e8f0; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); white-space: nowrap; vertical-align: middle;">
+                <div class="table-item-title"><?php echo htmlspecialchars($task['customer_name']); ?></div>
+                 <span class="caretaker-text"><?php echo htmlspecialchars($task['team_name']); ?></span>
+            </td>
+            <td class="text-center">
+                <span class="caretaker-text">ทดสอบ</span>
+            </td>
+            <td class="text-center">
+                <span class="caretaker-text">ทดสอบ</span>
+            </td>
+            <td class="text-center">
+                <span class="badge bg-danger">3</span>
+            </td>
+            <td class="text-center">
+                <span class="caretaker-text"><?php echo htmlspecialchars($task['caretaker_firstname'] ?? '-'); ?></span>
+            </td>
+
+            <!-- สถานะเอกสาร -->
+            <td class="text-center">
+                <?php if ($task['doc_status'] === '1'): ?>
+                    <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">ได้รับเอกสาร</span>
+                <?php else: ?>
+                    <!-- สีเหลืองพาสเทลตามรูป -->
+                    <span class="badge-active" style="background-color: #fef9c3; color: #ca8a04;">ยังไม่ได้รับเอกสาร</span>
+                <?php endif; ?>
+            </td>
+
+            <!-- สถานะงานย่อย -->
+            <td class="text-center">
+                <?php
+                    $total     = $task['total_tasks'];
+                    $completed = $task['completed_tasks'];
+                    $isAllDone = ($total > 0 && $total == $completed);
+                ?>
+                <?php if ($isAllDone): ?>
+                    <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">เสร็จสิ้น</span>
+                <?php else: ?>
+                    <span class="badge-active" style="background-color: #eff6ff; color: #2563eb;">กำลังดำเนินงาน</span>
+                <?php endif; ?>
+                <div class="badge-subtext text-muted small mt-1"><?php echo $completed; ?>/<?php echo $total; ?> งาน</div>
+            </td>
+
+            <!-- รีวิว 1 -->
+            <td class="text-center">
+                <?php if ($task['review1_status'] === '1'): ?>
+                    <!-- สีเขียวพาสเทลตามรูป -->
+                    <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">รีวิวแล้ว</span>
+                <?php else: ?>
+                    <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">รอรีวิว</span>
+                <?php endif; ?>
+            </td>
+
+            <!-- รีวิว 2 -->
+            <td class="text-center">
+                <?php if ($task['review2_status'] === '1'): ?>
+                    <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">รีวิวแล้ว</span>
+                <?php else: ?>
+                    <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">รอรีวิว</span>
+                <?php endif; ?>
+            </td>
+
+            <!-- รีวิว 3 -->
+            <td class="text-center">
+                <?php if ($task['review3_status'] === '1'): ?>
+                    <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">รีวิวแล้ว</span>
+                <?php else: ?>
+                    <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">รอรีวิว</span>
+                <?php endif; ?>
+            </td>
+
+            <!-- ภาษี -->
+            <td class="text-center">
+                <?php if ($task['tax_status'] === '1'): ?>
+                    <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">ยื่นแล้ว</span>
+                <?php else: ?>
+                    <!-- สีแดง/ชมพูพาสเทลตามรูป (ยังไม่ได้ยื่น) -->
+                    <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">ยังไม่ได้ยื่น</span>
+                <?php endif; ?>
+            </td>
+
+            <!-- การชำระเงิน -->
+            <td class="text-center">
+                <?php if ($task['payment_status'] === '1'): ?>
+                    <!-- สีเขียวพาสเทลตามรูป (ได้รับเงินแล้ว) -->
+                    <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">ได้รับเงินแล้ว</span>
+                <?php else: ?>
+                    <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">ยังไม่ได้รับเงิน</span>
+                <?php endif; ?>
+            </td>
+
+            <td class="text-center">
+                <div class="action-btn-group">
+                    <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข" onclick="Modal_manage()"><i class="ri-pencil-line"></i></button>
+                    <button type="button" class="btn-action-message" title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
+                </div>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="14" class="text-center py-4 text-muted">ไม่พบข้อมูลลูกค้าในเดือนนี้</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
                         </table>
                     </div>
 
@@ -114,4 +166,3 @@
                                     class="ri-arrow-right-double-line"></i></button>
                         </div>
                     </div>
- 
