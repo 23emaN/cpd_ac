@@ -1,24 +1,24 @@
 <?php
-// app/views/backoffice/post_it.php
-$show_company_workspace = true;
-$stats = $data['stats'] ?? ['total' => 0, 'pending' => 0, 'done' => 0, 'overdue' => 0];
-$items = $data['items'] ?? [];
-$assignees = $data['assignees'] ?? [];
-$filters = $data['filters'] ?? [];
+    // app/views/backoffice/post_it.php
+    $show_company_workspace = true;
+    $stats                  = $data['stats'] ?? ['total' => 0, 'pending' => 0, 'done' => 0, 'overdue' => 0];
+    $items                  = $data['items'] ?? [];
+    $assignees              = $data['assignees'] ?? [];
+    $filters                = $data['filters'] ?? [];
 
-$isDraft = !empty($data['is_draft']);
-$base = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
+    $isDraft = ! empty($data['is_draft']);
+    $base    = defined('BASE_URL')  ?BASE_URL : '/cpd_ac/public';
 
-$colorMap = [
+    $colorMap = [
     'yellow' => ['bg' => '#FFFBEB', 'border' => '#FDE68A', 'text' => '#A16207'],
-    'pink' => ['bg' => '#FCE7F3', 'border' => '#F9A8D4', 'text' => '#BE185D'],
-    'blue' => ['bg' => '#DBEAFE', 'border' => '#93C5FD', 'text' => '#1D4ED8'],
-    'green' => ['bg' => '#DCFCE7', 'border' => '#86EFAC', 'text' => '#15803D'],
+    'pink'   => ['bg' => '#FCE7F3', 'border' => '#F9A8D4', 'text' => '#BE185D'],
+    'blue'   => ['bg' => '#DBEAFE', 'border' => '#93C5FD', 'text' => '#1D4ED8'],
+    'green'  => ['bg' => '#DCFCE7', 'border' => '#86EFAC', 'text' => '#15803D'],
     'purple' => ['bg' => '#F3E8FF', 'border' => '#D8B4FE', 'text' => '#7E22CE'],
     'orange' => ['bg' => '#FFEDD5', 'border' => '#FDBA74', 'text' => '#C2410C'],
-];
+    ];
 
-$statusLabel = static function (string $status, ?string $dueDate): array {
+    $statusLabel = static function (string $status, ?string $dueDate): array {
     if ($status === '1') {
         return ['text' => 'ดำเนินการแล้ว', 'class' => 'status-done'];
     }
@@ -26,23 +26,23 @@ $statusLabel = static function (string $status, ?string $dueDate): array {
         return ['text' => 'เลยกำหนด', 'class' => 'status-overdue'];
     }
     return ['text' => 'รอดำเนินการ', 'class' => 'status-pending'];
-};
+    };
 
-$formatThaiDate = static function (?string $datetime): string {
-    if (!$datetime) {
+    $formatThaiDate = static function (?string $datetime): string {
+    if (! $datetime) {
         return '-';
     }
     $ts = strtotime($datetime);
-    if (!$ts) {
+    if (! $ts) {
         return '-';
     }
     $d = (int) date('j', $ts);
     $m = (int) date('n', $ts);
     $y = (int) date('Y', $ts) + 543;
     return "{$d}/{$m}/{$y}";
-};
+    };
 
-$displayName = static function (array $item): string {
+    $displayName = static function (array $item): string {
     $name = trim($item['assignee_name'] ?? '');
     if ($name !== '') {
         return $name;
@@ -52,10 +52,10 @@ $displayName = static function (array $item): string {
         return $username;
     }
     return 'ยังไม่ระบุ';
-};
+    };
 
-require_once dirname(__DIR__) . '/main/header.php';
-require_once dirname(__DIR__) . '/main/sidebar.php';
+    require_once dirname(__DIR__) . '/main/header.php';
+    require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
@@ -547,13 +547,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     <option value="">ทุกผู้รับผิดชอบ</option>
                                     <?php foreach ($assignees as $person): ?>
                                         <?php
-                                        $label = trim($person['full_name'] ?? '');
-                                        if ($label === '') {
-                                            $label = $person['user_name'] ?? '';
-                                        }
+                                            $label = trim($person['full_name'] ?? '');
+                                            if ($label === '') {
+                                                $label = $person['user_name'] ?? '';
+                                            }
                                         ?>
                                         <option value="<?php echo htmlspecialchars((string) ($person['user_id'] ?? '')); ?>"
-                                            <?php echo ((string) ($filters['user_id'] ?? '') === (string) ($person['user_id'] ?? '')) ? 'selected' : ''; ?>>
+                                            <?php echo((string) ($filters['user_id'] ?? '') === (string) ($person['user_id'] ?? '')) ? 'selected' : ''; ?>>
                                             <?php echo htmlspecialchars($label); ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -561,33 +561,33 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                                 <select class="filter-select select2" name="status">
                                     <option value="">ทุกสถานะ</option>
-                                    <option value="0" <?php echo (($filters['status'] ?? '') === '0') ? 'selected' : ''; ?>>รอดำเนินการ</option>
-                                    <option value="1" <?php echo (($filters['status'] ?? '') === '1') ? 'selected' : ''; ?>>ดำเนินการแล้ว</option>
+                                    <option value="0" <?php echo(($filters['status'] ?? '') === '0') ? 'selected' : ''; ?>>รอดำเนินการ</option>
+                                    <option value="1" <?php echo(($filters['status'] ?? '') === '1') ? 'selected' : ''; ?>>ดำเนินการแล้ว</option>
                                 </select>
 
                                 <select class="filter-select select2" name="color">
                                     <option value="">ทุกสี</option>
-                                    <option value="yellow" <?php echo (($filters['color_code'] ?? '') === 'yellow') ? 'selected' : ''; ?>>เหลือง</option>
-                                    <option value="pink" <?php echo (($filters['color_code'] ?? '') === 'pink') ? 'selected' : ''; ?>>ชมพู</option>
-                                    <option value="blue" <?php echo (($filters['color_code'] ?? '') === 'blue') ? 'selected' : ''; ?>>ฟ้า</option>
-                                    <option value="green" <?php echo (($filters['color_code'] ?? '') === 'green') ? 'selected' : ''; ?>>เขียว</option>
-                                    <option value="purple" <?php echo (($filters['color_code'] ?? '') === 'purple') ? 'selected' : ''; ?>>ม่วง</option>
-                                    <option value="orange" <?php echo (($filters['color_code'] ?? '') === 'orange') ? 'selected' : ''; ?>>ส้ม</option>
+                                    <option value="yellow" <?php echo(($filters['color_code'] ?? '') === 'yellow') ? 'selected' : ''; ?>>เหลือง</option>
+                                    <option value="pink" <?php echo(($filters['color_code'] ?? '') === 'pink') ? 'selected' : ''; ?>>ชมพู</option>
+                                    <option value="blue" <?php echo(($filters['color_code'] ?? '') === 'blue') ? 'selected' : ''; ?>>ฟ้า</option>
+                                    <option value="green" <?php echo(($filters['color_code'] ?? '') === 'green') ? 'selected' : ''; ?>>เขียว</option>
+                                    <option value="purple" <?php echo(($filters['color_code'] ?? '') === 'purple') ? 'selected' : ''; ?>>ม่วง</option>
+                                    <option value="orange" <?php echo(($filters['color_code'] ?? '') === 'orange') ? 'selected' : ''; ?>>ส้ม</option>
                                 </select>
 
                                 <select class="filter-select select2" name="due">
                                     <option value="">ทุกกำหนดส่ง</option>
-                                    <option value="today" <?php echo (($filters['due'] ?? '') === 'today') ? 'selected' : ''; ?>>วันนี้</option>
-                                    <option value="week" <?php echo (($filters['due'] ?? '') === 'week') ? 'selected' : ''; ?>>สัปดาห์นี้</option>
-                                    <option value="overdue" <?php echo (($filters['due'] ?? '') === 'overdue') ? 'selected' : ''; ?>>เลยกำหนด</option>
-                                    <option value="none" <?php echo (($filters['due'] ?? '') === 'none') ? 'selected' : ''; ?>>ไม่มีกำหนด</option>
+                                    <option value="today" <?php echo(($filters['due'] ?? '') === 'today') ? 'selected' : ''; ?>>วันนี้</option>
+                                    <option value="week" <?php echo(($filters['due'] ?? '') === 'week') ? 'selected' : ''; ?>>สัปดาห์นี้</option>
+                                    <option value="overdue" <?php echo(($filters['due'] ?? '') === 'overdue') ? 'selected' : ''; ?>>เลยกำหนด</option>
+                                    <option value="none" <?php echo(($filters['due'] ?? '') === 'none') ? 'selected' : ''; ?>>ไม่มีกำหนด</option>
                                 </select>
 
                                 <select class="filter-select select2" name="sort">
-                                    <option value="created_desc" <?php echo (($filters['sort'] ?? '') === 'created_desc') ? 'selected' : ''; ?>>เรียงตามวันที่สร้าง</option>
-                                    <option value="created_asc" <?php echo (($filters['sort'] ?? '') === 'created_asc') ? 'selected' : ''; ?>>วันที่สร้างเก่าสุด</option>
-                                    <option value="due_asc" <?php echo (($filters['sort'] ?? '') === 'due_asc') ? 'selected' : ''; ?>>กำหนดส่งใกล้สุด</option>
-                                    <option value="due_desc" <?php echo (($filters['sort'] ?? '') === 'due_desc') ? 'selected' : ''; ?>>กำหนดส่งไกลสุด</option>
+                                    <option value="created_desc" <?php echo(($filters['sort'] ?? '') === 'created_desc') ? 'selected' : ''; ?>>เรียงตามวันที่สร้าง</option>
+                                    <option value="created_asc" <?php echo(($filters['sort'] ?? '') === 'created_asc') ? 'selected' : ''; ?>>วันที่สร้างเก่าสุด</option>
+                                    <option value="due_asc" <?php echo(($filters['sort'] ?? '') === 'due_asc') ? 'selected' : ''; ?>>กำหนดส่งใกล้สุด</option>
+                                    <option value="due_desc" <?php echo(($filters['sort'] ?? '') === 'due_desc') ? 'selected' : ''; ?>>กำหนดส่งไกลสุด</option>
                                 </select>
                             </div>
 
@@ -605,12 +605,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <?php else: ?>
                                 <?php foreach ($items as $item): ?>
                                     <?php
-                                    $colorKey = $item['color_code'] ?? 'yellow';
-                                    $palette = $colorMap[$colorKey] ?? $colorMap['yellow'];
-                                    if (is_string($colorKey) && str_starts_with($colorKey, '#')) {
-                                        $palette = ['bg' => $colorKey, 'border' => $colorKey, 'text' => '#854d0e'];
-                                    }
-                                    $st = $statusLabel((string) ($item['status'] ?? '0'), $item['due_date'] ?? null);
+                                        $colorKey = $item['color_code'] ?? 'yellow';
+                                        $palette  = $colorMap[$colorKey] ?? $colorMap['yellow'];
+                                        if (is_string($colorKey) && str_starts_with($colorKey, '#')) {
+                                            $palette = ['bg' => $colorKey, 'border' => $colorKey, 'text' => '#854d0e'];
+                                        }
+                                        $st = $statusLabel((string) ($item['status'] ?? '0'), $item['due_date'] ?? null);
                                     ?>
                                     <div class="col">
                                         <article class="postit-note"
@@ -633,9 +633,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                                     title="แก้ไข">
                                                     <i class="ri-pencil-line"></i>
                                                 </button>
-                                                <button type="button" class="postit-action-btn btn-postit-delete"
-                                                    title="ลบ" onclick="delete_portit(<?php echo (int) $item['post_id']; ?>)">
-                                                    <i class="ri-delete-bin-line"></i>
+                                               <button type="button" class="postit-action-btn btn-postit-delete"title="ลบ"
+                                                    onclick="delete_portit(<?php echo (int) $item['post_id']; ?>, '<?php echo htmlspecialchars($item['title'] ?? '', ENT_QUOTES); ?>')">
+                                                        <i class="ri-delete-bin-line"></i>
                                                 </button>
                                                 <?php endif; ?>
                                             </div>
@@ -701,14 +701,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <option value="">ยังไม่ระบุผู้รับผิดชอบ</option>
                                 <?php foreach ($assignees as $person): ?>
                                     <?php
-                                    $personId = (string) ($person['user_id'] ?? '');
-                                    if ($personId === '' || $personId === '0') {
-                                        continue;
-                                    }
-                                    $label = trim($person['full_name'] ?? '');
-                                    if ($label === '') {
-                                        $label = $person['user_name'] ?? '';
-                                    }
+                                        $personId = (string) ($person['user_id'] ?? '');
+                                        if ($personId === '' || $personId === '0') {
+                                            continue;
+                                        }
+                                        $label = trim($person['full_name'] ?? '');
+                                        if ($label === '') {
+                                            $label = $person['user_name'] ?? '';
+                                        }
                                     ?>
                                     <option value="<?php echo htmlspecialchars($personId); ?>">
                                         <?php echo htmlspecialchars($label); ?>
