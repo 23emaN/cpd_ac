@@ -5,28 +5,28 @@
 $current_url = $_GET['url'] ?? 'backoffice';
 $now_page = trim(strtok($current_url, '/'));
 
-    $overview_pages       = ['backoffice'];
-    $monthly_dash_pages   = ['monthly_dashboard'];
-    $yearly_dash_pages    = ['yearly_dashboard'];
-    $monthly_task_pages   = ['monthly_tasks', 'monthly_task'];
-    $closing_pages        = ['closing', 'financial_statement'];
-    $registration_pages   = ['registration', 'register_board'];
-    $customer_pages       = ['customer', 'customer_add', 'customer_edit'];
-    $employee_pages       = ['employee', 'employee_add', 'employee_edit', 'staff'];
-    $task_setting_pages   = ['tasks'];
-    $message_pages        = ['messages', 'chat', 'customer_message'];
-    $postit_pages         = ['post_it', 'postit', 'notes', 'reminders'];
-    $system_setting_pages = ['settings', 'setting', 'system_setting'];
-    $manual_pages         = ['manual', 'tutorial', 'videos'];
+$overview_pages = ['backoffice'];
+$monthly_dash_pages = ['monthly_dash'];
+$yearly_dash_pages = ['yearly_dash'];
+$monthly_task_pages = ['monthly_tasks', 'monthly_task'];
+$closing_pages = ['closing', 'financial_statement'];
+$registration_pages = ['registration', 'register_board'];
+$customer_pages = ['customer', 'customer_add', 'customer_edit'];
+$employee_pages = ['employee', 'employee_add', 'employee_edit', 'staff'];
+$task_setting_pages = ['tasks'];
+$message_pages = ['messages', 'chat', 'customer_message'];
+$postit_pages = ['post_it', 'postit', 'notes', 'reminders'];
+$system_setting_pages = ['settings', 'setting', 'system_setting'];
+$manual_pages = ['manual', 'tutorial', 'videos'];
 ?>
 
 <style>
     /* ปรับแต่ง Sidebar ให้ตรงตามภาพต้นแบบ */
     .sidebar-area {
         background-color: #F7F9FB;
-        border-right: 1px solid #edf2f7;
+        
         font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
-        width: 300px;
+        width: 250px;
         /* ขยายจาก 240px เป็น 260px เพื่อไม่ให้ข้อความตกขอบ */
         padding-top: 80px;
         /* เพิ่ม padding-top เพื่อหลบแถบ Navbar ด้านบน (ทดแทนปุ่มที่ถูกซ่อนไป) */
@@ -63,7 +63,7 @@ $now_page = trim(strtok($current_url, '/'));
         border-color: #eff6ff;
         color: #0066fe;
         font-weight: 700;
-        box-shadow: 0 4px 12px rgba(0, 102, 254, 0.08);
+        
     }
 
     .overview-pill-btn i {
@@ -157,14 +157,31 @@ $now_page = trim(strtok($current_url, '/'));
         display: none !important;
     }
 
-    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link {
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link,
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.active,
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item.open>.menu-link {
         justify-content: center !important;
         padding: 10px !important;
+        background-color: transparent !important;
+        
     }
 
     [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link .menu-icon {
         margin-right: 0 !important;
         font-size: 1.4rem !important;
+    }
+
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.active .menu-icon,
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link:hover .menu-icon {
+        color: #0066fe !important;
+    }
+
+    /* ซ่อนขีดสีม่วง/น้ำเงินด้านข้างแถบเมนู Active */
+    .sidebar-area .menu-item .menu-link.active::before,
+    .sidebar-area .menu-vertical .menu-item .menu-link.active::before,
+    [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.active::before {
+        display: none !important;
+        content: none !important;
     }
 </style>
 
@@ -195,7 +212,7 @@ $now_page = trim(strtok($current_url, '/'));
                 <span class="menu-title-text">งานประจำปี</span>
             </li>
             <li class="menu-item <?php echo in_array($now_page, $monthly_dash_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/monthly_dash"
                     class="menu-link <?php echo in_array($now_page, $monthly_dash_pages) ? 'active' : '' ?>">
                     <i class="ri-bar-chart-grouped-line menu-icon"></i>
                     <span class="title">แดชบอร์ดรายเดือน</span>
@@ -203,7 +220,7 @@ $now_page = trim(strtok($current_url, '/'));
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $yearly_dash_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/yearly_dash"
                     class="menu-link <?php echo in_array($now_page, $yearly_dash_pages) ? 'active' : '' ?>">
                     <i class="ri-line-chart-line menu-icon"></i>
                     <span class="title">แดชบอร์ดรายปี</span>
@@ -285,7 +302,7 @@ $now_page = trim(strtok($current_url, '/'));
             </li>
 
             <!-- หมวดหมู่: ตั้งค่าระบบ -->
-            <li class="menu-title small">
+            <!-- <li class="menu-title small">
                 <span class="menu-title-text">ตั้งค่าระบบ</span>
             </li>
 
@@ -295,10 +312,10 @@ $now_page = trim(strtok($current_url, '/'));
                     <i class="ri-settings-4-line menu-icon"></i>
                     <span class="title">ตั้งค่าระบบ</span>
                 </a>
-            </li>
+            </li> -->
 
             <!-- หมวดหมู่: คู่มือ -->
-            <li class="menu-title small">
+            <!-- <li class="menu-title small">
                 <span class="menu-title-text">คู่มือ</span>
             </li>
 
@@ -308,7 +325,7 @@ $now_page = trim(strtok($current_url, '/'));
                     <i class="ri-play-circle-line menu-icon"></i>
                     <span class="title">วิดีโอสอนการใช้งาน</span>
                 </a>
-            </li>
+            </li> -->
 
         </ul>
     </aside>
