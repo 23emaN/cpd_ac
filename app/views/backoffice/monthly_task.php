@@ -864,7 +864,7 @@
                     <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
                     <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
                 </select>
-                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;">` : ''}
+                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.previousElementSibling.value='1';}">` : ''}
             </div>
         </div>`;
     });
