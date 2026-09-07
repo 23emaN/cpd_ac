@@ -1149,7 +1149,7 @@ class BackofficeController
         $month = $_GET['month'] ?? '09'; // Default to month 09 or current month
         require_once '../app/models/monthly_task_Modal.php';
         $monthlyTaskModel = new MonthlyTaskModal();
-        $monthly_tasks = $monthlyTaskModel->getMonthlyTasks($fiscal_id, $month);
+        $monthly_tasks = $monthlyTaskModel->getMonthlyTasks($fiscal_id, $month, $userId);
 
         $data = [
             'title' => 'ระบบ Backoffice',

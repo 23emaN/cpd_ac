@@ -63,11 +63,11 @@
                 <span class="caretaker-text">ทดสอบ</span>
             </td>
             <td class="text-center">
-                <?php if (!empty($task['total_comments']) && $task['total_comments'] > 0): ?>
-                    <span class="badge bg-danger" style="cursor: pointer;" title="มี <?php echo $task['total_comments']; ?> ความคิดเห็นในเดือนนี้"
+                <?php if (!empty($task['unread_comments']) && $task['unread_comments'] > 0): ?>
+                    <span class="badge bg-danger" style="cursor: pointer;" title="มี <?php echo $task['unread_comments']; ?> ความคิดเห็นที่ยังไม่ได้อ่าน"
                      onclick="Modal_manage(<?php echo (int)$task['period_id']; ?>,
                     '<?php echo htmlspecialchars($subtitle ?? '', ENT_QUOTES); ?>')">
-                    <?php echo $task['total_comments']; ?>
+                    <?php echo $task['unread_comments']; ?>
                 </span>
                 <?php else: ?>
                     <span class="text-muted">-</span>

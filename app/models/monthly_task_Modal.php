@@ -4,7 +4,7 @@ require_once '../app/models/Model.php';
 class MonthlyTaskModal extends Model
 {
 
-    public function getMonthlyTasks($fiscalId, $month = null)
+    public function getMonthlyTasks($fiscalId, $month = null, $userId = null)
     {
         $sql = "
             SELECT 
@@ -26,7 +26,7 @@ class MonthlyTaskModal extends Model
                 u.user_firstname as caretaker_firstname,
                 (SELECT COUNT(*) FROM tbl_customer_tasks ct WHERE ct.period_id = p.period_id) as total_tasks,
                 (SELECT COUNT(*) FROM tbl_customer_tasks ct WHERE ct.period_id = p.period_id AND ct.status = '1') as completed_tasks,
-                (SELECT COUNT(*) FROM tbl_comment_tasks cmt INNER JOIN tbl_customer_tasks ct2 ON cmt.customer_tasks_id = ct2.customer_tasks_id WHERE ct2.period_id = p.period_id) as total_comments
+                (SELECT COUNT(*) FROM tbl_comment_tasks cmt INNER JOIN tbl_customer_tasks ct2 ON cmt.customer_tasks_id = ct2.customer_tasks_id WHERE ct2.period_id = p.period_id AND cmt.is_read = 0 AND cmt.comment_user_id != :user_id) as unread_comments
             FROM tbl_customer_work_periods p
             INNER JOIN tbl_customers c ON p.customer_id = c.customer_id
             LEFT JOIN tbl_fiscal_year_customers fyc ON p.customer_id = fyc.customer_id AND p.fiscal_year_id = fyc.fiscal_id
@@ -35,7 +35,10 @@ class MonthlyTaskModal extends Model
             WHERE p.fiscal_year_id = :fiscal_id AND c.delete_at IS NULL
         ";
 
-        $params = ['fiscal_id' => $fiscalId];
+        $params = [
+            'fiscal_id' => $fiscalId,
+            'user_id' => $userId ?: 0
+        ];
 
         if ($month !== null && $month !== '') {
             $sql .= " AND (p.period_month = :month OR CAST(p.period_month AS UNSIGNED) = :month_int)";
