@@ -507,12 +507,14 @@ class BackofficeController
 
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id = '';
+        $active_fiscal_year = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
                 foreach ($company['fiscal_years'] as $fy) {
                     $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
                     if ($fy_id == $fiscal_id) {
                         $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
                         break 2;
                     }
                 }
@@ -539,13 +541,119 @@ class BackofficeController
             'tasks'             => $tasks,
             'caretakers'        => $caretakers,
             'customers'         => $customers,
-            'stats'             => $stats
+            'stats'             => $stats,
+            'active_fiscal_year' => $active_fiscal_year
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/customer.php';
     }
 
+     public function addCustomer()
+    {
+        $this->checkAuth();
+
+        $fiscal_id = trim($_POST['fiscal_id'] ?? '');
+        $company_id = trim($_POST['company_id'] ?? '');
+        $customer_name = trim($_POST['customer_name'] ?? '');
+
+        if ($customer_name === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกชื่อลูกค้า']);
+            return;
+        }
+
+        if ($fiscal_id === '' || $company_id === '') {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลปีทำงานหรือบริษัท']);
+            return;
+        }
+
+        require_once '../app/models/CustomerModal.php';
+        $customModal = new CustomModal();
+
+        try {
+            $existingUser = $customModal->getCustomerByName($customer_name);
+            if ($existingUser) {
+                echo json_encode(['result' => 0, 'msg' => 'มีลูกค้ารายนี้อยู่ในระบบแล้ว']);
+                return;
+            }
+
+            // 1. Insert into tbl_customers
+            $customerId = $customModal->insertCustomer($_POST);
+            
+            if ($customerId) {
+                // 2. Link to Fiscal Year (tbl_fiscal_year_customers)
+                $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
+                
+                // 3 & 4. Generate Work Periods & Tasks
+                $customModal->generateWorkPeriodsAndTasks($customerId, $fiscal_id, $_POST);
+
+                echo json_encode(['result' => 1, 'msg' => 'เพิ่มลูกค้าสำเร็จ', 'customer_id' => $customerId]);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'บันทึกลูกค้าไม่สำเร็จ']);
+            }
+
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดของฐานข้อมูล: ' . $e->getMessage()]);
+        }
+    }
+
+    public function getCustomer()
+    {
+        $this->checkAuth();
+        $customer_id = $_GET['id'] ?? null;
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        if (!$customer_id || !$fiscal_id) {
+            echo json_encode(['result' => 0, 'msg' => 'ข้อมูลไม่ครบถ้วน']);
+            return;
+        }
+
+        require_once '../app/models/CustomerModal.php';
+        $customModal = new CustomModal();
+
+        try {
+            $customer = $customModal->getCustomerDetails($customer_id, $fiscal_id);
+            if ($customer) {
+                echo json_encode(['result' => 1, 'data' => $customer]);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลลูกค้า']);
+            }
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+        }
+    }
+
+    public function editCustomer()
+    {
+        $this->checkAuth();
+
+        $customer_id = trim($_POST['customer_id'] ?? '');
+        $fiscal_id = trim($_POST['fiscal_id'] ?? '');
+        $customer_name = trim($_POST['customer_name'] ?? '');
+
+        if ($customer_id === '' || $customer_name === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลให้ครบถ้วน']);
+            return;
+        }
+
+        require_once '../app/models/CustomerModal.php';
+        $customModal = new CustomModal();
+
+        try {
+            $success = $customModal->updateCustomer($_POST);
+            if ($success) {
+                echo json_encode(['result' => 1, 'msg' => 'แก้ไขข้อมูลลูกค้าสำเร็จ']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'แก้ไขข้อมูลลูกค้าไม่สำเร็จ']);
+            }
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+        }
+
+    }
+
+
+    /////////////////////////////////////// register_board /////////////////////////////////////////////// 
     public function register_board()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -596,6 +704,8 @@ class BackofficeController
         require_once '../app/views/backoffice/register_board.php';
     }
 
+
+        /////////////////////////////////////// postIt /////////////////////////////////////////////// 
     public function postIt()
     {
         $this->checkAuth();
@@ -761,6 +871,8 @@ class BackofficeController
         }
     }
 
+
+        /////////////////////////////////////// closing /////////////////////////////////////////////// 
     public function closing()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -811,6 +923,9 @@ class BackofficeController
         require_once '../app/views/backoffice/closing.php';
     }
 
+
+
+    /////////////////////////////////////// monthly_task /////////////////////////////////////////////// 
     public function monthly_task()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -831,13 +946,15 @@ class BackofficeController
         $companies = $companyModel->getAllCompanies($userId);
 
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
-        $active_company_id = '';
+       $active_company_id = '';
+        $active_fiscal_year = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
                 foreach ($company['fiscal_years'] as $fy) {
                     $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
                     if ($fy_id == $fiscal_id) {
                         $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
                         break 2;
                     }
                 }
@@ -854,7 +971,8 @@ class BackofficeController
             'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
-            'active_company_id' => $active_company_id
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
@@ -862,6 +980,7 @@ class BackofficeController
     }
 
 
+        /////////////////////////////////////// yearly_dash /////////////////////////////////////////////// 
     public function yearly_dash()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -912,6 +1031,7 @@ class BackofficeController
         require_once '../app/views/backoffice/yearly_dash.php';
     }
 
+    /////////////////////////////////////// monthly_dash /////////////////////////////////////////////// 
     public function monthly_dash()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -933,12 +1053,14 @@ class BackofficeController
 
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id = '';
+        $active_fiscal_year = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
                 foreach ($company['fiscal_years'] as $fy) {
                     $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
                     if ($fy_id == $fiscal_id) {
                         $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
                         break 2;
                     }
                 }
@@ -955,112 +1077,12 @@ class BackofficeController
             'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
-            'active_company_id' => $active_company_id
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/monthly_dash.php';
-
-    public function addCustomer()
-    {
-        $this->checkAuth();
-
-        $fiscal_id = trim($_POST['fiscal_id'] ?? '');
-        $company_id = trim($_POST['company_id'] ?? '');
-        $customer_name = trim($_POST['customer_name'] ?? '');
-
-        if ($customer_name === '') {
-            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกชื่อลูกค้า']);
-            return;
-        }
-
-        if ($fiscal_id === '' || $company_id === '') {
-            echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลปีทำงานหรือบริษัท']);
-            return;
-        }
-
-        require_once '../app/models/CustomerModal.php';
-        $customModal = new CustomModal();
-
-        try {
-            $existingUser = $customModal->getCustomerByName($customer_name);
-            if ($existingUser) {
-                echo json_encode(['result' => 0, 'msg' => 'มีลูกค้ารายนี้อยู่ในระบบแล้ว']);
-                return;
-            }
-
-            // 1. Insert into tbl_customers
-            $customerId = $customModal->insertCustomer($_POST);
-            
-            if ($customerId) {
-                // 2. Link to Fiscal Year (tbl_fiscal_year_customers)
-                $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
-                
-                // 3 & 4. Generate Work Periods & Tasks
-                $customModal->generateWorkPeriodsAndTasks($customerId, $fiscal_id, $_POST);
-
-                echo json_encode(['result' => 1, 'msg' => 'เพิ่มลูกค้าสำเร็จ', 'customer_id' => $customerId]);
-            } else {
-                echo json_encode(['result' => 0, 'msg' => 'บันทึกลูกค้าไม่สำเร็จ']);
-            }
-
-        } catch (Throwable $e) {
-            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดของฐานข้อมูล: ' . $e->getMessage()]);
-        }
     }
-
-    public function getCustomer()
-    {
-        $this->checkAuth();
-        $customer_id = $_GET['id'] ?? null;
-        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
-
-        if (!$customer_id || !$fiscal_id) {
-            echo json_encode(['result' => 0, 'msg' => 'ข้อมูลไม่ครบถ้วน']);
-            return;
-        }
-
-        require_once '../app/models/CustomerModal.php';
-        $customModal = new CustomModal();
-
-        try {
-            $customer = $customModal->getCustomerDetails($customer_id, $fiscal_id);
-            if ($customer) {
-                echo json_encode(['result' => 1, 'data' => $customer]);
-            } else {
-                echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลลูกค้า']);
-            }
-        } catch (Throwable $e) {
-            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
-        }
-    }
-
-    public function editCustomer()
-    {
-        $this->checkAuth();
-
-        $customer_id = trim($_POST['customer_id'] ?? '');
-        $fiscal_id = trim($_POST['fiscal_id'] ?? '');
-        $customer_name = trim($_POST['customer_name'] ?? '');
-
-        if ($customer_id === '' || $customer_name === '') {
-            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลให้ครบถ้วน']);
-            return;
-        }
-
-        require_once '../app/models/CustomerModal.php';
-        $customModal = new CustomModal();
-
-        try {
-            $success = $customModal->updateCustomer($_POST);
-            if ($success) {
-                echo json_encode(['result' => 1, 'msg' => 'แก้ไขข้อมูลลูกค้าสำเร็จ']);
-            } else {
-                echo json_encode(['result' => 0, 'msg' => 'แก้ไขข้อมูลลูกค้าไม่สำเร็จ']);
-            }
-        } catch (Throwable $e) {
-            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
-        }
-
-    }
+   
 }

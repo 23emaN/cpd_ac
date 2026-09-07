@@ -396,8 +396,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <!-- Page Header Section -->
                     <div class="page-header-box">
                         <div>
-                            <h4 class="page-title">แดชบอร์ด - งานรายเดือน</h4>
-                            <p class="page-subtitle">ภาพรวมระบบ - แดชบอร์ดรายเดือน - เดือน(ใส่เดือน) ปี <?php echo htmlspecialchars($selected_year); ?></p>
+                            <h2 class="page-title">งานรายเดือน</h2>
+                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <p class="page-subtitle">ภาพรวมระบบ - งานรายเดือน - ปี <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
                         <div class="d-flex align-items-center gap-3">
                             <div class="d-flex align-items-center gap-2">

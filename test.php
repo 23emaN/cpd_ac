@@ -1,0 +1,1 @@
+<?php require 'app/config/Database.php'; require 'app/models/CustomerModal.php'; $db = new Database(); $pdo = $db->connect(); $m = new CustomModal(); $r = new ReflectionClass($m); $p = $r->getProperty('pdo'); $p->setAccessible(true); $p->setValue($m, $pdo); var_dump($m->getCustomerDetails(1, 1)['monthly_skip']); ?>

@@ -14,4 +14,3 @@ $url = isset($_GET['url']) ? $_GET['url'] : 'home';
 
 // 2. ส่งต่อหน้าที่ให้ routes/web.php ไปแยกทางให้ (Router)
 require_once '../routes/web.php';
-

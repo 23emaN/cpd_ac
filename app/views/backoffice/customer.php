@@ -238,7 +238,8 @@
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">ลูกค้า</h2>
-                            <p class="page-subtitle">ภาพรวม - ลูกค้า - ปี <?php echo htmlspecialchars($selected_year); ?></p>
+                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <p class="page-subtitle">ภาพรวมระบบ - ลูกค้า - ปี <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn-excel-action" onclick="alert('Import Excel')">
@@ -608,7 +609,7 @@
                                     <div class="d-flex flex-column gap-2">
                                         <?php foreach ($leftTasks as $task): ?>
                                             <label class="d-flex align-items-center modal-checkbox-item">
-                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['task_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
+                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['tasks_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
                                                 <span class="modal-checkbox-label"><?php echo htmlspecialchars($task['tasks_name'] ?? ''); ?></span>
                                             </label>
                                         <?php endforeach; ?>
@@ -620,7 +621,7 @@
                                     <div class="d-flex flex-column gap-2">
                                         <?php foreach ($rightTasks as $task): ?>
                                             <label class="d-flex align-items-center modal-checkbox-item">
-                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['task_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
+                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['tasks_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
                                                 <span class="modal-checkbox-label"><?php echo htmlspecialchars($task['tasks_name'] ?? ''); ?></span>
                                             </label>
                                         <?php endforeach; ?>
@@ -830,6 +831,10 @@
                         data.monthly_skip.forEach(function(taskId) {
                             $('input[name="monthly_skip[]"][value="'+taskId+'"]').prop('checked', true);
                         });
+                    }
+                    
+                    if(data.debug_query) {
+                        console.log("🔥 DEBUG QUERY:", data.debug_query);
                     }
                     
                     // 2. สั่งโชว์ Modal

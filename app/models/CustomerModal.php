@@ -320,7 +320,20 @@ class CustomModal extends Model {
         $skipped = $stmtTasks->fetchAll(PDO::FETCH_COLUMN);
 
         $customer['monthly_skip'] = $skipped;
-
+        
+        // --- DEBUG SQL ---
+        $customer['debug_query'] = "
+            SELECT t.tasks_id
+            FROM tbl_tasks t
+            WHERE t.tasks_id NOT IN (
+                SELECT DISTINCT ct.task_id
+                FROM tbl_customer_tasks ct
+                JOIN tbl_customer_work_periods p ON ct.period_id = p.period_id
+                WHERE p.customer_id = {$customerId} AND p.fiscal_year_id = {$fiscalId}
+            )
+        ";
+        // -----------------
+        
         return $customer;
     }
 
@@ -429,11 +442,15 @@ class CustomModal extends Model {
                 if (empty($taskId) || in_array($taskId, $skippedTasks)) continue;
                 
                 foreach ($periods as $periodId) {
-                    $insStmt = $this->pdo->prepare("
-                        INSERT IGNORE INTO tbl_customer_tasks (fiscal_year_id, task_id, period_id, status, amount, created_at)
-                        VALUES (?, ?, ?, '0', 0.00, NOW())
-                    ");
-                    $insStmt->execute([$fiscalId, $taskId, $periodId]);
+                    $checkStmt = $this->pdo->prepare("SELECT 1 FROM tbl_customer_tasks WHERE period_id = ? AND task_id = ?");
+                    $checkStmt->execute([$periodId, $taskId]);
+                    if (!$checkStmt->fetch()) {
+                        $insStmt = $this->pdo->prepare("
+                            INSERT INTO tbl_customer_tasks (fiscal_year_id, task_id, period_id, status, amount, created_at)
+                            VALUES (?, ?, ?, '0', 0.00, NOW())
+                        ");
+                        $insStmt->execute([$fiscalId, $taskId, $periodId]);
+                    }
                 }
             }
         }
