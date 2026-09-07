@@ -648,8 +648,7 @@
                         <h5 class="modal-title fw-bold" id="manageModalLabel"
                             style="color: #1e293b; font-size: 1.15rem;">อัปเดตงานรายเดือน</h5>
                         <div class="text-muted mt-1" id="manageModalSubtitle" style="font-size: 0.85rem;">
-                            <?php echo htmlspecialchars($task['customer_name']); ?>
-                            <?php echo htmlspecialchars($task['month_year']); ?>
+                            <!-- Subtitle will be set dynamically via JavaScript Modal_manage() -->
                         </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"

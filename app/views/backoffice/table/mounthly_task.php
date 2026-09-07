@@ -30,6 +30,13 @@
     <?php if (! empty($data['monthly_tasks'])): ?>
         <?php foreach ($data['monthly_tasks'] as $index => $task): ?>
         <tr>
+            <?php
+                $m = (int)($task['period_month'] ?? 0);
+                $monthNames = [1=>'มกราคม',2=>'กุมภาพันธ์',3=>'มีนาคม',4=>'เมษายน',5=>'พฤษภาคม',6=>'มิถุนายน',7=>'กรกฎาคม',8=>'สิงหาคม',9=>'กันยายน',10=>'ตุลาคม',11=>'พฤศจิกายน',12=>'ธันวาคม'];
+                $mName = $monthNames[$m] ?? '';
+                $yName = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : '';
+                $subtitle = $task['customer_name'] . ' · ' . $mName . ' ปี ' . $yName;
+            ?>
             <td class="text-center fw-semibold text-secondary" style="width: 60px; min-width: 60px; max-width: 60px; position: sticky; left: 0; z-index: 2; background-color: #ffffff; border-right: 1px solid #e2e8f0; white-space: nowrap; vertical-align: middle;"><?php echo $index + 1; ?></td>
             <td class="text-start" style="width: 250px; min-width: 250px; max-width: 250px; position: sticky; left: 60px; z-index: 2; background-color: #ffffff; border-right: 2px solid #e2e8f0; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); white-space: nowrap; vertical-align: middle;">
                 <div class="table-item-title"><?php echo htmlspecialchars($task['customer_name']); ?></div>
@@ -43,7 +50,7 @@
             </td>
             <td class="text-center">
                 <?php if (!empty($task['total_comments']) && $task['total_comments'] > 0): ?>
-                    <span class="badge bg-danger" style="cursor: pointer;" title="มี <?php echo $task['total_comments']; ?> ความคิดเห็นในเดือนนี้" onclick="Modal_manage(<?php echo (int)$task['period_id']; ?>)"><?php echo $task['total_comments']; ?></span>
+                    <span class="badge bg-danger" style="cursor: pointer;" title="มี <?php echo $task['total_comments']; ?> ความคิดเห็นในเดือนนี้" onclick="Modal_manage(<?php echo (int)$task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle ?? '', ENT_QUOTES); ?>')"><?php echo $task['total_comments']; ?></span>
                 <?php else: ?>
                     <span class="text-muted">-</span>
                 <?php endif; ?>
@@ -127,13 +134,6 @@
 
             <td class="text-center">
                 <div class="action-btn-group">
-                    <?php
-                        $m = (int)($task['period_month'] ?? 0);
-                        $monthNames = [1=>'มกราคม',2=>'กุมภาพันธ์',3=>'มีนาคม',4=>'เมษายน',5=>'พฤษภาคม',6=>'มิถุนายน',7=>'กรกฎาคม',8=>'สิงหาคม',9=>'กันยายน',10=>'ตุลาคม',11=>'พฤศจิกายน',12=>'ธันวาคม'];
-                        $mName = $monthNames[$m] ?? '';
-                        $yName = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : '';
-                        $subtitle = $task['customer_name'] . ' · ' . $mName . ' ปี ' . $yName;
-                    ?>
                     <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข" onclick="Modal_manage(<?php echo (int)$task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><i class="ri-pencil-line"></i></button>
                     <button type="button" class="btn-action-message" title="กล่องจดหมาย/ข้อความ"><i class="ri-mail-line"></i></button>
                 </div>
