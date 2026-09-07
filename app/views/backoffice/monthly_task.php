@@ -504,13 +504,30 @@
                     </div>
 
                     <!-- Stats Grid -->
+                    <?php
+                    $monthly_tasks_list = $data['monthly_tasks'] ?? [];
+                    $total_customers_count = count($monthly_tasks_list);
+                    $doc_received_count = 0;
+                    $completed_count = 0;
+                    $tax_count = 0;
+                    $payment_count = 0;
+
+                    foreach ($monthly_tasks_list as $t_item) {
+                        if (($t_item['doc_status'] ?? '0') === '1') $doc_received_count++;
+                        $tot = (int)($t_item['total_tasks'] ?? 0);
+                        $comp = (int)($t_item['completed_tasks'] ?? 0);
+                        if ($tot > 0 && $tot === $comp) $completed_count++;
+                        if (($t_item['tax_status'] ?? '0') === '1') $tax_count++;
+                        if (($t_item['payment_status'] ?? '0') === '1') $payment_count++;
+                    }
+                    ?>
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-icon blue">
                                 <i class="ri-user-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">2</span>
+                                <span class="stat-val"><?php echo number_format($total_customers_count); ?></span>
                                 <span class="stat-label">ลูกค้าในเดือนนี้</span>
                             </div>
                         </div>
@@ -520,7 +537,7 @@
                                 <i class="ri-draft-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">1</span>
+                                <span class="stat-val"><?php echo number_format($doc_received_count); ?></span>
                                 <span class="stat-label">ได้รับเอกสาร</span>
                             </div>
                         </div>
@@ -530,7 +547,7 @@
                                 <i class="ri-checkbox-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">1</span>
+                                <span class="stat-val"><?php echo number_format($completed_count); ?></span>
                                 <span class="stat-label">งานเสร็จแล้ว</span>
                             </div>
                         </div>
@@ -540,7 +557,7 @@
                                 <i class="ri-mail-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">1</span>
+                                <span class="stat-val"><?php echo number_format($tax_count); ?></span>
                                 <span class="stat-label">ยื่นภาษีแล้ว</span>
                             </div>
                         </div>
@@ -550,7 +567,7 @@
                                 <i class="ri-wallet-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">1</span>
+                                <span class="stat-val"><?php echo number_format($payment_count); ?></span>
                                 <span class="stat-label">ได้รับเงินแล้ว</span>
                             </div>
                         </div>

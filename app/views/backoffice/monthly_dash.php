@@ -1,9 +1,43 @@
 <?php
 // app/views/backoffice/monthly_dash.php
-//Hello
 $selected_year = $_GET['year'] ?? '2569';
 $company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
 $show_company_workspace = true;
+
+$month_names = [
+    '01' => 'มกราคม',
+    '02' => 'กุมภาพันธ์',
+    '03' => 'มีนาคม',
+    '04' => 'เมษายน',
+    '05' => 'พฤษภาคม',
+    '06' => 'มิถุนายน',
+    '07' => 'กรกฎาคม',
+    '08' => 'สิงหาคม',
+    '09' => 'กันยายน',
+    '10' => 'ตุลาคม',
+    '11' => 'พฤศจิกายน',
+    '12' => 'ธันวาคม',
+];
+
+$selected_month = $data['selected_month'] ?? date('m');
+$selected_month_name = $month_names[$selected_month] ?? 'มกราคม';
+$stats = $data['stats'] ?? [
+    'total_customers'   => 0,
+    'doc_received'      => 0,
+    'completed'         => 0,
+    'reviewed'          => 0,
+    'tax_filed'         => 0,
+    'payment_collected' => 0,
+    'doc_received_pct'  => 0,
+    'completed_pct'     => 0,
+    'reviewed_pct'      => 0,
+    'tax_filed_pct'     => 0,
+    'payment_pct'       => 0,
+    'caretakers'        => [],
+    'tasks_list'        => []
+];
+$caretakers = $stats['caretakers'] ?? [];
+$total_caretakers_count = count($caretakers);
 
 // 1. นำ Header เข้ามา
 require_once dirname(__DIR__) . '/main/header.php';
@@ -404,18 +438,11 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <div class="d-flex align-items-center gap-2">
                                 <span class="text-muted small">เดือน</span>
                                 <select class="form-select filter-select" id="monthSelect" style="min-width: 120px;">
-                                    <option value="1" selected>มกราคม</option>
-                                    <option value="2">กุมภาพันธ์</option>
-                                    <option value="3">มีนาคม</option>
-                                    <option value="4">เมษายน</option>
-                                    <option value="5">พฤษภาคม</option>
-                                    <option value="6">มิถุนายน</option>
-                                    <option value="7">กรกฎาคม</option>
-                                    <option value="8">สิงหาคม</option>
-                                    <option value="9">กันยายน</option>
-                                    <option value="10">ตุลาคม</option>
-                                    <option value="11">พฤศจิกายน</option>
-                                    <option value="12">ธันวาคม</option>
+                                    <?php foreach ($month_names as $m_num => $m_name): ?>
+                                        <option value="<?php echo $m_num; ?>" <?php echo ($selected_month === $m_num) ? 'selected' : ''; ?>>
+                                            <?php echo $m_name; ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <button type="button" class="btn-excel-action">
@@ -432,7 +459,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-user-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo number_format($stats['total_customers']); ?></span>
                                 <span class="stat-label">ลูกค้าในเดือนนี้</span>
                             </div>
                         </div>
@@ -442,7 +469,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-file-text-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo number_format($stats['doc_received']); ?></span>
                                 <span class="stat-label">ได้รับเอกสารแล้ว</span>
                             </div>
                         </div>
@@ -452,7 +479,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-checkbox-circle-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo number_format($stats['completed']); ?></span>
                                 <span class="stat-label">ทำเสร็จแล้ว</span>
                             </div>
                         </div>
@@ -462,7 +489,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-mail-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo number_format($stats['tax_filed']); ?></span>
                                 <span class="stat-label">ยื่นภาษีแล้ว</span>
                             </div>
                         </div>
@@ -472,7 +499,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-wallet-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo number_format($stats['payment_collected']); ?></span>
                                 <span class="stat-label">เก็บเงินลูกค้าแล้ว</span>
                             </div>
                         </div>
@@ -483,12 +510,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h4 class="page-title" style="font-size: 1.15rem; font-weight: 700;">สรุปความคืบหน้า</h4>
-                                <p class="page-subtitle">เดือน - ปี <?php echo htmlspecialchars($selected_year); ?> · - ลูกค้า</p>
+                                <p class="page-subtitle">เดือน <?php echo htmlspecialchars($selected_month_name); ?> - ปี <?php echo htmlspecialchars($fy_display); ?> · <?php echo number_format($stats['total_customers']); ?> ลูกค้า</p>
                             </div>
                             <div>
                                 <span class="badge rounded-pill px-3 py-2 fw-semibold"
                                     style="background-color: #eff6ff; color: #2563eb; font-size: 0.85rem;">
-                                    - ผู้ดูแล
+                                    <?php echo $total_caretakers_count; ?> ผู้ดูแล
                                 </span>
                             </div>
                         </div>
@@ -498,14 +525,79 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <table class="table-custom">
                                 <thead>
                                     <tr>
-                                        <th class="text-start" style="width: 45%;">รายการ</th>
+                                        <th class="text-start" style="width: 35%;">รายการ</th>
                                         <th class="text-center" style="width: 15%;">%</th>
                                         <th class="text-center" style="width: 15%;">รวม</th>
-                                        <th class="text-center" style="width: 25%;">เมย์</th>
+                                        <?php if (!empty($caretakers)): ?>
+                                            <?php foreach ($caretakers as $c): ?>
+                                                <th class="text-center" style="width: <?php echo floor(35 / max(1, count($caretakers))); ?>%;"><?php echo htmlspecialchars($c['name']); ?></th>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <th class="text-center" style="width: 35%;">-</th>
+                                        <?php endif; ?>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    
+                                    <tr>
+                                        <td class="text-start fw-semibold">ได้รับเอกสาร</td>
+                                        <td class="text-center font-monospace text-primary fw-bold"><?php echo $stats['doc_received_pct']; ?>%</td>
+                                        <td class="text-center fw-bold"><?php echo $stats['doc_received']; ?>/<?php echo $stats['total_customers']; ?></td>
+                                        <?php if (!empty($caretakers)): ?>
+                                            <?php foreach ($caretakers as $c): ?>
+                                                <td class="text-center"><?php echo $c['doc_received']; ?></td>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <td class="text-center">-</td>
+                                        <?php endif; ?>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-semibold">ทำเสร็จ</td>
+                                        <td class="text-center font-monospace text-success fw-bold"><?php echo $stats['completed_pct']; ?>%</td>
+                                        <td class="text-center fw-bold"><?php echo $stats['completed']; ?>/<?php echo $stats['total_customers']; ?></td>
+                                        <?php if (!empty($caretakers)): ?>
+                                            <?php foreach ($caretakers as $c): ?>
+                                                <td class="text-center"><?php echo $c['completed']; ?></td>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <td class="text-center">-</td>
+                                        <?php endif; ?>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-semibold">สอบทาน</td>
+                                        <td class="text-center font-monospace text-purple fw-bold" style="color: #a855f7;"><?php echo $stats['reviewed_pct']; ?>%</td>
+                                        <td class="text-center fw-bold"><?php echo $stats['reviewed']; ?>/<?php echo $stats['total_customers']; ?></td>
+                                        <?php if (!empty($caretakers)): ?>
+                                            <?php foreach ($caretakers as $c): ?>
+                                                <td class="text-center"><?php echo $c['reviewed']; ?></td>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <td class="text-center">-</td>
+                                        <?php endif; ?>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-semibold">ยื่นภาษี</td>
+                                        <td class="text-center font-monospace text-warning fw-bold"><?php echo $stats['tax_filed_pct']; ?>%</td>
+                                        <td class="text-center fw-bold"><?php echo $stats['tax_filed']; ?>/<?php echo $stats['total_customers']; ?></td>
+                                        <?php if (!empty($caretakers)): ?>
+                                            <?php foreach ($caretakers as $c): ?>
+                                                <td class="text-center"><?php echo $c['tax_filed']; ?></td>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <td class="text-center">-</td>
+                                        <?php endif; ?>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-semibold">เก็บเงิน</td>
+                                        <td class="text-center font-monospace text-success fw-bold"><?php echo $stats['payment_pct']; ?>%</td>
+                                        <td class="text-center fw-bold"><?php echo $stats['payment_collected']; ?>/<?php echo $stats['total_customers']; ?></td>
+                                        <?php if (!empty($caretakers)): ?>
+                                            <?php foreach ($caretakers as $c): ?>
+                                                <td class="text-center"><?php echo $c['payment_collected']; ?></td>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <td class="text-center">-</td>
+                                        <?php endif; ?>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -513,19 +605,48 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                     <!-- Cards Section: วันที่รับเอกสาร & ความคืบหน้าภาพรวม -->
                     <div class="row g-4 mb-4">
-                        <!-- Card 1: วันที่รับเอกสาร -->
+                        <!-- Card 1: รายการลูกค้าในเดือนนี้ -->
                         <div class="col-lg-6 col-12">
                             <div class="card dashboard-progress-card h-100">
                                 <div class="d-flex align-items-center gap-3 mb-4">
                                     <div class="card-header-icon blue">
                                         <i class="ri-calendar-line"></i>
                                     </div>
-                                    <h5 class="card-section-title">วันที่รับเอกสาร</h5>
+                                    <h5 class="card-section-title">สถานะเอกสารลูกค้าในเดือนนี้</h5>
                                 </div>
-                                <div class="d-flex flex-column align-items-center justify-content-center py-5 my-3 text-muted">
-                                    <i class="ri-file-text-line mb-3" style="font-size: 3rem; color: #cbd5e1;"></i>
-                                    <span class="small fw-semibold" style="color: #94a3b8;">ยังไม่มีข้อมูลวันที่รับเอกสาร</span>
-                                </div>
+                                <?php if (!empty($stats['tasks_list'])): ?>
+                                    <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                                        <table class="table table-sm align-middle mb-0" style="font-size: 0.85rem;">
+                                            <thead>
+                                                <tr class="text-muted border-bottom">
+                                                    <th>ชื่อลูกค้า</th>
+                                                    <th>ผู้ดูแล</th>
+                                                    <th class="text-center">เอกสาร</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($stats['tasks_list'] as $task_item): ?>
+                                                    <tr>
+                                                        <td class="fw-semibold text-dark"><?php echo htmlspecialchars($task_item['customer_name']); ?></td>
+                                                        <td class="text-muted"><?php echo htmlspecialchars($task_item['caretaker_firstname'] ?? '-'); ?></td>
+                                                        <td class="text-center">
+                                                            <?php if (($task_item['doc_status'] ?? '0') === '1'): ?>
+                                                                <span class="badge bg-success-subtle text-success px-2 py-1">ได้รับแล้ว</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-warning-subtle text-warning px-2 py-1">ยังไม่ได้รับ</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="d-flex flex-column align-items-center justify-content-center py-5 my-3 text-muted">
+                                        <i class="ri-file-text-line mb-3" style="font-size: 3rem; color: #cbd5e1;"></i>
+                                        <span class="small fw-semibold" style="color: #94a3b8;">ยังไม่มีข้อมูลในเดือนนี้</span>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -543,12 +664,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="progress-item-label">ได้รับเอกสาร</span>
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="progress-item-value">0 / 0</span>
-                                            <span class="badge rounded-pill progress-badge-zero">0%</span>
+                                            <span class="progress-item-value"><?php echo $stats['doc_received']; ?> / <?php echo $stats['total_customers']; ?></span>
+                                            <span class="badge rounded-pill progress-badge-zero"><?php echo $stats['doc_received_pct']; ?>%</span>
                                         </div>
                                     </div>
                                     <div class="progress custom-progress-bar">
-                                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $stats['doc_received_pct']; ?>%;" aria-valuenow="<?php echo $stats['doc_received_pct']; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
 
@@ -556,12 +677,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="progress-item-label">ทำเสร็จ</span>
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="progress-item-value">0 / 0</span>
-                                            <span class="badge rounded-pill progress-badge-zero">0%</span>
+                                            <span class="progress-item-value"><?php echo $stats['completed']; ?> / <?php echo $stats['total_customers']; ?></span>
+                                            <span class="badge rounded-pill progress-badge-zero"><?php echo $stats['completed_pct']; ?>%</span>
                                         </div>
                                     </div>
                                     <div class="progress custom-progress-bar">
-                                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $stats['completed_pct']; ?>%;" aria-valuenow="<?php echo $stats['completed_pct']; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
 
@@ -569,12 +690,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="progress-item-label">สอบทาน</span>
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="progress-item-value">0 / 0</span>
-                                            <span class="badge rounded-pill progress-badge-zero">0%</span>
+                                            <span class="progress-item-value"><?php echo $stats['reviewed']; ?> / <?php echo $stats['total_customers']; ?></span>
+                                            <span class="badge rounded-pill progress-badge-zero"><?php echo $stats['reviewed_pct']; ?>%</span>
                                         </div>
                                     </div>
                                     <div class="progress custom-progress-bar">
-                                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar" role="progressbar" style="width: <?php echo $stats['reviewed_pct']; ?>%; background-color: #a855f7;" aria-valuenow="<?php echo $stats['reviewed_pct']; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
 
@@ -582,12 +703,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="progress-item-label">ยื่นภาษี</span>
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="progress-item-value">0 / 0</span>
-                                            <span class="badge rounded-pill progress-badge-zero">0%</span>
+                                            <span class="progress-item-value"><?php echo $stats['tax_filed']; ?> / <?php echo $stats['total_customers']; ?></span>
+                                            <span class="badge rounded-pill progress-badge-zero"><?php echo $stats['tax_filed_pct']; ?>%</span>
                                         </div>
                                     </div>
                                     <div class="progress custom-progress-bar">
-                                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: <?php echo $stats['tax_filed_pct']; ?>%;" aria-valuenow="<?php echo $stats['tax_filed_pct']; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
 
@@ -595,12 +716,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="progress-item-label">เก็บเงิน</span>
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="progress-item-value">0 / 0</span>
-                                            <span class="badge rounded-pill progress-badge-zero">0%</span>
+                                            <span class="progress-item-value"><?php echo $stats['payment_collected']; ?> / <?php echo $stats['total_customers']; ?></span>
+                                            <span class="badge rounded-pill progress-badge-zero"><?php echo $stats['payment_pct']; ?>%</span>
                                         </div>
                                     </div>
                                     <div class="progress custom-progress-bar">
-                                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: <?php echo $stats['payment_pct']; ?>%;" aria-valuenow="<?php echo $stats['payment_pct']; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
@@ -616,24 +737,34 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <h5 class="card-section-title">ปริมาณงานแยกตามผู้ดูแล</h5>
                         </div>
 
-                        <div class="mb-2">
-                            <div class="row align-items-center">
-                                <div class="col-md-4 col-12 mb-2 mb-md-0">
-                                    <div class="user-item-name">พนักงาน ก</div>
-                                    <div class="user-item-sub">- เสร็จแล้วจาก - ราย</div>
-                                </div>
-                                <div class="col-md-8 col-12">
-                                    <div class="d-flex justify-content-end align-items-center gap-2 mb-1">
-                                        <span class="fw-bold text-secondary small">0%</span>
-                                        <span class="text-muted small">- รอดำเนินงาน</span>
+                        <?php if (!empty($caretakers)): ?>
+                            <div class="d-flex flex-column gap-3">
+                                <?php foreach ($caretakers as $c): ?>
+                                    <div class="mb-2">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-4 col-12 mb-2 mb-md-0">
+                                                <div class="user-item-name"><?php echo htmlspecialchars($c['name']); ?></div>
+                                                <div class="user-item-sub">เสร็จแล้ว <?php echo $c['completed']; ?> จาก <?php echo $c['total']; ?> ราย</div>
+                                            </div>
+                                            <div class="col-md-8 col-12">
+                                                <div class="d-flex justify-content-end align-items-center gap-2 mb-1">
+                                                    <span class="fw-bold text-secondary small"><?php echo $c['percent']; ?>%</span>
+                                                    <span class="text-muted small"><?php echo $c['pending']; ?> รอดำเนินงาน</span>
+                                                </div>
+                                                <div class="progress custom-progress-bar-lg">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $c['percent']; ?>%;" aria-valuenow="<?php echo $c['percent']; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <div class="text-end user-item-status-text mt-1">งาน</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="progress custom-progress-bar-lg">
-                                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <div class="text-end user-item-status-text mt-1">งาน</div>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
-                        </div>
+                        <?php else: ?>
+                            <div class="text-center py-4 text-muted small">
+                                ยังไม่มีข้อมูลผู้ดูแลในเดือนนี้
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                 </div> <!-- End .main-card-wrapper -->
@@ -647,10 +778,17 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         if ($.fn.select2) {
             $('#monthSelect').select2();
         }
+
+        $('#monthSelect').on('change', function() {
+            var selectedMonth = $(this).val();
+            var url = new URL(window.location.href);
+            url.searchParams.set('month', selectedMonth);
+            window.location.href = url.toString();
+        });
     });
 </script>
 
 <?php
 // 3. นำ Footer เข้ามา
 require_once dirname(__DIR__) . '/main/footer.php';
-?>
+?>
