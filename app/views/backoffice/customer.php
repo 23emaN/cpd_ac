@@ -1,14 +1,14 @@
 <?php
-// app/views/backoffice/customer.php
-$selected_year = $_GET['year'] ?? '2569';
-$company_name  = $_GET['company'] ?? 'TEST ACCOUNTING';
-$show_company_workspace = true;
+    // app/views/backoffice/customer.php
+    $selected_year          = $_GET['year'] ?? '2569';
+    $company_name           = $_GET['company'] ?? 'TEST ACCOUNTING';
+    $show_company_workspace = true;
 
-// 1. นำ Header เข้ามา
-require_once dirname(__DIR__) . '/main/header.php';
+    // 1. นำ Header เข้ามา
+    require_once dirname(__DIR__) . '/main/header.php';
 
-// 2. นำ Sidebar เข้ามา
-require_once dirname(__DIR__) . '/main/sidebar.php';
+    // 2. นำ Sidebar เข้ามา
+    require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
@@ -712,15 +712,20 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
         transition: all 0.2s ease;
     }
+        /* แก้ไข flatpickr-wrapper ให้กว้าง 100% เมื่อใช้ static: true */
+    .flatpickr-wrapper {
+        display: block !important;
+        width: 100% !important;
+    }
 </style>
 
 <div class="container-fluid">
     <div class="main-content d-flex flex-column">
         <div class="content-wrapper">
             <div class="main-page-wrapper">
-                
+
                 <div class="main-card-wrapper">
-                    
+
                     <!-- Page Header Section -->
                     <div class="page-header-box">
                         <div>
@@ -747,40 +752,40 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-icon blue">
-                                <i class="ri-checkbox-circle-line"></i>
+                                <i class="ri-user-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo number_format($data['stats']['total_customers'] ?? 0); ?></span>
                                 <span class="stat-label">ลูกค้าทั้งหมด</span>
                             </div>
                         </div>
 
                         <div class="stat-card">
                             <div class="stat-icon green">
-                                <i class="ri-wallet-3-line"></i>
+                                <i class="ri-checkbox-circle-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo number_format($data['stats']['active_customers'] ?? 0); ?></span>
                                 <span class="stat-label">ใช้บริการอยู่</span>
                             </div>
                         </div>
 
                         <div class="stat-card">
-                            <div class="stat-icon purple">
-                                <i class="ri-subtract-line"></i>
+                            <div class="stat-icon red">
+                                <i class="ri-close-circle-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo number_format($data['stats']['inactive_customers'] ?? 0); ?></span>
                                 <span class="stat-label">เลิกจ้าง</span>
                             </div>
                         </div>
 
                         <div class="stat-card">
                             <div class="stat-icon yellow">
-                                <i class="ri-money-dollar-circle-line"></i>
+                                <i class="ri-wallet-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val">0</span>
+                                <span class="stat-val"><?php echo number_format($data['stats']['total_accounts_amount'] ?? 0, 2); ?></span>
                                 <span class="stat-label">ค่าบัญชีต่อเดือน</span>
                             </div>
                         </div>
@@ -808,80 +813,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
                     </div>
 
-                    <!-- Customer Table (ตรงตามภาพ 100%) -->
-                    <div class="customer-table-wrap">
-                        <table class="customer-table">
-                            <thead>
-                                <tr>
-                                    <th class="text-start" style="width: 25%;">ชื่อลูกค้า</th>
-                                    <th class="text-center" style="width: 14%;">สถานะ</th>
-                                    <th class="text-center" style="width: 12%;">วันสิ้นรอบ</th>
-                                    <th class="text-center" style="width: 15%;">ค่าบัญชี</th>
-                                    <th class="text-center" style="width: 12%;">ผู้ดูแล</th>
-                                    <th class="text-center" style="width: 10%;">ติดต่อ</th>
-                                    <th class="text-center" style="width: 12%;">จัดการ</th>
-                                </tr>
-                            </thead>
-                            <!-- <tbody>
-                               
-                                <tr>
-                                    <td class="text-start">
-                                        <div class="customer-name-title">AMLAW</div>
-                                        <div class="customer-team-sub">ยังไม่ระบุทีม</div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge-service-active">ใช้บริการอยู่</span>
-                                    </td>
-                                    <td class="text-center text-muted">-</td>
-                                    <td class="text-center">
-                                        <span class="fee-amount-text">0 บาท</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="caretaker-text">เมย์</span>
-                                    </td>
-                                    <td class="text-center text-muted">-</td>
-                                    <td class="text-center">
-                                        <div class="action-btn-cell">
-                                            <button type="button" class="btn-action-edit" title="แก้ไข">
-                                                <i class="ri-pencil-line"></i>
-                                            </button>
-                                            <button type="button" class="btn-action-delete" title="ลบ">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                        
-                                
-                            </tbody> -->
-                        </table>
-                    </div>
-
-                    <!-- Pagination Toolbar ด้านล่าง -->
-                    <div class="pagination-toolbar">
-                        <div class="per-page-wrap">
-                            <span>แสดง</span>
-                            <select class="per-page-select">
-                                <option value="25" selected>25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                            <span>รายการต่อหน้า</span>
-                        </div>
-
-                        <div class="pagination-info">
-                            รายการที่ 1-2 จาก 2
-                        </div>
-
-                        <div class="pagination-nav">
-                            <button type="button" class="page-btn" title="หน้าแรก"><i class="ri-arrow-left-double-line"></i></button>
-                            <button type="button" class="page-btn" title="ก่อนหน้า"><i class="ri-arrow-left-s-line"></i></button>
-                            <button type="button" class="page-btn active">1</button>
-                            <button type="button" class="page-btn" title="ถัดไป"><i class="ri-arrow-right-s-line"></i></button>
-                            <button type="button" class="page-btn" title="หน้าสุดท้าย"><i class="ri-arrow-right-double-line"></i></button>
-                        </div>
-                    </div>
+                    <?php require_once 'table/customer_table.php'; ?>
 
                 </div> <!-- End .main-card-wrapper -->
             </div>
@@ -906,24 +838,25 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <!-- Hidden Fields -->
                     <input type="hidden" name="fiscal_id" value="<?php echo htmlspecialchars($data['fiscal_id'] ?? ''); ?>">
                     <input type="hidden" name="company_id" value="<?php echo htmlspecialchars($data['active_company_id'] ?? ''); ?>">
+                    <input type="hidden" name="customer_id" id="edit_customer_id" value="">
 
                     <!-- Section: ข้อมูลทั่วไป -->
                     <div class="mb-4">
                         <h6 class="modal-section-title">ข้อมูลทั่วไป</h6>
-                        
+
                         <!-- ชื่อบริษัท / กิจการ -->
                         <div class="mb-3">
                             <label class="form-label modal-form-label-required">
-                                ชื่อบริษัท / กิจการ <span class="modal-required-mark">*</span>
+                                ชื่อบริษัท / กิจการ <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control modal-form-control" name="customer_name" required placeholder="">
+                            <input type="text" class="form-control modal-form-control" name="customer_name" id="customer_name" required placeholder="">
                         </div>
 
                         <!-- 3 คอลัมน์: เดือนที่เริ่มให้บริการ / เดือนสิ้นสุด / สถานะลูกค้า -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
                                 <label class="form-label modal-form-label">เดือนที่เริ่มให้บริการ</label>
-                                <select class="form-select modal-form-select" name="service_start_date">
+                                <select class="form-select modal-form-select" name="service_start_date" id="service_start_date">
                                     <option value="1" selected>มกราคม</option>
                                     <option value="2">กุมภาพันธ์</option>
                                     <option value="3">มีนาคม</option>
@@ -941,8 +874,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                             <div class="col-md-4">
                                 <label class="form-label modal-form-label">เดือนสิ้นสุดการให้บริการ</label>
-                                <select class="form-select modal-form-select" name="service_start_end">
-                                    <option value="" selected>ยังให้บริการอยู่</option>
+                                <select class="form-select modal-form-select" name="service_start_end" id="service_start_end">
+                                    <option value="0" selected>ยังให้บริการอยู่</option>
                                     <option value="1">มกราคม</option>
                                     <option value="2">กุมภาพันธ์</option>
                                     <option value="3">มีนาคม</option>
@@ -971,16 +904,24 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label modal-form-label">ผู้ดูแล</label>
-                                <select class="form-select modal-form-select" name="user_id">
-                                    <option value="" selected>ยังไม่ระบุผู้ดูแล</option>
-                                    <option value="1">เมย์</option>
-                                    <option value="2">ชมพู่</option>
+                                <select class="form-select modal-form-select" name="user_id" id="user_id_select" onchange="updateTeamInfo()">
+                                    <option value="" data-team-id="" data-team-name="" selected>ยังไม่ระบุผู้ดูแล</option>
+                                    <?php if (! empty($data['caretakers'])): ?>
+                                        <?php foreach ($data['caretakers'] as $caretaker): ?>
+                                            <option value="<?php echo htmlspecialchars($caretaker['user_id'] ?? ''); ?>"
+                                                    data-team-id="<?php echo htmlspecialchars($caretaker['team_id'] ?? ''); ?>"
+                                                    data-team-name="<?php echo htmlspecialchars($caretaker['team_name'] ?? ''); ?>">
+                                                <?php echo htmlspecialchars(($caretaker['user_firstname'] ?? '') . ' ' . ($caretaker['lastname'] ?? '')); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label modal-form-label">ทีม</label>
-                                <input type="text" class="form-control modal-form-control" name="team_name" placeholder="เช่น ทีม A">
+                                <input type="hidden" name="team_id" id="team_id_hidden">
+                                <input type="text" class="form-control modal-form-control" id="team_name_display" placeholder="เช่น ทีม A" readonly>
                             </div>
                         </div>
                     </div>
@@ -996,7 +937,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
                                 <label class="form-label modal-form-label">ปิดงบประจำปี</label>
-                                <select class="form-select modal-form-select" name="closing_status">
+                                <select class="form-select modal-form-select" name="closing_status" id="closing_status">
                                     <option value="0" selected>ปิดงบประจำปี</option>
                                     <option value="1">ไม่ปิดงบ</option>
                                 </select>
@@ -1005,14 +946,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <div class="col-md-4">
                                 <label class="form-label modal-form-label">วันสิ้นรอบบัญชี</label>
                                 <div class="modal-input-icon-wrap">
-                                    <input type="text" class="form-control modal-form-control modal-input-with-icon" name="fiscal_closing_date" value="31/12/2026" placeholder="31/12/2026">
+                                    <input type="text" class="form-control modal-form-control modal-input-with-icon" name="fiscal_closing_date" id="fiscal_closing_date" value="31/12/2026" placeholder="31/12/2026">
                                     <i class="ri-calendar-line modal-input-icon modal-input-icon-static"></i>
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label modal-form-label">ค่าทำบัญชีต่อเดือน</label>
-                                <input type="number" step="0.01" class="form-control modal-form-control" name="accounts_amount" value="2000" placeholder="2000">
+                                <input type="number" step="0.01" class="form-control modal-form-control" name="accounts_amount" id="accounts_amount" value="2000" placeholder="2000">
                             </div>
                         </div>
 
@@ -1050,7 +991,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <!-- Section: ข้อมูลติดต่อและเอกสาร -->
                     <div>
                         <h6 class="modal-section-title">ข้อมูลติดต่อและเอกสาร</h6>
-                        
+
                         <!-- แถวที่ 1: เบอร์ติดต่อ / อีเมล / LINE ID -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
@@ -1091,7 +1032,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <!-- Section: ระบบราชการ -->
                     <div>
                         <h6 class="modal-section-title">ระบบราชการ</h6>
-                        
+
                         <!-- กรมสรรพากร -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
@@ -1101,7 +1042,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <div class="col-md-6">
                                 <label class="form-label modal-form-label">กรมสรรพากร - Password</label>
                                 <div class="modal-input-icon-wrap">
-                                    <input type="password" class="form-control modal-form-control-highlight modal-input-with-icon" name="rd_password" placeholder="••••••••">
+                                    <input type="password" class="form-control modal-form-control modal-input-with-icon" name="rd_password" placeholder="">
                                     <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="const input = this.previousElementSibling; if(input.type === 'password'){ input.type='text'; this.classList.remove('ri-eye-line'); this.classList.add('ri-eye-off-line'); } else { input.type='password'; this.classList.remove('ri-eye-off-line'); this.classList.add('ri-eye-line'); }"></i>
                                 </div>
                             </div>
@@ -1144,88 +1085,42 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <!-- Section: งานรายเดือนที่ไม่ต้องทำ -->
                     <div>
                         <h6 class="modal-section-title">งานรายเดือนที่ไม่ต้องทำ</h6>
-                        
+
                         <!-- Checkboxes Grid -->
                         <div class="row g-3">
-                            <!-- Left Column -->
-                            <div class="col-md-6">
-                                <div class="d-flex flex-column gap-2">
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="pnd1" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">ภ.ง.ด.1</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="pnd53" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">ภ.ง.ด.53</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="pp30" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">ภ.พ.30</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="sso" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">ประกันสังคม</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="bbl" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">BBL</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="uob" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">UOB</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="scb" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">SCB</span>
-                                    </label>
+                            <?php if (! empty($data['tasks'])): ?>
+                                <?php
+                                    $totalTasks = count($data['tasks']);
+                                    $half       = ceil($totalTasks / 2);
+                                    $leftTasks  = array_slice($data['tasks'], 0, $half);
+                                    $rightTasks = array_slice($data['tasks'], $half);
+                                ?>
+                                <!-- Left Column -->
+                                <div class="col-md-6">
+                                    <div class="d-flex flex-column gap-2">
+                                        <?php foreach ($leftTasks as $task): ?>
+                                            <label class="d-flex align-items-center modal-checkbox-item">
+                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['task_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
+                                                <span class="modal-checkbox-label"><?php echo htmlspecialchars($task['tasks_name'] ?? ''); ?></span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Right Column -->
-                            <div class="col-md-6">
-                                <div class="d-flex flex-column gap-2">
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="pnd3" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">ภ.ง.ด.3</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="pnd54" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">ภ.ง.ด.54</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="pp36" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">ภ.พ.36</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="kor_yor_sor" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">ก.ย.ศ.</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="kbank" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">KBANK</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="ttb" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">TTB</span>
-                                    </label>
-                                    
-                                    <label class="d-flex align-items-center modal-checkbox-item">
-                                        <input type="checkbox" name="monthly_skip[]" value="reconcile_bank" class="form-check-input modal-checkbox-input">
-                                        <span class="modal-checkbox-label">กระทบ Bank</span>
-                                    </label>
+
+                                <!-- Right Column -->
+                                <div class="col-md-6">
+                                    <div class="d-flex flex-column gap-2">
+                                        <?php foreach ($rightTasks as $task): ?>
+                                            <label class="d-flex align-items-center modal-checkbox-item">
+                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['task_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
+                                                <span class="modal-checkbox-label"><?php echo htmlspecialchars($task['tasks_name'] ?? ''); ?></span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
-                            </div>
+                            <?php else: ?>
+                                <div class="col-12 text-muted">ไม่พบข้อมูลงานรายเดือน</div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </form>
@@ -1240,24 +1135,210 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     </div>
 </div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script></script></script>
 <script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+    if (typeof flatpickr !== 'undefined') {
+            flatpickr("#fiscal_closing_date", {
+                dateFormat: "d/m/Y",
+                locale: "th",
+                allowInput: true,
+                static: true
+            });
+        }
+    });
+
+    // เพิ่มข้อมูลลูกค้า
 
     function modal_add_customer() {
         // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
         const form = document.getElementById('addCustomerForm');
         if(form) {
             form.reset();
+            document.getElementById('edit_customer_id').value = '';
+            document.getElementById('addCustomerModalLabel').innerText = 'เพิ่มลูกค้าใหม่';
+            document.querySelectorAll('input[name="monthly_skip[]"]').forEach(cb => cb.checked = false);
         }
         // 2. สั่งโชว์ Modal ผ่าน Vanilla JS ของ Bootstrap
         const modalElement = document.getElementById('addCustomerModal');
         const myModal = new bootstrap.Modal(modalElement);
         myModal.show();
-    }   
+    }
 
-  
+    function updateTeamInfo() {
+        const select = document.getElementById('user_id_select');
+        const selectedOption = select.options[select.selectedIndex];
+
+        const teamId = selectedOption.getAttribute('data-team-id') || '';
+        const teamName = selectedOption.getAttribute('data-team-name') || '';
+
+        document.getElementById('team_id_hidden').value = teamId;
+        document.getElementById('team_name_display').value = teamName ? teamName : (select.value ? 'ไม่มีทีม' : '');
+    }
+
+
+    let isSubmittingCustomer = false;
+    function submitAddCustomer() {
+        if (isSubmittingCustomer) return;
+
+        // Get fields
+        const customerName = $('#customer_name').val().trim();
+
+        let isValid = true;
+
+        // Validate customer_name
+        if (!customerName) {
+            $('#customer_name').addClass('is-invalid');
+            isValid = false;
+        } else {
+            $('#customer_name').removeClass('is-invalid');
+        }
+
+        if (!isValid) {
+            return; // หยุดการทำงานถ้ากรอกไม่ครบ
+        }
+
+        isSubmittingCustomer = true;
+        const submitBtn = $('#addCustomerModal .modal-footer button:last-child');
+        const originalBtnText = submitBtn.text();
+        submitBtn.prop('disabled', true).text('กำลังบันทึก...');
+
+        var formData = $('#addCustomerForm').serialize();
+        var customerId = $('#edit_customer_id').val();
+        var targetUrl = customerId ? '/cpd_ac/public/customer/edit' : '/cpd_ac/public/customer/add';
+
+        $.ajax({
+            url: targetUrl,
+            method: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                isSubmittingCustomer = false;
+                submitBtn.prop('disabled', false).text(originalBtnText);
+
+                if (response.result === 1) {
+                    $('#addCustomerModal').modal('hide');
+                    if (typeof Swal !== 'undefined') {
+                        sessionStorage.setItem('toast_msg', 'เพิ่มลูกค้าสำเร็จ');
+                        sessionStorage.setItem('toast_icon', 'success');
+                        location.reload();
+                    } else {
+                        alert('เพิ่มลูกค้าสำเร็จ');
+                        location.reload();
+                    }
+                } else {
+                    if (typeof Swal !== 'undefined') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({ icon: 'error', title: response.msg || 'ไม่สามารถเพิ่มลูกค้าได้' });
+                    } else {
+                        alert(response.msg || 'ไม่สามารถเพิ่มลูกค้าได้');
+                    }
+                }
+            },
+            error: function(err) {
+                isSubmittingCustomer = false;
+                submitBtn.prop('disabled', false).text(originalBtnText);
+                console.error("AJAX Error:", err);
+                if (typeof Swal !== 'undefined') {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                    Toast.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์' });
+                } else {
+                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+                }
+            }
+        });
+    }
+
+    // แก้ไขข้อมูลลูกค้า
+    function editCustomer(customer_id) {
+        // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
+        const form = document.getElementById('addCustomerForm');
+        if(form) {
+            form.reset();
+            document.getElementById('edit_customer_id').value = customer_id;
+            document.getElementById('addCustomerModalLabel').innerText = 'แก้ไขข้อมูลลูกค้า';
+            document.querySelectorAll('input[name="monthly_skip[]"]').forEach(cb => cb.checked = false);
+        }
+        
+        // Fetch existing data
+        $.ajax({
+            url: '/cpd_ac/public/customer/get?id=' + customer_id,
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if(response.result === 1) {
+                    var data = response.data;
+                    $('#customer_name').val(data.customer_name);
+                    $('#service_start_date').val(data.service_start_date);
+                    $('#service_start_end').val(data.service_start_end);
+                    $('#active_status').val(data.active_status);
+                    
+                    if(data.user_id) {
+                        $('#user_id_select').val(data.user_id);
+                        updateTeamInfo();
+                    } else {
+                        $('#user_id_select').val('');
+                        $('#team_id_hidden').val('');
+                        $('#team_name_display').val('');
+                    }
+
+                    $('#closing_status').val(data.closing_status);
+                    if(data.fiscal_closing_date) {
+                        $('#fiscal_closing_date').val(data.fiscal_closing_date);
+                    }
+                    
+                    $('#accounts_amount').val(data.f_accounts_amount || data.accounts_amount || 0);
+                    
+                    $('input[name="contact_tel"]').val(data.customer_phone);
+                    $('input[name="contact_email"]').val(data.customer_email);
+                    $('input[name="contact_line_id"]').val(data.line_id);
+                    $('input[name="line_token"]').val(data.line_group_token);
+                    $('input[name="doc_url"]').val(data.doc_folder_url);
+                    
+                    $('input[name="rd_user"]').val(data.rn_user);
+                    $('input[name="rd_password"]').val(data.rn_password);
+                    $('input[name="dbd_user"]').val(data.dbd_user);
+                    $('input[name="dbd_password"]').val(data.dbd_password);
+                    $('input[name="sso_user"]').val(data.sso_user);
+                    $('input[name="sso_password"]').val(data.sso_password);
+                    
+                    // check monthly skip
+                    if(data.monthly_skip && data.monthly_skip.length > 0) {
+                        data.monthly_skip.forEach(function(taskId) {
+                            $('input[name="monthly_skip[]"][value="'+taskId+'"]').prop('checked', true);
+                        });
+                    }
+                    
+                    // 2. สั่งโชว์ Modal
+                    const modalElement = document.getElementById('addCustomerModal');
+                    const myModal = new bootstrap.Modal(modalElement);
+                    myModal.show();
+                } else {
+                    alert(response.msg || 'ไม่สามารถโหลดข้อมูลได้');
+                }
+            },
+            error: function() {
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลลูกค้า');
+            }
+        });
+    }
 </script>
-
-<?php 
-// 3. นำ Footer เข้ามา
-require_once dirname(__DIR__) . '/main/footer.php'; 
+<?php
+    // 3. นำ Footer เข้ามา
+require_once dirname(__DIR__) . '/main/footer.php';
 ?>
