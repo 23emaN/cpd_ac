@@ -651,6 +651,28 @@ class BackofficeController
         }
 
     }
+    public function deleteCustomer()
+    {
+        $this->checkAuth();
+
+        $customer_id = trim($_POST['customer_id'] ?? '');
+        $fiscal_id = trim($_POST['fiscal_id'] ?? '');
+
+        require_once '../app/models/CustomerModal.php';
+        $customModal = new CustomModal();
+
+        try {
+            $success = $customModal->deleteCustomer($customer_id,$fiscal_id);
+            if ($success) {
+                echo json_encode(['result' => 1, 'msg' => 'ลบข้อมูลลูกค้าสำเร็จ']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'ลบข้อมูลลูกค้าไม่สำเร็จ']);
+            }
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+        }
+
+    }
 
 
     /////////////////////////////////////// register_board /////////////////////////////////////////////// 

@@ -850,6 +850,61 @@
             }
         });
     }
+
+    function deleteCustomer(customer_id) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ลบข้อมูลลูกค้า?',
+                text: 'ข้อมูลลูกค้านี้จะถูกลบออกจากระบบ',
+                showCancelButton: true,
+                confirmButtonColor: '#e3342f',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'ลบข้อมูล',
+                cancelButtonText: 'ยกเลิก',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    processDeleteCustomer(customer_id);
+                }
+            });
+        } else {
+            if (confirm('ต้องการลบข้อมูลลูกค้าหรือไม่?')) {
+                processDeleteCustomer(customer_id);
+            }
+        }
+    }
+
+    function processDeleteCustomer(customer_id) {
+        $.ajax({
+            url: '/cpd_ac/public/customer/delete',
+            method: 'POST',
+            data: { customer_id: customer_id }, // ส่งผ่าน POST Data เพื่อความปลอดภัยกว่าการต่อ URL ตรงๆ
+            dataType: 'json',
+            success: function(response) {
+                if (response.result === 1) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire('สำเร็จ!', response.msg, 'success').then(() => location.reload());
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire('ผิดพลาด', response.msg || 'ไม่สามารถลบข้อมูลได้', 'error');
+                    } else {
+                        alert(response.msg || 'ไม่สามารถลบข้อมูลได้');
+                    }
+                }
+            },
+            error: function() {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า', 'error');
+                } else {
+                    alert('เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า');
+                }
+            }
+        });
+    }
 </script>
 <?php
     // 3. นำ Footer เข้ามา

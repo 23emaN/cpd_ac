@@ -155,26 +155,15 @@ class CustomModal extends Model {
 
         $monthsToGenerate = [];
 
-        if ($endMonth === 0) {
-            // ถ้าเลือก "ยังให้บริการอยู่" (0) ให้สร้าง 12 เดือน เริ่มนับจากเดือนที่เริ่ม
-            for ($i = 0; $i < 12; $i++) {
-                $m = $startMonth + $i;
-                if ($m > 12) $m -= 12;
-                $monthsToGenerate[] = $m;
-            }
-        } else {
-            // ถ้าระบุเดือนสิ้นสุด ให้วนลูปจนกว่าจะถึงเดือนสิ้นสุด
-            $current = $startMonth;
-            while (true) {
-                $monthsToGenerate[] = $current;
-                if ($current === $endMonth) {
-                    break;
-                }
-                $current++;
-                if ($current > 12) {
-                    $current -= 12;
-                }
-            }
+        // กำหนดเดือนสิ้นสุด (ถ้าไม่ได้ระบุ, ระบุเป็น "ยังให้บริการอยู่", หรือระบุเป็นเดือนของปีถัดไป ให้จบที่เดือน 12 ของปีนี้)
+        $actualEndMonth = 12;
+        if ($endMonth > 0 && $endMonth >= $startMonth) {
+            $actualEndMonth = $endMonth;
+        }
+
+        // สร้างลูปตั้งแต่เดือนที่เริ่ม จนถึงเดือนสิ้นสุด (สูงสุดไม่เกินเดือน 12)
+        for ($m = $startMonth; $m <= $actualEndMonth; $m++) {
+            $monthsToGenerate[] = $m;
         }
 
         // 3. บันทึกช่วงเวลาทำงาน (tbl_customer_work_periods) ตามเดือนที่คำนวณได้
@@ -262,7 +251,7 @@ class CustomModal extends Model {
             INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
             LEFT JOIN tbl_user u ON fyc.user_id = u.user_id
             LEFT JOIN tbl_team t ON fyc.team_id = t.team_id
-            WHERE fyc.fiscal_id = :fiscal_id
+            WHERE fyc.fiscal_id = :fiscal_id AND delete_at IS NULL
             ORDER BY c.customer_name ASC
         ");
         $stmt->execute(['fiscal_id' => $fiscalId]);
@@ -416,6 +405,43 @@ class CustomModal extends Model {
             'customer_id' => $customerId,
             'fiscal_id' => $fiscalId
         ]);
+        // --- ตรวจสอบและสร้างเดือน (Periods) ที่ยังไม่มี ---
+        $startMonth = (int)($data['service_start_date'] ?? 1);
+        $endMonth = (int)($data['service_start_end'] ?? 0);
+        
+        $actualEndMonth = 12;
+        if ($endMonth > 0 && $endMonth >= $startMonth) {
+            $actualEndMonth = $endMonth;
+        }
+
+        // 1. เดือนที่ควรจะมีทั้งหมดตามที่ตั้งค่า
+        $expectedMonths = [];
+        for ($m = $startMonth; $m <= $actualEndMonth; $m++) {
+            $expectedMonths[] = str_pad($m, 2, '0', STR_PAD_LEFT);
+        }
+
+        // 2. เดือนที่มีอยู่แล้วในฐานข้อมูล
+        $existingMonthsStmt = $this->pdo->prepare("SELECT period_month FROM tbl_customer_work_periods WHERE customer_id = ? AND fiscal_year_id = ?");
+        $existingMonthsStmt->execute([$customerId, $fiscalId]);
+        $existingMonths = $existingMonthsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // 3. หาเดือนที่หายไป (ยังไม่เคยสร้าง)
+        $missingMonths = array_diff($expectedMonths, $existingMonths);
+
+        // 4. สร้างเดือนที่หายไป
+        foreach ($missingMonths as $monthStr) {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO tbl_customer_work_periods (
+                    customer_id, fiscal_year_id, period_month, 
+                    doc_status, tax_status, payment_status, created_at,
+                    review1_status, review2_status, review3_status
+                ) VALUES (
+                    ?, ?, ?, '0', '0', '0', NOW(), '0', '0', '0'
+                )
+            ");
+            $stmt->execute([$customerId, $fiscalId, $monthStr]);
+        }
+        // ----------------------------------------------------
         
         $skippedTasks = $data['monthly_skip'] ?? [];
         
@@ -456,5 +482,20 @@ class CustomModal extends Model {
         }
         
         return true;
+    }
+
+
+    public function deleteCustomer($customerId, $fiscalId) {
+        // ใช้คำสั่ง UPDATE สำหรับ Soft Delete (เปลี่ยนคอลัมน์ให้ตรงกับฐานข้อมูล: delete_at)
+        $stmt = $this->pdo->prepare("
+            UPDATE tbl_customers 
+            SET delete_at = NOW()
+            WHERE customer_id = :customer_id 
+        ");
+        
+        // Execute คำสั่งและส่งคืนค่า true หากทำสำเร็จ
+        $success = $stmt->execute(['customer_id' => $customerId]);
+        
+        return $success;
     }
 }
