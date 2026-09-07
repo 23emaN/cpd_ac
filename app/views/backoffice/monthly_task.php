@@ -805,7 +805,10 @@
             $('#selPayment').select2();
         });
 
+        let currentManagePeriodId = null;
+
         function Modal_manage(period_id, subtitleStr) {
+            currentManagePeriodId = period_id;
             const modalElement = document.getElementById('manageModal');
             const myModal = new bootstrap.Modal(modalElement);
 
