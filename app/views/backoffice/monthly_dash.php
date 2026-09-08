@@ -80,15 +80,86 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
                     </div>
 
+                    <style>
+                        /* Custom Monthly Dashboard Stats Grid Layout */
+                        .stats-grid-monthly {
+                            display: grid;
+                            gap: 16px;
+                            margin-bottom: 24px;
+                        }
+
+                        @media (min-width: 992px) {
+                            .stats-grid-monthly {
+                                grid-template-columns: 200px repeat(3, 1fr);
+                                grid-template-rows: repeat(2, 1fr);
+                            }
+
+                            .stats-grid-monthly .stat-card-overview {
+                                grid-row: 1 / span 2;
+                                grid-column: 1;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center;
+                                text-align: center;
+                                padding: 24px 16px;
+                                gap: 10px;
+                            }
+
+                            .stats-grid-monthly .stat-card-overview .stat-icon {
+                                width: 52px;
+                                height: 52px;
+                                font-size: 26px;
+                            }
+
+                            .stats-grid-monthly .stat-card-overview .stat-info {
+                                align-items: center;
+                            }
+
+                            .stats-grid-monthly .stat-card-overview .stat-label {
+                                font-size: 1.05rem;
+                                font-weight: 700;
+                                color: #1e293b;
+                            }
+
+                            .stats-grid-monthly .stat-card-overview .stat-subtext {
+                                font-size: 0.78rem;
+                                color: #64748b;
+                            }
+                        }
+
+                        @media (min-width: 768px) and (max-width: 991.98px) {
+                            .stats-grid-monthly {
+                                grid-template-columns: repeat(3, 1fr);
+                            }
+
+                            .stats-grid-monthly .stat-card-overview {
+                                grid-column: span 3;
+                                justify-content: center;
+                            }
+                        }
+
+                        @media (max-width: 767.98px) {
+                            .stats-grid-monthly {
+                                grid-template-columns: repeat(2, 1fr);
+                            }
+
+                            .stats-grid-monthly .stat-card-overview {
+                                grid-column: span 2;
+                                justify-content: center;
+                            }
+                        }
+                    </style>
+
                     <!-- Stats Grid (7 กล่องสถิติงานรายเดือน) -->
-                    <div class="stats-grid">
-                        <div class="stat-card active" data-filter="all">
+                    <div class="stats-grid stats-grid-monthly">
+                        <div class="stat-card stat-card-overview active" data-filter="all">
                             <div class="stat-icon blue">
                                 <i class="ri-pie-chart-2-line"></i>
                             </div>
                             <div class="stat-info">
-                                
                                 <span class="stat-label">ภาพรวม</span>
+                                <span class="stat-subtext">ระบบทั้งหมด</span>
                             </div>
                         </div>
 
