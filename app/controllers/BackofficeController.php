@@ -739,10 +739,8 @@ class BackofficeController
     }
 
 
-    /////////////////////////////////////// register_board /////////////////////////////////////////////// 
 
     public function registration_board()
-
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
         $this->checkAuth();
@@ -1155,20 +1153,11 @@ class BackofficeController
 
 
 
-        /////////////////////////////////////// closing /////////////////////////////////////////////// 
+        /////////////////////////////////////// closing ///////////////////////////////////////////////
     public function closing()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
         $this->checkAuth();
-
-
-
-        // // ▼▼▼ DEBUG ชั่วคราว ลบออกทีหลัง ▼▼▼
-        // echo '<pre>';
-        // print_r($_SESSION);
-        // echo '</pre>';
-        // exit();
-        // // ▲▲▲ DEBUG ชั่วคราว ▲▲▲
 
 
         // 2. รับค่า fiscal_id จาก Session (ตั้งค่ามาจากหน้าหลักผ่าน AJAX)
@@ -1184,13 +1173,11 @@ class BackofficeController
         $companyModel = new CompanyModel();
         $userId = $this->userPayload['user_id'] ?? null;
         $companies = $companyModel->getAllCompanies($userId);
-
       // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id = '';
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่ และจำนวนลูกค้าของปีบัญชีนั้น
-        $active_company_id = '';
-        $customer_count = 0;
 
+        $active_company_id = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
                 foreach ($company['fiscal_years'] as $fy) {
@@ -1198,20 +1185,15 @@ class BackofficeController
                     if ($fy_id == $fiscal_id) {
                         $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
 
+
                         $customer_count = (int) ($fy['customer_count'] ?? 0);
+
 
                         break 2;
                     }
                 }
             }
         }
-
-        // ดึงรายการงาน (tasks) ของปีบัญชีปัจจุบัน
-        require_once '../app/models/tasks.php';
-        $tasksModel = new TasksModel();
-        $tasks = $tasksModel->getTasksByFiscalId($fiscal_id);
-
-
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         require_once '../app/models/closing_Model.php';
         $closingModel = new ClosingModel();
@@ -1226,6 +1208,7 @@ class BackofficeController
             'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
+
             'active_company_id' => $active_company_id,
             'closing_data' => $closingData
         ];
@@ -1640,8 +1623,6 @@ class BackofficeController
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/customer_message.php';
     }
-
-
 
     //// NOTPANGJIT ////
     //// ตั้งค่าประเภทงาน ////
