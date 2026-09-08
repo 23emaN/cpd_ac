@@ -1,21 +1,31 @@
 :root {
-    --font-sans-serif: 'Kanit', sans-serif;
+    --font-sans-serif: 'Kanit', "Segoe UI", Tahoma, sans-serif;
 }
 
-html, body {
+html,
+body {
     font-family: var(--font-sans-serif) !important;
 }
 
-input, button, select, textarea {
+input,
+button,
+select,
+textarea {
     font-family: var(--font-sans-serif) !important;
 }
 
 .ri-refresh-line {
     animation: spin 2s linear infinite;
 }
+
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .pagination .page-item.active .page-link,
@@ -25,6 +35,7 @@ input, button, select, textarea {
     color: #fff;
     z-index: 0 !important;
 }
+
 /* ===== Project layout overrides (intern/am) ===== */
 /* #1 fix: select2 hides the original <select> with this class but select2.min.css here
    is missing the rule, so the original select keeps full width and causes horizontal scroll. */
@@ -42,27 +53,42 @@ input, button, select, textarea {
     border: 0 !important;
     white-space: nowrap !important;
 }
-/* กันสกอลล์แนวนอน — ใส่ที่ body เท่านั้น (อย่าใส่ที่ html)
-   เพราะ overflow-x:hidden ที่ <html> จะทำให้ <html> กลายเป็น scroll container เอง
-   -> Bootstrap ที่ล็อกสกอลล์ตอนเปิด modal ด้วย overflow:hidden ที่ <body> จะล็อกไม่ถึง
-   -> พื้นหลังยังเลื่อนได้. ใส่ที่ body อย่างเดียวยังกันแนวนอนได้ผ่าน scroll propagation */
-body { overflow-x: hidden; max-width: 100%; }
-/* ล็อกสกอลล์พื้นหลังตอนเปิด modal — ครอบทั้ง <html> และ <body> (Bootstrap ใส่ .modal-open ที่ body) */
+
+/* เธเธฑเธเธชเธเธญเธฅเธฅเนเนเธเธงเธเธญเธ โ€” เนเธชเนเธ—เธตเน body เน€เธ—เนเธฒเธเธฑเนเธ (เธญเธขเนเธฒเนเธชเนเธ—เธตเน html)
+   เน€เธเธฃเธฒเธฐ overflow-x:hidden เธ—เธตเน <html> เธเธฐเธ—เธณเนเธซเน <html> เธเธฅเธฒเธขเน€เธเนเธ scroll container เน€เธญเธ
+   -> Bootstrap เธ—เธตเนเธฅเนเธญเธเธชเธเธญเธฅเธฅเนเธ•เธญเธเน€เธเธดเธ” modal เธ”เนเธงเธข overflow:hidden เธ—เธตเน <body> เธเธฐเธฅเนเธญเธเนเธกเนเธ–เธถเธ
+   -> เธเธทเนเธเธซเธฅเธฑเธเธขเธฑเธเน€เธฅเธทเนเธญเธเนเธ”เน. เนเธชเนเธ—เธตเน body เธญเธขเนเธฒเธเน€เธ”เธตเธขเธงเธขเธฑเธเธเธฑเธเนเธเธงเธเธญเธเนเธ”เนเธเนเธฒเธ scroll propagation */
+body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+/* เธฅเนเธญเธเธชเธเธญเธฅเธฅเนเธเธทเนเธเธซเธฅเธฑเธเธ•เธญเธเน€เธเธดเธ” modal โ€” เธเธฃเธญเธเธ—เธฑเนเธ <html> เนเธฅเธฐ <body> (Bootstrap เนเธชเน .modal-open เธ—เธตเน body) */
 html:has(> body.modal-open),
-body.modal-open { overflow: hidden !important; }
+body.modal-open {
+    overflow: hidden !important;
+}
 
 /* #5 user profile pinned at the bottom of the sidebar
    (.sidebar-area already has position:fixed from the theme = containing block) */
 .sidebar-user {
     position: absolute;
-    left: 0; right: 0; bottom: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: #fff;
     border-top: 1px solid #eef0f3;
 }
-.sidebar-user .logout-btn { line-height: 0; }
-/* เว้นที่ท้ายลิสต์เมนูให้พ้นกล่องโปรไฟล์ (footer สูง ~75px) — ใส่ที่ .menu-inner ซึ่งอยู่ใน
-   พื้นที่ scroll จริงของ SimpleBar (padding บน .layout-menu ตัวนอกไม่เพิ่มพื้นที่เลื่อน) */
-.layout-menu .menu-inner { padding-bottom: 92px; }
+
+.sidebar-user .logout-btn {
+    line-height: 0;
+}
+
+/* เน€เธงเนเธเธ—เธตเนเธ—เนเธฒเธขเธฅเธดเธชเธ•เนเน€เธกเธเธนเนเธซเนเธเนเธเธเธฅเนเธญเธเนเธเธฃเนเธเธฅเน (footer เธชเธนเธ ~75px) โ€” เนเธชเนเธ—เธตเน .menu-inner เธเธถเนเธเธญเธขเธนเนเนเธ
+   เธเธทเนเธเธ—เธตเน scroll เธเธฃเธดเธเธเธญเธ SimpleBar (padding เธเธ .layout-menu เธ•เธฑเธงเธเธญเธเนเธกเนเน€เธเธดเนเธกเธเธทเนเธเธ—เธตเนเน€เธฅเธทเนเธญเธ) */
+.layout-menu .menu-inner {
+    padding-bottom: 92px;
+}
 
 /* #6 narrow the sidebar: theme default 260/250px -> 200px.
    scoped to >=1200px (where the sidebar is shown) so mobile off-canvas stays intact.
@@ -72,6 +98,7 @@ body.modal-open { overflow: hidden !important; }
     body:not([sidebar-data-theme="sidebar-hide"]) .sidebar-area {
         width: 250px;
     }
+
     body:not([sidebar-data-theme="sidebar-hide"]) .main-content {
         padding-left: 250px !important;
     }
@@ -96,7 +123,7 @@ body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link:hove
     color: #0066fe !important;
 }
 
-/* ซ่อนขีดสีม่วง/น้ำเงินด้านข้างแถบเมนู Active */
+/* เธเนเธญเธเธเธตเธ”เธชเธตเธกเนเธงเธ/เธเนเธณเน€เธเธดเธเธ”เนเธฒเธเธเนเธฒเธเนเธ–เธเน€เธกเธเธน Active */
 .sidebar-area .menu-item .menu-link.active::before,
 .sidebar-area .menu-vertical .menu-item .menu-link.active::before,
 body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.active::before {
@@ -104,13 +131,13 @@ body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.acti
     content: none !important;
 }
 
-/* เว้นระยะด้านบนของเนื้อหา (หลังเอา breadcrumb header ออกทุกหน้า ไม่งั้นการ์ดชิดบนเกินไป) */
+/* เน€เธงเนเธเธฃเธฐเธขเธฐเธ”เนเธฒเธเธเธเธเธญเธเน€เธเธทเนเธญเธซเธฒ (เธซเธฅเธฑเธเน€เธญเธฒ breadcrumb header เธญเธญเธเธ—เธธเธเธซเธเนเธฒ เนเธกเนเธเธฑเนเธเธเธฒเธฃเนเธ”เธเธดเธ”เธเธเน€เธเธดเธเนเธ) */
 .main-content {
     padding-top: 1.5rem;
 }
 
-/* ===== Global loading: spinner หมุนกลางจอ (full-screen) — ทุกหน้า/ทุก ajax =====
-   คุมด้วย JS ใน loading.js: โผล่อัตโนมัติทุก ajax แบบมี delay (โหลดเร็วจะไม่เห็น) */
+/* ===== Global loading: spinner เธซเธกเธธเธเธเธฅเธฒเธเธเธญ (full-screen) โ€” เธ—เธธเธเธซเธเนเธฒ/เธ—เธธเธ ajax =====
+   เธเธธเธกเธ”เนเธงเธข JS เนเธ loading.js: เนเธเธฅเนเธญเธฑเธ•เนเธเธกเธฑเธ•เธดเธ—เธธเธ ajax เนเธเธเธกเธต delay (เนเธซเธฅเธ”เน€เธฃเนเธงเธเธฐเนเธกเนเน€เธซเนเธ) */
 #cpdth-loading {
     position: fixed;
     inset: 0;
@@ -121,9 +148,11 @@ body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.acti
     backdrop-filter: blur(1px);
     z-index: 99999;
 }
+
 #cpdth-loading.show {
     display: flex;
 }
+
 #cpdth-loading .cpdth-loading-spinner {
     width: 3rem;
     height: 3rem;
@@ -131,36 +160,40 @@ body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.acti
     color: #605DFF;
 }
 
-/* ปุ่มระหว่างโหลด */
+/* เธเธธเนเธกเธฃเธฐเธซเธงเนเธฒเธเนเธซเธฅเธ” */
 .cpdth-btn-loading {
     opacity: 0.65;
     pointer-events: none;
 }
 
-/* DataTables: ซ่อนกล่อง "กำลังดำเนินการ..." กลางตาราง — ใช้ spinner กลางจอแทน */
+/* DataTables: เธเนเธญเธเธเธฅเนเธญเธ "เธเธณเธฅเธฑเธเธ”เธณเน€เธเธดเธเธเธฒเธฃ..." เธเธฅเธฒเธเธ•เธฒเธฃเธฒเธ โ€” เนเธเน spinner เธเธฅเธฒเธเธเธญเนเธ—เธ */
 .dataTables_processing {
     display: none !important;
 }
 
-/* #7 sidebar แคบ (200px): เมนูที่ข้อความยาว เช่น "คำขอยืนยันตัวตนผู้ใช้งาน"
-   ให้ตัดบรรทัดแทนการดันเนื้อหาจนเกิด scrollbar แนวนอน, ตรึง icon ไว้ซ้าย */
+/* #7 sidebar เนเธเธ (200px): เน€เธกเธเธนเธ—เธตเนเธเนเธญเธเธงเธฒเธกเธขเธฒเธง เน€เธเนเธ "เธเธณเธเธญเธขเธทเธเธขเธฑเธเธ•เธฑเธงเธ•เธเธเธนเนเนเธเนเธเธฒเธ"
+   เนเธซเนเธ•เธฑเธ”เธเธฃเธฃเธ—เธฑเธ”เนเธ—เธเธเธฒเธฃเธ”เธฑเธเน€เธเธทเนเธญเธซเธฒเธเธเน€เธเธดเธ” scrollbar เนเธเธงเธเธญเธ, เธ•เธฃเธถเธ icon เนเธงเนเธเนเธฒเธข */
 .sidebar-area .menu-vertical .menu-item .menu-link {
     display: flex;
     align-items: center;
     white-space: normal;
     position: relative;
 }
+
 .sidebar-area .menu-vertical .menu-item .menu-link .menu-icon {
     flex-shrink: 0;
 }
+
 .sidebar-area .menu-vertical .menu-item .menu-link .title {
     flex: 1 1 auto;
     min-width: 0;
 }
-/* badge นับจำนวน: ตรึงมุมขวา-กึ่งกลาง (ออกนอก flow) + เว้นที่ฝั่งขวาของข้อความไม่ให้ทับ */
+
+/* badge เธเธฑเธเธเธณเธเธงเธ: เธ•เธฃเธถเธเธกเธธเธกเธเธงเธฒ-เธเธถเนเธเธเธฅเธฒเธ (เธญเธญเธเธเธญเธ flow) + เน€เธงเนเธเธ—เธตเนเธเธฑเนเธเธเธงเธฒเธเธญเธเธเนเธญเธเธงเธฒเธกเนเธกเนเนเธซเนเธ—เธฑเธ */
 .sidebar-area .menu-vertical .menu-item .menu-link:has(.badge) .title {
     padding-right: 24px;
 }
+
 .sidebar-area .menu-vertical .menu-item .menu-link .badge {
     position: absolute;
     right: 12px;
@@ -171,7 +204,8 @@ body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.acti
 .default-table-area thead th {
     white-space: nowrap;
     vertical-align: middle;
-} 
+}
+
 table.dataTable thead .dt-column-order::before,
 table.dataTable thead .dt-column-order::after,
 table.dataTable thead .sorting::before,
@@ -183,26 +217,47 @@ table.dataTable thead .sorting_desc::after {
     font-family: Arial, "Segoe UI Symbol", sans-serif !important;
 }
 
-.app-tabs { flex-wrap: nowrap; }
-.app-tabs .nav-item { flex: 1 1 0; }
+.app-tabs {
+    flex-wrap: nowrap;
+}
+
+.app-tabs .nav-item {
+    flex: 1 1 0;
+}
+
 .app-tabs .nav-link {
-    width: 100%; text-align: center;
-    font-size: 1.05rem; font-weight: 600;
+    width: 100%;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 600;
     padding: .85rem 1rem;
 }
 
-/* ===== ปุ่ม action ในตาราง (จัดการ/แก้ไข/ลบ/เปิดดู) — ไอคอน+ข้อความ เด่นและอ่านง่ายกว่า btn-sm =====
-   ใส่ class "table-action-btn" คู่กับ btn สีเดิม (btn-warning/btn-danger/btn-secondary ฯลฯ) */
+/* ===== เธเธธเนเธก action เนเธเธ•เธฒเธฃเธฒเธ (เธเธฑเธ”เธเธฒเธฃ/เนเธเนเนเธ/เธฅเธ/เน€เธเธดเธ”เธ”เธน) โ€” เนเธญเธเธญเธ+เธเนเธญเธเธงเธฒเธก เน€เธ”เนเธเนเธฅเธฐเธญเนเธฒเธเธเนเธฒเธขเธเธงเนเธฒ btn-sm =====
+   เนเธชเน class "table-action-btn" เธเธนเนเธเธฑเธ btn เธชเธตเน€เธ”เธดเธก (btn-warning/btn-danger/btn-secondary เธฏเธฅเธฏ) */
 .table-action-btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: .3rem;
-    font-weight: 600; font-size: .9rem; padding: .45rem .85rem; white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .3rem;
+    font-weight: 600;
+    font-size: .9rem;
+    padding: .45rem .85rem;
+    white-space: nowrap;
 }
-.table-action-btn .material-symbols-outlined { font-size: 18px; line-height: 1; }
-/* ตัวอักษรปุ่ม action เป็นสีขาวเสมอ (รวม btn-warning ที่ปกติเป็นตัวอักษรเข้ม) */
+
+.table-action-btn .material-symbols-outlined {
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* เธ•เธฑเธงเธญเธฑเธเธฉเธฃเธเธธเนเธก action เน€เธเนเธเธชเธตเธเธฒเธงเน€เธชเธกเธญ (เธฃเธงเธก btn-warning เธ—เธตเนเธเธเธ•เธดเน€เธเนเธเธ•เธฑเธงเธญเธฑเธเธฉเธฃเน€เธเนเธก) */
 .table-action-btn,
 .table-action-btn:hover,
 .table-action-btn:focus,
-.table-action-btn:active { color: #fff; }
+.table-action-btn:active {
+    color: #fff;
+}
 
 .sidebar-area .logo .logo-text {
     left: 56px !important;
@@ -210,18 +265,40 @@ table.dataTable thead .sorting_desc::after {
     transform: translateY(-50%);
 }
 
-/* ===== invalid-state ของ ValidateRequired (js/main.js) — ขอบแดงครอบทุกชนิด widget ===== */
+/* ===== invalid-state เธเธญเธ ValidateRequired (js/main.js) โ€” เธเธญเธเนเธ”เธเธเธฃเธญเธเธ—เธธเธเธเธเธดเธ” widget ===== */
 .form-control.is-invalid,
-.form-select.is-invalid { border-color: #dc3545 !important; }
-/* select2 (control จริงเป็น sibling ของ <select>) */
-select.is-invalid + .select2-container .select2-selection { border-color: #dc3545 !important; }
+.form-select.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+/* select2 (control เธเธฃเธดเธเน€เธเนเธ sibling เธเธญเธ <select>) */
+select.is-invalid+.select2-container .select2-selection {
+    border-color: #dc3545 !important;
+}
+
 /* TomSelect */
-select.is-invalid + .ts-wrapper .ts-control { border-color: #dc3545 !important; }
+select.is-invalid+.ts-wrapper .ts-control {
+    border-color: #dc3545 !important;
+}
+
 /* TinyMCE */
-.tox-tinymce.is-invalid-widget { border-color: #dc3545 !important; }
-/* กลุ่ม radio */
-.is-invalid-group { outline: 1px solid #dc3545; outline-offset: 4px; border-radius: 6px; }
-/* ข้อความใต้ช่อง */
-.vr-feedback { display: block; }
-/* กัน bootstrap ซ่อน icon invalid บน select ที่มี widget ทับ */
-select.is-invalid { background-image: none !important; }
+.tox-tinymce.is-invalid-widget {
+    border-color: #dc3545 !important;
+}
+
+/* เธเธฅเธธเนเธก radio */
+.is-invalid-group {
+    outline: 1px solid #dc3545;
+    outline-offset: 4px;
+    border-radius: 6px;
+}
+
+/* เธเนเธญเธเธงเธฒเธกเนเธ•เนเธเนเธญเธ */
+.vr-feedback {
+    display: block;
+}
+
+/* เธเธฑเธ bootstrap เธเนเธญเธ icon invalid เธเธ select เธ—เธตเนเธกเธต widget เธ—เธฑเธ */
+select.is-invalid {
+    background-image: none !important;
+}

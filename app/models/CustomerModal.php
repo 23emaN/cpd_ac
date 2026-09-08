@@ -31,6 +31,8 @@ class CustomModal extends Model
 
     public function getCustomerByName($name)
     {
+        // NOTE: ยังไม่ได้ scope ตาม company_id เพราะไม่แน่ใจว่า tbl_customers มีคอลัมน์นี้จริงหรือไม่
+        // (ไม่เห็นการ insert company_id ใน insertCustomer() ด้านล่าง) ถ้ามีจริง แจ้งมาได้เพื่อเพิ่มเงื่อนไข
         $stmt = $this->pdo->prepare("SELECT * FROM tbl_customers WHERE customer_name = :name");
         $stmt->execute(['name' => $name]);
         return $stmt->fetch();
@@ -152,7 +154,35 @@ class CustomModal extends Model
             'accounts_amount'    => $data['accounts_amount'] ?? 0,
         ]);
 
-        return $this->pdo->lastInsertId();
+        $fiscalYearId = $this->pdo->lastInsertId();
+
+        // เพิ่มข้อมูลตั้งต้นสำหรับ tbl_closing_financial
+        $stmtClosing = $this->pdo->prepare("
+            INSERT INTO tbl_closing_financial (
+                fiscal_year_id,
+                closing_status,
+                doc_status,
+                audit_status,
+                boj5_status,
+                dbd_efiling_status,
+                pnd50_status,
+                created_at
+            ) VALUES (
+                :fiscal_year_id,
+                '0',
+                '0',
+                '0',
+                '0',
+                '0',
+                '0',
+                NOW()
+            )
+        ");
+        $stmtClosing->execute([
+            'fiscal_year_id' => $fiscalYearId,
+        ]);
+
+        return $fiscalYearId;
     }
 
     public function generateWorkPeriodsAndTasks($customerId, $fiscalYearId, $data)
@@ -244,6 +274,7 @@ class CustomModal extends Model
 
     public function getCustomersByFiscalId($fiscalId)
     {
+        // แก้: ระบุ c.delete_at ให้ชัดเจน กัน ambiguous column error เมื่อมีการ join หลายตาราง
         $stmt = $this->pdo->prepare("
             SELECT
                 c.customer_id,
@@ -261,7 +292,7 @@ class CustomModal extends Model
             INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
             LEFT JOIN tbl_user u ON fyc.user_id = u.user_id
             LEFT JOIN tbl_team t ON fyc.team_id = t.team_id
-            WHERE fyc.fiscal_id = :fiscal_id AND delete_at IS NULL
+            WHERE fyc.fiscal_id = :fiscal_id AND c.delete_at IS NULL
             ORDER BY c.customer_name ASC
         ");
         $stmt->execute(['fiscal_id' => $fiscalId]);
@@ -270,6 +301,8 @@ class CustomModal extends Model
 
     public function getCustomersgid($fiscalId)
     {
+        // แก้: เพิ่ม c.delete_at IS NULL ให้ตรงกับ getCustomersByFiscalId()
+        // ก่อนหน้านี้ตัวเลขสถิติจะรวมลูกค้าที่ถูก soft-delete ไปแล้วด้วย ทำให้ไม่ตรงกับจำนวนแถวที่แสดงจริงในตาราง
         $stmt = $this->pdo->prepare("
             SELECT
                 COUNT(fyc.customer_id) as total_customers,
@@ -278,7 +311,7 @@ class CustomModal extends Model
                 SUM(fyc.accounts_amount) as total_accounts_amount
             FROM tbl_fiscal_year_customers fyc
             INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
-            WHERE fyc.fiscal_id = :fiscal_id
+            WHERE fyc.fiscal_id = :fiscal_id AND c.delete_at IS NULL
         ");
         $stmt->execute(['fiscal_id' => $fiscalId]);
         return $stmt->fetch();
@@ -286,6 +319,8 @@ class CustomModal extends Model
 
     public function getCustomerDetails($customerId, $fiscalId)
     {
+        // แก้: เปลี่ยน LEFT JOIN เป็น INNER JOIN กับ tbl_fiscal_year_customers
+        // เพื่อป้องกันการดึงข้อมูลลูกค้าที่ไม่ได้ผูกกับ fiscal year นี้จริง (กันข้อมูลรั่วข้าม fiscal year/บริษัท)
         $stmt = $this->pdo->prepare("
             SELECT
                 c.*,
@@ -295,8 +330,8 @@ class CustomModal extends Model
                 f.team_id,
                 f.accounts_amount as f_accounts_amount
             FROM tbl_customers c
-            LEFT JOIN tbl_fiscal_year_customers f ON c.customer_id = f.customer_id AND f.fiscal_id = :fiscal_id
-            WHERE c.customer_id = :customer_id
+            INNER JOIN tbl_fiscal_year_customers f ON c.customer_id = f.customer_id AND f.fiscal_id = :fiscal_id
+            WHERE c.customer_id = :customer_id AND c.delete_at IS NULL
         ");
         $stmt->execute(['customer_id' => $customerId, 'fiscal_id' => $fiscalId]);
         $customer = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -324,18 +359,7 @@ class CustomModal extends Model
 
         $customer['monthly_skip'] = $skipped;
 
-        // --- DEBUG SQL ---
-        $customer['debug_query'] = "
-            SELECT t.tasks_id
-            FROM tbl_tasks t
-            WHERE t.tasks_id NOT IN (
-                SELECT DISTINCT ct.task_id
-                FROM tbl_customer_tasks ct
-                JOIN tbl_customer_work_periods p ON ct.period_id = p.period_id
-                WHERE p.customer_id = {$customerId} AND p.fiscal_year_id = {$fiscalId}
-            )
-        ";
-        // -----------------
+        // หมายเหตุ: ลบ debug_query ที่หลุดไปกับ response จริงออกแล้ว (เคยเปิดเผยโครงสร้าง SQL/ตารางให้ฝั่ง client เห็นโดยไม่จำเป็น)
 
         return $customer;
     }
@@ -349,16 +373,46 @@ class CustomModal extends Model
             return false;
         }
 
-        $fiscal_closing_date = null;
-        if (! empty($data['fiscal_closing_date'])) {
-            $dateParts = explode('/', $data['fiscal_closing_date']);
-            if (count($dateParts) == 3) {
-                $fiscal_closing_date = $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0];
-            }
-        }
+        try {
 
-        $stmt1 = $this->pdo->prepare("
-            UPDATE tbl_customers SET
+            $ownershipStmt = $this->pdo->prepare("
+            SELECT 1
+            FROM tbl_fiscal_year_customers
+            WHERE customer_id = :customer_id
+              AND fiscal_id = :fiscal_id
+        ");
+
+            $ownershipStmt->execute([
+                'customer_id' => $customerId,
+                'fiscal_id'   => $fiscalId,
+            ]);
+
+            if (! $ownershipStmt->fetch()) {
+                return false;
+            }
+
+            // =========================================================
+            // 2. แปลง fiscal_closing_date
+            // =========================================================
+            $fiscal_closing_date = null;
+
+            if (! empty($data['fiscal_closing_date'])) {
+
+                $dateParts = explode('/', $data['fiscal_closing_date']);
+
+                if (count($dateParts) == 3) {
+                    $fiscal_closing_date =
+                        $dateParts[2] . '-' .
+                        $dateParts[1] . '-' .
+                        $dateParts[0];
+                }
+            }
+
+            // =========================================================
+            // 3. Update tbl_customers
+            // =========================================================
+            $stmt1 = $this->pdo->prepare(
+                " UPDATE tbl_customers SET
                 customer_name = :customer_name,
                 active_status = :active_status,
                 customer_phone = :contact_tel,
@@ -381,138 +435,379 @@ class CustomModal extends Model
             WHERE customer_id = :customer_id
         ");
 
-        $stmt1->execute([
-            'customer_name'       => $data['customer_name'] ?? '',
-            'active_status'       => $data['active_status'] ?? 1,
-            'contact_tel'         => $data['contact_tel'] ?? null,
-            'contact_email'       => $data['contact_email'] ?? null,
-            'contact_line_id'     => $data['contact_line_id'] ?? null,
-            'line_token'          => $data['line_token'] ?? null,
-            'doc_url'             => $data['doc_url'] ?? null,
-            'closing_status'      => $data['closing_status'] ?? 0,
-            'fiscal_closing_date' => $fiscal_closing_date,
-            'is_vat'              => $data['is_vat'] ?? 0,
-            'is_employees'        => $data['is_employees'] ?? 0,
-            'is_social_security'  => $data['is_social_security'] ?? 0,
-            'accounts_amount'     => $data['accounts_amount'] ?? 0,
-            'rd_user'             => $data['rd_user'] ?? null,
-            'rd_password'         => $data['rd_password'] ?? null,
-            'dbd_user'            => $data['dbd_user'] ?? null,
-            'dbd_password'        => $data['dbd_password'] ?? null,
-            'sso_user'            => $data['sso_user'] ?? null,
-            'sso_password'        => $data['sso_password'] ?? null,
-            'customer_id'         => $customerId,
-        ]);
+            $stmt1->execute([
+                'customer_name'       => $data['customer_name'] ?? '',
+                'active_status'       => $data['active_status'] ?? 1,
+                'contact_tel'         => $data['contact_tel'] ?? null,
+                'contact_email'       => $data['contact_email'] ?? null,
+                'contact_line_id'     => $data['contact_line_id'] ?? null,
+                'line_token'          => $data['line_token'] ?? null,
+                'doc_url'             => $data['doc_url'] ?? null,
+                'closing_status'      => $data['closing_status'] ?? 0,
+                'fiscal_closing_date' => $fiscal_closing_date,
+                'is_vat'              => $data['is_vat'] ?? 0,
+                'is_employees'        => $data['is_employees'] ?? 0,
+                'is_social_security'  => $data['is_social_security'] ?? 0,
+                'accounts_amount'     => $data['accounts_amount'] ?? 0,
+                'rd_user'             => $data['rd_user'] ?? null,
+                'rd_password'         => $data['rd_password'] ?? null,
+                'dbd_user'            => $data['dbd_user'] ?? null,
+                'dbd_password'        => $data['dbd_password'] ?? null,
+                'sso_user'            => $data['sso_user'] ?? null,
+                'sso_password'        => $data['sso_password'] ?? null,
+                'customer_id'         => $customerId,
+            ]);
 
-        $stmt2 = $this->pdo->prepare("
-            UPDATE tbl_fiscal_year_customers SET
+            $stmt2 = $this->pdo->prepare(
+                "UPDATE tbl_fiscal_year_customers SET
                 service_start_date = :service_start_date,
                 service_start_end = :service_start_end,
                 user_id = :user_id,
                 team_id = :team_id,
                 accounts_amount = :accounts_amount
-            WHERE customer_id = :customer_id AND fiscal_id = :fiscal_id
+            WHERE customer_id = :customer_id
+              AND fiscal_id = :fiscal_id
         ");
-        $stmt2->execute([
-            'service_start_date' => $data['service_start_date'] ?? null,
-            'service_start_end'  => $data['service_start_end'] ?? null,
-            'user_id'            => ! empty($data['user_id']) ? $data['user_id'] : null,
-            'team_id'            => ! empty($data['team_id']) ? $data['team_id'] : null,
-            'accounts_amount'    => $data['accounts_amount'] ?? 0,
-            'customer_id'        => $customerId,
-            'fiscal_id'          => $fiscalId,
-        ]);
-        // --- ตรวจสอบและสร้างเดือน (Periods) ที่ยังไม่มี ---
-        $startMonth = (int) ($data['service_start_date'] ?? 1);
-        $endMonth   = (int) ($data['service_start_end'] ?? 0);
 
-        $actualEndMonth = 12;
-        if ($endMonth > 0 && $endMonth >= $startMonth) {
-            $actualEndMonth = $endMonth;
-        }
+            $stmt2->execute([
+                'service_start_date' => $data['service_start_date'] ?? null,
+                'service_start_end'  => $data['service_start_end'] ?? null,
+                'user_id'            => ! empty($data['user_id'])
+                    ? $data['user_id']
+                    : null,
+                'team_id'            => ! empty($data['team_id'])
+                    ? $data['team_id']
+                    : null,
+                'accounts_amount'    => $data['accounts_amount'] ?? 0,
+                'customer_id'        => $customerId,
+                'fiscal_id'          => $fiscalId,
+            ]);
 
-        // 1. เดือนที่ควรจะมีทั้งหมดตามที่ตั้งค่า
-        $expectedMonths = [];
-        for ($m = $startMonth; $m <= $actualEndMonth; $m++) {
-            $expectedMonths[] = str_pad($m, 2, '0', STR_PAD_LEFT);
-        }
+            $startMonth = (int) ($data['service_start_date'] ?? 1);
+            $endMonth   = (int) ($data['service_start_end'] ?? 0);
 
-        // 2. เดือนที่มีอยู่แล้วในฐานข้อมูล
-        $existingMonthsStmt = $this->pdo->prepare("SELECT period_month FROM tbl_customer_work_periods WHERE customer_id = ? AND fiscal_year_id = ?");
-        $existingMonthsStmt->execute([$customerId, $fiscalId]);
-        $existingMonths = $existingMonthsStmt->fetchAll(PDO::FETCH_COLUMN);
+            // ป้องกันค่าผิด
+            if ($startMonth < 1) {
+                $startMonth = 1;
+            }
 
-        // 3. หาเดือนที่หายไป (ยังไม่เคยสร้าง)
-        $missingMonths = array_diff($expectedMonths, $existingMonths);
+            if ($startMonth > 12) {
+                $startMonth = 12;
+            }
 
-        // 4. สร้างเดือนที่หายไป
-        foreach ($missingMonths as $monthStr) {
-            $stmt = $this->pdo->prepare("
-                INSERT INTO tbl_customer_work_periods (
-                    customer_id, fiscal_year_id, period_month,
-                    doc_status, tax_status, payment_status, created_at,
-                    review1_status, review2_status, review3_status
-                ) VALUES (
-                    ?, ?, ?, '0', '0', '0', NOW(), '0', '0', '0'
-                )
-            ");
-            $stmt->execute([$customerId, $fiscalId, $monthStr]);
-        }
-        // ----------------------------------------------------
+            $actualEndMonth = 12;
 
-        $skippedTasks = $data['monthly_skip'] ?? [];
+            if ($endMonth > 0 && $endMonth >= $startMonth) {
+                $actualEndMonth = min($endMonth, 12);
+            }
 
-        if (! empty($skippedTasks)) {
-            $inQuery = implode(',', array_fill(0, count($skippedTasks), '?'));
-            $delStmt = $this->pdo->prepare("
-                DELETE ct FROM tbl_customer_tasks ct
-                JOIN tbl_customer_work_periods p ON ct.period_id = p.period_id
-                WHERE p.customer_id = ? AND p.fiscal_year_id = ?
-                AND ct.task_id IN ($inQuery) AND ct.status = '0'
-            ");
-            $params = array_merge([$customerId, $fiscalId], $skippedTasks);
-            $delStmt->execute($params);
-        }
+            $expectedMonths = [];
 
-        $periodsStmt = $this->pdo->prepare("SELECT period_id FROM tbl_customer_work_periods WHERE customer_id = ? AND fiscal_year_id = ?");
-        $periodsStmt->execute([$customerId, $fiscalId]);
-        $periods = $periodsStmt->fetchAll(PDO::FETCH_COLUMN);
+            for ($m = $startMonth; $m <= $actualEndMonth; $m++) {
+                $expectedMonths[] = str_pad(
+                    $m,
+                    2,
+                    '0',
+                    STR_PAD_LEFT
+                );
+            }
 
-        if (! empty($periods)) {
-            $allTasks = $this->getTasks();
-            foreach ($allTasks as $task) {
-                $taskId = $task['tasks_id'] ?? 0;
-                if (empty($taskId) || in_array($taskId, $skippedTasks)) {
-                    continue;
+            $existingPeriodsStmt = $this->pdo->prepare(
+                "SELECT
+                period_id,
+                period_month,
+                delete_at
+            FROM tbl_customer_work_periods
+            WHERE customer_id = ?
+              AND fiscal_year_id = ?
+            ORDER BY CAST(period_month AS UNSIGNED) ASC
+        ");
+
+            $existingPeriodsStmt->execute([
+                $customerId,
+                $fiscalId,
+            ]);
+
+            $existingPeriods = $existingPeriodsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $periodMap = [];
+
+            foreach ($existingPeriods as $period) {
+
+                $month = str_pad(
+                    (int) $period['period_month'],
+                    2,
+                    '0',
+                    STR_PAD_LEFT
+                );
+
+                $periodMap[$month] = $period['period_id'];
+            }
+
+            foreach ($expectedMonths as $monthStr) {
+
+                if (isset($periodMap[$monthStr])) {
+
+                    $periodId = $periodMap[$monthStr];
+
+                    $reactivatePeriodStmt = $this->pdo->prepare("
+                    UPDATE tbl_customer_work_periods
+                    SET delete_at = NULL
+                    WHERE period_id = ?
+                ");
+
+                    $reactivatePeriodStmt->execute([
+                        $periodId,
+                    ]);
+
+                } else {
+
+                    $insertPeriodStmt = $this->pdo->prepare(
+                    "INSERT INTO tbl_customer_work_periods (
+                        customer_id,
+                        fiscal_year_id,
+                        period_month,
+                        doc_status,
+                        tax_status,
+                        payment_status,
+                        created_at,
+                        review1_status,
+                        review2_status,
+                        review3_status,
+                        delete_at
+                    ) VALUES (
+                        ?,
+                        ?,
+                        ?,
+                        '0',
+                        '0',
+                        '0',
+                        NOW(),
+                        '0',
+                        '0',
+                        '0',
+                        NULL
+                    )
+                ");
+
+                    $insertPeriodStmt->execute([
+                        $customerId,
+                        $fiscalId,
+                        $monthStr,
+                    ]);
+
+                    $periodId = $this->pdo->lastInsertId();
+
+                    $periodMap[$monthStr] = $periodId;
                 }
+            }
 
-                foreach ($periods as $periodId) {
-                    $checkStmt = $this->pdo->prepare("SELECT 1 FROM tbl_customer_tasks WHERE period_id = ? AND task_id = ?");
-                    $checkStmt->execute([$periodId, $taskId]);
-                    if (! $checkStmt->fetch()) {
-                        $insStmt = $this->pdo->prepare("
-                            INSERT INTO tbl_customer_tasks (fiscal_year_id, task_id, period_id, status, amount, created_at)
-                            VALUES (?, ?, ?, '0', 0.00, NOW())
+            $expectedMonthLookup = array_flip($expectedMonths);
+
+            foreach ($periodMap as $month => $periodId) {
+
+                if (! isset($expectedMonthLookup[$month])) {
+
+                    $deleteTasksStmt = $this->pdo->prepare(
+                        "UPDATE tbl_customer_tasks
+                        SET delete_at = NOW()
+                        WHERE period_id = ?
+                        AND delete_at IS NULL"
+                    );
+
+                    $deleteTasksStmt->execute([
+                        $periodId,
+                    ]);
+
+                    $deletePeriodStmt = $this->pdo->prepare(
+                        "UPDATE tbl_customer_work_periods
+                        SET delete_at = NOW()
+                        WHERE period_id = ?"
+                    );
+
+                    $deletePeriodStmt->execute([
+                        $periodId,
+                    ]);
+                }
+            }
+
+            $skippedTasks = $data['monthly_skip'] ?? [];
+
+            $skippedTasks = array_map(
+                'strval',
+                (array) $skippedTasks
+            );
+
+            $activePeriodsStmt = $this->pdo->prepare
+                (
+                "SELECT period_id
+            FROM tbl_customer_work_periods
+            WHERE customer_id = ?
+              AND fiscal_year_id = ?
+              AND delete_at IS NULL
+            ORDER BY CAST(period_month AS UNSIGNED) ASC
+        ");
+
+            $activePeriodsStmt->execute([
+                $customerId,
+                $fiscalId,
+            ]);
+
+            $activePeriods = $activePeriodsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            if (! empty($skippedTasks) && ! empty($activePeriods)) {
+
+                $taskPlaceholders =
+                    implode(
+                    ',',
+                    array_fill(
+                        0,
+                        count($skippedTasks),
+                        '?'
+                    )
+                );
+
+                $periodPlaceholders =
+                    implode(
+                    ',',
+                    array_fill(
+                        0,
+                        count($activePeriods),
+                        '?'
+                    )
+                );
+
+                $skipParams = array_merge(
+                    $skippedTasks,
+                    $activePeriods
+                );
+
+                $skipStmt = $this->pdo->prepare(
+                "UPDATE tbl_customer_tasks
+                SET delete_at = NOW()
+                WHERE task_id IN ($taskPlaceholders)
+                  AND period_id IN ($periodPlaceholders)
+                  AND status = '0'
+                  AND delete_at IS NULL
+            ");
+
+                $skipStmt->execute($skipParams);
+            }
+
+            if (! empty($activePeriods)) {
+
+                $allTasks = $this->getTasks();
+
+                foreach ($allTasks as $task) {
+
+                    $taskId = $task['tasks_id'] ?? 0;
+
+                    if (empty($taskId)) {
+                        continue;
+                    }
+
+                    if (in_array((string) $taskId, $skippedTasks, true)) {
+                        continue;
+                    }
+
+                    foreach ($activePeriods as $periodId) {
+
+                        $checkStmt = $this->pdo->prepare(
+                            "SELECT
+                                customer_tasks_id,
+                                delete_at
+                            FROM tbl_customer_tasks
+                            WHERE period_id = ?
+                                AND task_id = ?
+                            LIMIT 1
                         ");
-                        $insStmt->execute([$fiscalId, $taskId, $periodId]);
+
+                        $checkStmt->execute([
+                            $periodId,
+                            $taskId,
+                        ]);
+
+                        $existingTask = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+                        if ($existingTask) {
+
+                            // ถ้า Task เคยถูก Soft Delete ไว้ ให้ Reactivate
+                            if (! empty($existingTask['delete_at'])) {
+
+                                $reactivateTaskStmt = $this->pdo->prepare(
+                                    "UPDATE tbl_customer_tasks
+                                    SET delete_at = NULL
+                                    WHERE customer_tasks_id = ?
+                                ");
+
+                                $reactivateTaskStmt->execute([
+                                    $existingTask['customer_tasks_id'],
+                                ]);
+                            }
+
+                        } else {
+
+                            // ถ้ายังไม่เคยมี Task นี้ ให้สร้างใหม่
+                            $insertTaskStmt = $this->pdo->prepare(
+                                "INSERT INTO tbl_customer_tasks (
+                                    fiscal_year_id,
+                                    task_id,
+                                    period_id,
+                                    status,
+                                    amount,
+                                    created_at,
+                                    delete_at
+                                ) VALUES (
+                                    ?,
+                                    ?,
+                                    ?,
+                                    '0',
+                                    0.00,
+                                    NOW(),
+                                    NULL
+                                )
+                            ");
+
+                            $insertTaskStmt->execute([
+                                $fiscalId,
+                                $taskId,
+                                $periodId,
+                            ]);
+                        }
                     }
                 }
             }
-        }
 
-        return true;
+            return true;
+
+        } catch (PDOException $e) {
+
+            error_log(
+                'updateCustomer error: ' .
+                $e->getMessage()
+            );
+
+            return false;
+        }
     }
 
     public function deleteCustomer($customerId, $fiscalId)
     {
-        // ใช้คำสั่ง UPDATE สำหรับ Soft Delete (เปลี่ยนคอลัมน์ให้ตรงกับฐานข้อมูล: delete_at)
+
+        $ownershipStmt = $this->pdo->prepare("
+            SELECT 1 FROM tbl_fiscal_year_customers
+            WHERE customer_id = :customer_id AND fiscal_id = :fiscal_id
+        ");
+        $ownershipStmt->execute(['customer_id' => $customerId, 'fiscal_id' => $fiscalId]);
+        if (! $ownershipStmt->fetch()) {
+            return false;
+        }
         $stmt = $this->pdo->prepare("
             UPDATE tbl_customers
             SET delete_at = NOW()
             WHERE customer_id = :customer_id
         ");
 
-        // Execute คำสั่งและส่งคืนค่า true หากทำสำเร็จ
         $success = $stmt->execute(['customer_id' => $customerId]);
 
         return $success;
