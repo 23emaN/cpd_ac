@@ -40,17 +40,67 @@ class BackofficeController
 
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id = '';
+        $active_fiscal_year = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
                 foreach ($company['fiscal_years'] as $fy) {
                     $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
                     if ($fy_id == $fiscal_id) {
                         $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
                         break 2;
                     }
                 }
             }
         }
+
+        // Monthly Stats
+        $month = $_GET['month'] ?? date('m');
+        $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
+
+        require_once '../app/models/MonthlyDashModel.php';
+        $monthlyDashModel = new MonthlyDashModel();
+        $monthlyStats = $monthlyDashModel->getDashboardStats($fiscal_id, $monthStr);
+
+        // Yearly Stats
+        require_once '../app/models/closing_Model.php';
+        $closingModel = new ClosingModel();
+        $closingList = $closingModel->getClosingByFiscalId($fiscal_id);
+
+        $totalClosing = count($closingList);
+        $closingDone = 0;
+        $docDone = 0;
+        $boj5Done = 0;
+        $dbdDone = 0;
+        $pnd50Done = 0;
+
+        foreach ($closingList as $item) {
+            if (((string)($item['closing_status'] ?? '')) === '1') $closingDone++;
+            if (((string)($item['doc_status'] ?? '')) === '1' || ((string)($item['audit_status'] ?? '')) === '1') $docDone++;
+            if (((string)($item['boj5_status'] ?? '')) === '1') $boj5Done++;
+            if (((string)($item['dbd_efiling_status'] ?? '')) === '1') $dbdDone++;
+            if (((string)($item['pnd50_status'] ?? '')) === '1') $pnd50Done++;
+        }
+
+        $yearlyStats = [
+            'total' => $totalClosing,
+            'closing_completed' => $closingDone,
+            'doc_received' => $docDone,
+            'boj5' => $boj5Done,
+            'dbd' => $dbdDone,
+            'pnd50' => $pnd50Done,
+            'closing_completed_pct' => $totalClosing > 0 ? round(($closingDone / $totalClosing) * 100, 1) : 0,
+            'audit_completed_pct' => $totalClosing > 0 ? round(($docDone / $totalClosing) * 100, 1) : 0,
+            'boj5_pct' => $totalClosing > 0 ? round(($boj5Done / $totalClosing) * 100, 1) : 0,
+            'dbd_pct' => $totalClosing > 0 ? round(($dbdDone / $totalClosing) * 100, 1) : 0,
+            'pnd50_pct' => $totalClosing > 0 ? round(($pnd50Done / $totalClosing) * 100, 1) : 0,
+        ];
+
+        // Customer & Caretaker General Stats
+        require_once '../app/models/CustomerModal.php';
+        $customerModal = new CustomModal();
+        $customerStats = $customerModal->getCustomersgid($fiscal_id);
+        $caretakers = $customerModal->getCaretakers();
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $data = [
@@ -62,7 +112,13 @@ class BackofficeController
             'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
-            'active_company_id' => $active_company_id
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'selected_month' => $monthStr,
+            'monthly_stats' => $monthlyStats,
+            'yearly_stats' => $yearlyStats,
+            'customer_stats' => $customerStats,
+            'caretakers_count' => count($caretakers)
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
@@ -633,7 +689,10 @@ class BackofficeController
         $this->checkAuth();
 
         $customer_id = trim($_POST['customer_id'] ?? '');
-        $fiscal_id = trim($_POST['fiscal_id'] ?? '');
+        $fiscal_id = trim($_POST['fiscal_id'] ?? $_SESSION['fiscal_id'] ?? $this->userPayload['fiscal_id'] ?? '');
+        if (empty($_POST['fiscal_id'])) {
+            $_POST['fiscal_id'] = $fiscal_id;
+        }
         $customer_name = trim($_POST['customer_name'] ?? '');
 
         if ($customer_id === '' || $customer_name === '') {
@@ -1337,19 +1396,87 @@ class BackofficeController
 
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id = '';
+        $active_fiscal_year = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
                 foreach ($company['fiscal_years'] as $fy) {
                     $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
                     if ($fy_id == $fiscal_id) {
                         $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
                         break 2;
                     }
                 }
             }
         }
 
-        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
+        require_once '../app/models/closing_Model.php';
+        $closingModel = new ClosingModel();
+        $closingList = $closingModel->getClosingByFiscalId($fiscal_id);
+
+        $totalCustomers = count($closingList);
+        $closingCompleted = 0;
+        $docReceived = 0;
+        $boj5Count = 0;
+        $dbdCount = 0;
+        $pnd50Count = 0;
+
+        $caretakersMap = [];
+
+        foreach ($closingList as $item) {
+            $isClosingDone = ((string)($item['closing_status'] ?? '')) === '1';
+            $isDocDone = ((string)($item['doc_status'] ?? '')) === '1' || ((string)($item['audit_status'] ?? '')) === '1';
+            $isBoj5Done = ((string)($item['boj5_status'] ?? '')) === '1';
+            $isDbdDone = ((string)($item['dbd_efiling_status'] ?? '')) === '1';
+            $isPnd50Done = ((string)($item['pnd50_status'] ?? '')) === '1';
+
+            if ($isClosingDone) $closingCompleted++;
+            if ($isDocDone) $docReceived++;
+            if ($isBoj5Done) $boj5Count++;
+            if ($isDbdDone) $dbdCount++;
+            if ($isPnd50Done) $pnd50Count++;
+
+            $cName = trim(($item['user_firstname'] ?? '') . ' ' . ($item['user_lastname'] ?? ''));
+            if (empty($cName)) $cName = 'ไม่ระบุผู้ดูแล';
+
+            if (!isset($caretakersMap[$cName])) {
+                $caretakersMap[$cName] = ['name' => $cName, 'total' => 0, 'completed' => 0];
+            }
+            $caretakersMap[$cName]['total']++;
+            if ($isClosingDone) {
+                $caretakersMap[$cName]['completed']++;
+            }
+        }
+
+        $caretakersList = [];
+        foreach ($caretakersMap as $c) {
+            $pct = $c['total'] > 0 ? round(($c['completed'] / $c['total']) * 100, 1) : 0;
+            $caretakersList[] = [
+                'name' => $c['name'],
+                'total' => $c['total'],
+                'completed' => $c['completed'],
+                'pending' => $c['total'] - $c['completed'],
+                'percent' => $pct
+            ];
+        }
+
+        $stats = [
+            'total_customers' => $totalCustomers,
+            'closing_completed' => $closingCompleted,
+            'audit_completed' => $docReceived,
+            'boj5' => $boj5Count,
+            'dbd' => $dbdCount,
+            'pnd50' => $pnd50Count,
+            'closing_completed_pct' => $totalCustomers > 0 ? round(($closingCompleted / $totalCustomers) * 100, 1) : 0,
+            'audit_completed_pct' => $totalCustomers > 0 ? round(($docReceived / $totalCustomers) * 100, 1) : 0,
+            'boj5_pct' => $totalCustomers > 0 ? round(($boj5Count / $totalCustomers) * 100, 1) : 0,
+            'dbd_pct' => $totalCustomers > 0 ? round(($dbdCount / $totalCustomers) * 100, 1) : 0,
+            'pnd50_pct' => $totalCustomers > 0 ? round(($pnd50Count / $totalCustomers) * 100, 1) : 0,
+            'caretakers' => $caretakersList,
+            'closing_list' => $closingList
+        ];
+
+        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
         $data = [
             'title' => 'ระบบ Backoffice',
             'user' => $this->userPayload,
@@ -1359,7 +1486,9 @@ class BackofficeController
             'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
-            'active_company_id' => $active_company_id
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'stats' => $stats
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
@@ -1427,6 +1556,39 @@ class BackofficeController
 
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/monthly_dash.php';
+    }
+
+    public function getMonthlyStatsAjax()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+        $month = $_GET['month'] ?? date('m');
+        $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
+
+        if (!$fiscal_id) {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลปีทำงาน']);
+            return;
+        }
+
+        require_once '../app/models/MonthlyDashModel.php';
+        $monthlyDashModel = new MonthlyDashModel();
+        $dashboardData = $monthlyDashModel->getDashboardStats($fiscal_id, $monthStr);
+
+        $month_names = [
+            '01' => 'มกราคม', '02' => 'กุมภาพันธ์', '03' => 'มีนาคม',
+            '04' => 'เมษายน', '05' => 'พฤษภาคม', '06' => 'มิถุนายน',
+            '07' => 'กรกฎาคม', '08' => 'สิงหาคม', '09' => 'กันยายน',
+            '10' => 'ตุลาคม', '11' => 'พฤศจิกายน', '12' => 'ธันวาคม',
+        ];
+
+        echo json_encode([
+            'result' => 1,
+            'month' => $monthStr,
+            'month_name' => $month_names[$monthStr] ?? 'มกราคม',
+            'stats' => $dashboardData
+        ]);
     }
 
     public function customer_message()

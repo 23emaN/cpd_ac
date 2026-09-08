@@ -42,7 +42,7 @@ class MonthlyDashModel extends Model {
                 (SELECT COUNT(*) FROM tbl_customer_tasks WHERE period_id = wp.period_id) AS total_tasks,
                 (SELECT COUNT(*) FROM tbl_customer_tasks WHERE period_id = wp.period_id AND status = '1') AS completed_tasks
             FROM tbl_customer_work_periods wp
-            LEFT JOIN tbl_customers c 
+            INNER JOIN tbl_customers c 
                 ON wp.customer_id = c.customer_id
             LEFT JOIN tbl_fiscal_year_customers fyc 
                 ON wp.customer_id = fyc.customer_id AND wp.fiscal_year_id = fyc.fiscal_id
