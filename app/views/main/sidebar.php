@@ -2,6 +2,7 @@
 // app/views/main/sidebar.php
 
 // ตรวจสอบ URL ปัจจุบันสำหรับ Active State
+
 $current_url = $_GET['url'] ?? 'backoffice';
 $now_page = trim(strtok($current_url, '/'));
 
@@ -18,6 +19,7 @@ $message_pages = ['messages', 'chat', 'customer_message'];
 $postit_pages = ['post_it', 'postit', 'notes', 'reminders'];
 $system_setting_pages = ['settings', 'setting', 'system_setting'];
 $manual_pages = ['manual', 'tutorial', 'videos'];
+
 ?>
 
 <style>
@@ -26,7 +28,9 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
         background-color: #F7F9FB;
 
         font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
+
         width: 250px;
+
         /* ขยายจาก 240px เป็น 260px เพื่อไม่ให้ข้อความตกขอบ */
         padding-top: 80px;
         /* เพิ่ม padding-top เพื่อหลบแถบ Navbar ด้านบน (ทดแทนปุ่มที่ถูกซ่อนไป) */
@@ -212,7 +216,9 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
                 <span class="menu-title-text">งานประจำปี</span>
             </li>
             <li class="menu-item <?php echo in_array($now_page, $monthly_dash_pages) ? 'open active' : '' ?>">
+
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/monthly_dash"
+
                     class="menu-link <?php echo in_array($now_page, $monthly_dash_pages) ? 'active' : '' ?>">
                     <i class="ri-bar-chart-grouped-line menu-icon"></i>
                     <span class="title">แดชบอร์ดรายเดือน</span>
@@ -244,7 +250,7 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $registration_pages) ? 'open active' : '' ?>">
-                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/register_board"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/registration_board"
                     class="menu-link <?php echo in_array($now_page, $registration_pages) ? 'active' : '' ?>">
                     <i class="ri-file-paper-2-line menu-icon"></i>
                     <span class="title">จัดการงานทะเบียน</span>
@@ -332,9 +338,11 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
 </div>
 
 <script>
+
     $(document).ready(function () {
         // ทำให้เวลากดปุ่ม Back/Forward ของ Browser ทำงานได้ถูกต้อง
         $(window).on('popstate', function () {
+
             window.location.reload();
         });
     });
