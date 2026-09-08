@@ -4,6 +4,30 @@ $selected_year = $_GET['year'] ?? '0';
 $company_name  = $_GET['company'] ?? 'TEST ACCOUNTING';
 $show_company_workspace = true;
 
+$month_names = [
+    '01' => 'มกราคม',
+    '02' => 'กุมภาพันธ์',
+    '03' => 'มีนาคม',
+    '04' => 'เมษายน',
+    '05' => 'พฤษภาคม',
+    '06' => 'มิถุนายน',
+    '07' => 'กรกฎาคม',
+    '08' => 'สิงหาคม',
+    '09' => 'กันยายน',
+    '10' => 'ตุลาคม',
+    '11' => 'พฤศจิกายน',
+    '12' => 'ธันวาคม',
+];
+
+$selected_month = str_pad((string)($_GET['month'] ?? date('m')), 2, '0', STR_PAD_LEFT);
+$selected_month_name = $month_names[$selected_month] ?? 'มกราคม';
+
+$monthly_stats = $data['monthly_stats'] ?? [];
+$yearly_stats = $data['yearly_stats'] ?? [];
+$customer_stats = $data['customer_stats'] ?? [];
+$caretakers_count = $data['caretakers_count'] ?? 0;
+$active_fiscal_year = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี';
+
 // 1. นำ Header เข้ามา
 require_once dirname(__DIR__) . '/main/header.php';
 
@@ -310,7 +334,12 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
 
     .progress-item-fill {
         height: 100%;
+        background-color: #0066fe;
         border-radius: 999px;
+        transition: width 0.4s ease;
+    }
+    .progress-item-fill-green {
+        background-color: #16a34a !important;
     }
 
     .progress-item-percentage {
@@ -635,9 +664,9 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                 <i class="ri-user-line"></i>
                             </div>
                             <div>
-                                <h3 class="stat-number">0</h3>
+                                <h3 class="stat-number"><?php echo number_format($customer_stats['total_customers'] ?? 0); ?></h3>
                                 <h4 class="stat-label-title">ลูกค้าทั้งหมด</h4>
-                                <p class="stat-sub-desc">ใช้บริการอยู่ 0 ราย</p>
+                                <p class="stat-sub-desc">ใช้บริการอยู่ <?php echo number_format($customer_stats['active_customers'] ?? 0); ?> ราย</p>
                             </div>
                         </div>
                         <!-- Card 2 -->
@@ -646,7 +675,7 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                 <i class="ri-wallet-3-line"></i>
                             </div>
                             <div>
-                                <h3 class="stat-number">0</h3>
+                                <h3 class="stat-number"><?php echo number_format($customer_stats['total_accounts_amount'] ?? 0, 2); ?></h3>
                                 <h4 class="stat-label-title">ค่าทำบัญชีต่อเดือน</h4>
                                 <p class="stat-sub-desc">จากลูกค้าที่ใช้งานอยู่</p>
                             </div>
@@ -657,9 +686,9 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                 <i class="ri-group-line"></i>
                             </div>
                             <div>
-                                <h3 class="stat-number">0</h3>
+                                <h3 class="stat-number"><?php echo number_format($caretakers_count); ?></h3>
                                 <h4 class="stat-label-title">พนักงานที่ทำงานอยู่</h4>
-                                <p class="stat-sub-desc">0 ทีม</p>
+                                <p class="stat-sub-desc">ผู้ดูแลในระบบ</p>
                             </div>
                         </div>
                         <!-- Card 4 -->
@@ -668,9 +697,9 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                 <i class="ri-file-list-3-line"></i>
                             </div>
                             <div>
-                                <h3 class="stat-number">0</h3>
+                                <h3 class="stat-number"><?php echo number_format($yearly_stats['total'] ?? 0); ?></h3>
                                 <h4 class="stat-label-title">ลูกค้าปิดงบประจำปี</h4>
-                                <p class="stat-sub-desc">ปีทำงาน <?php echo htmlspecialchars($selected_year); ?></p>
+                                <p class="stat-sub-desc">ปีทำงาน <?php echo htmlspecialchars($active_fiscal_year); ?></p>
                             </div>
                         </div>
                     </div>
@@ -685,37 +714,55 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                         <i class="ri-calendar-event-line"></i>
                                     </div>
                                     <div>
-                                        <h4 class="status-header-h4">สถานะงานเดือนกันยายน</h4>
-                                        <p class="status-header-p">0 ลูกค้าในรอบงานเดือนนี้</p>
+                                        <h4 class="status-header-h4" id="monthlyCardTitle">สถานะงานเดือน<?php echo htmlspecialchars($selected_month_name); ?></h4>
+                                        <p class="status-header-p" id="monthlyTotalCustomers"><?php echo number_format($monthly_stats['total_customers'] ?? 0); ?> ลูกค้าในรอบงานเดือนนี้</p>
                                     </div>
                                 </div>
-                                <a href="<?php echo $baseUrl; ?>/monthly_dash" class="btn-badge-link-blue">ดูแดชบอร์ดรายเดือน</a>
+                                <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
+                                    <div style="min-width: 140px;">
+                                        <select class="form-select filter-select" id="indexMonthSelect">
+                                            <?php foreach ($month_names as $m_num => $m_name): ?>
+                                                <option value="<?php echo $m_num; ?>" <?php echo ($selected_month == $m_num) ? 'selected' : ''; ?>>
+                                                    <?php echo $m_name; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <!-- <a href="<?php echo $baseUrl; ?>/monthly_dash?month=<?php echo $selected_month; ?>" id="btnGoMonthlyDash" class="btn-badge-link-blue" style="white-space: nowrap;">ดูแดชบอร์ดรายเดือน</a> -->
+                                </div>
                             </div>
 
-                            <div class="progress-rows-list">
+                            <div class="progress-rows-list position-relative" id="monthlyProgressArea">
+                                <!-- Loading Overlay -->
+                                <div id="monthlyProgressOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex align-items-center justify-content-center" style="z-index: 10; border-radius: 8px;">
+                                    <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+
                                 <!-- Row 1 -->
                                 <div class="progress-item-line">
                                     <div class="progress-item-title">ได้รับเอกสารแล้ว</div>
-                                    <div class="progress-item-bar"><div class="progress-item-fill"></div></div>
-                                    <div class="progress-item-percentage">0/0 &nbsp; 0%</div>
+                                    <div class="progress-item-bar"><div class="progress-item-fill" id="barDocReceived" style="width: <?php echo ($monthly_stats['doc_received_pct'] ?? 0); ?>%;"></div></div>
+                                    <div class="progress-item-percentage" id="txtDocReceived"><?php echo ($monthly_stats['doc_received'] ?? 0); ?>/<?php echo ($monthly_stats['total_customers'] ?? 0); ?> &nbsp; <?php echo ($monthly_stats['doc_received_pct'] ?? 0); ?>%</div>
                                 </div>
                                 <!-- Row 2 -->
                                 <div class="progress-item-line">
                                     <div class="progress-item-title">ทำเสร็จแล้ว</div>
-                                    <div class="progress-item-bar"><div class="progress-item-fill"></div></div>
-                                    <div class="progress-item-percentage">0/0 &nbsp; 0%</div>
+                                    <div class="progress-item-bar"><div class="progress-item-fill" id="barCompleted" style="width: <?php echo ($monthly_stats['completed_pct'] ?? 0); ?>%;"></div></div>
+                                    <div class="progress-item-percentage" id="txtCompleted"><?php echo ($monthly_stats['completed'] ?? 0); ?>/<?php echo ($monthly_stats['total_customers'] ?? 0); ?> &nbsp; <?php echo ($monthly_stats['completed_pct'] ?? 0); ?>%</div>
                                 </div>
                                 <!-- Row 3 -->
                                 <div class="progress-item-line">
                                     <div class="progress-item-title">ยื่นภาษีแล้ว</div>
-                                    <div class="progress-item-bar"><div class="progress-item-fill"></div></div>
-                                    <div class="progress-item-percentage">0/0 &nbsp; 0%</div>
+                                    <div class="progress-item-bar"><div class="progress-item-fill" id="barTaxFiled" style="width: <?php echo ($monthly_stats['tax_filed_pct'] ?? 0); ?>%;"></div></div>
+                                    <div class="progress-item-percentage" id="txtTaxFiled"><?php echo ($monthly_stats['tax_filed'] ?? 0); ?>/<?php echo ($monthly_stats['total_customers'] ?? 0); ?> &nbsp; <?php echo ($monthly_stats['tax_filed_pct'] ?? 0); ?>%</div>
                                 </div>
                                 <!-- Row 4 -->
                                 <div class="progress-item-line">
                                     <div class="progress-item-title">เก็บเงินลูกค้าแล้ว</div>
-                                    <div class="progress-item-bar"><div class="progress-item-fill"></div></div>
-                                    <div class="progress-item-percentage">0/0 &nbsp; 0%</div>
+                                    <div class="progress-item-bar"><div class="progress-item-fill" id="barPaymentCollected" style="width: <?php echo ($monthly_stats['payment_pct'] ?? 0); ?>%;"></div></div>
+                                    <div class="progress-item-percentage" id="txtPaymentCollected"><?php echo ($monthly_stats['payment_collected'] ?? 0); ?>/<?php echo ($monthly_stats['total_customers'] ?? 0); ?> &nbsp; <?php echo ($monthly_stats['payment_pct'] ?? 0); ?>%</div>
                                 </div>
                             </div>
 
@@ -733,7 +780,7 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                     </div>
                                     <div>
                                         <h4 class="status-header-h4">สถานะปิดงบรายปี</h4>
-                                        <p class="status-header-p">0 ลูกค้าที่ต้องปิดงบ</p>
+                                        <p class="status-header-p"><?php echo number_format($yearly_stats['total'] ?? 0); ?> ลูกค้าที่ต้องปิดงบ</p>
                                     </div>
                                 </div>
                                 <a href="<?php echo $baseUrl; ?>/yearly_dash" class="btn-badge-link-green">ดูแดชบอร์ดรายปี</a>
@@ -743,32 +790,32 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                 <!-- Row 1 -->
                                 <div class="progress-item-line">
                                     <div class="progress-item-title">ปิดงบเสร็จแล้ว</div>
-                                    <div class="progress-item-bar"><div class="progress-item-fill"></div></div>
-                                    <div class="progress-item-percentage">0/0 &nbsp; 0%</div>
+                                    <div class="progress-item-bar"><div class="progress-item-fill progress-item-fill-green" style="width: <?php echo ($yearly_stats['closing_completed_pct'] ?? 0); ?>%;"></div></div>
+                                    <div class="progress-item-percentage"><?php echo ($yearly_stats['closing_completed'] ?? 0); ?>/<?php echo ($yearly_stats['total'] ?? 0); ?> &nbsp; <?php echo ($yearly_stats['closing_completed_pct'] ?? 0); ?>%</div>
                                 </div>
                                 <!-- Row 2 -->
                                 <div class="progress-item-line">
                                     <div class="progress-item-title">ได้รับงบคืนแล้ว</div>
-                                    <div class="progress-item-bar"><div class="progress-item-fill"></div></div>
-                                    <div class="progress-item-percentage">0/0 &nbsp; 0%</div>
+                                    <div class="progress-item-bar"><div class="progress-item-fill progress-item-fill-green" style="width: <?php echo ($yearly_stats['audit_completed_pct'] ?? 0); ?>%;"></div></div>
+                                    <div class="progress-item-percentage"><?php echo ($yearly_stats['doc_received'] ?? 0); ?>/<?php echo ($yearly_stats['total'] ?? 0); ?> &nbsp; <?php echo ($yearly_stats['audit_completed_pct'] ?? 0); ?>%</div>
                                 </div>
                                 <!-- Row 3 -->
                                 <div class="progress-item-line">
                                     <div class="progress-item-title">บอจ. 5 นำส่งแล้ว</div>
-                                    <div class="progress-item-bar"><div class="progress-item-fill"></div></div>
-                                    <div class="progress-item-percentage">0/0 &nbsp; 0%</div>
+                                    <div class="progress-item-bar"><div class="progress-item-fill progress-item-fill-green" style="width: <?php echo ($yearly_stats['boj5_pct'] ?? 0); ?>%;"></div></div>
+                                    <div class="progress-item-percentage"><?php echo ($yearly_stats['boj5'] ?? 0); ?>/<?php echo ($yearly_stats['total'] ?? 0); ?> &nbsp; <?php echo ($yearly_stats['boj5_pct'] ?? 0); ?>%</div>
                                 </div>
                                 <!-- Row 4 -->
                                 <div class="progress-item-line">
                                     <div class="progress-item-title">DBD E-Filing นำส่งแล้ว</div>
-                                    <div class="progress-item-bar"><div class="progress-item-fill"></div></div>
-                                    <div class="progress-item-percentage">0/0 &nbsp; 0%</div>
+                                    <div class="progress-item-bar"><div class="progress-item-fill progress-item-fill-green" style="width: <?php echo ($yearly_stats['dbd_pct'] ?? 0); ?>%;"></div></div>
+                                    <div class="progress-item-percentage"><?php echo ($yearly_stats['dbd'] ?? 0); ?>/<?php echo ($yearly_stats['total'] ?? 0); ?> &nbsp; <?php echo ($yearly_stats['dbd_pct'] ?? 0); ?>%</div>
                                 </div>
                                 <!-- Row 5 -->
                                 <div class="progress-item-line">
                                     <div class="progress-item-title">ภ.ง.ด.50 นำส่งแล้ว</div>
-                                    <div class="progress-item-bar"><div class="progress-item-fill"></div></div>
-                                    <div class="progress-item-percentage">0/0 &nbsp; 0%</div>
+                                    <div class="progress-item-bar"><div class="progress-item-fill progress-item-fill-green" style="width: <?php echo ($yearly_stats['pnd50_pct'] ?? 0); ?>%;"></div></div>
+                                    <div class="progress-item-percentage"><?php echo ($yearly_stats['pnd50'] ?? 0); ?>/<?php echo ($yearly_stats['total'] ?? 0); ?> &nbsp; <?php echo ($yearly_stats['pnd50_pct'] ?? 0); ?>%</div>
                                 </div>
                             </div>
 
@@ -962,6 +1009,56 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        if ($.fn.select2) {
+            $('#indexMonthSelect').select2({
+                minimumResultsForSearch: Infinity
+            });
+        }
+
+        $('#indexMonthSelect').on('change', function () {
+            var selectedMonth = $(this).val();
+
+            // Show overlay spinner over progress div
+            $('#monthlyProgressOverlay').removeClass('d-none').addClass('d-flex');
+
+            $.ajax({
+                url: '<?php echo $baseUrl; ?>/monthly_dash/get_stats',
+                type: 'GET',
+                data: { month: selectedMonth },
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.result === 1) {
+                        var st = res.stats;
+                        $('#monthlyCardTitle').text('สถานะงานเดือน' + res.month_name);
+                        $('#monthlyTotalCustomers').text(Number(st.total_customers).toLocaleString() + ' ลูกค้าในรอบงานเดือนนี้');
+
+                        $('#barDocReceived').css('width', st.doc_received_pct + '%');
+                        $('#txtDocReceived').html(st.doc_received + '/' + st.total_customers + ' &nbsp; ' + st.doc_received_pct + '%');
+
+                        $('#barCompleted').css('width', st.completed_pct + '%');
+                        $('#txtCompleted').html(st.completed + '/' + st.total_customers + ' &nbsp; ' + st.completed_pct + '%');
+
+                        $('#barTaxFiled').css('width', st.tax_filed_pct + '%');
+                        $('#txtTaxFiled').html(st.tax_filed + '/' + st.total_customers + ' &nbsp; ' + st.tax_filed_pct + '%');
+
+                        $('#barPaymentCollected').css('width', st.payment_pct + '%');
+                        $('#txtPaymentCollected').html(st.payment_collected + '/' + st.total_customers + ' &nbsp; ' + st.payment_pct + '%');
+                    }
+                },
+                error: function (err) {
+                    console.error('Failed to fetch monthly stats:', err);
+                },
+                complete: function () {
+                    // Hide overlay spinner
+                    $('#monthlyProgressOverlay').removeClass('d-flex').addClass('d-none');
+                }
+            });
+        });
+    });
+</script>
 
 <?php
 // 3. นำ Footer เข้ามา
