@@ -12,15 +12,15 @@ class Connection
 
     private function __construct()
     {
-        // แก้ไข Path ให้ถอยไป 3 ระดับเพื่อไปให้ถึงโฟลเดอร์นอกสุด (cpd_ac)
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        // ถอยจาก app/config ขึ้น 2 ระดับ เพื่อไปให้ถึงโฟลเดอร์โปรเจกต์ (cpd_ac) ที่มีไฟล์ .env
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->safeLoad();
 
         // แก้ชื่อตัวแปรให้ตรงกับในไฟล์ .env
         $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
         $db = $_ENV['DB_DATABASE'] ?? 'cpd_ac';
         $user = $_ENV['DB_USERNAME'] ?? 'root';
-        $pass = $_ENV['DB_PASSWORD'] ?? '';
+        $pass = $_ENV['DB_PASSWORD'] ?? '1234';
         $port = $_ENV['DB_PORT'] ?? '3306';
         $charset = 'utf8mb4';
 

@@ -1,23 +1,26 @@
 <?php
-    // app/views/main/sidebar.php
+// app/views/main/sidebar.php
 
-    // ตรวจสอบ URL ปัจจุบันสำหรับ Active State
-    $current_url = $_GET['url'] ?? 'backoffice';
-    $now_page    = trim(strtok($current_url, '/'));
+// ตรวจสอบ URL ปัจจุบันสำหรับ Active State
+// ใช้สูตรเดียวกับ public/index.php (อ่านจาก REQUEST_URI โดยตรง เพราะ router ปัจจุบันไม่ได้ set $_GET['url'])
+$requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$current_url = trim(substr($requestPath, strlen(BASE_URL)), '/');
+$now_page    = trim(strtok($current_url, '/'));
+if ($now_page === '') $now_page = 'home';
 
-    $overview_pages       = ['backoffice'];
-    $monthly_dash_pages   = ['monthly_dashboard'];
-    $yearly_dash_pages    = ['yearly_dashboard'];
-    $monthly_task_pages   = ['monthly_tasks'];
-    $closing_pages        = ['closing', 'financial_statement'];
-    $registration_pages   = ['registration', 'register_board'];
-    $customer_pages       = ['customer', 'customer_add', 'customer_edit'];
-    $employee_pages       = ['employee', 'employee_add', 'employee_edit', 'staff'];
-    $task_setting_pages   = ['tasks'];
-    $message_pages        = ['messages', 'chat', 'customer_message'];
-    $postit_pages         = ['post_it', 'postit', 'notes', 'reminders'];
-    $system_setting_pages = ['settings', 'setting', 'system_setting'];
-    $manual_pages         = ['manual', 'tutorial', 'videos'];
+$overview_pages       = ['backoffice'];
+$monthly_dash_pages   = ['dashboard_month'];
+$yearly_dash_pages    = ['yearly_dashboard'];
+$monthly_task_pages   = ['monthly_tasks'];
+$closing_pages        = ['closing', 'financial_statement'];
+$registration_pages   = ['registration', 'registration_board'];
+$customer_pages       = ['customer', 'customer_add', 'customer_edit'];
+$employee_pages       = ['employee', 'employee_add', 'employee_edit', 'staff'];
+$task_setting_pages   = ['tasks'];
+$message_pages        = ['messages', 'chat', 'customer_message'];
+$postit_pages         = ['post_it', 'postit', 'notes', 'reminders'];
+$system_setting_pages = ['settings', 'setting', 'system_setting'];
+$manual_pages         = ['manual', 'tutorial', 'videos'];
 ?>
 
 <style>
@@ -26,8 +29,10 @@
         background-color: #F7F9FB;
         border-right: 1px solid #edf2f7;
         font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
-        width: 300px; /* ขยายจาก 240px เป็น 260px เพื่อไม่ให้ข้อความตกขอบ */
-        padding-top: 80px; /* เพิ่ม padding-top เพื่อหลบแถบ Navbar ด้านบน (ทดแทนปุ่มที่ถูกซ่อนไป) */
+        width: 300px;
+        /* ขยายจาก 240px เป็น 260px เพื่อไม่ให้ข้อความตกขอบ */
+        padding-top: 80px;
+        /* เพิ่ม padding-top เพื่อหลบแถบ Navbar ด้านบน (ทดแทนปุ่มที่ถูกซ่อนไป) */
     }
 
     /* ปุ่มภาพรวมสำนักงาน ด้านบนสุด (การ์ดมนขอบสีขาว มีเงาและไอคอนสีฟ้า) */
@@ -56,7 +61,8 @@
     }
 
     .overview-pill-btn.active {
-        background-color: #eff6ff; /* Changed from #ffffff to match other active menus */
+        background-color: #eff6ff;
+        /* Changed from #ffffff to match other active menus */
         border-color: #eff6ff;
         color: #0066fe;
         font-weight: 700;
@@ -181,18 +187,18 @@
             <!-- หมวดหมู่: งานประจำปี -->
 
 
-              <li class="menu-item <?php echo in_array($now_page, $overview_pages) ? 'open active' : '' ?>">
+            <li class="menu-item <?php echo in_array($now_page, $overview_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/backoffice"
                     class="menu-link <?php echo in_array($now_page, $overview_pages) ? 'active' : '' ?>">
                     <i class="ri-home-4-line menu-icon"></i>
                     <span class="title">ภาพรวมสำนักงาน</span>
                 </a>
             </li>
- <li class="menu-title small">
+            <li class="menu-title small">
                 <span class="menu-title-text">งานประจำปี</span>
             </li>
             <li class="menu-item <?php echo in_array($now_page, $monthly_dash_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/dashboard_month"
                     class="menu-link <?php echo in_array($now_page, $monthly_dash_pages) ? 'active' : '' ?>">
                     <i class="ri-bar-chart-grouped-line menu-icon"></i>
                     <span class="title">แดชบอร์ดรายเดือน</span>
@@ -224,7 +230,7 @@
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $registration_pages) ? 'open active' : '' ?>">
-                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/register_board"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/registration_board"
                     class="menu-link <?php echo in_array($now_page, $registration_pages) ? 'active' : '' ?>">
                     <i class="ri-file-paper-2-line menu-icon"></i>
                     <span class="title">จัดการงานทะเบียน</span>
@@ -253,7 +259,7 @@
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $task_setting_pages) ? 'open active' : '' ?>">
-                  <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/tasks"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/tasks"
                     class="menu-link <?php echo in_array($now_page, $task_setting_pages) ? 'active' : '' ?>">
                     <i class="ri-checkbox-circle-line menu-icon"></i>
                     <span class="title">ตั้งค่างานที่ต้องทำ</span>
@@ -312,10 +318,10 @@
 </div>
 
 <script>
-$(document).ready(function() {
-    // ทำให้เวลากดปุ่ม Back/Forward ของ Browser ทำงานได้ถูกต้อง
-    $(window).on('popstate', function() {
-        window.location.reload();
+    $(document).ready(function() {
+        // ทำให้เวลากดปุ่ม Back/Forward ของ Browser ทำงานได้ถูกต้อง
+        $(window).on('popstate', function() {
+            window.location.reload();
+        });
     });
-});
 </script>

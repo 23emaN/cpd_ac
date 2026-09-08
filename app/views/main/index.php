@@ -547,7 +547,7 @@ require_once __DIR__ . '/header.php';
 
         $.ajax({
             type: "POST",
-            url: "/cpd_ac/public/fiscal_years/add",
+            url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/fiscal_years/add",
             data: formData,
             dataType: "json",
             success: function(response) {
@@ -615,7 +615,7 @@ require_once __DIR__ . '/header.php';
         }
 
         window.currentFiscalRequest = $.ajax({
-            url: '/cpd_ac/public/fiscal_years/get?company_id=' + companyId,
+            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/fiscal_years/get?company_id=' + companyId,
             method: 'GET',
             dataType: 'json',
             success: function(response) {

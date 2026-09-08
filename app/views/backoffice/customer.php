@@ -898,7 +898,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         });
 
         $.ajax({
-            url: '/cpd_ac/public/customer/add',
+            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/add',
             method: 'POST',
             data: formData,
             dataType: 'json',

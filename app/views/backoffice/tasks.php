@@ -640,7 +640,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
         $.ajax({
             type: "POST",
-            url: "/cpd_ac/public/task/add_task",
+            url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/task/add_task",
             data: formData,
             dataType: "json",
             success: function(response) {
