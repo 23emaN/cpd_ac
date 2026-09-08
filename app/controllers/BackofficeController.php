@@ -633,7 +633,10 @@ class BackofficeController
         $this->checkAuth();
 
         $customer_id = trim($_POST['customer_id'] ?? '');
-        $fiscal_id = trim($_POST['fiscal_id'] ?? '');
+        $fiscal_id = trim($_POST['fiscal_id'] ?? $_SESSION['fiscal_id'] ?? $this->userPayload['fiscal_id'] ?? '');
+        if (empty($_POST['fiscal_id'])) {
+            $_POST['fiscal_id'] = $fiscal_id;
+        }
         $customer_name = trim($_POST['customer_name'] ?? '');
 
         if ($customer_id === '' || $customer_name === '') {
@@ -1320,19 +1323,87 @@ class BackofficeController
 
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id = '';
+        $active_fiscal_year = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
                 foreach ($company['fiscal_years'] as $fy) {
                     $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
                     if ($fy_id == $fiscal_id) {
                         $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
                         break 2;
                     }
                 }
             }
         }
 
-        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
+        require_once '../app/models/closing_Model.php';
+        $closingModel = new ClosingModel();
+        $closingList = $closingModel->getClosingByFiscalId($fiscal_id);
+
+        $totalCustomers = count($closingList);
+        $closingCompleted = 0;
+        $docReceived = 0;
+        $boj5Count = 0;
+        $dbdCount = 0;
+        $pnd50Count = 0;
+
+        $caretakersMap = [];
+
+        foreach ($closingList as $item) {
+            $isClosingDone = ((string)($item['closing_status'] ?? '')) === '1';
+            $isDocDone = ((string)($item['doc_status'] ?? '')) === '1' || ((string)($item['audit_status'] ?? '')) === '1';
+            $isBoj5Done = ((string)($item['boj5_status'] ?? '')) === '1';
+            $isDbdDone = ((string)($item['dbd_efiling_status'] ?? '')) === '1';
+            $isPnd50Done = ((string)($item['pnd50_status'] ?? '')) === '1';
+
+            if ($isClosingDone) $closingCompleted++;
+            if ($isDocDone) $docReceived++;
+            if ($isBoj5Done) $boj5Count++;
+            if ($isDbdDone) $dbdCount++;
+            if ($isPnd50Done) $pnd50Count++;
+
+            $cName = trim(($item['user_firstname'] ?? '') . ' ' . ($item['user_lastname'] ?? ''));
+            if (empty($cName)) $cName = 'ไม่ระบุผู้ดูแล';
+
+            if (!isset($caretakersMap[$cName])) {
+                $caretakersMap[$cName] = ['name' => $cName, 'total' => 0, 'completed' => 0];
+            }
+            $caretakersMap[$cName]['total']++;
+            if ($isClosingDone) {
+                $caretakersMap[$cName]['completed']++;
+            }
+        }
+
+        $caretakersList = [];
+        foreach ($caretakersMap as $c) {
+            $pct = $c['total'] > 0 ? round(($c['completed'] / $c['total']) * 100, 1) : 0;
+            $caretakersList[] = [
+                'name' => $c['name'],
+                'total' => $c['total'],
+                'completed' => $c['completed'],
+                'pending' => $c['total'] - $c['completed'],
+                'percent' => $pct
+            ];
+        }
+
+        $stats = [
+            'total_customers' => $totalCustomers,
+            'closing_completed' => $closingCompleted,
+            'audit_completed' => $docReceived,
+            'boj5' => $boj5Count,
+            'dbd' => $dbdCount,
+            'pnd50' => $pnd50Count,
+            'closing_completed_pct' => $totalCustomers > 0 ? round(($closingCompleted / $totalCustomers) * 100, 1) : 0,
+            'audit_completed_pct' => $totalCustomers > 0 ? round(($docReceived / $totalCustomers) * 100, 1) : 0,
+            'boj5_pct' => $totalCustomers > 0 ? round(($boj5Count / $totalCustomers) * 100, 1) : 0,
+            'dbd_pct' => $totalCustomers > 0 ? round(($dbdCount / $totalCustomers) * 100, 1) : 0,
+            'pnd50_pct' => $totalCustomers > 0 ? round(($pnd50Count / $totalCustomers) * 100, 1) : 0,
+            'caretakers' => $caretakersList,
+            'closing_list' => $closingList
+        ];
+
+        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
         $data = [
             'title' => 'ระบบ Backoffice',
             'user' => $this->userPayload,
@@ -1342,7 +1413,9 @@ class BackofficeController
             'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
             'fiscal_id' => $fiscal_id,
             'companies' => $companies,
-            'active_company_id' => $active_company_id
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'stats' => $stats
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
