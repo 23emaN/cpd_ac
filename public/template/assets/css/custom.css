@@ -1,21 +1,31 @@
-﻿:root {
-    --font-sans-serif: 'Open Sans', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+:root {
+    --font-sans-serif: 'Kanit', "Segoe UI", Tahoma, sans-serif;
 }
 
-html, body {
+html,
+body {
     font-family: var(--font-sans-serif) !important;
 }
 
-input, button, select, textarea {
+input,
+button,
+select,
+textarea {
     font-family: var(--font-sans-serif) !important;
 }
 
 .ri-refresh-line {
     animation: spin 2s linear infinite;
 }
+
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .pagination .page-item.active .page-link,
@@ -25,6 +35,7 @@ input, button, select, textarea {
     color: #fff;
     z-index: 0 !important;
 }
+
 /* ===== Project layout overrides (intern/am) ===== */
 /* #1 fix: select2 hides the original <select> with this class but select2.min.css here
    is missing the rule, so the original select keeps full width and causes horizontal scroll. */
@@ -42,27 +53,42 @@ input, button, select, textarea {
     border: 0 !important;
     white-space: nowrap !important;
 }
+
 /* เธเธฑเธเธชเธเธญเธฅเธฅเนเนเธเธงเธเธญเธ โ€” เนเธชเนเธ—เธตเน body เน€เธ—เนเธฒเธเธฑเนเธ (เธญเธขเนเธฒเนเธชเนเธ—เธตเน html)
    เน€เธเธฃเธฒเธฐ overflow-x:hidden เธ—เธตเน <html> เธเธฐเธ—เธณเนเธซเน <html> เธเธฅเธฒเธขเน€เธเนเธ scroll container เน€เธญเธ
    -> Bootstrap เธ—เธตเนเธฅเนเธญเธเธชเธเธญเธฅเธฅเนเธ•เธญเธเน€เธเธดเธ” modal เธ”เนเธงเธข overflow:hidden เธ—เธตเน <body> เธเธฐเธฅเนเธญเธเนเธกเนเธ–เธถเธ
    -> เธเธทเนเธเธซเธฅเธฑเธเธขเธฑเธเน€เธฅเธทเนเธญเธเนเธ”เน. เนเธชเนเธ—เธตเน body เธญเธขเนเธฒเธเน€เธ”เธตเธขเธงเธขเธฑเธเธเธฑเธเนเธเธงเธเธญเธเนเธ”เนเธเนเธฒเธ scroll propagation */
-body { overflow-x: hidden; max-width: 100%; }
+body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
 /* เธฅเนเธญเธเธชเธเธญเธฅเธฅเนเธเธทเนเธเธซเธฅเธฑเธเธ•เธญเธเน€เธเธดเธ” modal โ€” เธเธฃเธญเธเธ—เธฑเนเธ <html> เนเธฅเธฐ <body> (Bootstrap เนเธชเน .modal-open เธ—เธตเน body) */
 html:has(> body.modal-open),
-body.modal-open { overflow: hidden !important; }
+body.modal-open {
+    overflow: hidden !important;
+}
 
 /* #5 user profile pinned at the bottom of the sidebar
    (.sidebar-area already has position:fixed from the theme = containing block) */
 .sidebar-user {
     position: absolute;
-    left: 0; right: 0; bottom: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: #fff;
     border-top: 1px solid #eef0f3;
 }
-.sidebar-user .logout-btn { line-height: 0; }
+
+.sidebar-user .logout-btn {
+    line-height: 0;
+}
+
 /* เน€เธงเนเธเธ—เธตเนเธ—เนเธฒเธขเธฅเธดเธชเธ•เนเน€เธกเธเธนเนเธซเนเธเนเธเธเธฅเนเธญเธเนเธเธฃเนเธเธฅเน (footer เธชเธนเธ ~75px) โ€” เนเธชเนเธ—เธตเน .menu-inner เธเธถเนเธเธญเธขเธนเนเนเธ
    เธเธทเนเธเธ—เธตเน scroll เธเธฃเธดเธเธเธญเธ SimpleBar (padding เธเธ .layout-menu เธ•เธฑเธงเธเธญเธเนเธกเนเน€เธเธดเนเธกเธเธทเนเธเธ—เธตเนเน€เธฅเธทเนเธญเธ) */
-.layout-menu .menu-inner { padding-bottom: 92px; }
+.layout-menu .menu-inner {
+    padding-bottom: 92px;
+}
 
 /* #6 narrow the sidebar: theme default 260/250px -> 200px.
    scoped to >=1200px (where the sidebar is shown) so mobile off-canvas stays intact.
@@ -72,6 +98,7 @@ body.modal-open { overflow: hidden !important; }
     body:not([sidebar-data-theme="sidebar-hide"]) .sidebar-area {
         width: 250px;
     }
+
     body:not([sidebar-data-theme="sidebar-hide"]) .main-content {
         padding-left: 250px !important;
     }
@@ -121,9 +148,11 @@ body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.acti
     backdrop-filter: blur(1px);
     z-index: 99999;
 }
+
 #cpdth-loading.show {
     display: flex;
 }
+
 #cpdth-loading .cpdth-loading-spinner {
     width: 3rem;
     height: 3rem;
@@ -150,17 +179,21 @@ body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.acti
     white-space: normal;
     position: relative;
 }
+
 .sidebar-area .menu-vertical .menu-item .menu-link .menu-icon {
     flex-shrink: 0;
 }
+
 .sidebar-area .menu-vertical .menu-item .menu-link .title {
     flex: 1 1 auto;
     min-width: 0;
 }
+
 /* badge เธเธฑเธเธเธณเธเธงเธ: เธ•เธฃเธถเธเธกเธธเธกเธเธงเธฒ-เธเธถเนเธเธเธฅเธฒเธ (เธญเธญเธเธเธญเธ flow) + เน€เธงเนเธเธ—เธตเนเธเธฑเนเธเธเธงเธฒเธเธญเธเธเนเธญเธเธงเธฒเธกเนเธกเนเนเธซเนเธ—เธฑเธ */
 .sidebar-area .menu-vertical .menu-item .menu-link:has(.badge) .title {
     padding-right: 24px;
 }
+
 .sidebar-area .menu-vertical .menu-item .menu-link .badge {
     position: absolute;
     right: 12px;
@@ -171,7 +204,8 @@ body[sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link.acti
 .default-table-area thead th {
     white-space: nowrap;
     vertical-align: middle;
-} 
+}
+
 table.dataTable thead .dt-column-order::before,
 table.dataTable thead .dt-column-order::after,
 table.dataTable thead .sorting::before,
@@ -183,26 +217,47 @@ table.dataTable thead .sorting_desc::after {
     font-family: Arial, "Segoe UI Symbol", sans-serif !important;
 }
 
-.app-tabs { flex-wrap: nowrap; }
-.app-tabs .nav-item { flex: 1 1 0; }
+.app-tabs {
+    flex-wrap: nowrap;
+}
+
+.app-tabs .nav-item {
+    flex: 1 1 0;
+}
+
 .app-tabs .nav-link {
-    width: 100%; text-align: center;
-    font-size: 1.05rem; font-weight: 600;
+    width: 100%;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 600;
     padding: .85rem 1rem;
 }
 
 /* ===== เธเธธเนเธก action เนเธเธ•เธฒเธฃเธฒเธ (เธเธฑเธ”เธเธฒเธฃ/เนเธเนเนเธ/เธฅเธ/เน€เธเธดเธ”เธ”เธน) โ€” เนเธญเธเธญเธ+เธเนเธญเธเธงเธฒเธก เน€เธ”เนเธเนเธฅเธฐเธญเนเธฒเธเธเนเธฒเธขเธเธงเนเธฒ btn-sm =====
    เนเธชเน class "table-action-btn" เธเธนเนเธเธฑเธ btn เธชเธตเน€เธ”เธดเธก (btn-warning/btn-danger/btn-secondary เธฏเธฅเธฏ) */
 .table-action-btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: .3rem;
-    font-weight: 600; font-size: .9rem; padding: .45rem .85rem; white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .3rem;
+    font-weight: 600;
+    font-size: .9rem;
+    padding: .45rem .85rem;
+    white-space: nowrap;
 }
-.table-action-btn .material-symbols-outlined { font-size: 18px; line-height: 1; }
+
+.table-action-btn .material-symbols-outlined {
+    font-size: 18px;
+    line-height: 1;
+}
+
 /* เธ•เธฑเธงเธญเธฑเธเธฉเธฃเธเธธเนเธก action เน€เธเนเธเธชเธตเธเธฒเธงเน€เธชเธกเธญ (เธฃเธงเธก btn-warning เธ—เธตเนเธเธเธ•เธดเน€เธเนเธเธ•เธฑเธงเธญเธฑเธเธฉเธฃเน€เธเนเธก) */
 .table-action-btn,
 .table-action-btn:hover,
 .table-action-btn:focus,
-.table-action-btn:active { color: #fff; }
+.table-action-btn:active {
+    color: #fff;
+}
 
 .sidebar-area .logo .logo-text {
     left: 56px !important;
@@ -212,17 +267,38 @@ table.dataTable thead .sorting_desc::after {
 
 /* ===== invalid-state เธเธญเธ ValidateRequired (js/main.js) โ€” เธเธญเธเนเธ”เธเธเธฃเธญเธเธ—เธธเธเธเธเธดเธ” widget ===== */
 .form-control.is-invalid,
-.form-select.is-invalid { border-color: #dc3545 !important; }
-/* select2 (control เธเธฃเธดเธเน€เธเนเธ sibling เธเธญเธ <select>) */
-select.is-invalid + .select2-container .select2-selection { border-color: #dc3545 !important; }
-/* TomSelect */
-select.is-invalid + .ts-wrapper .ts-control { border-color: #dc3545 !important; }
-/* TinyMCE */
-.tox-tinymce.is-invalid-widget { border-color: #dc3545 !important; }
-/* เธเธฅเธธเนเธก radio */
-.is-invalid-group { outline: 1px solid #dc3545; outline-offset: 4px; border-radius: 6px; }
-/* เธเนเธญเธเธงเธฒเธกเนเธ•เนเธเนเธญเธ */
-.vr-feedback { display: block; }
-/* เธเธฑเธ bootstrap เธเนเธญเธ icon invalid เธเธ select เธ—เธตเนเธกเธต widget เธ—เธฑเธ */
-select.is-invalid { background-image: none !important; }
+.form-select.is-invalid {
+    border-color: #dc3545 !important;
+}
 
+/* select2 (control เธเธฃเธดเธเน€เธเนเธ sibling เธเธญเธ <select>) */
+select.is-invalid+.select2-container .select2-selection {
+    border-color: #dc3545 !important;
+}
+
+/* TomSelect */
+select.is-invalid+.ts-wrapper .ts-control {
+    border-color: #dc3545 !important;
+}
+
+/* TinyMCE */
+.tox-tinymce.is-invalid-widget {
+    border-color: #dc3545 !important;
+}
+
+/* เธเธฅเธธเนเธก radio */
+.is-invalid-group {
+    outline: 1px solid #dc3545;
+    outline-offset: 4px;
+    border-radius: 6px;
+}
+
+/* เธเนเธญเธเธงเธฒเธกเนเธ•เนเธเนเธญเธ */
+.vr-feedback {
+    display: block;
+}
+
+/* เธเธฑเธ bootstrap เธเนเธญเธ icon invalid เธเธ select เธ—เธตเนเธกเธต widget เธ—เธฑเธ */
+select.is-invalid {
+    background-image: none !important;
+}
