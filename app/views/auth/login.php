@@ -66,6 +66,14 @@
     .login-brand {
         margin-bottom: 12px !important;
     }
+
+    @media only screen and (min-width: 1200px) {
+    body:not([sidebar-data-theme="sidebar-hide"]) .main-content {
+        padding-left: 0px !important;
+    }
+}
+
+    
 </style>
 
 <body class="boxed-size bg-white">
