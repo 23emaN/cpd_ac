@@ -316,8 +316,13 @@
 
                             <select class="filter-select">
                                 <option value="">ทุกผู้ดูแล</option>
-                                <option value="เมย์">เมย์</option>
-                                <option value="ชมพู่">ชมพู่</option>
+                                <?php if (! empty($data['caretakers'])): ?>
+                                    <?php foreach ($data['caretakers'] as $caretaker): ?>
+                                        <option value="<?php echo htmlspecialchars($caretaker['user_id'] ?? ''); ?>">
+                                            <?php echo htmlspecialchars(($caretaker['user_firstname'] ?? '') . ' ' . ($caretaker['lastname'] ?? '')); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
