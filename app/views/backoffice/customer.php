@@ -723,7 +723,7 @@
 
             url: targetUrl,
 
-            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/add',
+            // url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/add',
 
             method: 'POST',
             data: formData,

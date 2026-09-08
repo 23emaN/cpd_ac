@@ -30,25 +30,44 @@
 
                     <!-- สถานะปิดงบ -->
                     <td class="text-center">
-                        <?php if (($row['closing_status'] ?? '0') === '1'): ?>
+                        <?php
+                            $docStatus    = ($row['doc_status']    ?? '0') === '1';
+                            $docDate      = !empty($row['doc_date']);
+                            $closingStatus= ($row['closing_status'] ?? '0') === '1';
+                            $closingDate  = !empty($row['closing_date']);
+                        ?>
+                        <?php if ($docStatus && $docDate && $closingStatus && $closingDate): ?>
                             <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">ปิดงบแล้ว</span>
+                        <?php elseif ($docStatus && $docDate): ?>
+                            <span class="badge-active" style="background-color: #e0f2fe; color: #0284c7;">ได้รับเอกสารแล้ว</span>
                         <?php else: ?>
-                            <span class="badge-active" style="background-color: #fef9c3; color: #ca8a04;">ยังไม่ปิดงบ</span>
+                            <span class="badge-active" style="background-color: #fef2f2; color: #da1616ff;">รอเอกสาร</span>
                         <?php endif; ?>
                     </td>
 
                     <!-- สถานะผู้สอบ -->
                     <td class="text-center">
-                        <?php if (($row['audit_status'] ?? '0') === '1'): ?>
-                            <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">ตรวจแล้ว</span>
+                        <?php
+                            $auditStatus      = $row['audit_status']  === '1';
+                            $auditDate        = !empty($row['audit_date']);
+                            $budgetRefundDate = !empty($row['budget_refund_date']);
+                        ?>
+                        <?php if ($auditStatus && $auditDate && $budgetRefundDate): ?>
+                            <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">ได้รับงบคืนแล้ว</span>
+                        <?php elseif ($auditStatus && $auditDate): ?>
+                            <span class="badge-active" style="background-color: #e0f2fe; color: #0284c7;">ตรวจสอบแล้ว</span>
                         <?php else: ?>
-                            <span class="badge-active" style="background-color: #fef9c3; color: #ca8a04;">รอตรวจสอบ</span>
+                            <span class="badge-active" style="background-color: #fef2f2; color: #da1616ff;">ยังไม่ได้ส่งตรวจ</span>
                         <?php endif; ?>
                     </td>
 
                     <!-- บอจ. 5 -->
                     <td class="text-center">
-                        <?php if (($row['boj5_status'] ?? '0') === '1'): ?>
+                        <?php
+                            $boj5Status = $row['boj5_status'] === '1';
+                            $boj5Date   = !empty($row['boj5_date']);
+                        ?>
+                        <?php if ($boj5Status && $boj5Date): ?>
                             <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">ยื่นแล้ว</span>
                         <?php else: ?>
                             <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">ยังไม่ยื่น</span>
@@ -57,7 +76,11 @@
 
                     <!-- DBD E-Filing -->
                     <td class="text-center">
-                        <?php if (($row['dbd_efiling_status'] ?? '0') === '1'): ?>
+                        <?php
+                            $dbdStatus = $row['dbd_efiling_status']  === '1';
+                            $dbdDate   = !empty($row['dbd_efiling_date']);
+                        ?>
+                        <?php if ($dbdStatus && $dbdDate): ?>
                             <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">ยื่นแล้ว</span>
                         <?php else: ?>
                             <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">ยังไม่ยื่น</span>
@@ -66,7 +89,11 @@
 
                     <!-- ภ.ง.ด.50 -->
                     <td class="text-center">
-                        <?php if (($row['pnd50_status'] ?? '0') === '1'): ?>
+                        <?php
+                            $pnd50Status = $row['pnd50_status'] === '1';
+                            $pnd50Date   = !empty($row['pnd50_date']);
+                        ?>
+                        <?php if ($pnd50Status && $pnd50Date): ?>
                             <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">ยื่นแล้ว</span>
                         <?php else: ?>
                             <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">ยังไม่ยื่น</span>
@@ -75,7 +102,11 @@
 
                     <td class="text-center">
                         <div class="action-btn-group">
-                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"><i class="ri-pencil-line"></i></button>
+                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข" 
+                                    data-closing="<?php echo htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8'); ?>"
+                                    onclick="openClosingModal(this)">
+                                <i class="ri-pencil-line"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>

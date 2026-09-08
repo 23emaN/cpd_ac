@@ -1147,8 +1147,6 @@ class BackofficeController
             }
         }
 
-
-
         // ดึงรายการงาน (tasks) ของปีบัญชีปัจจุบัน
         require_once '../app/models/tasks.php';
         $tasksModel = new TasksModel();
@@ -1177,6 +1175,25 @@ class BackofficeController
         require_once '../app/views/backoffice/closing.php';
     }
 
+    public function updateClosing()
+    {
+        $this->checkAuth();
+
+        require_once '../app/models/closing_Model.php';
+        $closingModel = new ClosingModel();
+
+        try {
+            $result = $closingModel->updateClosingData($_POST);
+            
+            if ($result) {
+                echo json_encode(['result' => 1, 'msg' => 'อัปเดตข้อมูลสำเร็จ']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'อัปเดตข้อมูลไม่สำเร็จ หรือไม่มีการเปลี่ยนแปลง']);
+            }
+        } catch (Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+        }
+    }
 
 
     /////////////////////////////////////// monthly_task /////////////////////////////////////////////// 

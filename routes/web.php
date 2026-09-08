@@ -60,6 +60,7 @@ $routes = [
         'registration-task/delete' => ['BackofficeController', 'deleteRegistrationTask'],
         'registration-task/close' => ['BackofficeController', 'closeRegistrationTask'],
         'registration-task/update-status' => ['BackofficeController', 'updateRegistrationTaskStatus'],
+        'closing/update' => ['BackofficeController', 'updateClosing'],
     ]
 ];
 
