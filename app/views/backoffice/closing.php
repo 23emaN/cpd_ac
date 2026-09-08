@@ -1,14 +1,14 @@
 <?php
-// app/views/backoffice/closing.php
-$selected_year = $_GET['year'] ?? '2569';
-$company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
-$show_company_workspace = true;
+    // app/views/backoffice/closing.php
+    $selected_year          = $_GET['year'] ?? '2569';
+    $company_name           = $_GET['company'] ?? 'TEST ACCOUNTING';
+    $show_company_workspace = true;
 
-// 1. นำ Header เข้ามา
-require_once dirname(__DIR__) . '/main/header.php';
+    // 1. นำ Header เข้ามา
+    require_once dirname(__DIR__) . '/main/header.php';
 
-// 2. นำ Sidebar เข้ามา
-require_once dirname(__DIR__) . '/main/sidebar.php';
+    // 2. นำ Sidebar เข้ามา
+    require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
@@ -520,52 +520,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                     <!-- Table Container -->
                     <div class="table-responsive">
-                        <table class="table-custom">
-                            <thead>
-                                <tr>
-                                    <th class="text-center" style="width: 4%;">ลำดับ</th>
-                                    <th class="text-start" style="width: 22%;">ลูกค้า</th>
-                                    <th class="text-center" style="width: 9%;">รอบบัญชี</th>
-                                    <th class="text-center" style="width: 9%;">ผู้ดูแล</th>
-                                    <th class="text-center" style="width: 10%;">สถานะปิดงบ</th>
-                                    <th class="text-center" style="width: 10%;">สถานะผู้สอบ</th>
-                                    <th class="text-center" style="width: 9%;">บอจ. 5</th>
-                                    <th class="text-center" style="width: 11%;">DBD E-Filing</th>
-                                    <th class="text-center" style="width: 9%;">ภ.ง.ด.50</th>
-                                    <th class="text-center" style="width: 7%;">จัดการ</th>
-                                </tr>
-                            </thead>
-
-                        </table>
-                    </div>
-
-                    <!-- Pagination Toolbar -->
-                    <div class="pagination-toolbar">
-                        <div class="d-flex align-items-center gap-2 text-muted">
-                            <span>แสดง</span>
-                            <select class="per-page-select">
-                                <option value="25" selected>25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                            <span>รายการต่อหน้า</span>
-                        </div>
-
-                        <div class="text-muted">
-                            รายการที่ 1-1 จาก 1
-                        </div>
-
-                        <div class="d-flex align-items-center gap-1">
-                            <button type="button" class="page-btn" title="หน้าแรก"><i
-                                    class="ri-arrow-left-double-line"></i></button>
-                            <button type="button" class="page-btn" title="ก่อนหน้า"><i
-                                    class="ri-arrow-left-s-line"></i></button>
-                            <button type="button" class="page-btn active">1</button>
-                            <button type="button" class="page-btn" title="ถัดไป"><i
-                                    class="ri-arrow-right-s-line"></i></button>
-                            <button type="button" class="page-btn" title="หน้าสุดท้าย"><i
-                                    class="ri-arrow-right-double-line"></i></button>
-                        </div>
+                        <?php
+                            require_once __DIR__ . '/table/closing_table.php';
+                        ?>
                     </div>
 
                 </div> <!-- End .main-card-wrapper -->
@@ -574,8 +531,27 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     </div>
 </div>
 
+<!-- Flatpickr JS & Thai locale -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
 <script>
-$(document).ready(function() {
+    $(document).ready(function () {
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr('.flatpickr-date', {
+                    dateFormat: 'd/m/Y',
+                    locale: typeof flatpickr.l10ns !== 'undefined' && flatpickr.l10ns.th ? flatpickr.l10ns.th : 'default',
+                    allowInput: true,
+                    static: true,
+                    disableMobile: true
+                });
+            }
+
+            $('#monthSelect').select2().on('change', function () {
+                var selectedMonth = $(this).val();
+                // รีเฟรชหน้าและส่ง param month ไปทาง URL
+                window.location.href = '<?php echo BASE_URL; ?>/monthly_task?month=' + selectedMonth;
+            });
+
     $('#selUserClosing').select2();
     $('#selClosing').select2();
     $('#selAuditor').select2();
@@ -583,9 +559,11 @@ $(document).ready(function() {
     $('#selBdb').select2();
     $('#selPnd50').select2();
 });
+
+
 </script>
 
 <?php
-// 3. นำ Footer เข้ามา
+    // 3. นำ Footer เข้ามา
 require_once dirname(__DIR__) . '/main/footer.php';
 ?>

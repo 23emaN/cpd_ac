@@ -152,7 +152,35 @@ class CustomModal extends Model
             'accounts_amount'    => $data['accounts_amount'] ?? 0,
         ]);
 
-        return $this->pdo->lastInsertId();
+        $fiscalYearId = $this->pdo->lastInsertId();
+
+        // เพิ่มข้อมูลตั้งต้นสำหรับ tbl_closing_financial
+        $stmtClosing = $this->pdo->prepare("
+            INSERT INTO tbl_closing_financial (
+                fiscal_year_id,
+                closing_status,
+                doc_status,
+                audit_status,
+                boj5_status,
+                dbd_efiling_status,
+                pnd50_status,
+                created_at
+            ) VALUES (
+                :fiscal_year_id,
+                '0',
+                '0',
+                '0',
+                '0',
+                '0',
+                '0',
+                NOW()
+            )
+        ");
+        $stmtClosing->execute([
+            'fiscal_year_id' => $fiscalYearId
+        ]);
+
+        return $fiscalYearId;
     }
 
     public function generateWorkPeriodsAndTasks($customerId, $fiscalYearId, $data)
