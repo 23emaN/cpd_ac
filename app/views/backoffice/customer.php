@@ -720,7 +720,11 @@
         var targetUrl = customerId ? '/cpd_ac/public/customer/edit' : '/cpd_ac/public/customer/add';
 
         $.ajax({
+
             url: targetUrl,
+
+            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/add',
+
             method: 'POST',
             data: formData,
             dataType: 'json',

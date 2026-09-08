@@ -10,7 +10,11 @@ $routes = [
         'tasks' => ['BackofficeController', 'tasks'],
         'customer' => ['BackofficeController', 'customer'],
         'employee' => ['BackofficeController', 'employee'],
-        'register_board' => ['BackofficeController', 'register_board'],
+        'registration_board' => ['BackofficeController', 'registration_board'],
+        'registration-task/job-types' => ['BackofficeController', 'getRegistrationTypes'],
+        'registration-task/settings' => ['BackofficeController', 'getRegistrationTaskSettings'],
+        'registration-task/get' => ['BackofficeController', 'getRegistrationTask'],
+        'registration-task/history' => ['BackofficeController', 'getRegistrationHistory'],
         'post_it' => ['BackofficeController', 'postIt'],
         'postit' => ['BackofficeController', 'postIt'],
         'closing' => ['BackofficeController', 'closing'],
@@ -46,13 +50,23 @@ $routes = [
         'customer/delete' => ['BackofficeController', 'deleteCustomer'],
         'monthly_task/comments/store' => ['BackofficeController', 'storeMonthlyTaskComment'],
         'monthly_task/update' => ['BackofficeController', 'updateMonthlyTask'],
+        'registration-task/job-types/add'    => ['BackofficeController', 'addRegistrationType'],
+        'registration-task/job-types/edit'   => ['BackofficeController', 'editRegistrationType'],
+        'registration-task/job-types/delete' => ['BackofficeController', 'deleteRegistrationType'],
+        'registration-task/job-types/toggle-status' => ['BackofficeController', 'toggleRegistrationTypeStatus'],
+        'registration-task/settings/save' => ['BackofficeController', 'saveRegistrationTaskSettings'],
+        'registration-task/add' => ['BackofficeController', 'addRegistrationTask'],
+        'registration-task/edit' => ['BackofficeController', 'editRegistrationTask'],
+        'registration-task/delete' => ['BackofficeController', 'deleteRegistrationTask'],
+        'registration-task/close' => ['BackofficeController', 'closeRegistrationTask'],
+        'registration-task/update-status' => ['BackofficeController', 'updateRegistrationTaskStatus'],
     ]
 ];
 
 if (isset($routes[$requestMethod]) && array_key_exists($url, $routes[$requestMethod])) {
     $controllerName = $routes[$requestMethod][$url][0];
     $methodName = $routes[$requestMethod][$url][1];
-    
+
     require_once "../app/controllers/{$controllerName}.php";
     $controller = new $controllerName();
     $controller->$methodName();
@@ -60,4 +74,3 @@ if (isset($routes[$requestMethod]) && array_key_exists($url, $routes[$requestMet
     header("Location: " . BASE_URL . "/login");
     exit();
 }
-

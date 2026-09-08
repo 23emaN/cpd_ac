@@ -7,35 +7,35 @@
 
     <title><?php echo htmlspecialchars($data['title'] ?? 'CPD ACC - ระบบบริหารสำนักงานบัญชี') ?></title>
 
-    <link rel="icon" type="image/png" href="/cpd_ac/public/assets/images/am-group-logo.png">
-    <link rel="apple-touch-icon" href="/cpd_ac/public/assets/images/am-group-logo.png">
+    <link rel="icon" type="image/png" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/am-group-logo.png">
+    <link rel="apple-touch-icon" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/am-group-logo.png">
 
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/font.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/simplebar.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/apexcharts.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/prism.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/rangeslider.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/google-icon.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/remixicon.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/swiper-bundle.min.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/fullcalendar.main.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/jsvectormap.min.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/lightpick.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/select2.min.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/style.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/toastr.min.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/font.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/simplebar.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/apexcharts.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/prism.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/rangeslider.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/google-icon.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/remixicon.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/swiper-bundle.min.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/fullcalendar.main.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/jsvectormap.min.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/lightpick.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/select2.min.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/toastr.min.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/sweetalert2.min.css">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet"
-        href="/cpd_ac/public/template/assets/css/custom.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/custom.css') ?: time(); ?>">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/web.css">
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/custom.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/custom.css') ?: time(); ?>">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/web.css">
     <link rel="stylesheet"
-        href="/cpd_ac/public/template/assets/css/ui.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/ui.css') ?: time(); ?>">
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/ui.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/ui.css') ?: time(); ?>">
 
     <style>
         /* --- CPD ACC Modern Header & Workspace Dropdown --- */
@@ -1611,9 +1611,9 @@
     <header class="acc-topbar">
         <div class="d-flex align-items-center flex-grow-1">
             <!-- Brand Logo & Title -->
-            <a href="/cpd_ac/public/main" class="acc-brand-wrap">
+            <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/main" class="acc-brand-wrap">
                 <div class="acc-brand-logo">
-                    <img src="/cpd_ac/public/assets/images/G_AM_logo-01.jpg" alt="Cpd Acc Logo">
+                    <img src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/G_AM_logo-01.jpg" alt="Cpd Acc Logo">
                 </div>
                 <div class="acc-brand-info">
                     <h1 class="acc-brand-title">CPD ACC</h1>
@@ -1753,7 +1753,7 @@
 
                                 <!-- ท้ายเมนู: จัดการปีทำงาน -->
                                 <div class="acc-menu-footer">
-                                    <a href="/cpd_ac/public/main" class="acc-manage-year-btn"
+                                    <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/main" class="acc-manage-year-btn"
                                         onclick="selectCompanyById('<?php echo $companyId ?>')">
                                         <i class="ri-sound-module-line"></i>
                                         <span>จัดการปีทำงาน</span>
@@ -1790,7 +1790,7 @@
             </div>
 
             <!-- Logout Button -->
-            <a href="/cpd_ac/public/logout" class="acc-logout-btn" title="ออกจากระบบ">
+            <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/logout" class="acc-logout-btn" title="ออกจากระบบ">
                 <i class="ri-logout-box-r-line"></i>
             </a>
         </div>
@@ -1828,18 +1828,20 @@
         </div>
     </div>
 
-    <script src="/cpd_ac/public/template/assets/js/jquery-3.1.1.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/jquery-3.1.1.min.js"></script>
 
     <script>
         // ตรวจสอบว่าอยู่ในหน้าฝั่ง Backoffice หรือไม่
         function checkIsBackoffice() {
             return Boolean(
+
                 document.querySelector('.sidebar-area') ||
                 window.location.pathname.includes('/backoffice') ||
                 window.location.pathname.includes('/customer') ||
                 window.location.pathname.includes('/employee') ||
                 window.location.pathname.includes('/register_board') ||
                 window.location.pathname.includes('/closing') ||
+
                 window.location.pathname.includes('/tasks')
             );
         }
@@ -1964,7 +1966,7 @@
                 if (fiscalId) {
                     $.ajax({
                         type: "POST",
-                        url: "/cpd_ac/public/fiscal_years/set_context",
+                        url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/fiscal_years/set_context",
                         data: { fiscal_id: fiscalId },
                         dataType: "json",
                         success: function (res) {
@@ -2054,7 +2056,7 @@
             var formData = $('#addCompanyForm').serialize();
             $.ajax({
                 type: "POST",
-                url: "/cpd_ac/public/company/add",
+                url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/company/add",
                 data: formData,
                 dataType: "json",
                 success: function (response) {

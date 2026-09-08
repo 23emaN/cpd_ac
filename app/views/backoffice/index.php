@@ -13,7 +13,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
 ?>
 
-<link rel="stylesheet" href="/cpd_ac/public/template/assets/css/sidebar-menu.css">
+<link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/sidebar-menu.css">
 
 <style>
     body {

@@ -10,6 +10,7 @@
 </footer>
 
 <!-- Core Scripts -->
+
 <script src="/cpd_ac/public/template/assets/js/jquery-3.1.1.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/select2.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/bootstrap.bundle.min.js"></script>
@@ -21,6 +22,7 @@
 <script src="/cpd_ac/public/template/assets/js/swiper-bundle.min.js"></script>
 <script src="/cpd_ac/public/template/assets/js/sidebar-menu.js"></script>
 <script src="/cpd_ac/public/template/assets/js/custom/custom.js"></script>
+
 
 <script>
 // ฟังก์ชันกลางสำหรับจัดการเมื่อเปลี่ยนปีทำงานใน Header (ใช้งานร่วมกันทุกหน้า)
@@ -35,7 +37,7 @@ function onYearChanged(companyId, year, fiscalId) {
 
     // ยิง AJAX ไปเซต Session ที่ฝั่งเซิร์ฟเวอร์
     $.ajax({
-        url: '/cpd_ac/public/fiscal_years/set_context',
+        url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/fiscal_years/set_context',
         type: 'POST',
         data: { fiscal_id: fiscalId },
         success: function() {

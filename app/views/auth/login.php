@@ -7,28 +7,28 @@
 
     <title>CPDTH - Login</title>
 
-    <link rel="icon" type="image/png" href="/cpd_ac/public/assets/images/am-group-logo.png">
-    <link rel="apple-touch-icon" href="/cpd_ac/public/assets/images/am-group-logo.png">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/font.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/simplebar.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/apexcharts.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/prism.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/rangeslider.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/google-icon.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/remixicon.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/swiper-bundle.min.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/fullcalendar.main.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/jsvectormap.min.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/lightpick.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/style.css">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/toastr.min.css">
+    <link rel="icon" type="image/png" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/am-group-logo.png">
+    <link rel="apple-touch-icon" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/am-group-logo.png">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/font.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/simplebar.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/apexcharts.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/prism.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/rangeslider.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/google-icon.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/remixicon.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/swiper-bundle.min.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/fullcalendar.main.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/jsvectormap.min.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/lightpick.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/toastr.min.css">
 
     <link rel="stylesheet"
-        href="/cpd_ac/public/template/assets/css/custom.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/custom.css') ?: time(); ?>">
-    <link rel="stylesheet" href="/cpd_ac/public/template/assets/css/web.css">
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/custom.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/custom.css') ?: time(); ?>">
+    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/web.css">
     <link rel="stylesheet"
-        href="/cpd_ac/public/template/assets/css/ui.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/ui.css') ?: time(); ?>">
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/ui.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/ui.css') ?: time(); ?>">
 </head>
 <style>
     .login-page .main-content {
@@ -97,12 +97,12 @@
             <div class="login-shell mx-auto">
                 <div class="login-card mx-auto">
                     <!-- <div class="col-lg-6 d-none d-lg-block login-hero">
-                            <img src="/cpd_ac/public/template/assets/images/login.jpg" alt="" aria-hidden="true">
+                            <img src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/images/login.jpg" alt="" aria-hidden="true">
                         </div> -->
                     <div class="col-lg-12">
                         <div class="login-form-wrap">
                             <div class="login-brand flex-column align-items-start">
-                                <img src="/cpd_ac/public/assets/images/G_AM_logo-01.jpg" alt="CPDTH"
+                                <img src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/G_AM_logo-01.jpg" alt="CPDTH"
                                     class="align-self-center"
                                     style="width: auto; height: 180px; max-width: 100%; object-fit: cover;"
                                     onerror="this.style.display='none'">
@@ -142,29 +142,29 @@
     </div>
 
     <!-- Link Of JS File -->
-    <script src="/cpd_ac/public/template/assets/js/jquery-3.1.1.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/bootstrap.bundle.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/sidebar-menu.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/dragdrop.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/rangeslider.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/data-table.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/prism.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/clipboard.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/feather.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/simplebar.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/apexcharts.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/echarts.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/swiper-bundle.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/fullcalendar.main.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/jsvectormap.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/world-merc.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/moment.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/lightpick.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/custom/custom.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/toastr.min.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/sweetalert2@11.js"></script>
-    <script src="/cpd_ac/public/template/assets/js/loadingoverlay.js"></script>
-    <script src="/cpd_ac/public/js/main.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/jquery-3.1.1.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/sidebar-menu.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/dragdrop.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/rangeslider.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/data-table.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/prism.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/clipboard.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/feather.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/simplebar.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/apexcharts.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/echarts.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/swiper-bundle.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/fullcalendar.main.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/jsvectormap.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/world-merc.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/moment.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/lightpick.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/custom/custom.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/toastr.min.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/sweetalert2@11.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/loadingoverlay.js"></script>
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/js/main.js"></script>
 
     <script>
         document.getElementById('password').addEventListener('keypress', function (e) {
@@ -203,7 +203,7 @@
             $.ajax({
                 beforeSend: function () { LoginBusy(true); },
                 type: "POST",
-                url: "/cpd_ac/public/auth/login",
+                url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/auth/login",
                 data: {
                     username: username,
                     password: password,
@@ -212,7 +212,7 @@
                 success: function (response) {
                     if (response.result == 1) {
                         sessionStorage.setItem("cpdth_show_preloader", "1");
-                        window.location.replace("/cpd_ac/public/main");
+                        window.location.replace("<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/main");
                     } else {
                         LoginBusy(false);
                         LoginError(response.msg || "เข้าสู่ระบบไม่สำเร็จ");

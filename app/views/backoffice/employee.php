@@ -425,7 +425,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         var formData = $('#addEmployeeForm').serialize();
 
         $.ajax({
-            url: '/cpd_ac/public/employee/add', // หรือ route ที่คุณต้องการใช้
+            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/employee/add', // หรือ route ที่คุณต้องการใช้
             method: 'POST',
             data: formData,
             dataType: 'json',
