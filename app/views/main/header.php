@@ -893,6 +893,22 @@
             align-items: center;
             gap: 14px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            user-select: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+            border-color: #cbd5e1;
+        }
+
+        .stat-card.active {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 4px 12px rgba(59, 130, 246, 0.08) !important;
         }
 
         .stat-icon {
@@ -910,6 +926,7 @@
         .stat-icon.green { background-color: #f0fdf4; color: #22c55e; border: 1px solid #dcfce7; }
         .stat-icon.purple { background-color: #faf5ff; color: #a855f7; border: 1px solid #f3e8ff; }
         .stat-icon.yellow { background-color: #fefce8; color: #ca8a04; border: 1px solid #fef08a; }
+        .stat-icon.red { background-color: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
 
         .stat-info {
             display: flex;
@@ -1409,6 +1426,162 @@
             background: #3b82f6 !important;
             height: 3px !important;
             border-radius: 0 0 12px 12px !important;
+        }
+
+        /* --- Dashboard Progress Cards & Custom Elements --- */
+        .dashboard-progress-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #edf2f7;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .card-header-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .card-header-icon.purple { background-color: #faf5ff; color: #a855f7; }
+        .card-header-icon.green  { background-color: #f0fdf4; color: #22c55e; }
+        .card-header-icon.blue   { background-color: #eff6ff; color: #3b82f6; }
+
+        .card-section-title {
+            color: #1e293b;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .progress-item-label { font-size: 0.875rem; font-weight: 600; color: #64748b; }
+        .progress-item-value { font-size: 0.875rem; font-weight: 700; color: #0f172a; }
+
+        .progress-badge-zero {
+            background-color: #f1f5f9;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+        }
+
+        .custom-progress-bar {
+            height: 8px;
+            background-color: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .custom-progress-bar-lg {
+            height: 10px;
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .user-item-name { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
+        .user-item-sub { font-size: 0.78rem; color: #64748b; }
+        .user-item-status-text { font-size: 0.75rem; color: #94a3b8; }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-custom th {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #94a3b8;
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            white-space: nowrap;
+        }
+
+        .table-custom td {
+            padding: 14px 14px;
+            border-bottom: 1px dashed #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .table-custom tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* --- Custom Select2 Pill Design --- */
+        .select2-container--default .select2-selection--single {
+            background-color: #f8fafc !important;
+            border: 1px solid #f1f5f9 !important;
+            border-radius: 14px !important;
+            height: 42px !important;
+            display: flex !important;
+            align-items: center !important;
+            transition: all 0.2s ease !important;
+            box-shadow: none !important;
+        }
+
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            background-color: #ffffff !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #334155 !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            padding-left: 16px !important;
+            padding-right: 36px !important;
+            line-height: 40px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px !important;
+            width: 30px !important;
+            right: 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #64748b transparent transparent transparent !important;
+            border-width: 5px 4px 0 4px !important;
+        }
+
+        .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+            border-color: transparent transparent #64748b transparent !important;
+            border-width: 0 4px 5px 4px !important;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #edf2f7 !important;
+            border-radius: 14px !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+            overflow: hidden !important;
+            z-index: 9999 !important;
+            font-size: 0.875rem !important;
+            background-color: #ffffff !important;
+        }
+
+        .select2-container--default .select2-results__option {
+            padding: 10px 16px !important;
+            font-weight: 500 !important;
+            color: #475569 !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #3b82f6 !important;
+            color: #ffffff !important;
+        }
+
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #eff6ff !important;
+            color: #1d4ed8 !important;
+            font-weight: 700 !important;
         }
     </style>
 </head>
