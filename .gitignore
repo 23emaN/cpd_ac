@@ -6,3 +6,7 @@
 .env
 .env.backup
 .env.production
+
+# Customer Drive uploaded files — never commit actual customer documents
+/storage/customer-files/*
+!/storage/customer-files/index.php

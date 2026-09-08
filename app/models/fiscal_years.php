@@ -8,11 +8,13 @@ class FiscalYearsModel extends Model {
             "INSERT INTO tbl_fiscal_years (
                 company_id,
                 fiscal_years,
+                active_status,
                 create_at
-                ) 
+                )
             VALUES (
                 :company_id,
                 :working_year,
+                '1',
                 NOW()
             )"
         );
