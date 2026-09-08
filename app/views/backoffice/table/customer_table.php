@@ -1,3 +1,18 @@
+<?php
+$list = [];
+if (isset($_POST['data']) && is_array($_POST['data'])) {
+    $list = $_POST['data'];
+} elseif (isset($customers) && is_array($customers)) {
+    $list = $customers;
+} elseif (isset($data['customers']) && is_array($data['customers'])) {
+    $list = $data['customers'];
+}
+
+$total    = (int) ($_POST['total'] ?? count($list));
+$page     = max(1, (int) ($_POST['page'] ?? 1));
+$per_page = max(1, (int) ($_POST['per_page'] ?? 25));
+?>
+
 <div class="table-wrap">
     <table class="table">
         <thead>
@@ -12,8 +27,8 @@
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($data['customers'])): ?>
-                <?php foreach ($data['customers'] as $customer): ?>
+            <?php if (!empty($list)): ?>
+                <?php foreach ($list as $customer): ?>
                     <tr>
                         <td class="text-start">
                             <div class="table-item-title"><?php echo htmlspecialchars($customer['customer_name']); ?></div>
@@ -74,27 +89,6 @@
     </table>
 </div>
 
-<!-- Pagination Toolbar ด้านล่าง -->
-<div class="pagination-toolbar">
-    <div class="per-page-wrap">
-        <span>แสดง</span>
-        <select class="per-page-select">
-            <option value="25" selected>25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </select>
-        <span>รายการต่อหน้า</span>
-    </div>
-
-    <div class="pagination-info">
-        รายการที่ 1-2 จาก 2
-    </div>
-
-    <div class="pagination-nav">
-        <button type="button" class="page-btn" title="หน้าแรก"><i class="ri-arrow-left-double-line"></i></button>
-        <button type="button" class="page-btn" title="ก่อนหน้า"><i class="ri-arrow-left-s-line"></i></button>
-        <button type="button" class="page-btn active">1</button>
-        <button type="button" class="page-btn" title="ถัดไป"><i class="ri-arrow-right-s-line"></i></button>
-        <button type="button" class="page-btn" title="หน้าสุดท้าย"><i class="ri-arrow-right-double-line"></i></button>
-    </div>
-</div>
+<?php if (!empty($list)): ?>
+    <?php include dirname(__DIR__) . '/_pagination.php'; ?>
+<?php endif; ?>
