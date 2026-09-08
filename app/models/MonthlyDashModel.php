@@ -137,6 +137,7 @@ class MonthlyDashModel extends Model {
             'reviewed'          => $reviewed,
             'tax_filed'         => $taxFiled,
             'payment_collected' => $paymentCollected,
+            'payment_pending'   => max(0, $totalCustomers - $paymentCollected),
             'doc_received_pct'  => $totalCustomers > 0 ? (int)round(($docReceived / $totalCustomers) * 100) : 0,
             'completed_pct'     => $totalCustomers > 0 ? (int)round(($completed / $totalCustomers) * 100) : 0,
             'reviewed_pct'      => $totalCustomers > 0 ? (int)round(($reviewed / $totalCustomers) * 100) : 0,
