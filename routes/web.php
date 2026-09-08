@@ -20,6 +20,7 @@ $routes = [
         'closing' => ['BackofficeController', 'closing'],
         'yearly_dash' => ['BackofficeController', 'yearly_dash'],
         'monthly_dash' => ['BackofficeController', 'monthly_dash'],
+        'monthly_dash/get_stats' => ['BackofficeController', 'getMonthlyStatsAjax'],
         'customer_message' => ['BackofficeController', 'customer_message'],
         'monthly_task' => ['BackofficeController', 'monthly_task'],
         'monthly_task/items' => ['BackofficeController', 'getMonthlyTaskItems'],
