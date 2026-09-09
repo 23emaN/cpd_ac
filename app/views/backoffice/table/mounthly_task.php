@@ -27,8 +27,26 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            <?php if (! empty($data['monthly_tasks'])): ?>
-                                <?php foreach ($data['monthly_tasks'] as $index => $task): ?>
+                            <?php 
+                                $list = [];
+                                if (isset($_POST['data']) && is_array($_POST['data'])) {
+                                    $list = $_POST['data'];
+                                } elseif (isset($data['monthly_tasks']) && is_array($data['monthly_tasks'])) {
+                                    $list = $data['monthly_tasks'];
+                                }
+                                $total = (int)($_POST['total'] ?? count($list));
+                                $page = max(1, (int)($_POST['page'] ?? $_GET['page'] ?? 1));
+                                $per_page = max(1, (int)($_POST['per_page'] ?? $_GET['per_page'] ?? 25));
+                                $start = ($page - 1) * $per_page;
+
+                                if ($total == count($list)) {
+                                    $paginated_list = array_slice($list, $start, $per_page);
+                                } else {
+                                    $paginated_list = $list;
+                                }
+                            ?>
+                            <?php if (! empty($paginated_list)): ?>
+                                <?php foreach ($paginated_list as $index => $task): ?>
                                     <tr>
                                 <?php
                                     $m = (int)($task['period_month'] ?? 0);
@@ -166,32 +184,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Pagination Toolbar -->
-                <div class="pagination-toolbar">
-                    <div class="d-flex align-items-center gap-2 text-muted">
-                        <span>แสดง</span>
-                        <select class="per-page-select">
-                            <option value="25" selected>25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                            <span>รายการต่อหน้า</span>
-                        </div>
-
-                        <div class="text-muted">
-                            รายการที่ 1-3 จาก 3
-                        </div>
-
-                        <div class="d-flex align-items-center gap-1">
-                            <button type="button" class="page-btn" title="หน้าแรก"><i
-                                    class="ri-arrow-left-double-line"></i></button>
-                            <button type="button" class="page-btn" title="ก่อนหน้า"><i
-                                    class="ri-arrow-left-s-line"></i></button>
-                            <button type="button" class="page-btn active">1</button>
-                            <button type="button" class="page-btn" title="ถัดไป"><i
-                                    class="ri-arrow-right-s-line"></i></button>
-                            <button type="button" class="page-btn" title="หน้าสุดท้าย"><i
-                                    class="ri-arrow-right-double-line"></i></button>
-                        </div>
-                    </div>
+                        <?php if (! empty($paginated_list)): ?>
+                            <?php include dirname(__DIR__) . '/_pagination.php'; ?>
+                        <?php endif; ?>
