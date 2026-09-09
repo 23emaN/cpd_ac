@@ -12,105 +12,9 @@
 ?>
 
 <style>
-    /* ==================================================
-       --- Add Customer Modal (Custom Classes) ---
-       ================================================== */
-    .modal-content-custom {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-        background-color: #ffffff;
-    }
-
-    /* Header: sticky ให้ค้างด้านบนเสมอ ไม่ว่าจะ scroll body ไปแค่ไหน */
-    .modal-header-custom {
-        border-bottom: 1px solid #f1f5f9;
-        padding: 24px 28px 16px 28px;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background-color: #ffffff;
-        border-radius: 20px 20px 0 0;
-    }
-
-    .modal-title-custom {
-        font-weight: 800;
-        color: #1e293b;
-        font-size: 1.25rem;
-        margin: 0;
-    }
-
-    .modal-close-custom {
-        font-size: 0.9rem;
-        opacity: 0.4;
-    }
-
-    /* Body: มีแต่ตัวนี้เท่านั้นที่ scroll ได้ (จัดการโดย .modal-dialog-scrollable ของ Bootstrap) */
-    .modal-body-custom {
-        padding: 20px 28px;
-        overflow-x: hidden;
-    }
-
-    /* Footer: sticky ให้ค้างด้านล่างเสมอ ไม่ว่าจะ scroll body ไปแค่ไหน */
-    .modal-footer-custom {
-        border-top: 1px solid #f1f5f9;
-        padding: 16px 28px;
-        gap: 12px;
-        justify-content: flex-end;
-        position: sticky;
-        bottom: 0;
-        z-index: 10;
-        background-color: #ffffff;
-        border-radius: 0 0 20px 20px;
-    }
-
     .modal-dialog-custom {
         max-width: 1000px;
     }
-
-    /* --- Form Elements ภายใน Modal --- */
-    .modal-section-title {
-        font-weight: 800;
-        color: #1e293b;
-        font-size: 1.05rem;
-        margin-bottom: 16px;
-    }
-
-    .modal-section-divider {
-        border-top: 1px dashed #e2e8f0;
-        margin: 28px 0 24px 0;
-    }
-
-    .modal-form-label {
-        font-weight: 700;
-        font-size: 0.88rem;
-        color: #1e293b;
-        margin-bottom: 8px;
-    }
-
-    .modal-form-label-required {
-        font-weight: 1000;
-        font-size: 0.88rem;
-        color: #1e293b;
-        margin-bottom: 8px;
-    }
-
-    .modal-required-mark {
-        color: #ef4444;
-    }
-
-    .modal-form-control {
-        background-color: #f8fafc;
-        border: 1px solid #f1f5f9;
-        border-radius: 12px;
-        padding: 12px 16px;
-        font-weight: 600;
-        color: #1e293b;
-        font-size: 0.92rem;
-        outline: none;
-        box-shadow: none;
-    }
-
     .modal-form-control-highlight {
         background-color: #eff6ff;
         border: 1px solid #e2e8f0;
@@ -122,108 +26,8 @@
         outline: none;
         box-shadow: none;
     }
-
-    .modal-form-select {
-        background-color: #f8fafc;
-        border: 1px solid #f1f5f9;
-        border-radius: 12px;
-        padding: 12px 36px 12px 16px;
-        font-weight: 600;
-        color: #1e293b;
-        font-size: 0.92rem;
-        outline: none;
-        box-shadow: none;
-        cursor: pointer;
-    }
-
     .modal-input-icon-wrap {
         position: relative;
-    }
-
-    .modal-input-with-icon {
-        padding-right: 40px;
-    }
-
-    .modal-input-icon {
-        position: absolute;
-        right: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #64748b;
-        font-size: 18px;
-    }
-
-    .modal-input-icon-static {
-        pointer-events: none;
-    }
-
-    .modal-input-icon-clickable {
-        cursor: pointer;
-    }
-
-    .modal-video-btn {
-        background-color: #eff6ff;
-        color: #3b82f6;
-        font-weight: 600;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        border: none;
-        padding: 4px 10px;
-    }
-
-    .modal-checkbox-item {
-        background-color: #ffffff;
-        border: 1px solid #f1f5f9;
-        border-radius: 12px;
-        padding: 12px 16px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .modal-checkbox-input {
-        width: 20px;
-        height: 20px;
-        margin-top: 0;
-        margin-right: 12px;
-        border-radius: 50%;
-        border-color: #cbd5e1;
-        background-color: #ffffff;
-        box-shadow: none;
-        cursor: pointer;
-    }
-
-    .modal-checkbox-label {
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: #334155;
-    }
-
-    .modal-btn-cancel {
-        background-color: #f8fafc;
-        color: #334155;
-        font-weight: 700;
-        border-radius: 12px;
-        padding: 10px 24px;
-        border: none;
-        font-size: 0.92rem;
-        transition: all 0.2s ease;
-    }
-
-    .modal-btn-save {
-        background-color: #007aff;
-        color: #ffffff;
-        font-weight: 700;
-        border-radius: 12px;
-        padding: 10px 28px;
-        border: none;
-        font-size: 0.92rem;
-        box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
-        transition: all 0.2s ease;
-    }
-        /* แก้ไข flatpickr-wrapper ให้กว้าง 100% เมื่อใช้ static: true */
-    .flatpickr-wrapper {
-        display: block !important;
-        width: 100% !important;
     }
 </style>
 
@@ -355,7 +159,7 @@
 
                         <!-- ชื่อบริษัท / กิจการ -->
                         <div class="mb-3">
-                            <label class="form-label modal-form-label-required">
+                            <label class="form-label">
                                 ชื่อบริษัท / กิจการ <span class="text-danger">*</span>
                             </label>
                             <input type="text" class="form-control modal-form-control" name="customer_name" id="customer_name" required placeholder="">
@@ -609,7 +413,7 @@
                                     <div class="d-flex flex-column gap-2">
                                         <?php foreach ($leftTasks as $task): ?>
                                             <label class="d-flex align-items-center modal-checkbox-item">
-                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['tasks_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
+                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['tasks_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input me-2">
                                                 <span class="modal-checkbox-label"><?php echo htmlspecialchars($task['tasks_name'] ?? ''); ?></span>
                                             </label>
                                         <?php endforeach; ?>
@@ -621,7 +425,7 @@
                                     <div class="d-flex flex-column gap-2">
                                         <?php foreach ($rightTasks as $task): ?>
                                             <label class="d-flex align-items-center modal-checkbox-item">
-                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['tasks_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input">
+                                                <input type="checkbox" name="monthly_skip[]" value="<?php echo htmlspecialchars($task['tasks_id'] ?? ''); ?>" class="form-check-input modal-checkbox-input me-2">
                                                 <span class="modal-checkbox-label"><?php echo htmlspecialchars($task['tasks_name'] ?? ''); ?></span>
                                             </label>
                                         <?php endforeach; ?>
