@@ -1871,6 +1871,75 @@
             color: #1d4ed8 !important;
             font-weight: 700 !important;
         }
+        /* ===== Add Company Form ===== */
+
+.company-form-group {
+    padding: 20px 24px 4px 24px;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.company-form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 0.90rem;
+    color: #334155;
+}
+
+.company-name-input {
+    display: block;
+    width: 100% !important;
+    height: 42px;
+    box-sizing: border-box !important;
+
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+
+    padding: 9px 14px !important;
+    font-size: 0.90rem !important;
+    font-weight: 500 !important;
+    color: #334155 !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+
+    transition: all 0.2s ease;
+}
+
+.company-name-input:focus {
+    background-color: #ffffff !important;
+    border-color: #007aff !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.10) !important;
+}
+
+/* ===== Validation Error ===== */
+
+.company-name-input.is-invalid {
+    background-color: #fffafa !important;
+    border: 1px solid #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10) !important;
+}
+
+.company-name-input.is-invalid:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
+
+.company-name-error {
+    display: none;
+    margin-top: 6px;
+    color: #ef4444;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.company-name-error.show {
+    display: block;
+}
     </style>
 </head>
 
@@ -1917,32 +1986,32 @@
 
             <!-- Company / Workspace Dropdown List Container (Loop แสดงบริษัทที่มี) -->
             <div class="acc-company-container">
-                <?php if (isset($data['companies']) && !empty($data['companies'])): ?>
+                <?php if (isset($data['companies']) && ! empty($data['companies'])): ?>
                     <?php foreach ($data['companies'] as $index => $company):
-                        $companyId = $company['company_id'] ?? $company['id'] ?? '';
-                        $companyName = htmlspecialchars($company['company_name'] ?? 'ไม่มีชื่อบริษัท');
-                        if (isset($data['active_company_id']) && !empty($data['active_company_id'])) {
-                            $isActive = ($companyId == $data['active_company_id']) ? 'active' : '';
-                        } else {
-                            $isActive = ($index === 0) ? 'active' : '';
-                        }
+                            $companyId   = $company['company_id'] ?? $company['id'] ?? '';
+                            $companyName = htmlspecialchars($company['company_name'] ?? 'ไม่มีชื่อบริษัท');
+                            if (isset($data['active_company_id']) && ! empty($data['active_company_id'])) {
+                                $isActive = ($companyId == $data['active_company_id']) ? 'active' : '';
+                            } else {
+                                $isActive = ($index === 0) ? 'active' : '';
+                            }
 
-                        // คำนวณปีทำงานที่เปิดใช้งานอยู่
-                        $fiscalYears = $company['fiscal_years'] ?? [];
-                        $activeYear = '';
-                        $activeFiscalId = '';
+                            // คำนวณปีทำงานที่เปิดใช้งานอยู่
+                            $fiscalYears    = $company['fiscal_years'] ?? [];
+                            $activeYear     = '';
+                            $activeFiscalId = '';
 
-                        if (!empty($fiscalYears) && isset($data['fiscal_id']) && !empty($data['fiscal_id'])) {
-                            foreach ($fiscalYears as $fy) {
-                                $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                                if ($fy_id == $data['fiscal_id']) {
-                                    $activeYear = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
-                                    $activeFiscalId = $fy_id;
-                                    break;
+                            if (! empty($fiscalYears) && isset($data['fiscal_id']) && ! empty($data['fiscal_id'])) {
+                                foreach ($fiscalYears as $fy) {
+                                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                                    if ($fy_id == $data['fiscal_id']) {
+                                        $activeYear     = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                                        $activeFiscalId = $fy_id;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        ?>
+                    ?>
 
                         <!-- Workspace Dropdown Pill Button (แสดง Popper strategy fixed เพื่อลอยอยู่ด้านหน้า) -->
                         <div class="dropdown acc-workspace-dropdown" data-company-id="<?php echo $companyId ?>">
@@ -1962,7 +2031,7 @@
                                     <span class="acc-workspace-name"
                                         title="<?php echo $companyName ?>"><?php echo $companyName ?></span>
                                     <span
-                                        class="acc-workspace-year"><?php echo !empty($activeYear) ? 'ปีทำงาน <span class="ws-year-text">' . $activeYear . '</span>' : '<span class="ws-year-text text-muted">ยังไม่ได้เลือกปี</span>' ?></span>
+                                        class="acc-workspace-year"><?php echo ! empty($activeYear) ? 'ปีทำงาน <span class="ws-year-text">' . $activeYear . '</span>' : '<span class="ws-year-text text-muted">ยังไม่ได้เลือกปี</span>' ?></span>
                                 </div>
 
                                 <i class="ri-arrow-down-s-line acc-workspace-arrow"></i>
@@ -1983,7 +2052,7 @@
                                 </div>
 
                                 <!-- การ์ดปีที่ใช้งานอยู่ (Active Year Highlight Card) -->
-                                <div class="acc-active-year-card" <?php echo !empty($activeYear) ? "onclick=\"selectFiscalYear('$companyId', '$activeYear', '$activeFiscalId')\"" : "" ?>>
+                                <div class="acc-active-year-card" <?php echo ! empty($activeYear) ? "onclick=\"selectFiscalYear('$companyId', '$activeYear', '$activeFiscalId')\"" : "" ?>>
                                     <div class="acc-active-year-left">
                                         <div class="acc-active-year-icon">
                                             <i class="ri-calendar-check-line"></i>
@@ -1991,7 +2060,7 @@
                                         <div class="acc-active-year-info">
                                             <span class="acc-active-year-label">ปีที่ใช้งานอยู่</span>
                                             <span class="acc-active-year-val">
-                                                <?php if (!empty($activeYear)): ?>
+                                                <?php if (! empty($activeYear)): ?>
                                                     ปี <span class="card-active-year-val"><?php echo $activeYear ?></span>
                                                 <?php else: ?>
                                                     <span class="card-active-year-val text-muted">ยังไม่ได้เลือกปี</span>
@@ -1999,7 +2068,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <?php if (!empty($activeYear)): ?>
+                                    <?php if (! empty($activeYear)): ?>
                                         <span class="acc-active-badge">กำลังใช้งาน</span>
                                     <?php endif; ?>
                                 </div>
@@ -2009,14 +2078,14 @@
                                     <div class="acc-other-years-title">เลือกปีอื่น</div>
                                     <div class="acc-other-years-list" id="otherYearsList_<?php echo $companyId ?>">
                                         <?php
-                                        $hasOtherYears = false;
-                                        if (!empty($fiscalYears)):
-                                            foreach ($fiscalYears as $fy):
-                                                $yVal = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
-                                                $cCount = $fy['customer_count'] ?? 0;
-                                                $fId = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                                                $hasOtherYears = true;
-                                                ?>
+                                            $hasOtherYears = false;
+                                            if (! empty($fiscalYears)):
+                                                foreach ($fiscalYears as $fy):
+                                                    $yVal          = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                                                    $cCount        = $fy['customer_count'] ?? 0;
+                                                    $fId           = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                                                    $hasOtherYears = true;
+                                        ?>
                                                 <a href="javascript:void(0);" class="acc-other-year-item"
                                                     data-year="<?php echo $yVal ?>"
                                                     onclick="selectFiscalYear('<?php echo $companyId ?>', '<?php echo $yVal ?>', '<?php echo $fId ?>')">
@@ -2032,7 +2101,7 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
 
-                                        <?php if (!$hasOtherYears): ?>
+                                        <?php if (! $hasOtherYears): ?>
                                             <div class="acc-no-years-sub text-muted px-2 py-1" style="font-size: 0.78rem;">
                                                 ไม่มีปีอื่นให้เลือก
                                             </div>
@@ -2073,7 +2142,7 @@
                         <?php echo htmlspecialchars(trim(($data['firstname'] ?? $_SESSION['user_firstname'] ?? '') . ' ' . ($data['lastname'] ?? $_SESSION['user_lastname'] ?? 'ผู้ใช้งาน'))) ?>
                     </span>
                     <span class="acc-user-role">
-                        <?php echo (!empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
+                        <?php echo(! empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
                     </span>
                 </div>
             </div>
@@ -2097,17 +2166,23 @@
                         เพิ่มบริษัทใหม่</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" style="padding: 24px;">
-                    <form id="addCompanyForm">
-                        <div class="mb-3">
-                            <label class="form-label"
-                                style="font-weight: 700; font-size: 0.9rem; color: #334155;">ชื่อบริษัท <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="company_name" placeholder="กรอกชื่อบริษัท"
-                                style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; font-weight: 600;">
-                        </div>
-                    </form>
-                </div>
+               <div class="company-form-group">
+
+    <label for="companyNameInput" class="company-form-label">
+        ชื่อบริษัท
+        <span class="text-danger">*</span>
+    </label>
+
+    <input type="text"
+        class="form-control company-name-input"
+        id="companyNameInput"
+        name="company_name"
+        placeholder="กรอกชื่อบริษัท"
+        oninput="clearCompanyNameError()">
+
+    <div id="companyNameError" class="company-name-error"></div>
+
+</div>
                 <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal"
                         style="border-radius: 8px; font-weight: 600;">ยกเลิก</button>
@@ -2309,36 +2384,57 @@
             }
         }
 
-        function Getmodal_add() {
-            const form = document.getElementById('addCompanyForm');
-            if (form) {
-                form.reset();
-            }
-            const modalElement = document.getElementById('addCompanyModal');
-            const myModal = new bootstrap.Modal(modalElement);
-            myModal.show();
-        }
+     function Getmodal_add() {
+    const form = document.getElementById('addCompanyForm');
+    if (form) {
+        form.reset();
+    }
+    clearCompanyNameError();
+    const modalElement = document.getElementById('addCompanyModal');
+    const myModal = new bootstrap.Modal(modalElement);
+    myModal.show();
+}
 
         let isSubmittingCompany = false;
-        function addCompany() {
-            if (isSubmittingCompany) return;
+function clearCompanyNameError() {
+    const input = document.getElementById('companyNameInput');
+    const errorEl = document.getElementById('companyNameError');
 
-            var companyName = $('input[name="company_name"]').val().trim();
-            if (!companyName) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'warning',
-                        title: 'กรุณากรอกชื่อบริษัท',
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-                } else {
-                    alert('กรุณากรอกชื่อบริษัท');
-                }
-                return;
-            }
+    if (input) {
+        input.classList.remove('is-invalid');
+    }
+
+    if (errorEl) {
+        errorEl.classList.remove('show');
+        errorEl.textContent = '';
+    }
+}
+
+function showCompanyNameError(message) {
+    const input = document.getElementById('companyNameInput');
+    const errorEl = document.getElementById('companyNameError');
+
+    if (input) {
+        input.classList.add('is-invalid');
+        input.focus();
+    }
+
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+    }
+}
+
+function addCompany() {
+    if (isSubmittingCompany) return;
+
+    var companyName = $('input[name="company_name"]').val().trim();
+    clearCompanyNameError();
+
+    if (!companyName) {
+        showCompanyNameError('กรุณากรอกชื่อบริษัท');
+        return;
+    }
 
             isSubmittingCompany = true;
             const submitBtn = $('#addCompanyModal .btn-primary');
@@ -2377,20 +2473,8 @@
                             alert(response.msg);
                             location.reload();
                         }
-                    } else {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: response.msg || 'ผิดพลาด',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        } else {
-                            alert(response.msg);
-                        }
+                      } else {
+                        showCompanyNameError(response.msg || 'ไม่สามารถบันทึกข้อมูลได้');
                     }
                 },
                 error: function (err) {

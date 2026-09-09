@@ -31,6 +31,8 @@ class MainController
         $userId = $this->userPayload['user_id'] ?? null;
         $companies = $companyModel->getAllCompanies($userId);
 
+        $fiscal_years = !empty($companies) && isset($companies[0]['fiscal_years']) ? $companies[0]['fiscal_years'] : [];
+
         // 2. เตรียมข้อมูลส่งไปที่ View (MVC Pattern)
         $data = [
             'title' => 'CPD ACC - ระบบบริหารสำนักงานบัญชี',
@@ -39,7 +41,8 @@ class MainController
             'firstname' => $this->userPayload['user_firstname'] ?? '',
             'lastname' => $this->userPayload['user_lastname'] ?? '',
             'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
-            'companies' => $companies
+            'companies' => $companies,
+            'fiscal_years' => $fiscal_years
         ];
 
         // 3. เรียก View มาแสดงผล
