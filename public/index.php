@@ -5,6 +5,8 @@
 // time()/date() ฝั่ง PHP กับค่าจากฐานข้อมูล (เช่น เช็กลิงก์แชร์หมดอายุ/ถูกล็อก)
 // จะเพี้ยนไป 7 ชั่วโมง
 date_default_timezone_set('Asia/Bangkok');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 session_start();
 
