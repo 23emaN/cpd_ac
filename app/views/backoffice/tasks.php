@@ -79,41 +79,44 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
 <!-- Modal เพิ่มงาน -->
 <div class="modal fade" id="addTasksModal" tabindex="-1" aria-labelledby="addTasksModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mw-550px">
-        <div class="modal-content modal-content-keen">
-            <div class="modal-header modal-header-keen">
-                <h4 class="modal-title" id="addTasksModalLabel" style="font-weight: 600;">เพิ่มงานใหม่</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 550px;">
+        <div class="modal-content modal-content-custom">
+            <!-- Header (Fixed) -->
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title modal-title-custom" id="addTasksModalLabel">เพิ่มงานใหม่</h5>
+                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body modal-body-keen py-8">
+            <!-- Body (Scrollable) -->
+            <div class="modal-body modal-body-custom">
                 <form id="addTasksForm">
                     <!-- ส่ง fiscal_id ปัจจุบันไปด้วย -->
-                    <input type="hidden" name="fiscal_id"
-                        value="<?php echo htmlspecialchars($data['fiscal_id'] ?? ''); ?>">
+                    <input type="hidden" name="fiscal_id" value="<?php echo htmlspecialchars($data['fiscal_id'] ?? ''); ?>">
 
                     <div class="mb-4">
-                        <label class="required form-label form-label-keen" for="task_name">ชื่องาน</label>
-                        <input class="form-control form-control-solid" type="text" id="task_name" name="task_name"
-                            placeholder="เช่น ภ.ง.ด.1">
-                        <div class="invalid-feedback"
-                            style="font-size: 0.85rem; color: #ef4444; font-weight: 500; margin-top: 6px;">
+                        <label class="modal-form-label" for="task_name">
+                            ชื่องาน <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input class="form-control modal-form-control" type="text" id="task_name" name="task_name" placeholder="เช่น ภ.ง.ด.1">
+                        <div class="invalid-feedback" style="font-size: 0.85rem; color: #ef4444; font-weight: 500; margin-top: 6px;">
                             กรุณาระบุชื่องาน
                         </div>
                     </div>
 
                     <div class="mb-2">
-                        <label class="required form-label form-label-keen"
-                            for="is_notify_amount">ต้องระบุจำนวนเงินสำหรับแจ้งยอดผ่าน LINE ลูกค้า</label>
-                        <select class="form-select form-select-solid" id="is_notify_amount" name="is_notify_amount">
+                        <label class="modal-form-label" for="is_notify_amount">
+                            ต้องระบุจำนวนเงินสำหรับแจ้งยอดผ่าน LINE ลูกค้า <span style="color: #ef4444;">*</span>
+                        </label>
+                        <select class="form-select modal-form-select" id="is_notify_amount" name="is_notify_amount">
                             <option value="1">YES</option>
                             <option value="0">NO</option>
                         </select>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer modal-footer-keen">
-                <button type="button" class="btn btn-light-keen" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" class="btn btn-primary-keen" onclick="submitAddTasks()">บันทึกข้อมูล</button>
+            <!-- Footer (Fixed) -->
+            <div class="modal-footer modal-footer-custom">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">ยกเลิก</button>
+                <button type="button" class="btn" onclick="submitAddTasks()" style="background-color: #007aff; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 28px; border: none; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(0,122,255,0.25); transition: all 0.2s ease;">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
@@ -121,40 +124,43 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
 <!-- Modal แก้ไขงาน -->
 <div class="modal fade" id="editTasksModal" tabindex="-1" aria-labelledby="editTasksModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mw-550px">
-        <div class="modal-content modal-content-keen">
-            <div class="modal-header modal-header-keen">
-                <h4 class="modal-title" id="editTasksModalLabel" style="font-weight: 600;">แก้ไขงาน</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 550px;">
+        <div class="modal-content modal-content-custom">
+            <!-- Header (Fixed) -->
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title modal-title-custom" id="editTasksModalLabel">แก้ไขงาน</h5>
+                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body modal-body-keen py-8">
+            <!-- Body (Scrollable) -->
+            <div class="modal-body modal-body-custom">
                 <form id="editTasksForm">
                     <input type="hidden" id="edit_tasks_id" name="tasks_id">
 
                     <div class="mb-4">
-                        <label class="required form-label form-label-keen" for="edit_task_name">ชื่องาน</label>
-                        <input class="form-control form-control-solid" type="text" id="edit_task_name" name="task_name"
-                            placeholder="เช่น ภ.ง.ด.1">
-                        <div class="invalid-feedback"
-                            style="font-size: 0.85rem; color: #ef4444; font-weight: 500; margin-top: 6px;">
+                        <label class="modal-form-label" for="edit_task_name">
+                            ชื่องาน <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input class="form-control modal-form-control" type="text" id="edit_task_name" name="task_name" placeholder="เช่น ภ.ง.ด.1">
+                        <div class="invalid-feedback" style="font-size: 0.85rem; color: #ef4444; font-weight: 500; margin-top: 6px;">
                             กรุณาระบุชื่องาน
                         </div>
                     </div>
 
                     <div class="mb-2">
-                        <label class="required form-label form-label-keen"
-                            for="edit_is_notify_amount">ต้องระบุจำนวนเงินสำหรับแจ้งยอดผ่าน LINE ลูกค้า</label>
-                        <select class="form-select form-select-solid" id="edit_is_notify_amount"
-                            name="is_notify_amount">
+                        <label class="modal-form-label" for="edit_is_notify_amount">
+                            ต้องระบุจำนวนเงินสำหรับแจ้งยอดผ่าน LINE ลูกค้า <span style="color: #ef4444;">*</span>
+                        </label>
+                        <select class="form-select modal-form-select" id="edit_is_notify_amount" name="is_notify_amount">
                             <option value="1">YES</option>
                             <option value="0">NO</option>
                         </select>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer modal-footer-keen">
-                <button type="button" class="btn btn-light-keen" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" class="btn btn-primary-keen" onclick="submitEditTask()">บันทึกข้อมูล</button>
+            <!-- Footer (Fixed) -->
+            <div class="modal-footer modal-footer-custom">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">ยกเลิก</button>
+                <button type="button" class="btn" onclick="submitEditTask()" style="background-color: #007aff; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 28px; border: none; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(0,122,255,0.25); transition: all 0.2s ease;">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>

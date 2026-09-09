@@ -7,33 +7,53 @@
 
     <title><?php echo htmlspecialchars($data['title'] ?? 'CPD ACC - ระบบบริหารสำนักงานบัญชี') ?></title>
 
-    <link rel="icon" type="image/png" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/am-group-logo.png">
-    <link rel="apple-touch-icon" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/am-group-logo.png">
+    <link rel="icon" type="image/png"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/am-group-logo.png">
+    <link rel="apple-touch-icon"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/am-group-logo.png">
 
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/font.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/simplebar.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/apexcharts.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/prism.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/rangeslider.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/google-icon.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/remixicon.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/swiper-bundle.min.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/fullcalendar.main.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/jsvectormap.min.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/lightpick.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/select2.min.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/style.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/toastr.min.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/sweetalert2.min.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/font.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/sidebar-menu.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/simplebar.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/apexcharts.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/prism.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/rangeslider.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/google-icon.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/remixicon.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/swiper-bundle.min.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/fullcalendar.main.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/jsvectormap.min.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/lightpick.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/select2.min.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/style.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/toastr.min.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/sweetalert2.min.css">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet"
         href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/custom.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/custom.css') ?: time(); ?>">
-    <link rel="stylesheet" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/web.css">
+    <link rel="stylesheet"
+        href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/web.css">
     <link rel="stylesheet"
         href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/ui.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/ui.css') ?: time(); ?>">
 
@@ -642,11 +662,197 @@
         }
 
         /* --- Global Keen/Metronic Modal & Form Utilities --- */
-        .mw-550px { max-width: 550px !important; }
-        .mw-600px { max-width: 600px !important; }
-        .mw-650px { max-width: 650px !important; }
-        .mw-700px { max-width: 700px !important; }
-        .mw-800px { max-width: 800px !important; }
+        .mw-550px {
+            max-width: 550px !important;
+        }
+
+        .mw-600px {
+            max-width: 600px !important;
+        }
+
+        .mw-650px {
+            max-width: 650px !important;
+        }
+
+        .mw-700px {
+            max-width: 700px !important;
+        }
+
+        .mw-800px {
+            max-width: 800px !important;
+        }
+
+        /* ==================================================
+           --- Global Modal Custom Styling (Standard CPD ACC) ---
+           ================================================== */
+        .modal-content,
+        .modal-content-custom {
+            border: none !important;
+            border-radius: 20px !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
+            background-color: #ffffff !important;
+        }
+
+        .modal-header,
+        .modal-header-custom {
+            border-bottom: 1px solid #f1f5f9 !important;
+            padding: 24px 28px 16px 28px !important;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #ffffff;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-title,
+        .modal-title-custom {
+            font-weight: 800;
+            color: #1e293b;
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        .modal-close-custom,
+        .modal-header .btn-close {
+            font-size: 0.9rem;
+            opacity: 0.5;
+        }
+
+        .modal-body,
+        .modal-body-custom {
+            padding: 24px 28px !important;
+            overflow-x: hidden;
+        }
+
+        .modal-footer,
+        .modal-footer-custom {
+            border-top: 1px solid #f1f5f9 !important;
+            padding: 16px 28px !important;
+            gap: 12px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+            background-color: #ffffff;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .modal-btn-cancel {
+            background-color: #f8fafc !important;
+            color: #334155 !important;
+            font-weight: 700 !important;
+            border-radius: 12px !important;
+            padding: 10px 24px !important;
+            border: 1px solid #e2e8f0 !important;
+            font-size: 0.92rem !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .modal-btn-cancel:hover {
+            background-color: #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+
+        .modal-btn-save {
+            background-color: #007aff !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border-radius: 12px !important;
+            padding: 10px 28px !important;
+            border: none !important;
+            font-size: 0.92rem !important;
+            box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .modal-btn-save:hover {
+            background-color: #0066cc !important;
+            color: #ffffff !important;
+        }
+
+        .modal-section-title {
+            margin-bottom: 16px;
+        }
+
+        .modal-section-divider {
+            border-top: 1px dashed #e2e8f0;
+            margin: 24px 0 20px 0;
+        }
+
+        .modal-form-label,
+        .modal-body label {
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .modal-form-control,
+        .modal-form-select,
+        .modal-body .form-control,
+        .modal-body .form-select {
+            background-color: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            outline: none !important;
+            box-shadow: none !important;
+            width: 100%;
+        }
+
+        .modal-form-control:focus,
+        .modal-form-select:focus,
+        .flatpickr-input-custom:focus,
+        .modal-body .form-control:focus,
+        .modal-body .form-select:focus {
+            background-color: #ffffff !important;
+            border-color: #007aff !important;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1) !important;
+        }
+
+        .modal-form-control:disabled,
+        .modal-form-control[disabled],
+        .modal-form-select:disabled,
+        .modal-body .form-control:disabled,
+        .modal-body .form-control[disabled],
+        .modal-body .form-select:disabled {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* --- Flatpickr Date Input & Icon Styling --- */
+        .flatpickr-wrapper,
+        .modal-input-icon-wrap {
+            width: 100% !important;
+            display: block !important;
+            position: relative !important;
+        }
+
+        input.flatpickr-date,
+        input.flatpickr-input,
+        .flatpickr-input-custom {
+            background-color: #ffffff !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 14px center !important;
+            background-size: 18px 18px !important;
+            padding-right: 40px !important;
+            cursor: pointer !important;
+        }
+
+        .modal-input-icon-wrap i,
+        .flatpickr-wrapper i {
+            position: absolute !important;
+            right: 14px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            color: #64748b !important;
+            font-size: 18px !important;
+            pointer-events: none !important;
+            z-index: 5 !important;
+        }
 
         .modal-content-keen {
             border: none !important;
@@ -755,6 +961,7 @@
             body:not([sidebar-data-theme="sidebar-hide"]) .sidebar-area {
                 width: 250px !important;
             }
+
             body:not([sidebar-data-theme="sidebar-hide"]) .main-content {
                 padding-left: 250px !important;
                 padding-right: 0 !important;
@@ -922,11 +1129,35 @@
             flex-shrink: 0;
         }
 
-        .stat-icon.blue { background-color: #eff6ff; color: #3b82f6; border: 1px solid #dbeafe; }
-        .stat-icon.green { background-color: #f0fdf4; color: #22c55e; border: 1px solid #dcfce7; }
-        .stat-icon.purple { background-color: #faf5ff; color: #a855f7; border: 1px solid #f3e8ff; }
-        .stat-icon.yellow { background-color: #fefce8; color: #ca8a04; border: 1px solid #fef08a; }
-        .stat-icon.red { background-color: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+        .stat-icon.blue {
+            background-color: #eff6ff;
+            color: #3b82f6;
+            border: 1px solid #dbeafe;
+        }
+
+        .stat-icon.green {
+            background-color: #f0fdf4;
+            color: #22c55e;
+            border: 1px solid #dcfce7;
+        }
+
+        .stat-icon.purple {
+            background-color: #faf5ff;
+            color: #a855f7;
+            border: 1px solid #f3e8ff;
+        }
+
+        .stat-icon.yellow {
+            background-color: #fefce8;
+            color: #ca8a04;
+            border: 1px solid #fef08a;
+        }
+
+        .stat-icon.red {
+            background-color: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fee2e2;
+        }
 
         .stat-info {
             display: flex;
@@ -1089,9 +1320,17 @@
             vertical-align: middle;
         }
 
-        .table th.text-start { text-align: left; }
-        .table th.text-center { text-align: center; }
-        .table th.text-end { text-align: right; }
+        .table th.text-start {
+            text-align: left;
+        }
+
+        .table th.text-center {
+            text-align: center;
+        }
+
+        .table th.text-end {
+            text-align: right;
+        }
 
         .table td {
             padding: 14px 14px;
@@ -1213,7 +1452,7 @@
             background-color: #ffffff;
             color: #2563eb;
             border-color: #bfdbfe;
-            
+
         }
 
         .btn-action-message {
@@ -1464,9 +1703,20 @@
             font-size: 1.2rem;
         }
 
-        .card-header-icon.purple { background-color: #faf5ff; color: #a855f7; }
-        .card-header-icon.green  { background-color: #f0fdf4; color: #22c55e; }
-        .card-header-icon.blue   { background-color: #eff6ff; color: #3b82f6; }
+        .card-header-icon.purple {
+            background-color: #faf5ff;
+            color: #a855f7;
+        }
+
+        .card-header-icon.green {
+            background-color: #f0fdf4;
+            color: #22c55e;
+        }
+
+        .card-header-icon.blue {
+            background-color: #eff6ff;
+            color: #3b82f6;
+        }
 
         .card-section-title {
             color: #1e293b;
@@ -1475,8 +1725,17 @@
             margin: 0;
         }
 
-        .progress-item-label { font-size: 0.875rem; font-weight: 600; color: #64748b; }
-        .progress-item-value { font-size: 0.875rem; font-weight: 700; color: #0f172a; }
+        .progress-item-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .progress-item-value {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
 
         .progress-badge-zero {
             background-color: #f1f5f9;
@@ -1498,9 +1757,21 @@
             border-radius: 10px;
         }
 
-        .user-item-name { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
-        .user-item-sub { font-size: 0.78rem; color: #64748b; }
-        .user-item-status-text { font-size: 0.75rem; color: #94a3b8; }
+        .user-item-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .user-item-sub {
+            font-size: 0.78rem;
+            color: #64748b;
+        }
+
+        .user-item-status-text {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
 
         .table-custom {
             width: 100%;
@@ -1630,7 +1901,8 @@
             <!-- Brand Logo & Title -->
             <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/main" class="acc-brand-wrap">
                 <div class="acc-brand-logo">
-                    <img src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/G_AM_logo-01.jpg" alt="Cpd Acc Logo">
+                    <img src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assets/images/G_AM_logo-01.jpg"
+                        alt="Cpd Acc Logo">
                 </div>
                 <div class="acc-brand-info">
                     <h1 class="acc-brand-title">CPD ACC</h1>
@@ -1770,8 +2042,8 @@
 
                                 <!-- ท้ายเมนู: จัดการปีทำงาน -->
                                 <div class="acc-menu-footer">
-                                    <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/main" class="acc-manage-year-btn"
-                                        onclick="selectCompanyById('<?php echo $companyId ?>')">
+                                    <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/main"
+                                        class="acc-manage-year-btn" onclick="selectCompanyById('<?php echo $companyId ?>')">
                                         <i class="ri-sound-module-line"></i>
                                         <span>จัดการปีทำงาน</span>
                                     </a>
@@ -1807,7 +2079,8 @@
             </div>
 
             <!-- Logout Button -->
-            <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/logout" class="acc-logout-btn" title="ออกจากระบบ">
+            <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/logout" class="acc-logout-btn"
+                title="ออกจากระบบ">
                 <i class="ri-logout-box-r-line"></i>
             </a>
         </div>
@@ -1845,7 +2118,8 @@
         </div>
     </div>
 
-    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/jquery-3.1.1.min.js"></script>
+    <script
+        src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/jquery-3.1.1.min.js"></script>
 
     <script>
         // ตรวจสอบว่าอยู่ในหน้าฝั่ง Backoffice หรือไม่

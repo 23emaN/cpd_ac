@@ -1,7 +1,7 @@
 <?php
 // app/views/backoffice/registration_board.php
 $selected_year = $_GET['year'] ?? '2569';
-$company_name  = $_GET['company'] ?? 'TEST ACCOUNTING';
+$company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
 $show_company_workspace = true;
 
 // 1. นำ Header เข้ามา
@@ -816,22 +816,27 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <div>
                             <h2 class="page-title">จัดการงานทะเบียน</h2>
                             <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
-                            <p class="page-subtitle">ภาพรวมระบบ - จัดการงานทะเบียน - ปี <?php echo htmlspecialchars($fy_display); ?></p>
+                            <p class="page-subtitle">ภาพรวมระบบ - จัดการงานทะเบียน - ปี
+                                <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
                         <div class="page-header-actions">
-                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#historyTaskModal">
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                data-bs-target="#historyTaskModal">
                                 <i class="ri-history-line"></i>
                                 <span>ประวัติงานที่เสร็จแล้ว</span>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#jobTypeSettingsModal">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                                data-bs-target="#jobTypeSettingsModal">
                                 <i class="ri-settings-2-line"></i>
                                 <span>ตั้งค่าประเภทงาน</span>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#registrationTaskSettingsModal">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                                data-bs-target="#registrationTaskSettingsModal">
                                 <i class="ri-upload-2-line"></i>
                                 <span>ตั้งค่างานทะเบียน</span>
                             </button>
-                            <button type="button" class="btn-add-customer" data-bs-toggle="modal" data-bs-target="#addRegistrationTaskModal">
+                            <button type="button" class="btn-add-customer" data-bs-toggle="modal"
+                                data-bs-target="#addRegistrationTaskModal">
                                 <i class="ri-add-line"></i>
                                 <span>เพิ่มงานทะเบียน</span>
                             </button>
@@ -876,7 +881,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </div>
                             <div class="stat-info">
                                 <span class="stat-val"><?php echo $data['stat_closed_this_month']['total']; ?></span>
-                                <span class="stat-label">ปิดงานเดือนนี้ · <?php echo number_format($data['stat_closed_this_month']['total_amount'], 2); ?></span>
+                                <span class="stat-label">ปิดงานเดือนนี้ ·
+                                    <?php echo number_format($data['stat_closed_this_month']['total_amount'], 2); ?></span>
                             </div>
                         </div>
 
@@ -886,7 +892,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </div>
                             <div class="stat-info">
                                 <span class="stat-val"><?php echo $data['stat_closed_last_month']['total']; ?></span>
-                                <span class="stat-label">ปิดงานเดือนก่อน · <?php echo number_format($data['stat_closed_last_month']['total_amount'], 2); ?></span>
+                                <span class="stat-label">ปิดงานเดือนก่อน ·
+                                    <?php echo number_format($data['stat_closed_last_month']['total_amount'], 2); ?></span>
                             </div>
                         </div>
                     </div>
@@ -916,16 +923,16 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </div>
 
                     <?php
-                        // ป้ายชื่อคอลัมน์ตาม status ตรงกับ comment ในตาราง tbl_registration เป๊ะๆ
-                        $registrationStatusLabels = [
-                            '0' => 'รับงานทะเบียน',
-                            '1' => 'กำลังทำ',
-                            '2' => 'รอตรวจสอบ',
-                            '3' => 'ตรวจสอบแล้ว',
-                            '4' => 'กำลังไปยื่น',
-                            '5' => 'งานเสร็จเรียบร้อยแล้ว',
-                            '6' => 'เก็บเงินเรียบร้อยแล้ว',
-                        ];
+                    // ป้ายชื่อคอลัมน์ตาม status ตรงกับ comment ในตาราง tbl_registration เป๊ะๆ
+                    $registrationStatusLabels = [
+                        '0' => 'รับงานทะเบียน',
+                        '1' => 'กำลังทำ',
+                        '2' => 'รอตรวจสอบ',
+                        '3' => 'ตรวจสอบแล้ว',
+                        '4' => 'กำลังไปยื่น',
+                        '5' => 'งานเสร็จเรียบร้อยแล้ว',
+                        '6' => 'เก็บเงินเรียบร้อยแล้ว',
+                    ];
                     ?>
 
                     <!-- Board Swimlanes Wrapper -->
@@ -935,18 +942,22 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <div class="board-swimlane-card">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
-                                        <h5 class="mb-0 board-swimlane-title"><?php echo htmlspecialchars($statusLabel); ?></h5>
-                                        <small class="text-muted board-lane-count"><?php echo count($tasksInLane); ?> งาน</small>
+                                        <h5 class="mb-0 board-swimlane-title"><?php echo htmlspecialchars($statusLabel); ?>
+                                        </h5>
+                                        <small class="text-muted board-lane-count"><?php echo count($tasksInLane); ?>
+                                            งาน</small>
                                     </div>
                                     <?php if ($statusCode === '0'): ?>
-                                        <button type="button" class="btn board-add-btn" data-bs-toggle="modal" data-bs-target="#addRegistrationTaskModal">
+                                        <button type="button" class="btn board-add-btn" data-bs-toggle="modal"
+                                            data-bs-target="#addRegistrationTaskModal">
                                             <i class="ri-add-line fs-5"></i>
                                         </button>
                                     <?php endif; ?>
                                 </div>
 
                                 <!-- คอนเทนเนอร์นี้ต้องอยู่ในหน้าเสมอ (แม้ไม่มีงาน) เพราะเป็นจุดวางการ์ดตอนลาก -->
-                                <div class="board-cards-container board-status-lane" data-status="<?php echo htmlspecialchars($statusCode); ?>">
+                                <div class="board-cards-container board-status-lane"
+                                    data-status="<?php echo htmlspecialchars($statusCode); ?>">
                                     <?php if (empty($tasksInLane)): ?>
                                         <div class="board-empty-state board-lane-empty-msg">
                                             ยังไม่มีงานในสถานะนี้
@@ -977,11 +988,15 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
 
                         <div class="pagination-nav">
-                            <button type="button" class="page-btn" title="หน้าแรก"><i class="ri-arrow-left-double-line"></i></button>
-                            <button type="button" class="page-btn" title="ก่อนหน้า"><i class="ri-arrow-left-s-line"></i></button>
+                            <button type="button" class="page-btn" title="หน้าแรก"><i
+                                    class="ri-arrow-left-double-line"></i></button>
+                            <button type="button" class="page-btn" title="ก่อนหน้า"><i
+                                    class="ri-arrow-left-s-line"></i></button>
                             <button type="button" class="page-btn active">1</button>
-                            <button type="button" class="page-btn" title="ถัดไป"><i class="ri-arrow-right-s-line"></i></button>
-                            <button type="button" class="page-btn" title="หน้าสุดท้าย"><i class="ri-arrow-right-double-line"></i></button>
+                            <button type="button" class="page-btn" title="ถัดไป"><i
+                                    class="ri-arrow-right-s-line"></i></button>
+                            <button type="button" class="page-btn" title="หน้าสุดท้าย"><i
+                                    class="ri-arrow-right-double-line"></i></button>
                         </div>
                     </div>
 
@@ -994,12 +1009,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 <!-- Modal ประวัติงานทะเบียนที่ปิดแล้ว (เทมเพลตเดียวกับ Modal เพิ่มลูกค้าใหม่) -->
 <div class="modal fade" id="historyTaskModal" tabindex="-1" aria-labelledby="historyTaskModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 960px;">
-        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
-
+        <div class="modal-content"
+            style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
             <!-- Header -->
-            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
+            <div class="modal-header"
+                style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
                 <div>
-                    <h5 class="modal-title" id="historyTaskModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem; margin-bottom: 4px;">
+                    <h5 class="modal-title" id="historyTaskModalLabel"
+                        style="font-weight: 800; color: #1e293b; font-size: 1.25rem; margin-bottom: 4px;">
                         ประวัติงานทะเบียนที่ปิดแล้ว
                     </h5>
                     <p style="font-size: 0.82rem; color: #94a3b8; font-weight: 500; margin: 0;">
@@ -1008,7 +1025,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         ค่าบริการรวม <span id="historyTotalAmount">0.00</span>
                     </p>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    style="font-size: 0.9rem; opacity: 0.4;"></button>
             </div>
 
             <!-- Body -->
@@ -1019,7 +1037,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="col-md-8">
                         <div class="history-search-wrap">
                             <i class="ri-search-line"></i>
-                            <input type="text" id="historySearchInput" class="history-search-input" placeholder="ค้นหาลูกค้า งาน ผู้รับผิดชอบ">
+                            <input type="text" id="historySearchInput" class="history-search-input"
+                                placeholder="ค้นหาลูกค้า งาน ผู้รับผิดชอบ">
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -1033,20 +1052,34 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                 <!-- ตารางประวัติ -->
                 <div style="overflow-x: auto;">
-                    <table class="table" style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 0;">
+                    <table class="table"
+                        style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 0;">
                         <thead>
                             <tr>
-                                <th style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">วันที่ปิด</th>
-                                <th style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">ลูกค้า</th>
-                                <th style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">งานทะเบียน</th>
-                                <th style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">ประเภทงาน</th>
-                                <th style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">ผู้รับผิดชอบ</th>
-                                <th style="text-align: right; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">ค่าบริการ</th>
+                                <th
+                                    style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
+                                    วันที่ปิด</th>
+                                <th
+                                    style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
+                                    ลูกค้า</th>
+                                <th
+                                    style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
+                                    งานทะเบียน</th>
+                                <th
+                                    style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
+                                    ประเภทงาน</th>
+                                <th
+                                    style="text-align: left; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
+                                    ผู้รับผิดชอบ</th>
+                                <th
+                                    style="text-align: right; font-size: 0.75rem; font-weight: 700; color: #94a3b8; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
+                                    ค่าบริการ</th>
                             </tr>
                         </thead>
                         <tbody id="historyTaskTableBody">
                             <tr>
-                                <td colspan="6" style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 48px 14px; border-bottom: none;">
+                                <td colspan="6"
+                                    style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 48px 14px; border-bottom: none;">
                                     ยังไม่มีประวัติงานที่ปิดแล้ว
                                 </td>
                             </tr>
@@ -1055,17 +1088,20 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 </div>
 
                 <!-- Pagination -->
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3" style="padding-top: 16px;">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3"
+                    style="padding-top: 16px;">
                     <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;" id="historyPaginationInfo">
                         แสดง 0-0 จาก 0 รายการ
                     </div>
                     <div class="d-flex align-items-center gap-1" id="historyPaginationNav">
-                        <button type="button" class="btn" id="historyPrevBtn" disabled onclick="loadHistoryTasks(historyCurrentPage - 1)"
+                        <button type="button" class="btn" id="historyPrevBtn" disabled
+                            onclick="loadHistoryTasks(historyCurrentPage - 1)"
                             style="background-color: #f1f5f9; color: #94a3b8; border: none; border-radius: 8px; padding: 6px 16px; font-size: 0.78rem; font-weight: 700;">
                             ก่อนหน้า
                         </button>
                         <span id="historyPageNumbers" class="d-flex align-items-center gap-1"></span>
-                        <button type="button" class="btn" id="historyNextBtn" disabled onclick="loadHistoryTasks(historyCurrentPage + 1)"
+                        <button type="button" class="btn" id="historyNextBtn" disabled
+                            onclick="loadHistoryTasks(historyCurrentPage + 1)"
                             style="background-color: #f1f5f9; color: #94a3b8; border: none; border-radius: 8px; padding: 6px 16px; font-size: 0.78rem; font-weight: 700;">
                             ถัดไป
                         </button>
@@ -1074,7 +1110,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer" style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
+            <div class="modal-footer"
+                style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
                 <button type="button" class="btn" data-bs-dismiss="modal"
                     style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">
                     ปิด
@@ -1085,21 +1122,26 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 </div>
 
 <!-- Modal ตั้งค่าประเภทงานทะเบียน -->
-<div class="modal fade" id="jobTypeSettingsModal" tabindex="-1" aria-labelledby="jobTypeSettingsModalLabel" aria-hidden="true">
+<div class="modal fade" id="jobTypeSettingsModal" tabindex="-1" aria-labelledby="jobTypeSettingsModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
-        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
+        <div class="modal-content"
+            style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
 
             <!-- Header -->
-            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
+            <div class="modal-header"
+                style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
                 <div>
-                    <h5 class="modal-title" id="jobTypeSettingsModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem; margin-bottom: 4px;">
+                    <h5 class="modal-title" id="jobTypeSettingsModalLabel"
+                        style="font-weight: 800; color: #1e293b; font-size: 1.25rem; margin-bottom: 4px;">
                         ตั้งค่าประเภทงานทะเบียน
                     </h5>
                     <p style="font-size: 0.82rem; color: #94a3b8; font-weight: 500; margin: 0;">
                         จัดการหมวดหมู่ประเภทงานที่ใช้เลือกตอนสร้างงานทะเบียน
                     </p>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    style="font-size: 0.9rem; opacity: 0.4;"></button>
             </div>
 
             <!-- Body -->
@@ -1107,7 +1149,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                 <!-- แถวเพิ่มประเภทงานใหม่ -->
                 <div class="job-type-add-row">
-                    <input type="text" id="jobTypeNameInput" class="job-type-input" placeholder="เช่น จดทะเบียนประกันสังคม" maxlength="150">
+                    <input type="text" id="jobTypeNameInput" class="job-type-input"
+                        placeholder="เช่น จดทะเบียนประกันสังคม" maxlength="150">
                     <button type="button" class="btn-add-type" onclick="addJobType()">
                         <i class="ri-add-line"></i>
                         <span>เพิ่ม</span>
@@ -1122,7 +1165,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer" style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
+            <div class="modal-footer"
+                style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
                 <button type="button" class="btn" data-bs-dismiss="modal"
                     style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">
                     ปิด
@@ -1133,16 +1177,26 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 </div>
 
 <!-- Modal ตั้งค่างานทะเบียน -->
-<div class="modal fade" id="registrationTaskSettingsModal" tabindex="-1" aria-labelledby="registrationTaskSettingsModalLabel" aria-hidden="true">
+<div class="modal fade" id="registrationTaskSettingsModal" tabindex="-1"
+    aria-labelledby="registrationTaskSettingsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
-        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
+        <div class="modal-content"
+            style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
 
             <!-- Header -->
-            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
-                <h5 class="modal-title" id="registrationTaskSettingsModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">
-                    ตั้งค่างานทะเบียน
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+            <div class="modal-header"
+                style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
+                <div>
+                    <h5 class="modal-title" id="registrationTaskSettingsModalLabel"
+                        style="font-weight: 800; color: #1e293b; font-size: 1.25rem; margin-bottom: 4px;">
+                        ตั้งค่างานทะเบียน
+                    </h5>
+                    <p style="font-size: 0.82rem; color: #94a3b8; font-weight: 500; margin: 0;">
+                        กำหนดการแจ้งเตือนและสีของระดับความเร่งด่วน
+                    </p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    style="font-size: 0.9rem; opacity: 0.4;"></button>
             </div>
 
             <!-- Body -->
@@ -1150,7 +1204,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                 <div class="settings-field-group">
                     <label class="settings-field-label">แจ้งเตือนงานใกล้ครบกำหนดภายในกี่วัน</label>
-                    <input type="number" min="1" id="settingsNotifyDay" class="job-type-input" style="width: 100%;">
+                    <input type="number" min="1" id="settingsNotifyDay" class="job-type-input"
+                        style="width: 100%; background-color: #ffffff; border: 1px solid #e2e8f0;">
                     <small class="settings-hint" id="settingsNotifyDayHint"></small>
                 </div>
 
@@ -1158,25 +1213,30 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                 <div class="urgency-row">
                     <span class="urgency-code">NORMAL</span>
-                    <input type="text" id="settingsNormalLabel" class="job-type-input">
+                    <input type="text" id="settingsNormalLabel" class="job-type-input"
+                        style="background-color: #ffffff; border: 1px solid #e2e8f0;">
                     <input type="color" id="settingsNormalColor" class="urgency-color-input">
                 </div>
                 <div class="urgency-row">
                     <span class="urgency-code">URGENT</span>
-                    <input type="text" id="settingsUrgentLabel" class="job-type-input">
+                    <input type="text" id="settingsUrgentLabel" class="job-type-input"
+                        style="background-color: #ffffff; border: 1px solid #e2e8f0;">
                     <input type="color" id="settingsUrgentColor" class="urgency-color-input">
                 </div>
                 <div class="urgency-row">
                     <span class="urgency-code">VERY_URGENT</span>
-                    <input type="text" id="settingsVeryUrgentLabel" class="job-type-input">
+                    <input type="text" id="settingsVeryUrgentLabel" class="job-type-input"
+                        style="background-color: #ffffff; border: 1px solid #e2e8f0;">
                     <input type="color" id="settingsVeryUrgentColor" class="urgency-color-input">
                 </div>
 
-                <small class="settings-hint" style="display: block; margin-top: 12px;">สีนี้จะถูกใช้เป็นสีขอบของการ์ดงานทะเบียนตามระดับความเร่งด่วน</small>
+                <small class="settings-hint"
+                    style="display: block; margin-top: 12px;">สีนี้จะถูกใช้เป็นสีขอบของการ์ดงานทะเบียนตามระดับความเร่งด่วน</small>
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer" style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
+            <div class="modal-footer"
+                style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
                 <button type="button" class="btn" data-bs-dismiss="modal"
                     style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">
                     ยกเลิก
@@ -1192,82 +1252,94 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
 
 <!-- Modal เพิ่มงานทะเบียน -->
-<div class="modal fade" id="addRegistrationTaskModal" tabindex="-1" aria-labelledby="addRegistrationTaskModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 640px;">
-        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
+<div class="modal fade" id="addRegistrationTaskModal" tabindex="-1" aria-labelledby="addRegistrationTaskModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-dialog-custom"
+        style="max-width: 800px;">
+        <div class="modal-content modal-content-custom">
 
-            <!-- Header -->
-            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
-                <h5 class="modal-title" id="addRegistrationTaskModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">
+            <!-- Header (Fixed) -->
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title modal-title-custom" id="addRegistrationTaskModalLabel">
                     เพิ่มงานทะเบียนใหม่
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
 
-            <!-- Body -->
-            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
+            <!-- Body (Scrollable) -->
+            <div class="modal-body modal-body-custom">
                 <form id="addRegistrationTaskForm">
-                    <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px;">ข้อมูลลูกค้า</h6>
+                    <h6 class="modal-section-title">ข้อมูลลูกค้า</h6>
 
                     <div class="mb-3">
-                        <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                        <label class="form-label modal-form-label">
                             ชื่อลูกค้า / บริษัท <span style="color: #ef4444;">*</span>
                         </label>
-                        <input type="text" class="form-control" name="customer_name" id="regCustomerName" placeholder="" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                        <input type="text" class="form-control modal-form-control" name="customer_name"
+                            id="regCustomerName" placeholder="">
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 เบอร์ติดต่อ <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="customer_phone" id="regCustomerPhone" maxlength="10" placeholder="" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="customer_phone"
+                                id="regCustomerPhone" maxlength="10" placeholder="">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ผู้ติดต่อ <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="contact_person" id="regContactPerson" placeholder="" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="contact_person"
+                                id="regContactPerson" placeholder="">
                         </div>
                     </div>
 
-                    <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px; margin-top: 8px;">ข้อมูลงานทะเบียน</h6>
+                    <!-- เส้นประคั่นส่วน -->
+                    <div class="modal-section-divider"></div>
+
+                    <h6 class="modal-section-title">ข้อมูลงานทะเบียน</h6>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ประเภทงาน <span style="color: #ef4444;">*</span>
                             </label>
-                            <select class="form-select" name="registration_type_id" id="regTypeId" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <select class="form-select modal-form-select" name="registration_type_id" id="regTypeId">
                                 <option value="">กำลังโหลด...</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ชื่องานทะเบียน <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="registration_name" id="regName" placeholder="เช่น จดทะเบียนพาณิชย์" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="registration_name"
+                                id="regName" placeholder="เช่น จดทะเบียนพาณิชย์">
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                        <label class="form-label modal-form-label">
                             รายละเอียดงาน <span style="color: #ef4444;">*</span>
                         </label>
-                        <textarea class="form-control" name="description" id="regDescription" rows="2" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;"></textarea>
+                        <textarea class="form-control modal-form-control" name="description" id="regDescription"
+                            rows="2"></textarea>
                     </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ค่าบริการ
                             </label>
-                            <input type="number" step="0.01" min="0" class="form-control" name="service_amount" id="regServiceAmount" value="0" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="number" step="0.01" min="0" class="form-control modal-form-control"
+                                name="service_amount" id="regServiceAmount" value="0">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ความเร่งด่วน
                             </label>
-                            <select class="form-select" name="urgency_level" id="regUrgencyLevel" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <select class="form-select modal-form-select" name="urgency_level" id="regUrgencyLevel">
                                 <option value="">กำลังโหลด...</option>
                             </select>
                         </div>
@@ -1275,10 +1347,10 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ผู้รับผิดชอบ <span style="color: #ef4444;">*</span>
                             </label>
-                            <select class="form-select" name="assignee_user_id" id="regAssignee" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <select class="form-select modal-form-select" name="assignee_user_id" id="regAssignee">
                                 <option value="">เลือกพนักงาน</option>
                                 <?php foreach (($data['employees'] ?? []) as $emp): ?>
                                     <option value="<?php echo htmlspecialchars($emp['user_id']); ?>">
@@ -1288,10 +1360,10 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ผู้ตรวจสอบงาน
                             </label>
-                            <select class="form-select" name="review_user_id" id="regReviewer" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <select class="form-select modal-form-select" name="review_user_id" id="regReviewer">
                                 <option value="">ไม่ระบุ</option>
                                 <?php foreach (($data['employees'] ?? []) as $emp): ?>
                                     <option value="<?php echo htmlspecialchars($emp['user_id']); ?>">
@@ -1303,34 +1375,36 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                        <label class="form-label modal-form-label">
                             รหัสงานทะเบียน
                         </label>
-                        <input type="text" class="form-control" id="regNo" placeholder="เช่น REG-001" disabled
-                            style="background-color: #f1f5f9; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #94a3b8; font-size: 0.92rem; outline: none; box-shadow: none;">
-                        <small class="settings-hint" style="display: block; margin-top: 6px;">ระบบจะสร้างรหัสนี้ให้อัตโนมัติตอนบันทึก</small>
+                        <input type="text" class="form-control modal-form-control" id="regNo" placeholder="เช่น REG-001"
+                            disabled>
+                        <small class="settings-hint"
+                            style="display: block; margin-top: 6px;">ระบบจะสร้างรหัสนี้ให้อัตโนมัติตอนบันทึก</small>
                     </div>
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 วันที่รับงาน
                             </label>
-                            <input type="date" class="form-control" name="accep_date" id="regAccepDate" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;"
-                                value="<?php echo date('Y-m-d'); ?>">
+                            <input type="text" class="form-control modal-form-control flatpickr-date" name="accep_date"
+                                id="regAccepDate" placeholder="วัน/เดือน/ปี" value="<?php echo date('Y-m-d'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 กำหนดส่ง
                             </label>
-                            <input type="date" class="form-control" name="due_date" id="regDueDate" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control flatpickr-date" name="due_date"
+                                id="regDueDate" placeholder="วัน/เดือน/ปี">
                         </div>
                     </div>
                 </form>
             </div>
 
-            <!-- Footer -->
-            <div class="modal-footer" style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
+            <!-- Footer (Fixed) -->
+            <div class="modal-footer modal-footer-custom">
                 <button type="button" class="btn" data-bs-dismiss="modal"
                     style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">
                     ยกเลิก
@@ -1345,83 +1419,94 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 </div>
 
 <!-- Modal แก้ไขงานทะเบียน (โครงเดียวกับ Modal เพิ่ม เปลี่ยนแค่ id เป็น edit_reg_*) -->
-<div class="modal fade" id="editRegistrationTaskModal" tabindex="-1" aria-labelledby="editRegistrationTaskModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 640px;">
-        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
+<div class="modal fade" id="editRegistrationTaskModal" tabindex="-1" aria-labelledby="editRegistrationTaskModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-dialog-custom"
+        style="max-width: 800px;">
+        <div class="modal-content modal-content-custom">
 
-            <!-- Header -->
-            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
-                <h5 class="modal-title" id="editRegistrationTaskModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">
+            <!-- Header (Fixed) -->
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title modal-title-custom" id="editRegistrationTaskModalLabel">
                     แก้ไขงานทะเบียน
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
 
-            <!-- Body -->
-            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
+            <!-- Body (Scrollable) -->
+            <div class="modal-body modal-body-custom">
                 <form id="editRegistrationTaskForm">
                     <input type="hidden" id="edit_reg_id">
-                    <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px;">ข้อมูลลูกค้า</h6>
+                    <h6 class="modal-section-title">ข้อมูลลูกค้า</h6>
 
                     <div class="mb-3">
-                        <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                        <label class="form-label modal-form-label">
                             ชื่อลูกค้า / บริษัท <span style="color: #ef4444;">*</span>
                         </label>
-                        <input type="text" class="form-control" id="edit_reg_customer_name" placeholder="" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                        <input type="text" class="form-control modal-form-control" id="edit_reg_customer_name"
+                            placeholder="">
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 เบอร์ติดต่อ <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" id="edit_reg_customer_phone" maxlength="10" placeholder="" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" id="edit_reg_customer_phone"
+                                maxlength="10" placeholder="">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ผู้ติดต่อ <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" id="edit_reg_contact_person" placeholder="" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" id="edit_reg_contact_person"
+                                placeholder="">
                         </div>
                     </div>
 
-                    <h6 style="font-weight: 800; color: #1e293b; font-size: 1.05rem; margin-bottom: 16px; margin-top: 8px;">ข้อมูลงานทะเบียน</h6>
+                    <!-- เส้นประคั่นส่วน -->
+                    <div class="modal-section-divider"></div>
+
+                    <h6 class="modal-section-title">ข้อมูลงานทะเบียน</h6>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ประเภทงาน <span style="color: #ef4444;">*</span>
                             </label>
-                            <select class="form-select" id="edit_reg_type_id" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <select class="form-select modal-form-select" id="edit_reg_type_id">
                                 <option value="">กำลังโหลด...</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ชื่องานทะเบียน <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" id="edit_reg_name" placeholder="เช่น จดทะเบียนพาณิชย์" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" id="edit_reg_name"
+                                placeholder="เช่น จดทะเบียนพาณิชย์">
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                        <label class="form-label modal-form-label">
                             รายละเอียดงาน <span style="color: #ef4444;">*</span>
                         </label>
-                        <textarea class="form-control" id="edit_reg_description" rows="2" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;"></textarea>
+                        <textarea class="form-control modal-form-control" id="edit_reg_description" rows="2"></textarea>
                     </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ค่าบริการ
                             </label>
-                            <input type="number" step="0.01" min="0" class="form-control" id="edit_reg_service_amount" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="number" step="0.01" min="0" class="form-control modal-form-control"
+                                id="edit_reg_service_amount">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ความเร่งด่วน
                             </label>
-                            <select class="form-select" id="edit_reg_urgency_level" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <select class="form-select modal-form-select" id="edit_reg_urgency_level">
                                 <option value="">กำลังโหลด...</option>
                             </select>
                         </div>
@@ -1429,10 +1514,10 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ผู้รับผิดชอบ <span style="color: #ef4444;">*</span>
                             </label>
-                            <select class="form-select" id="edit_reg_assignee" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <select class="form-select modal-form-select" id="edit_reg_assignee">
                                 <option value="">เลือกพนักงาน</option>
                                 <?php foreach (($data['employees'] ?? []) as $emp): ?>
                                     <option value="<?php echo htmlspecialchars($emp['user_id']); ?>">
@@ -1442,10 +1527,10 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 ผู้ตรวจสอบงาน
                             </label>
-                            <select class="form-select" id="edit_reg_reviewer" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <select class="form-select modal-form-select" id="edit_reg_reviewer">
                                 <option value="">ไม่ระบุ</option>
                                 <?php foreach (($data['employees'] ?? []) as $emp): ?>
                                     <option value="<?php echo htmlspecialchars($emp['user_id']); ?>">
@@ -1457,32 +1542,33 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                        <label class="form-label modal-form-label">
                             รหัสงานทะเบียน
                         </label>
-                        <input type="text" class="form-control" id="edit_reg_no" disabled
-                            style="background-color: #f1f5f9; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #94a3b8; font-size: 0.92rem; outline: none; box-shadow: none;">
+                        <input type="text" class="form-control modal-form-control" id="edit_reg_no" disabled>
                     </div>
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 วันที่รับงาน
                             </label>
-                            <input type="date" class="form-control" id="edit_reg_accep_date" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control flatpickr-date"
+                                id="edit_reg_accep_date" placeholder="วัน/เดือน/ปี">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="form-label modal-form-label">
                                 กำหนดส่ง
                             </label>
-                            <input type="date" class="form-control" id="edit_reg_due_date" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control flatpickr-date"
+                                id="edit_reg_due_date" placeholder="วัน/เดือน/ปี">
                         </div>
                     </div>
                 </form>
             </div>
 
-            <!-- Footer -->
-            <div class="modal-footer" style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
+            <!-- Footer (Fixed) -->
+            <div class="modal-footer modal-footer-custom">
                 <button type="button" class="btn" data-bs-dismiss="modal"
                     style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">
                     ยกเลิก
@@ -1499,7 +1585,26 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 <!-- HTML5Sortable — ใช้ทำลากการ์ดข้ามคอลัมน์สถานะบนบอร์ด -->
 <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/dragdrop.js"></script>
 
+<!-- Flatpickr JS & Thai locale -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+
 <script>
+    $(document).ready(function () {
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('.flatpickr-date', {
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: 'd/m/Y',
+                altInputClass: 'form-control flatpickr-input-custom',
+                locale: (typeof flatpickr.l10ns !== 'undefined' && flatpickr.l10ns.th) ? flatpickr.l10ns.th : 'default',
+                allowInput: true,
+                static: true,
+                disableMobile: true
+            });
+        }
+    });
+
     // เปิด Modal ประวัติงานทะเบียน
     function openHistoryTaskModal() {
         const modalElement = document.getElementById('historyTaskModal');
@@ -1513,14 +1618,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     let historySearchTimer = null;
 
     // ค้นหาแบบ debounce เวลาพิมพ์ในช่องค้นหา
-    $(document).on('input', '#historySearchInput', function() {
+    $(document).on('input', '#historySearchInput', function () {
         clearTimeout(historySearchTimer);
-        historySearchTimer = setTimeout(function() {
+        historySearchTimer = setTimeout(function () {
             loadHistoryTasks(1);
         }, 400);
     });
 
-    $(document).on('change', '#historyPerPage', function() {
+    $(document).on('change', '#historyPerPage', function () {
         loadHistoryTasks(1);
     });
 
@@ -1546,7 +1651,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 company_id: '<?php echo htmlspecialchars($data['active_company_id'] ?? ''); ?>'
             },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 renderHistoryTable(response.data || []);
                 renderHistoryPagination(response);
 
@@ -1558,7 +1663,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     })
                 );
             },
-            error: function() {
+            error: function () {
                 $('#historyTaskTableBody').html(
                     '<tr><td colspan="6" style="text-align:center;color:#94a3b8;font-size:0.85rem;padding:48px 14px;border-bottom:none;">ยังไม่มีประวัติงานที่ปิดแล้ว</td></tr>'
                 );
@@ -1587,7 +1692,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             return;
         }
 
-        rows.forEach(function(row) {
+        rows.forEach(function (row) {
             const amount = Number(row.amount ?? 0).toLocaleString('th-TH', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
@@ -1643,7 +1748,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     'font-size': '0.78rem',
                     'font-weight': '700'
                 })
-                .on('click', function() {
+                .on('click', function () {
                     loadHistoryTasks(i);
                 });
             pageNumbers.append(btn);
@@ -1653,13 +1758,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     // ========== ตั้งค่าประเภทงานทะเบียน ==========
 
     // โหลดรายการใหม่ทุกครั้งที่เปิด modal
-    document.getElementById('jobTypeSettingsModal').addEventListener('show.bs.modal', function() {
+    document.getElementById('jobTypeSettingsModal').addEventListener('show.bs.modal', function () {
         $('#jobTypeNameInput').val('');
         loadJobTypes();
     });
 
     // กด Enter ในช่องชื่อ = เพิ่มประเภทงานทันที
-    $(document).on('keypress', '#jobTypeNameInput', function(e) {
+    $(document).on('keypress', '#jobTypeNameInput', function (e) {
         if (e.which === 13) {
             e.preventDefault();
             addJobType();
@@ -1674,10 +1779,10 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/registration-task/job-types',
             method: 'GET',
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 renderJobTypesList(response.data || []);
             },
-            error: function() {
+            error: function () {
                 $('#jobTypeList').html('<div class="job-type-empty">ยังไม่มีประเภทงาน กรุณาเพิ่มประเภทงานใหม่</div>');
             }
         });
@@ -1692,7 +1797,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             return;
         }
 
-        rows.forEach(function(row) {
+        rows.forEach(function (row) {
             const $row = $('<div class="job-type-row"></div>');
             $('<span class="job-type-name"></span>').text(row.name ?? '').appendTo($row);
 
@@ -1708,7 +1813,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             );
             $statusBadge.addClass(isActive ? 'is-active' : 'is-inactive');
             $statusBadge.find('.job-type-status-text').text(isActive ? 'ใช้งานอยู่' : 'ปิดใช้งาน');
-            $statusBadge.on('click', function() {
+            $statusBadge.on('click', function () {
                 const $btn = $(this);
                 const willBeActive = !$btn.hasClass('is-active');
                 toggleJobTypeStatus(row.id, willBeActive, $btn);
@@ -1716,12 +1821,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             $actions.append($statusBadge);
 
             $('<button type="button" class="btn-action-edit" title="แก้ไข"><i class="ri-edit-line"></i></button>')
-                .on('click', function() {
+                .on('click', function () {
                     editJobType(row.id, row.name);
                 })
                 .appendTo($actions);
             $('<button type="button" class="btn-action-delete" title="ลบ"><i class="ri-delete-bin-line"></i></button>')
-                .on('click', function() {
+                .on('click', function () {
                     deleteJobType(row.id);
                 })
                 .appendTo($actions);
@@ -1746,11 +1851,11 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 name: name
             },
             dataType: 'json',
-            success: function() {
+            success: function () {
                 $('#jobTypeNameInput').val('').trigger('focus');
                 loadJobTypes();
             },
-            error: function() {
+            error: function () {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         toast: true,
@@ -1776,12 +1881,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             confirmButtonText: 'บันทึก',
             cancelButtonText: 'ยกเลิก',
             confirmButtonColor: '#007aff',
-            inputValidator: function(value) {
+            inputValidator: function (value) {
                 if (!value || !value.trim()) {
                     return 'กรุณากรอกชื่อประเภทงาน';
                 }
             }
-        }).then(function(result) {
+        }).then(function (result) {
             if (!result.isConfirmed) return;
 
             $.ajax({
@@ -1793,10 +1898,10 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     name: result.value.trim()
                 },
                 dataType: 'json',
-                success: function() {
+                success: function () {
                     loadJobTypes();
                 },
-                error: function() {
+                error: function () {
                     Swal.fire({
                         toast: true,
                         position: 'top-end',
@@ -1821,7 +1926,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             confirmButtonText: 'ลบ',
             cancelButtonText: 'ยกเลิก',
             confirmButtonColor: '#e11d48'
-        }).then(function(result) {
+        }).then(function (result) {
             if (!result.isConfirmed) return;
 
             $.ajax({
@@ -1832,10 +1937,10 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     id: id
                 },
                 dataType: 'json',
-                success: function() {
+                success: function () {
                     loadJobTypes();
                 },
-                error: function() {
+                error: function () {
                     Swal.fire({
                         toast: true,
                         position: 'top-end',
@@ -1860,7 +1965,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 active_status: willBeActive ? '1' : '0'
             },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 $btn.prop('disabled', false);
                 if (response && response.result === 1) {
                     $btn.toggleClass('is-active', willBeActive).toggleClass('is-inactive', !willBeActive);
@@ -1869,7 +1974,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     showToggleStatusError(response && response.msg);
                 }
             },
-            error: function() {
+            error: function () {
                 $btn.prop('disabled', false);
                 showToggleStatusError();
             }
@@ -1892,19 +1997,19 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     // ========== ตั้งค่างานทะเบียน ==========
 
     // โหลดค่าปัจจุบันทุกครั้งที่เปิด modal
-    document.getElementById('registrationTaskSettingsModal').addEventListener('show.bs.modal', function() {
+    document.getElementById('registrationTaskSettingsModal').addEventListener('show.bs.modal', function () {
         $.ajax({
             url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/registration-task/settings',
             method: 'GET',
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 const s = (response && response.data) || {};
                 const notifyDay = s.notify_day ?? 7;
                 $('#settingsNotifyDay').val(notifyDay);
                 $('#settingsNotifyDayHint').text('งานที่จะครบกำหนดภายใน ' + notifyDay + ' วัน จะถูกแสดงป้าย "ใกล้ครบกำหนด"');
 
                 const byLevel = {};
-                (s.urgency_levels || []).forEach(function(l) {
+                (s.urgency_levels || []).forEach(function (l) {
                     byLevel[l.urgency_level] = l;
                 });
 
@@ -1915,7 +2020,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 $('#settingsVeryUrgentLabel').val(byLevel['3'] ? byLevel['3'].label : 'ด่วนมาก');
                 $('#settingsVeryUrgentColor').val(byLevel['3'] ? byLevel['3'].color : '#ef4444');
             },
-            error: function() {
+            error: function () {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         toast: true,
@@ -1931,7 +2036,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     });
 
     // พิมพ์เลขวันแล้วอัปเดตข้อความคำอธิบายทันที
-    $(document).on('input', '#settingsNotifyDay', function() {
+    $(document).on('input', '#settingsNotifyDay', function () {
         $('#settingsNotifyDayHint').text('งานที่จะครบกำหนดภายใน ' + ($(this).val() || 0) + ' วัน จะถูกแสดงป้าย "ใกล้ครบกำหนด"');
     });
 
@@ -1949,7 +2054,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 very_urgent_color: $('#settingsVeryUrgentColor').val()
             },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response && response.result === 1) {
                     // รีโหลดหน้าใหม่ เพราะการ์ดบนบอร์ดถูก render จาก PHP ตอนโหลดหน้า
                     // ต้องโหลดใหม่ถึงจะเห็นสี/ป้ายความเร่งด่วนที่เพิ่งบันทึกเปลี่ยนไป
@@ -1967,7 +2072,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     });
                 }
             },
-            error: function() {
+            error: function () {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         toast: true,
@@ -1991,7 +2096,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/registration-task/job-types',
             method: 'GET',
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 const $select = $('#' + selectId);
                 $select.empty();
                 const rows = (response && response.data) || [];
@@ -2000,14 +2105,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     return;
                 }
                 $select.append('<option value="">เลือกประเภทงาน</option>');
-                rows.forEach(function(row) {
+                rows.forEach(function (row) {
                     $select.append('<option value="' + row.id + '">' + row.name + '</option>');
                 });
                 if (selectedValue) {
                     $select.val(String(selectedValue));
                 }
             },
-            error: function() {
+            error: function () {
                 $('#' + selectId).empty().append('<option value="">โหลดประเภทงานไม่สำเร็จ</option>');
             }
         });
@@ -2019,26 +2124,39 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/registration-task/settings',
             method: 'GET',
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 const $select = $('#' + selectId);
                 $select.empty();
                 const levels = (response && response.data && response.data.urgency_levels) || [];
                 $select.append('<option value="">ไม่ระบุ</option>');
-                levels.forEach(function(level) {
+                levels.forEach(function (level) {
                     $select.append('<option value="' + level.urgency_level + '">' + level.label + '</option>');
                 });
                 if (selectedValue) {
                     $select.val(String(selectedValue));
                 }
             },
-            error: function() {
+            error: function () {
                 $('#' + selectId).empty().append('<option value="">โหลดข้อมูลไม่สำเร็จ</option>');
             }
         });
     }
 
-    document.getElementById('addRegistrationTaskModal').addEventListener('show.bs.modal', function() {
+    document.getElementById('addRegistrationTaskModal').addEventListener('show.bs.modal', function () {
         document.getElementById('addRegistrationTaskForm').reset();
+        const todayStr = new Date().toISOString().split('T')[0];
+        const accepEl = document.getElementById('regAccepDate');
+        if (accepEl && accepEl._flatpickr) {
+            accepEl._flatpickr.setDate(todayStr, true);
+        } else {
+            $('#regAccepDate').val(todayStr);
+        }
+        const dueEl = document.getElementById('regDueDate');
+        if (dueEl && dueEl._flatpickr) {
+            dueEl._flatpickr.clear();
+        } else {
+            $('#regDueDate').val('');
+        }
         loadRegistrationTypeOptions('regTypeId');
         loadUrgencyLevelOptions('regUrgencyLevel');
     });
@@ -2084,7 +2202,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 due_date: $('#regDueDate').val()
             },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response && response.result === 1) {
                     sessionStorage.setItem('toast_msg', response.msg);
                     sessionStorage.setItem('toast_icon', 'success');
@@ -2100,7 +2218,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     });
                 }
             },
-            error: function() {
+            error: function () {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         toast: true,
@@ -2124,7 +2242,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             method: 'GET',
             data: { id: id },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (!response || response.result !== 1) {
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
@@ -2147,8 +2265,19 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 $('#edit_reg_name').val(task.registration_name);
                 $('#edit_reg_description').val(task.description);
                 $('#edit_reg_service_amount').val(task.service_amount);
-                $('#edit_reg_accep_date').val(task.accep_date);
-                $('#edit_reg_due_date').val(task.due_date);
+                const accepEl = document.getElementById('edit_reg_accep_date');
+                if (accepEl && accepEl._flatpickr) {
+                    accepEl._flatpickr.setDate(task.accep_date || '', true);
+                } else {
+                    $('#edit_reg_accep_date').val(task.accep_date || '');
+                }
+
+                const dueEl = document.getElementById('edit_reg_due_date');
+                if (dueEl && dueEl._flatpickr) {
+                    dueEl._flatpickr.setDate(task.due_date || '', true);
+                } else {
+                    $('#edit_reg_due_date').val(task.due_date || '');
+                }
                 $('#edit_reg_assignee').val(task.assignee_user_id ?? '');
                 $('#edit_reg_reviewer').val(task.review_user_id ?? '');
                 $('#edit_reg_no').val(task.registration_no);
@@ -2160,7 +2289,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 const myModal = new bootstrap.Modal(modalElement);
                 myModal.show();
             },
-            error: function() {
+            error: function () {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         toast: true,
@@ -2218,7 +2347,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 due_date: $('#edit_reg_due_date').val()
             },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response && response.result === 1) {
                     sessionStorage.setItem('toast_msg', response.msg);
                     sessionStorage.setItem('toast_icon', 'success');
@@ -2234,7 +2363,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     });
                 }
             },
-            error: function() {
+            error: function () {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         toast: true,
@@ -2269,7 +2398,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 method: 'POST',
                 data: { id: id },
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     if (response && response.result === 1) {
                         sessionStorage.setItem('toast_msg', response.msg);
                         sessionStorage.setItem('toast_icon', 'success');
@@ -2285,7 +2414,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         });
                     }
                 },
-                error: function() {
+                error: function () {
                     Swal.fire({
                         toast: true,
                         position: 'top-end',
@@ -2308,7 +2437,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     });
 
     // Auto-scroll หน้าจอตอนลากการ์ดเข้าใกล้ขอบบน/ล่างของจอ (บอร์ดมี 7 lane ยาวเกินจอเดียว)
-    (function() {
+    (function () {
         const EDGE_SIZE = 90; // ระยะจากขอบจอ (px) ที่เริ่มเลื่อนหน้าอัตโนมัติ
         const SCROLL_SPEED = 18; // ความเร็วเลื่อน (px ต่อรอบ)
         let autoScrollTimer = null;
@@ -2318,18 +2447,18 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             autoScrollTimer = null;
         }
 
-        document.addEventListener('dragover', function(e) {
+        document.addEventListener('dragover', function (e) {
             const y = e.clientY;
 
             if (y < EDGE_SIZE) {
                 if (!autoScrollTimer) {
-                    autoScrollTimer = setInterval(function() {
+                    autoScrollTimer = setInterval(function () {
                         window.scrollBy(0, -SCROLL_SPEED);
                     }, 16);
                 }
             } else if (y > window.innerHeight - EDGE_SIZE) {
                 if (!autoScrollTimer) {
-                    autoScrollTimer = setInterval(function() {
+                    autoScrollTimer = setInterval(function () {
                         window.scrollBy(0, SCROLL_SPEED);
                     }, 16);
                 }
@@ -2344,7 +2473,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
     // อัปเดตจำนวน "X งาน" และข้อความ "ยังไม่มีงานในสถานะนี้" ของทุกคอลัมน์ ให้ตรงกับ DOM ปัจจุบัน
     function refreshRegistrationLaneCounts() {
-        document.querySelectorAll('.board-status-lane').forEach(function(lane) {
+        document.querySelectorAll('.board-status-lane').forEach(function (lane) {
             const cardCount = lane.querySelectorAll('.register-task-card').length;
 
             const swimlane = lane.closest('.board-swimlane-card');
@@ -2363,8 +2492,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     }
 
     // ทุก .board-status-lane ยิง event นี้ตัวเดียวกัน (bubbling ไม่เกี่ยวข้อง — sortable ผูก event ไว้ที่แต่ละ element)
-    document.querySelectorAll('.board-status-lane').forEach(function(lane) {
-        lane.addEventListener('sortupdate', function(e) {
+    document.querySelectorAll('.board-status-lane').forEach(function (lane) {
+        lane.addEventListener('sortupdate', function (e) {
             const item = e.detail.item;
             const destinationContainer = e.detail.destination.container;
             const originContainer = e.detail.origin.container;
@@ -2383,7 +2512,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 method: 'POST',
                 data: { id: taskId, status: newStatus },
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     if (!response || response.result !== 1) {
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
@@ -2399,7 +2528,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         location.reload();
                     }
                 },
-                error: function() {
+                error: function () {
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
                             toast: true,
@@ -2418,7 +2547,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
     // ========== ปิด Job (ย้ายไปประวัติงานที่เสร็จแล้ว) ==========
     // ปุ่มอยู่ในการ์ด ผูกแบบ event delegation เผื่อการ์ดถูก render/ย้ายใหม่
-    $(document).on('click', '.btn-close-job', function() {
+    $(document).on('click', '.btn-close-job', function () {
         const card = this.closest('.register-task-card');
         const taskId = card ? card.getAttribute('data-task-id') : null;
         if (!taskId) return;
@@ -2442,7 +2571,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 method: 'POST',
                 data: { id: taskId },
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     if (response && response.result === 1) {
                         sessionStorage.setItem('toast_msg', response.msg);
                         sessionStorage.setItem('toast_icon', 'success');
@@ -2458,7 +2587,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         });
                     }
                 },
-                error: function() {
+                error: function () {
                     Swal.fire({
                         toast: true,
                         position: 'top-end',
@@ -2473,10 +2602,10 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     });
 
     // โหลดข้อมูลประวัติทุกครั้งที่เปิด Modal ประวัติงานทะเบียน (ปุ่มเปิดใช้ data-bs-toggle)
-    (function() {
+    (function () {
         const historyModalEl = document.getElementById('historyTaskModal');
         if (historyModalEl) {
-            historyModalEl.addEventListener('shown.bs.modal', function() {
+            historyModalEl.addEventListener('shown.bs.modal', function () {
                 loadHistoryTasks(1);
             });
         }

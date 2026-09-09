@@ -159,17 +159,17 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
 <!-- Modal เพิ่มพนักงานใหม่ -->
 <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 820px;">
-        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" style="max-width: 640px;">
+        <div class="modal-content modal-content-custom">
             
-            <!-- Header -->
-            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px;">
-                <h5 class="modal-title" id="addCustomerModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">เพิ่มลูกค้าใหม่</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+            <!-- Header (Fixed) -->
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title modal-title-custom" id="addEmployeeModalLabel">เพิ่มพนักงานใหม่</h5>
+                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <!-- Body -->
-            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
+            <!-- Body (Scrollable) -->
+            <div class="modal-body modal-body-custom">
                 <form id="addEmployeeForm">
                     <!-- Hidden Fields -->
                     <input type="hidden" name="fiscal_id" value="<?php echo htmlspecialchars($data['fiscal_id'] ?? ''); ?>">
@@ -179,48 +179,48 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="mb-4">
                         <!-- ชื่อผู้ใช้ / รหัสผ่าน -->
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="modal-form-label" for="user_name">
                                ชื่อผู้ใช้ <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="user_name" id="user_name" placeholder="ระบุชื่อผู้ใช้" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="user_name" id="user_name" placeholder="ระบุชื่อผู้ใช้">
                             <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อผู้ใช้</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="modal-form-label" for="user_password">
                                รหัสผ่าน <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="user_password" id="user_password" placeholder="ระบุรหัสผ่าน" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="user_password" id="user_password" placeholder="ระบุรหัสผ่าน">
                             <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุรหัสผ่าน</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="modal-form-label" for="user_firstname">
                                ชื่อพนักงาน <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="user_firstname" id="user_firstname" placeholder="ระบุชื่อพนักงาน" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="user_firstname" id="user_firstname" placeholder="ระบุชื่อพนักงาน">
                             <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อพนักงาน</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="modal-form-label" for="user_lastname">
                                นามสกุล <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="user_lastname" id="user_lastname" placeholder="ระบุนามสกุล" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="user_lastname" id="user_lastname" placeholder="ระบุนามสกุล">
                             <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุนามสกุล</div>
                         </div>
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                                <label class="modal-form-label" for="user_position">
                                    ตำแหน่ง
                                 </label>
-                                <input type="text" class="form-control" name="user_position" id="user_position" placeholder="เช่น Senior Accountant" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                                <input type="text" class="form-control modal-form-control" name="user_position" id="user_position" placeholder="เช่น Senior Accountant">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                                <label class="modal-form-label" for="team_name">
                                    ทีม
                                 </label>
                                 <div class="position-relative dropdown-autocomplete">
-                                    <input type="text" class="form-control autocomplete-input" name="team_name" id="team_name" placeholder="เช่น ทีมบัญชี A" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; font-weight: 500; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;" autocomplete="off">
+                                    <input type="text" class="form-control modal-form-control autocomplete-input" name="team_name" id="team_name" placeholder="เช่น ทีมบัญชี A" autocomplete="off">
                                     <ul class="dropdown-menu autocomplete-list w-100 shadow-sm" style="max-height: 200px; overflow-y: auto; padding: 0; margin-top: 4px; border: 1px solid #e2e8f0; border-radius: 8px; position: absolute; z-index: 1050;">
                                     </ul>
                                 </div>
@@ -230,8 +230,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 </form>
             </div>
 
-            <!-- Footer -->
-            <div class="modal-footer" style="border-top: none; padding: 12px 28px 28px 28px; gap: 12px; justify-content: flex-end;">
+            <!-- Footer (Fixed) -->
+            <div class="modal-footer modal-footer-custom">
                 <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">ยกเลิก</button>
                 <button type="button" class="btn" onclick="submit_addemployee()" style="background-color: #007aff; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 28px; border: none; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(0,122,255,0.25); transition: all 0.2s ease;">บันทึกข้อมูล</button>
             </div>
@@ -241,55 +241,55 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
 <!-- Modal แก้ไขพนักงาน -->
 <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 820px;">
-        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" style="max-width: 640px;">
+        <div class="modal-content modal-content-custom">
             
-            <!-- Header -->
-            <div class="modal-header" style="border-bottom: none; padding: 24px 28px 12px 28px;">
-                <h5 class="modal-title" id="editEmployeeModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.25rem;">แก้ไขข้อมูลพนักงาน</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.9rem; opacity: 0.4;"></button>
+            <!-- Header (Fixed) -->
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title modal-title-custom" id="editEmployeeModalLabel">แก้ไขข้อมูลพนักงาน</h5>
+                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <!-- Body -->
-            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
+            <!-- Body (Scrollable) -->
+            <div class="modal-body modal-body-custom">
                 <form id="editEmployeeForm">
                     <input type="hidden" name="user_id" id="edit_user_id">
                     
                     <div class="mb-4">
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="modal-form-label" for="edit_user_name">
                                ชื่อผู้ใช้ <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="user_name" id="edit_user_name" placeholder="ระบุชื่อผู้ใช้" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;" readonly>
+                            <input type="text" class="form-control modal-form-control" name="user_name" id="edit_user_name" placeholder="ระบุชื่อผู้ใช้" readonly>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="modal-form-label" for="edit_user_firstname">
                                ชื่อพนักงาน <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="user_firstname" id="edit_user_firstname" placeholder="ระบุชื่อพนักงาน" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="user_firstname" id="edit_user_firstname" placeholder="ระบุชื่อพนักงาน">
                             <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อพนักงาน</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                            <label class="modal-form-label" for="edit_user_lastname">
                                นามสกุล <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control" name="user_lastname" id="edit_user_lastname" placeholder="ระบุนามสกุล" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                            <input type="text" class="form-control modal-form-control" name="user_lastname" id="edit_user_lastname" placeholder="ระบุนามสกุล">
                             <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุนามสกุล</div>
                         </div>
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                                <label class="modal-form-label" for="edit_user_position">
                                    ตำแหน่ง
                                 </label>
-                                <input type="text" class="form-control" name="user_position" id="edit_user_position" placeholder="เช่น Senior Accountant" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px 16px; font-weight: 600; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;">
+                                <input type="text" class="form-control modal-form-control" name="user_position" id="edit_user_position" placeholder="เช่น Senior Accountant">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 700; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px;">
+                                <label class="modal-form-label" for="edit_team_name">
                                    ทีม
                                 </label>
                                 <div class="position-relative dropdown-autocomplete">
-                                    <input type="text" class="form-control autocomplete-input" name="team_name" id="edit_team_name" placeholder="ระบุชื่อทีม" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; font-weight: 500; color: #1e293b; font-size: 0.92rem; outline: none; box-shadow: none;" autocomplete="off">
+                                    <input type="text" class="form-control modal-form-control autocomplete-input" name="team_name" id="edit_team_name" placeholder="ระบุชื่อทีม" autocomplete="off">
                                     <ul class="dropdown-menu autocomplete-list w-100 shadow-sm" style="max-height: 200px; overflow-y: auto; padding: 0; margin-top: 4px; border: 1px solid #e2e8f0; border-radius: 8px; position: absolute; z-index: 1050;">
                                     </ul>
                                 </div>
@@ -299,8 +299,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 </form>
             </div>
 
-            <!-- Footer -->
-            <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 20px 28px; display: flex; justify-content: flex-end; gap: 12px;">
+            <!-- Footer (Fixed) -->
+            <div class="modal-footer modal-footer-custom">
                 <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">ยกเลิก</button>
                 <button type="button" class="btn" onclick="submit_editemployee()" style="background-color: #007aff; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 28px; border: none; font-size: 0.92rem; box-shadow: 0 4px 14px rgba(0,122,255,0.25); transition: all 0.2s ease;">บันทึกข้อมูล</button>
             </div>
