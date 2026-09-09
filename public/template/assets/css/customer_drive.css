@@ -1,0 +1,1875 @@
+/*
+ * คลังไฟล์ลูกค้า
+ *
+ * ใช้ตัวแปรสีของ Bootstrap (--bs-*) ทั้งหมด ไม่ฮาร์ดโค้ด hex เว้นแต่จำเป็นจริง ๆ
+ * เพื่อให้หน้าเปลี่ยนตามธีมสว่าง/มืดของเทมเพลตเองโดยไม่ต้องเขียนซ้ำสองชุด
+ */
+
+/* ------------------------------------------------------------ โครงหน้า */
+
+.cd-card {
+    box-shadow: var(--bs-box-shadow-sm, 0 0 20px rgba(0, 0, 0, .05));
+}
+
+/*
+ * ความสูงของทุกอย่างบนแถบคำสั่งต้องเท่ากันเป๊ะ
+ *
+ * ปุ่มของเทมเพลตกับ .form-control มีความสูงคนละค่าโดยธรรมชาติ (padding ต่างกัน
+ * และไอคอน material-symbols ดันความสูงปุ่มขึ้นอีก) พอวางเรียงกันบนแถวเดียว
+ * จะเห็นเป็นขั้นบันได — บังคับความสูงเท่ากันด้วยตัวแปรตัวเดียวแล้วจบ
+ */
+.cd-toolbar {
+    --cd-ctl-h: 42px;
+}
+
+.cd-toolbar .btn,
+.cd-toolbar .form-control {
+    height: var(--cd-ctl-h);
+    min-height: var(--cd-ctl-h);
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+}
+
+/*
+ * ปุ่มห้ามยุบตัวเวลาที่ว่างไม่พอ — ต้องตกไปแถวใหม่ (flex-wrap ที่ .cd-toolbar
+ * จัดการให้อยู่แล้ว) แทนที่จะบีบตัวจนไอคอน+ข้อความในปุ่มซ้อนทับกันเอง
+ */
+.cd-toolbar .btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.cd-toolbar .btn .cd-ic {
+    line-height: 1;
+}
+
+/*
+ * ปุ่มพื้นหลังพาสเทลอ่อน — ให้เข้าชุดกับปุ่มไอคอนสี่เหลี่ยม (.btn-action-edit/
+ * .btn-action-delete/.btn-action-drive ใน header.php) ที่ใช้ในตารางลูกค้า
+ * แทนที่จะเป็น Bootstrap outline-secondary (กรอบเทาธรรมดา) ของดีไซน์ต้นฉบับ
+ * ที่ก็อปมา ให้ทั้งแอปดูเป็นระบบเดียวกัน
+ */
+.cd-btn-soft {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all .2s ease;
+}
+
+.cd-btn-soft-slate {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #475569;
+}
+
+.cd-btn-soft-slate:hover {
+    background-color: #ffffff;
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+
+.cd-btn-soft-indigo {
+    background-color: #eef2ff;
+    border-color: #e0e7ff;
+    color: #4f46e5;
+}
+
+.cd-btn-soft-indigo:hover {
+    background-color: #e0e7ff;
+    color: #4338ca;
+    border-color: #c7d2fe;
+}
+
+.cd-btn-soft-red {
+    background-color: #fee2e2;
+    border-color: #fecaca;
+    color: #ef4444;
+}
+
+.cd-btn-soft-red:hover {
+    background-color: #fecaca;
+    color: #dc2626;
+    border-color: #fca5a5;
+}
+
+.cd-toolbar .cd-search {
+    min-width: 220px;
+    max-width: 380px;
+    flex: 1 1 240px;
+}
+
+.cd-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: var(--bs-secondary-color);
+    pointer-events: none;
+}
+
+/* ------------------------------------------------------------ เส้นทาง */
+
+.cd-crumbs {
+    min-height: 34px;
+}
+
+.cd-crumb {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--bs-body-color);
+    padding: .2rem .55rem;
+    border-radius: .375rem;
+    line-height: 1.4;
+}
+
+.cd-crumb:hover {
+    background: var(--bs-secondary-bg);
+}
+
+.cd-crumb.active {
+    font-weight: 600;
+}
+
+.cd-crumb.cd-drop-on {
+    background: var(--bs-primary-bg-subtle);
+    border-color: var(--bs-primary);
+}
+
+.cd-crumb-sep {
+    color: var(--bs-secondary-color);
+    user-select: none;
+}
+
+/* ------------------------------------------------------------ ตาราง */
+
+/*
+ * ตรึงหัวคอลัมน์ไว้กับที่ (freeze pane)
+ *
+ * ทำไมของเดิม `position: sticky` ถึงไม่ทำงาน — วัดจากหน้าจริงแล้ว:
+ * `.table-responsive` ของ Bootstrap ตั้ง `overflow-x: auto` ซึ่งตามสเปก CSS
+ * บังคับให้ `overflow-y` กลายเป็น `auto` ตามไปด้วย (คำนวณได้ auto/auto)
+ * มันจึงเป็น "กล่องเลื่อน" อยู่แล้วโดยที่ไม่มีใครตั้งใจ — sticky บน <th>
+ * จึงยึดกับกล่องนี้ ไม่ใช่กับหน้าจอ และเพราะกล่องไม่เคยจำกัดความสูง
+ * มันจึงไม่มีวันเลื่อน หัวตารางเลยไม่เคยตรึง
+ *
+ * ทางแก้คือให้กล่องนี้มีความสูงจำกัดจริง แล้วเลื่อนในตัว
+ * ไม่ใช่ปิด overflow ทิ้ง เพราะจะเสียการเลื่อนแนวนอนบนจอแคบไปด้วย
+ *
+ * 300px ที่หักออกคือระยะจากขอบบนจอถึงหัวตาราง (วัดได้ 291px บนจอ 900px)
+ * บวกที่เผื่อไว้ให้ขอบล่างการ์ดหายใจ
+ */
+.cd-table-wrap > .table-responsive {
+    max-height: min(calc(100vh - 300px), 760px);
+}
+
+.cd-table {
+    --cd-row-h: 46px;
+
+    /*
+     * Bootstrap ทาพื้นของทุก td/th ด้วย --bs-table-bg ซึ่งเทมเพลตตั้งไว้เป็น
+     * --bs-body-bg (#f6f7f9) ตารางจึงออกมาเทาทั้งผืนทั้งที่การ์ดครอบเป็นสีขาว
+     * ทาที่ตัวแปรตัวเดียวจบ ไม่ต้องไล่ทาทีละ td
+     */
+    --bs-table-bg: #fff;
+}
+
+.cd-table thead th {
+    /*
+     * ตรึงหัวคอลัมน์กับขอบบนของกล่องเลื่อนด้านบน
+     * z-index ต้องมากกว่าแถวข้อมูล เพราะแถวจะลอดใต้หัวตารางตอนเลื่อน
+     */
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    /*
+     * ต้อง !important เพราะ style1.css:31001 ตั้ง
+     * `background: rgba(240,243,255,.9) !important` ไว้ให้ `.table thead th` ทุกตัว
+     * ซึ่งเป็นสีโปร่งแสง — พอหัวตารางถูกตรึง แถวข้อมูลจะมองทะลุขึ้นมาได้
+     * (มันมี backdrop-filter: blur(8px) คู่มาด้วย ซึ่งเบลอแทนที่จะบัง)
+     */
+    background: #fff !important;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+    white-space: nowrap;
+    /*
+     * ใช้เงาแทน border-bottom เพราะ <table> ของเทมเพลตเป็น border-collapse
+     * ซึ่งทำให้เส้นขอบของเซลล์ที่ถูกตรึงเลื่อนหลุดไปกับเนื้อหา เหลือหัวตารางลอย ๆ
+     * ไม่มีเส้นคั่น — เงา inset ถูกวาดเป็นส่วนหนึ่งของเซลล์จึงติดไปด้วยเสมอ
+     */
+    border-bottom: 0 !important;
+    box-shadow: inset 0 -1px 0 var(--bs-border-color);
+}
+
+.cd-table tbody td {
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.cd-col-source {
+    width: 170px;
+    max-width: 170px;
+}
+
+.cd-col-size {
+    width: 100px;
+    white-space: nowrap;
+}
+
+.cd-col-ver {
+    width: 90px;
+}
+
+.cd-col-date {
+    width: 150px;
+    white-space: nowrap;
+}
+
+.cd-col-act {
+    width: 48px;
+}
+
+.cd-row {
+    cursor: pointer;
+    user-select: none;
+}
+
+/*
+ * สีพื้นของแถวต้องทาที่ <td> ไม่ใช่ <tr>
+ *
+ * Bootstrap ตั้ง background-color ให้ td/th ผ่าน --bs-table-bg อยู่แล้ว
+ * ซึ่งทาทับพื้นของ tr เสมอ — ทาที่ tr จึงมองไม่เห็นอะไรเลย
+ * (เสียเวลาหาอยู่พักหนึ่งเพราะ computed style ของ tr ขึ้นถูกต้องทุกอย่าง
+ *  แต่ไม่ปรากฏบนจอ)
+ */
+.cd-row:hover > td {
+    background: var(--bs-secondary-bg);
+}
+
+.cd-row.selected > td {
+    background: var(--bs-primary-bg-subtle);
+}
+
+/* แถบสีซ้ายมือทำให้เห็นว่าแถวไหนถูกเลือกแม้ตอนที่เมาส์ hover ทับอีกแถวอยู่
+   ทาที่ td ใบแรกเพราะ box-shadow บน tr ไม่ปรากฏเมื่อ border-collapse: collapse */
+.cd-row.selected > td:first-child {
+    box-shadow: inset 3px 0 0 var(--bs-primary);
+}
+
+.cd-row.dragging {
+    opacity: .45;
+}
+
+.cd-row.cd-drop-on > td {
+    background: var(--bs-primary-bg-subtle);
+    border-top: 1px dashed var(--bs-primary);
+    border-bottom: 1px dashed var(--bs-primary);
+}
+
+.cd-cell-name .min-w-0 {
+    min-width: 0;
+}
+
+.cd-name {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+}
+
+.cd-path {
+    line-height: 1.3;
+}
+
+.cd-rename-input {
+    min-width: 180px;
+    max-width: 100%;
+}
+
+.cd-dots {
+    color: var(--bs-secondary-color);
+    line-height: 1;
+}
+
+.cd-dots:hover {
+    color: var(--bs-body-color);
+}
+
+.cd-ver {
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ ไอคอนตามชนิด */
+
+.cd-icon {
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.cd-icon-folder  { color: var(--bs-warning); }
+.cd-icon-image   { color: var(--bs-info); }
+.cd-icon-pdf     { color: var(--bs-danger); }
+.cd-icon-sheet   { color: var(--bs-success); }
+.cd-icon-doc     { color: var(--bs-primary); }
+.cd-icon-archive { color: var(--bs-secondary); }
+.cd-icon-text    { color: var(--bs-secondary); }
+.cd-icon-file    { color: var(--bs-secondary-color); }
+
+/* ------------------------------------------------------------ ชิปที่มา */
+
+/*
+ * คอลัมน์ "ที่มา" คือสิ่งที่แยกหน้านี้ออกจากไดรฟ์ทั่วไป
+ * ต้องเห็นได้ในหนึ่งสายตาว่าอันไหนลูกค้าส่งมา — ของลูกค้าจึงเป็นสีเข้ม
+ * ส่วนของพนักงานเป็นสีจาง เพราะเป็นค่าปกติที่ไม่ต้องสะดุดตา
+ */
+.cd-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .2rem;
+    max-width: 100%;
+    font-weight: 500;
+    font-size: 12px;
+    padding: .3rem .5rem;
+}
+
+/*
+ * ชื่อคนยาวได้ไม่จำกัด แต่คอลัมน์กว้างเท่าเดิม — ตัดด้วย … แล้วให้ชื่อเต็มอยู่ใน tooltip
+ * ถ้าไม่ตัด ชื่อยาว ๆ จะดันคอลัมน์อื่นจนตารางเบี้ยวทั้งแถว
+ */
+.cd-who {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.cd-chip-guest {
+    background: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+    border: 1px solid var(--bs-warning-border-subtle);
+}
+
+/*
+ * ของพนักงานเป็นค่าปกติที่ไม่ต้องสะดุดตา — ไม่มีกรอบ ไม่มีพื้น เป็นแค่ข้อความจาง
+ * ต่างจากของลูกค้าที่ต้องเห็นได้ในหนึ่งสายตา ซึ่งเป็นเหตุผลที่คอลัมน์นี้มีอยู่
+ */
+.cd-chip-staff {
+    display: inline-flex;
+    max-width: 100%;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+}
+
+/* ------------------------------------------------------------ สถานะว่าง */
+
+.cd-empty {
+    border: 2px dashed var(--bs-border-color);
+    border-radius: .75rem;
+    color: var(--bs-secondary-color);
+}
+
+.cd-empty.cd-drop-on {
+    border-color: var(--bs-primary);
+    background: var(--bs-primary-bg-subtle);
+}
+
+.cd-empty-icon {
+    font-size: 48px;
+    opacity: .45;
+}
+
+.cd-foot {
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+
+.cd-hint kbd {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+    border: 1px solid var(--bs-border-color);
+    border-radius: .25rem;
+    padding: .05rem .3rem;
+    font-size: 11px;
+}
+
+/* ------------------------------------------------------------ ผ้าคลุมตอนลากไฟล์ */
+
+.cd-dropveil {
+    position: fixed;
+    inset: 0;
+    z-index: 1080;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 110, 253, .08);
+    backdrop-filter: blur(2px);
+    pointer-events: none;
+}
+
+.cd-dropveil.show {
+    display: flex;
+}
+
+.cd-dropveil-inner {
+    background: var(--bs-body-bg);
+    border: 3px dashed var(--bs-primary);
+    border-radius: 1rem;
+    padding: 2.5rem 3.5rem;
+    text-align: center;
+    color: var(--bs-body-color);
+}
+
+.cd-dropveil-inner .cd-ic {
+    font-size: 56px;
+    color: var(--bs-primary);
+}
+
+/* ------------------------------------------------------------ แถบอัปโหลด */
+
+.cd-uploads {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: .6rem;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .18);
+    z-index: 1070;
+    overflow: hidden;
+}
+
+.cd-uploads-head {
+    padding: .6rem .85rem;
+    background: var(--bs-secondary-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.cd-uploads-body {
+    max-height: 260px;
+    overflow-y: auto;
+    padding: .5rem .85rem;
+}
+
+.cd-uploads.collapsed .cd-uploads-body {
+    display: none;
+}
+
+.cd-up {
+    padding: .4rem 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.cd-up:last-child {
+    border-bottom: 0;
+}
+
+.cd-up-name {
+    max-width: 200px;
+}
+
+.cd-up-note {
+    color: var(--bs-secondary-color);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.cd-up-bar {
+    height: 4px;
+    background: var(--bs-secondary-bg);
+    border-radius: 2px;
+    margin-top: .3rem;
+    overflow: hidden;
+}
+
+.cd-up-fill {
+    height: 100%;
+    background: var(--bs-primary);
+    transition: width .15s linear;
+}
+
+.cd-up.done .cd-up-fill {
+    background: var(--bs-success);
+}
+
+.cd-up.done .cd-up-note {
+    color: var(--bs-success);
+}
+
+.cd-up.failed .cd-up-note {
+    color: var(--bs-danger);
+}
+
+/* ------------------------------------------------------------ เมนูคลิกขวา */
+
+.cd-menu {
+    position: absolute;
+    z-index: 1075;
+    min-width: 190px;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: .5rem;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .16);
+    padding: .3rem;
+}
+
+.cd-menu-item {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--bs-body-color);
+    text-align: left;
+    padding: .45rem .6rem;
+    border-radius: .35rem;
+    font-size: 14px;
+}
+
+.cd-menu-item:hover {
+    background: var(--bs-secondary-bg);
+}
+
+.cd-menu-item.danger {
+    color: var(--bs-danger);
+}
+
+.cd-menu-item.danger:hover {
+    background: var(--bs-danger-bg-subtle);
+}
+
+/* หัวเมนูตอนเลือกหลายรายการ — บอกว่ากำลังจะทำกับกี่รายการ */
+.cd-menu-head {
+    padding: .35rem .6rem .45rem;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+}
+
+.cd-menu-sep {
+    height: 1px;
+    background: var(--bs-border-color);
+    margin: .3rem .2rem;
+}
+
+/* ------------------------------------------------------------ ตัวเลือกโฟลเดอร์ */
+
+.cd-picker {
+    max-height: 340px;
+    overflow-y: auto;
+    border: 1px solid var(--bs-border-color);
+    border-radius: .5rem;
+    padding: .35rem;
+}
+
+.cd-pick {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--bs-body-color);
+    text-align: left;
+    padding: .4rem .6rem;
+    border-radius: .35rem;
+    font-size: 14px;
+}
+
+.cd-pick:hover:not(.disabled) {
+    background: var(--bs-secondary-bg);
+}
+
+.cd-pick.active {
+    background: var(--bs-primary-bg-subtle);
+    border-color: var(--bs-primary);
+    font-weight: 500;
+}
+
+.cd-pick.disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------ ความเคลื่อนไหว */
+
+.cd-feed {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.cd-feed-item {
+    padding: .6rem 0;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.cd-feed-item:last-child {
+    border-bottom: 0;
+}
+
+.cd-feed-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: .45rem;
+    flex-shrink: 0;
+}
+
+.cd-feed-staff {
+    background: var(--bs-secondary);
+}
+
+.cd-feed-guest {
+    background: var(--bs-warning);
+}
+
+/* ------------------------------------------------------------ แถบพื้นที่ใน sidebar */
+
+.cd-disk {
+    padding: .75rem 1rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    font-size: 12px;
+    color: var(--bs-secondary-color);
+}
+
+/*
+ * ย่อ sidebar แล้วต้องหายไปทั้งก้อน
+ *
+ * เหลือความกว้าง 46px ข้อความ "เหลือ 470.6 GB จาก 1.8 TB" จะตัดบรรทัดเป็น
+ * ตัวเลขกระจัดกระจายทีละคำ อ่านไม่ออกและกินที่ — ซ่อนไปเลยดีกว่าย่อให้เล็กลง
+ * เพราะข้อมูลนี้ไม่ใช่สิ่งที่ต้องเห็นตลอดเวลา
+ */
+[sidebar-data-theme="sidebar-hide"] .cd-disk {
+    display: none;
+}
+
+.cd-disk-bar {
+    height: 6px;
+    background: var(--bs-secondary-bg);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: .35rem 0 .3rem;
+}
+
+.cd-disk-fill {
+    height: 100%;
+    background: var(--bs-primary);
+}
+
+.cd-disk.warn .cd-disk-fill {
+    background: var(--bs-danger);
+}
+
+.cd-disk.warn {
+    color: var(--bs-danger);
+}
+
+/* ------------------------------------------------------------ จอเล็ก */
+
+@media (max-width: 767.98px) {
+
+    .cd-col-source,
+    .cd-col-ver,
+    .cd-col-date {
+        display: none;
+    }
+
+    .cd-toolbar .cd-search {
+        order: 10;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .cd-uploads {
+        right: 8px;
+        left: 8px;
+        width: auto;
+    }
+}
+
+/* ------------------------------------------------------------ การ์ดลูกค้าในหน้าค้นหา */
+
+/*
+ * ผลลัพธ์ "ลูกค้า" ต้องเด่นกว่าผลลัพธ์ "ไฟล์" เพราะคำถามที่คนถามบ่อยที่สุด
+ * คือ "คลังของลูกค้ารายนี้อยู่ไหน" ไม่ใช่ "ไฟล์นี้อยู่ไหน"
+ * จึงทำเป็นการ์ดกดได้ ไม่ใช่แถวในตารางเหมือนผลไฟล์
+ */
+.cd-cust-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: .5rem;
+}
+
+.cd-cust {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem .85rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: .5rem;
+    text-decoration: none;
+    color: var(--bs-body-color);
+    background: var(--bs-body-bg);
+    transition: border-color .12s, background .12s;
+}
+
+.cd-cust:hover {
+    border-color: var(--bs-primary);
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-body-color);
+}
+
+.cd-cust-icon {
+    font-size: 26px;
+    color: var(--bs-primary);
+    flex-shrink: 0;
+}
+
+.cd-cust-name {
+    display: block;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cd-cust-meta {
+    display: block;
+    font-size: 12px;
+    color: var(--bs-secondary-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cd-cust-go {
+    font-size: 20px;
+    color: var(--bs-secondary-color);
+    flex-shrink: 0;
+}
+
+.cd-cust:hover .cd-cust-go {
+    color: var(--bs-primary);
+}
+
+/* ------------------------------------------------------------ ทรี */
+
+/*
+ * ลูกศรย่อ/ขยายหน้าโฟลเดอร์
+ *
+ * ต้องมีที่ว่างขนาดเท่ากันแม้แถวที่ไม่มีลูก (.cd-caret-none) มิฉะนั้นชื่อของ
+ * แถวที่มีลูกกับไม่มีลูกจะไม่ตรงแนวกัน แล้วอ่านโครงสร้างด้วยสายตาไม่ออก
+ */
+.cd-caret {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: var(--bs-secondary-color);
+    border-radius: .25rem;
+    padding: 0;
+}
+
+.cd-caret .cd-ic {
+    font-size: 20px;
+    line-height: 1;
+    transition: transform .12s ease;
+}
+
+.cd-caret:hover {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+/* ย่อแล้วหมุนลูกศรไปทางขวา — ใช้ไอคอนตัวเดียวทั้งสองสถานะ */
+.cd-row.collapsed .cd-caret .cd-ic {
+    transform: rotate(-90deg);
+}
+
+.cd-caret-none {
+    pointer-events: none;
+}
+
+/*
+ * เส้นบอกชั้นของทรี
+ *
+ * ระยะเยื้องมาจาก padding-left ที่ PHP คำนวณตาม depth เส้นนี้เป็นแค่ตัวช่วยสายตา
+ * ให้ไล่ได้ว่าแถวไหนอยู่ใต้แม่ตัวไหนเวลามีหลายชั้นซ้อนกัน
+ */
+.cd-tree .cd-cell-name > div {
+    position: relative;
+}
+
+.cd-tree .cd-row[data-depth="0"] .cd-cell-name > div::before {
+    display: none;
+}
+
+/* ------------------------------------------------------------ ลิงก์แชร์ */
+
+.cd-link {
+    padding: .85rem 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: .5rem;
+    margin-bottom: .6rem;
+}
+
+.cd-link:last-child {
+    margin-bottom: 0;
+}
+
+.cd-linkform {
+    background: var(--bs-secondary-bg);
+    border-radius: .5rem;
+    padding: 1rem;
+}
+
+
+/* ============================================================
+ * ระบบตัวอักษรของ modal ในโมดูลนี้
+ * ============================================================
+ *
+ * ที่มาของทุกค่าในบล็อกนี้คือการวัดจากหน้าจริง ไม่ใช่การเดา
+ *
+ * ต้นเหตุที่ทำให้ modal อ่านยาก มีสี่ข้อ วัดได้ทั้งหมด
+ *
+ *   1. **เทมเพลตตั้งฟอนต์เป็น `Inter` ซึ่งไม่มีอักษรไทยเลย**
+ *      วัดความกว้างข้อความไทยใน Inter ได้ 248.6px เท่ากับใน `sans-serif` เป๊ะ
+ *      แปลว่าอักษรไทยทุกตัวตกไปใช้ฟอนต์สำรองของระบบ (Tahoma บนวินโดวส์)
+ *      ซึ่งไม่ได้ออกแบบมาคู่กับขนาดและระยะที่ตั้งไว้สำหรับ Inter
+ *
+ *   2. **`line-height` 1.5 แน่นเกินไปสำหรับไทย** ที่ซ้อนสระบนกับวรรณยุกต์ได้สองชั้น
+ *      วัดแล้วข้อความไทยที่ 15px กินความสูงจริง 20px ส่วน line-height เดิมให้ 21.12px
+ *      เหลือช่องว่างระหว่างบรรทัดแค่ 1px วรรณยุกต์จึงเกือบชนบรรทัดบน
+ *
+ *   3. **`.text-muted` ของเทมเพลตมีคอนทราสต์ 2.96:1 ตกเกณฑ์ WCAG AA (ต้อง 4.5:1)**
+ *      เพราะเป็น `rgba(100,116,139,.75)` — ความจางมาจาก alpha ไม่ใช่จากสี
+ *      และมันถูกใช้กับข้อมูลรองทั้งหมด: วันเวลา ผู้ทำรายการ IP ขนาดไฟล์
+ *
+ *   4. ขนาดตัวอักษรรอง 12–13px เล็กเกินไปสำหรับไทย ซึ่งต้องการพื้นที่แนวตั้ง
+ *      มากกว่าละตินที่ขนาดเท่ากันเพราะมีเชิงล่างและสระบน
+ *
+ * ขอบเขต: ทุกกฎในบล็อกนี้ผูกกับ `.cd-modal` ซึ่ง fillModal() ใน js/customer_drive.js
+ * เป็นคนติดให้ จึงไม่รั่วไปโดน modal ของโมดูลอื่นที่ใช้เปลือกร่วมกัน
+ */
+
+.cd-modal {
+    /* สีตัวอักษร — ทุกค่าผ่าน WCAG AA บนพื้นขาว (ตัวเลขคืออัตราคอนทราสต์จริง) */
+    --cd-ink: #1e293b;      /* หลัก  14.6:1 */
+    --cd-ink-2: #475569;    /* รอง    7.5:1 */
+    --cd-ink-3: #5b6b81;    /* จาง    5.1:1 — ใช้แทน .text-muted ที่ตก 2.96:1 */
+
+    --cd-line: #e2e8f0;
+    --cd-surface: #f8fafc;
+
+    --cd-fs: 15px;          /* เดิม 14.08px */
+    --cd-fs-sm: 13.5px;     /* เดิม 12–13px */
+    --cd-lh: 1.65;          /* เดิม 1.5 */
+
+    font-size: var(--cd-fs);
+    line-height: var(--cd-lh);
+    color: var(--cd-ink);
+
+    /*
+     * พื้นขาว — เทมเพลตตั้ง --bs-modal-bg เป็น --bs-body-bg (#f6f7f9)
+     * ทั้ง modal จึงเป็นสีเทาอ่อน ทำให้การ์ดลิงก์และรายการความเคลื่อนไหว
+     * ที่พื้นใสอยู่แล้วดูเป็นสีเทาตามไปด้วย
+     *
+     * ทาที่ชั้นนี้ไม่ใช่ที่ .modal-content เพราะ .modal-content เป็นเปลือกร่วม
+     * ของทุกโมดูล — และต้องรับมุมโค้งของเปลือกมาด้วย ไม่งั้นมุมสี่เหลี่ยม
+     * ของกล่องขาวจะโผล่ทับมุมโค้งของ modal
+     */
+    background: #fff;
+    border-radius: inherit;
+}
+
+/*
+ * ต้นฉบับตั้งฟอนต์ของตัวเองไว้ตรงนี้ (Inter + Leelawadee UI) แต่ทั้งแอปนี้บังคับ
+ * ใช้ 'Kanit' (self-hosted ผ่าน font.css, โหลดครั้งเดียวใน header.php) ด้วย
+ * !important บน html,body อยู่แล้ว — ปล่อยให้ .cd-modal สืบทอดค่านั้นมาแทน
+ * ไม่งั้น modal ของฟีเจอร์นี้จะใช้คนละฟอนต์กับ modal อื่นทั้งแอป
+ */
+.cd-modal,
+.cd-modal .btn,
+.cd-modal .form-control,
+.cd-modal .form-select,
+.cd-modal .form-label {
+    font-family: var(--font-sans-serif, 'Kanit'), sans-serif;
+}
+
+/* แทนที่ .text-muted ของเทมเพลตทั้งหมดในขอบเขตนี้ — ตัวคุมความจางคือสี ไม่ใช่ alpha */
+.cd-modal .text-muted {
+    color: var(--cd-ink-3) !important;
+}
+
+/* ขนาดที่เทมเพลตตั้งไว้เล็กเกินไปสำหรับไทย ยกขึ้นให้เท่ากันหมดในขอบเขตนี้ */
+.cd-modal .fs-11,
+.cd-modal .fs-12,
+.cd-modal .fs-13 {
+    font-size: var(--cd-fs-sm);
+}
+
+/* ------------------------------------------------------------ โครงกล่อง */
+
+.cd-modal .modal-header {
+    align-items: flex-start;
+    gap: .75rem;
+    padding: 1.15rem 1.5rem;
+    border-bottom: 1px solid var(--cd-line);
+}
+
+/*
+ * หัวเรื่องสองบรรทัด: ชื่อเรื่องบนบรรทัดแรก บริบท (ชื่อลูกค้า/ชื่อไฟล์) บรรทัดล่าง
+ *
+ * ของเดิมเอามาต่อกันด้วย "—" บรรทัดเดียว พอชื่อไฟล์ยาว ๆ อย่าง
+ * "หนังสือยืนยันยอด ธนาคารกรุงเทพ สาขาสีลม.pdf" เข้ามา หัวเรื่องจะกินความกว้างจนหมด
+ * และอ่านไม่ออกว่าตรงไหนคือชื่อ modal ตรงไหนคือชื่อของ
+ */
+.cd-modal .modal-title {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--cd-ink);
+    margin: 0;
+}
+
+.cd-modal .cd-modal-sub {
+    display: block;
+    margin-top: .15rem;
+    font-size: var(--cd-fs-sm);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--cd-ink-3);
+    word-break: break-word;
+}
+
+.cd-modal .modal-title .cd-ic {
+    font-size: 22px;
+    line-height: 1.45;
+    color: var(--cd-ink-2);
+}
+
+.cd-modal .modal-body {
+    padding: 1.5rem;
+    /*
+     * จำกัดความสูงแล้วให้เลื่อนในตัว — รายการความเคลื่อนไหวมีได้ถึง 55 รายการ
+     * ถ้าปล่อยให้กล่องยืดตามเนื้อหา ปุ่มปิดจะหลุดออกนอกจอบนโน้ตบุ๊ก
+     */
+    max-height: min(68vh, 620px);
+    overflow-y: auto;
+}
+
+/*
+ * ย้ายช่องว่างบน/ล่างเข้าไปอยู่ "ในเนื้อหา" แทนที่จะเป็น padding ของกล่อง
+ *
+ * ต้นเหตุที่หัวตารางกับแถบวันในกล่องนี้ตรึงแล้วยังดูไม่ตรึง: กล่องที่เลื่อนได้
+ * จะไม่ตัดเนื้อหาที่อยู่ในพื้นที่ padding ของตัวเอง และของที่ตรึงด้วย sticky
+ * ออกนอกกรอบพ่อของมันไม่ได้ (containing block คือ content box)
+ * หัวตารางจึงหยุดต่ำลงมา 24px เท่ากับ padding-top พอดี เหลือเป็นช่องโหว่
+ * ให้แถวข้อมูลไหลผ่านเหนือหัวตาราง — วัดแล้วได้ 24px ตรงเป๊ะบนหน้าจริง
+ *
+ * พอ padding-top เป็น 0 ขอบบนของ content box กับขอบบนของกล่องเลื่อน
+ * กลายเป็นเส้นเดียวกัน ของที่ตรึงจึงชิดขอบบนจริง ๆ
+ * ส่วนช่องว่างที่หายไปเอากลับมาด้วย pseudo-element ที่เลื่อนหายไปกับเนื้อหา
+ */
+.cd-modal .modal-body {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.cd-modal .modal-body::before,
+.cd-modal .modal-body::after {
+    content: '';
+    display: block;
+    height: 1.5rem;
+}
+
+/*
+ * ยกเว้น modal ลิงก์แชร์ — ไม่ให้มีแถบเลื่อนซ้อนอยู่ข้างใน
+ *
+ * เหตุผลที่ต่างจากตัวอื่น: ในนั้นมีฟอร์มที่ต้องกรอกหลายช่อง การเลื่อนสองชั้น
+ * (เลื่อนในกล่อง กับเลื่อนทั้งหน้า) ทำให้ตอนกดช่องล่าง ๆ แล้วคีย์บอร์ดดันขึ้นมา
+ * ไม่รู้ว่ากำลังเลื่อนอันไหนอยู่ ปล่อยให้ทั้งกล่องยืดตามเนื้อหาแล้วให้ Bootstrap
+ * เลื่อนทั้ง modal ตามปกติแทน ซึ่งเป็นพฤติกรรมที่คนคุ้นอยู่แล้ว
+ */
+#myModalXl .cd-modal .modal-body {
+    max-height: none;
+    overflow: visible;
+}
+
+.cd-modal .modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--cd-line);
+    background: var(--cd-surface);
+}
+
+/*
+ * ปุ่ม "ปิด" เป็นปุ่มรอง ไม่ใช่ปุ่มหลัก
+ * ของเดิมใช้ btn-secondary ซึ่งเป็นสีเทาเข้มทึบ ดูมีน้ำหนักกว่าปุ่มจริงในตาราง
+ */
+.cd-modal .modal-footer .btn-secondary {
+    background: #fff;
+    border-color: var(--cd-line);
+    color: var(--cd-ink-2);
+}
+
+.cd-modal .modal-footer .btn-secondary:hover {
+    background: var(--cd-surface);
+    border-color: #cbd5e1;
+    color: var(--cd-ink);
+}
+
+/* ------------------------------------------------------------ ตาราง */
+
+/*
+ * ใน modal ให้เหลือกล่องเลื่อนชั้นเดียว คือ .modal-body
+ *
+ * `.table-responsive` เป็นกล่องเลื่อนโดยปริยาย (overflow-x: auto ทำให้แกน y
+ * กลายเป็น auto ตามสเปก) พอซ้อนอยู่ใน .modal-body ที่เลื่อนได้อีกชั้น
+ * `position: sticky` ของหัวตารางจะไปยึดกับกล่องชั้นในซึ่งไม่เคยจำกัดความสูง
+ * หัวตารางจึงไม่มีวันตรึง แล้วเลื่อนหลุดขึ้นไปพ้นกรอบ (วัดจากหน้าถังขยะจริง)
+ *
+ * ปล่อยให้ .modal-body คุมทั้งสองแกนแทน — การเลื่อนแนวนอนยังอยู่ครบ
+ * เพราะกล่องนั้นก็เป็น auto ทั้งคู่เหมือนกัน
+ */
+.cd-modal .table-responsive {
+    overflow: visible;
+}
+
+.cd-modal .table {
+    --bs-table-color: var(--cd-ink);
+    /* เหตุผลเดียวกับ .cd-table ด้านบน — ค่าปริยายของเทมเพลตคือเทา ไม่ใช่ขาว */
+    --bs-table-bg: #fff;
+    margin-bottom: 0;
+}
+
+.cd-modal .table > thead > tr > th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: .5rem .75rem;
+    /* !important ด้วยเหตุผลเดียวกับ .cd-table thead th ด้านบน — ของเทมเพลตเป็นสีโปร่งแสง */
+    background: #fff !important;
+    border-bottom: 0 !important;
+    box-shadow: inset 0 -1px 0 var(--cd-line);
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: var(--cd-ink-3);
+    text-transform: none;
+    white-space: nowrap;
+}
+
+.cd-modal .table > tbody > tr > td {
+    padding: .7rem .75rem;
+    vertical-align: middle;
+    border-color: var(--cd-line);
+}
+
+.cd-modal .table > tbody > tr:last-child > td {
+    border-bottom: 0;
+}
+
+.cd-modal .table > tbody > tr:hover > td {
+    background: var(--cd-surface);
+}
+
+/* ------------------------------------------------------------ ปุ่ม */
+
+/*
+ * ปุ่มในตารางเดิมสูง 28px และวางติดกันโดยไม่มีระยะห่าง
+ * ทั้งเล็กเกินไปสำหรับการเล็งด้วยเมาส์ และเสี่ยงกดผิดปุ่มเมื่อ "ลบถาวร"
+ * อยู่ติดกับ "กู้คืน" — ยกเป็น 34px และบังคับให้มีช่องว่างคั่นเสมอ
+ */
+.cd-modal .btn-sm {
+    min-height: 34px;
+    padding: .35rem .8rem;
+    font-size: var(--cd-fs-sm);
+    line-height: 1.5;
+    border-radius: .4rem;
+}
+
+.cd-modal .cd-rowactions {
+    display: flex;
+    gap: .4rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------ กล่องคำอธิบาย */
+
+/*
+ * กล่องบอกกติกาบนหัว modal ของเดิมเป็น .alert มีกรอบเต็ม ดูเหมือนคำเตือน
+ * ทั้งที่เป็นแค่คำอธิบาย จึงแย่งความสนใจไปจากรายการซึ่งเป็นเนื้อหาจริง
+ * เปลี่ยนเป็นแถบข้างซ้ายเบา ๆ ให้อ่านได้แต่ไม่ตะโกน
+ */
+.cd-modal .cd-note {
+    display: flex;
+    gap: .65rem;
+    align-items: flex-start;
+    margin-bottom: 1.15rem;
+    padding: .8rem 1rem;
+    border: 0;
+    border-left: 3px solid #cbd5e1;
+    border-radius: .35rem;
+    background: var(--cd-surface);
+    font-size: var(--cd-fs-sm);
+    line-height: 1.6;
+    color: var(--cd-ink-2);
+}
+
+.cd-modal .cd-note .cd-ic {
+    flex-shrink: 0;
+    font-size: 19px;
+    color: var(--cd-ink-3);
+}
+
+.cd-modal .cd-note strong {
+    color: var(--cd-ink);
+    font-weight: 600;
+}
+
+/* คำอธิบายท้ายกล่อง */
+.cd-modal .cd-foot-note {
+    margin-top: 1rem;
+    padding-top: .85rem;
+    border-top: 1px dashed var(--cd-line);
+    font-size: var(--cd-fs-sm);
+    line-height: 1.6;
+    color: var(--cd-ink-3);
+}
+
+/* ------------------------------------------------------------ สภาพว่างเปล่า */
+
+.cd-modal .cd-empty {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--cd-ink-3);
+}
+
+.cd-modal .cd-empty .cd-empty-icon {
+    font-size: 44px;
+    color: #cbd5e1;
+}
+
+.cd-modal .cd-empty-title {
+    margin-top: .6rem;
+    font-size: var(--cd-fs);
+    color: var(--cd-ink-2);
+}
+
+/* ------------------------------------------------------------ รายการความเคลื่อนไหว (ในกรอบ .cd-modal) */
+
+/*
+ * โครงสามคอลัมน์: จุดสี · เวลา · เนื้อหา
+ *
+ * ของเดิมเป็นสองคอลัมน์แล้วดันเวลาไปชิดขวาด้วย justify-content-between
+ * ทำให้เวลาของแต่ละแถวอยู่คนละตำแหน่งตามความยาวของหัวข้อ ตาต้องไล่หาทีละแถว
+ * พอตรึงเวลาไว้เป็นคอลัมน์ของตัวเอง มันจะเรียงตรงกันทั้งชุด กวาดตาลงมาได้ทีเดียว
+ */
+.cd-modal .cd-feed-day {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin: 1.25rem -1.5rem .5rem;
+    padding: .35rem 1.5rem;
+    background: var(--cd-surface);
+    border-top: 1px solid var(--cd-line);
+    border-bottom: 1px solid var(--cd-line);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--cd-ink-3);
+}
+
+.cd-modal .cd-feed-day:first-child {
+    margin-top: -.35rem;
+    border-top: 0;
+}
+
+.cd-modal .cd-feed-item {
+    display: grid;
+    grid-template-columns: 10px 42px 1fr;
+    align-items: start;
+    gap: .1rem .7rem;
+    padding: .65rem 0;
+    border-bottom: 1px solid var(--cd-line);
+}
+
+.cd-modal .cd-feed-item:last-child {
+    border-bottom: 0;
+}
+
+.cd-modal .cd-feed-dot {
+    width: 8px;
+    height: 8px;
+    margin-top: .55rem;
+}
+
+.cd-modal .cd-feed-time {
+    font-size: var(--cd-fs-sm);
+    line-height: 1.7;
+    color: var(--cd-ink-3);
+    /* ตัวเลขความกว้างเท่ากันทุกตัว เวลาจึงเรียงตรงกันแม้เป็น 1 กับ 8 */
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.cd-modal .cd-feed-action {
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--cd-ink);
+}
+
+.cd-modal .cd-feed-detail {
+    font-size: var(--cd-fs-sm);
+    line-height: 1.55;
+    color: var(--cd-ink-2);
+    word-break: break-word;
+}
+
+.cd-modal .cd-feed-who {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--cd-ink-3);
+}
+
+/* ------------------------------------------------------------ ตารางเวอร์ชัน */
+
+/*
+ * ทำให้เวอร์ชันปัจจุบันเห็นได้ในพริบตา
+ * ของเดิมบอกด้วยป้าย "ปัจจุบัน" ตัวเล็กเท่านั้น ซึ่งต้องอ่านทีละแถวถึงจะเจอ
+ */
+.cd-modal .cd-ver-current > td {
+    background: #f0fdf4;
+    box-shadow: inset 3px 0 0 var(--bs-success, #16a34a);
+}
+
+.cd-modal .cd-ver-current:hover > td {
+    background: #e9fbef;
+}
+
+/* ------------------------------------------------------------ ตัวเลือกโฟลเดอร์ (ในกรอบ .cd-modal) */
+
+.cd-modal .cd-picker {
+    max-height: 46vh;
+    padding: .4rem;
+    border-color: var(--cd-line);
+}
+
+.cd-modal .cd-pick {
+    min-height: 38px;          /* เป้าหมายการกดที่เล็งได้จริง เดิม ~26px */
+    padding: .45rem .65rem;
+    font-size: var(--cd-fs);
+    line-height: 1.5;
+    color: var(--cd-ink);
+}
+
+.cd-modal .cd-pick .cd-ic {
+    color: var(--cd-ink-3);
+}
+
+.cd-modal .cd-pick.active .cd-ic {
+    color: var(--bs-primary);
+}
+
+/* ------------------------------------------------------------ การ์ดลิงก์แชร์ (ในกรอบ .cd-modal) */
+
+.cd-modal .cd-link {
+    /* พื้นขาว ไม่ใช่พื้นใสที่ปล่อยให้สีของ modal ทะลุขึ้นมา */
+    background: #fff;
+    padding: 1rem 1.15rem;
+    border-color: var(--cd-line);
+    border-radius: .55rem;
+    margin-bottom: .75rem;
+}
+
+.cd-modal .cd-link:hover {
+    border-color: #cbd5e1;
+}
+
+/*
+ * ลิงก์ที่เพิกถอน/หมดอายุแล้วต้องดูจางลงทั้งใบ
+ * ของเดิมต่างจากลิงก์ที่ยังใช้ได้แค่สีป้ายมุมขวา ซึ่งเล็กเกินกว่าจะแยกออกตอนกวาดตา
+ * — ความเสี่ยงคือหยิบลิงก์ที่ตายแล้วไปส่งให้ลูกค้า
+ */
+.cd-modal .cd-link-dead {
+    background: var(--cd-surface);
+    border-style: dashed;
+}
+
+.cd-modal .cd-link-dead .cd-link-title {
+    color: var(--cd-ink-3);
+}
+
+.cd-modal .cd-link-title {
+    font-size: var(--cd-fs);
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--cd-ink);
+}
+
+/*
+ * ข้อมูลกำกับของลิงก์ ของเดิมเป็นข้อความยาวสองบรรทัดคั่นด้วย "·" รวด
+ * ซึ่งอ่านแล้วแยกไม่ออกว่าท่อนไหนคืออะไร เปลี่ยนเป็นคู่ "ป้าย/ค่า" ที่เรียงเป็นแถว
+ */
+.cd-modal .cd-link-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1.5rem;
+    margin-top: .55rem;
+}
+
+.cd-modal .cd-link-meta > div {
+    min-width: 0;
+}
+
+.cd-modal .cd-link-meta dt {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--cd-ink-3);
+    margin: 0;
+}
+
+.cd-modal .cd-link-meta dd {
+    font-size: var(--cd-fs-sm);
+    line-height: 1.5;
+    color: var(--cd-ink-2);
+    margin: 0;
+}
+
+/*
+ * ฟอร์มสร้างลิงก์ — พื้นขาว ไม่ใช่พื้นเทา
+ *
+ * ของเดิมเป็นพื้นเทาเพื่อบอกว่า "นี่คือส่วนที่แยกออกมา" แต่พอฟอร์มยาวเต็มกล่อง
+ * มันกลายเป็นพื้นหลังของทั้งหน้าจอแทน แล้วช่องกรอกสีขาวข้างในดูลอยขึ้นมา
+ * ใช้เส้นขอบบอกขอบเขตอย่างเดียวก็พอ
+ */
+.cd-modal .cd-linkform {
+    background: #fff;
+    border: 1px solid var(--cd-line);
+    padding: 1.15rem;
+}
+
+/*
+ * ตัวอักษรในช่องเลือก (dropdown) ต้องเป็นสีเข้มเท่าข้อความปกติ
+ * ค่าที่เทมเพลตให้มาคือสีเทาอมน้ำเงินซึ่งอ่านยากเมื่อเป็นภาษาไทย
+ * และทำให้ค่าที่เลือกไว้ดูเหมือนข้อความตัวอย่างที่ยังไม่ได้เลือก
+ */
+.cd-modal .form-select,
+.cd-modal .form-control {
+    color: var(--cd-ink);
+}
+
+.cd-modal .form-select option {
+    color: var(--cd-ink);
+}
+
+/* ------------------------------------------------------------ ปุ่มปิดท้ายฟอร์ม */
+
+/*
+ * คู่ปุ่ม "ยกเลิก / ยืนยัน" ที่ปิดท้ายฟอร์มใน modal
+ *
+ * ของเดิมเป็น .btn-link คู่กับ .btn-primary ซึ่งมีปัญหาสามข้อ
+ *   1. .btn-link เรนเดอร์เป็นลิงก์สีน้ำเงินขีดเส้นใต้ ไม่มีรูปทรงปุ่ม —
+ *      อ่านแล้วเหมือนลิงก์พาไปหน้าอื่น ไม่ใช่ตัวเลือกคู่กับปุ่มข้าง ๆ
+ *   2. พื้นที่กดของมันเท่าความกว้างตัวอักษรพอดี เล็กเกินไปสำหรับเมาส์
+ *      และสูงไม่เท่าปุ่มข้าง ๆ ทำให้ฐานล่างไม่ตรงกัน
+ *   3. น้ำหนักสายตาต่างกันสุดขั้ว (ข้อความเปล่า vs บล็อกทึบ) จนไม่อ่านเป็นคู่
+ *
+ * ทางแก้: ทำเป็นปุ่มจริงทั้งคู่ สูงเท่ากัน โค้งเท่ากัน ต่างกันแค่ "น้ำหนัก"
+ * ซึ่งเป็นวิธีมาตรฐานในการบอกว่าอันไหนคือทางเดินต่อ อันไหนคือทางถอย
+ */
+.cd-modal .cd-formactions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: .6rem;
+    margin-top: .35rem;
+    padding-top: 1.15rem;
+    /* เส้นคั่นบอกว่าช่องกรอกจบแล้ว ต่อไปคือการตัดสินใจ */
+    border-top: 1px solid var(--cd-line);
+}
+
+.cd-modal .cd-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    min-height: 44px;
+    padding: .6rem 1.5rem;
+    border-radius: .55rem;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, box-shadow .12s;
+}
+
+.cd-modal .cd-btn .cd-ic {
+    font-size: 19px;
+    line-height: 1;
+}
+
+.cd-modal .cd-btn:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+/* ทางถอย — มีขอบให้เห็นว่าเป็นปุ่ม แต่ไม่แย่งสายตาไปจากปุ่มหลัก */
+.cd-modal .cd-btn-ghost {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    color: var(--cd-ink-2);
+}
+
+.cd-modal .cd-btn-ghost:hover:not(:disabled) {
+    background: var(--cd-surface);
+    border-color: #94a3b8;
+    color: var(--cd-ink);
+}
+
+/* ทางเดินต่อ — ทึบ มีเงาบาง ๆ ให้ดูยกขึ้นมาหนึ่งชั้น */
+.cd-modal .cd-btn-main {
+    background: var(--bs-primary, #605dff);
+    border: 1px solid var(--bs-primary, #605dff);
+    color: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .12);
+}
+
+.cd-modal .cd-btn-main:hover:not(:disabled) {
+    background: #4f4ce0;
+    border-color: #4f4ce0;
+    box-shadow: 0 2px 6px rgba(96, 93, 255, .3);
+}
+
+.cd-modal .cd-btn-main:active:not(:disabled) {
+    box-shadow: none;
+}
+
+/*
+ * วงแหวนโฟกัสที่มองเห็นได้จริง สำหรับคนที่เดินด้วย Tab
+ * เทมเพลตไม่ได้ตั้งไว้ให้ ปุ่มที่โฟกัสอยู่จึงดูเหมือนปุ่มธรรมดาทุกประการ
+ */
+.cd-modal .cd-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 93, 255, .35);
+}
+
+/* ------------------------------------------------------------ กล่อง SweetAlert ของหน้านี้ */
+
+/*
+ * SweetAlert ใช้กับงานที่ต้องตัดสินใจสั้น ๆ (ตั้งชื่อโฟลเดอร์ · เปลี่ยนชื่อ · ยืนยันการลบ)
+ * ซึ่งเป็นการกระทำที่เกิดบ่อยที่สุดในหน้านี้ ถ้าปล่อยไว้ตามค่าเริ่มต้นมันจะใช้
+ * ฟอนต์และขนาดคนละชุดกับ modal ที่เพิ่งจัดใหม่ กลายเป็นสองมาตรฐานในหน้าเดียวกัน
+ *
+ * ขอบเขตผูกกับ body.cd-page ซึ่ง init() ใน js/customer_drive.js ติดให้เฉพาะหน้านี้
+ */
+
+.cd-page .swal2-popup {
+    font-family: Inter, "IBM Plex Sans Thai", "Noto Sans Thai", "Leelawadee UI",
+        Sarabun, Tahoma, sans-serif;
+    border-radius: .75rem;
+    padding: 1.75rem 1.75rem 1.5rem;
+}
+
+.cd-page .swal2-title {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #1e293b;
+    padding: 0;
+}
+
+.cd-page .swal2-html-container {
+    margin-top: .65rem;
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: #475569;
+}
+
+.cd-page .swal2-input,
+.cd-page .swal2-textarea {
+    height: auto;
+    min-height: 44px;
+    margin: 1.15rem 0 .25rem;
+    padding: .6rem .85rem;
+    border: 1px solid #cbd5e1;
+    border-radius: .5rem;
+    font-size: 15px;
+    line-height: 1.6;
+    box-shadow: none;
+}
+
+.cd-page .swal2-input:focus,
+.cd-page .swal2-textarea:focus {
+    border-color: var(--bs-primary, #605dff);
+    box-shadow: 0 0 0 3px rgba(96, 93, 255, .15);
+}
+
+.cd-page .swal2-validation-message {
+    font-size: 13.5px;
+    line-height: 1.55;
+    border-radius: .4rem;
+}
+
+.cd-page .swal2-actions {
+    margin-top: 1.5rem;
+    gap: .5rem;
+}
+
+/*
+ * ปุ่มยืนยันกับปุ่มยกเลิกต้องมีน้ำหนักต่างกันให้เห็นชัด
+ * ค่าเริ่มต้นของ SweetAlert ทำปุ่มยกเลิกเป็นสีเทาทึบ ซึ่ง "หนัก" พอ ๆ กับปุ่มยืนยัน
+ * ตาจึงเลือกไม่ถูกว่าอันไหนคือทางเดินต่อ — อันตรายที่สุดตอนกล่องยืนยันการลบ
+ */
+.cd-page .swal2-styled {
+    min-height: 42px;
+    padding: .55rem 1.4rem;
+    border-radius: .5rem;
+    font-size: 14.5px;
+    font-weight: 500;
+    box-shadow: none;
+}
+
+.cd-page .swal2-styled.swal2-cancel {
+    background: #fff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+.cd-page .swal2-styled.swal2-cancel:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+}
+
+.cd-page .swal2-styled:focus {
+    box-shadow: 0 0 0 3px rgba(96, 93, 255, .2);
+}
+
+/* ------------------------------------------------------------ กล่องผลลัพธ์หลังสร้างลิงก์ */
+
+/*
+ * ของสองชิ้นที่ต้องเดินทางแยกกัน
+ *
+ * ของเดิมเป็น .alert-success กล่องเดียวที่มีสองช่องกรอกเรียงลงมา ซึ่งอ่านเหมือน
+ * "ข้อมูลชุดเดียว" แล้วคนจะลากคลุมทั้งก้อนแล้วส่งไปทีเดียว — ซึ่งทำลายเหตุผล
+ * ของการมีรหัสผ่านทั้งหมด เพราะใครที่เห็นข้อความนั้นก็เปิดเอกสารลูกค้าได้ทันที
+ *
+ * แบบใหม่แยกเป็นการ์ดสองใบมีเลขกำกับ และวางคำเตือน "ส่งคนละข้อความ" ไว้
+ * คั่นกลางระหว่างสองใบพอดี — ตรงจุดที่สายตาผ่านตอนกำลังจะทำผิด
+ */
+.cd-modal .cd-result {
+    border: 1px solid #bbf7d0;
+    border-radius: .65rem;
+    background: #f0fdf4;
+    padding: 1.15rem 1.25rem 1.25rem;
+}
+
+.cd-modal .cd-result-head {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    margin-bottom: 1.15rem;
+}
+
+.cd-modal .cd-result-head .cd-ic {
+    flex-shrink: 0;
+    font-size: 26px;
+    line-height: 1.3;
+    color: #16a34a;
+}
+
+.cd-modal .cd-result-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #14532d;
+}
+
+.cd-modal .cd-result-sub {
+    margin-top: .1rem;
+    font-size: var(--cd-fs-sm);
+    line-height: 1.55;
+    color: #3f6212;
+}
+
+/* ---- การ์ดของแต่ละชิ้น */
+
+.cd-modal .cd-give {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: .9rem 1rem;
+    border: 1px solid var(--cd-line);
+    border-radius: .55rem;
+    background: #fff;
+}
+
+/* ตัวเลขบอกลำดับ — ส่งอันที่ 1 ก่อน แล้วค่อยอันที่ 2 */
+.cd-modal .cd-give-no {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    margin-top: .1rem;
+    border-radius: 50%;
+    background: #16a34a;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 24px;
+    text-align: center;
+}
+
+.cd-modal .cd-give-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cd-modal .cd-give-label {
+    margin-bottom: .4rem;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--cd-ink-3);
+}
+
+.cd-modal .cd-give-row {
+    display: flex;
+    align-items: stretch;
+    gap: .5rem;
+}
+
+.cd-modal .cd-give-value {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: .5rem .75rem;
+    border: 1px solid var(--cd-line);
+    border-radius: .45rem;
+    background: var(--cd-surface);
+    color: var(--cd-ink);
+    font-family: inherit;
+    font-size: var(--cd-fs-sm);
+    line-height: 1.5;
+}
+
+.cd-modal .cd-give-value:focus {
+    outline: none;
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 3px rgba(96, 93, 255, .15);
+}
+
+/*
+ * รหัสผ่านตัวโตและเว้นระยะตัวอักษร เพราะมันถูกอ่านออกเสียงทางโทรศัพท์
+ * หรือพิมพ์ตามทีละตัวลงช่อง OTP หกช่องของหน้าแขก
+ * ตัวเลขความกว้างเท่ากันช่วยไม่ให้ 1 กับ l สับสน
+ */
+.cd-modal .cd-give-code {
+    flex: 0 0 auto;
+    width: 170px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+/* ---- คำเตือนคั่นกลาง */
+
+.cd-modal .cd-give-warn {
+    display: flex;
+    align-items: flex-start;
+    gap: .6rem;
+    margin: .6rem 0;
+    padding: .7rem 1rem .7rem 1.85rem;
+    font-size: var(--cd-fs-sm);
+    line-height: 1.6;
+    color: #7c2d12;
+}
+
+.cd-modal .cd-give-warn .cd-ic {
+    flex-shrink: 0;
+    font-size: 19px;
+    color: #ea580c;
+}
+
+.cd-modal .cd-give-warn strong {
+    color: #7c2d12;
+}
+
+/* ---- ปุ่มคัดลอกขนาดเล็กในการ์ด */
+
+.cd-modal .cd-btn-sm {
+    min-height: 38px;
+    padding: .4rem 1rem;
+    font-size: var(--cd-fs-sm);
+}
+
+/* บอกว่าคัดลอกสำเร็จจริง ไม่ใช่แค่เปลี่ยนคำ */
+.cd-modal .cd-btn.cd-copied {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #15803d;
+}
+
+/* ============================================================
+ * กระดิ่งแจ้งเตือนบน navbar (เฟส 3)
+ * ============================================================
+ *
+ * อยู่ในไฟล์นี้เพราะ header.php โหลด customer_drive.css ทุกหน้าอยู่แล้ว
+ * (แถบพื้นที่ดิสก์ใน sidebar ต้องใช้) การแยกไฟล์ใหม่จะเพิ่มคำขออีกหนึ่งครั้ง
+ * ทุกหน้าโดยไม่ได้อะไรกลับมา
+ *
+ * ทุกกฎผูกกับคลาส noti-* ซึ่งมีเฉพาะในกระดิ่งที่เราเขียนเอง
+ * ไม่ชนกับ .notification-menu ของเทมเพลตที่ยังใช้อยู่ในกล่องอื่น
+ */
+
+.noti-panel {
+    width: 380px;
+    max-width: calc(100vw - 24px);
+    overflow: hidden;
+}
+
+.noti-panel .title {
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.noti-body {
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+/* ------------------------------------------------------------ แต่ละใบ */
+
+.noti-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    padding: .8rem 1.1rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    text-decoration: none;
+    color: inherit;
+}
+
+.noti-item:last-child {
+    border-bottom: 0;
+}
+
+.noti-item:hover {
+    background: var(--bs-secondary-bg);
+    color: inherit;
+}
+
+/*
+ * จุดนำหน้าบอกว่ายังไม่อ่าน — ใช้พื้นที่คงที่ทั้งสองสถานะ
+ * ถ้าซ่อนจุดตอนอ่านแล้ว ข้อความจะเลื่อนซ้ายทันทีที่กด ซึ่งสะดุดตา
+ */
+.noti-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    margin-top: .45rem;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.noti-item.unread {
+    background: var(--bs-primary-bg-subtle);
+}
+
+.noti-item.unread .noti-dot {
+    background: var(--bs-primary);
+}
+
+.noti-item.unread .noti-title {
+    font-weight: 600;
+}
+
+.noti-text {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.noti-title {
+    display: block;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--bs-emphasis-color);
+}
+
+.noti-detail {
+    display: block;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--bs-secondary-color);
+    /* ชื่อไฟล์ยาวได้มาก ตัดที่สองบรรทัดแทนการดันกล่องให้สูงขึ้นเรื่อย ๆ */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.noti-ago {
+    display: block;
+    margin-top: .15rem;
+    font-size: 12px;
+    color: var(--bs-secondary-color);
+}
+
+/* ------------------------------------------------------------ ว่างเปล่า */
+
+.noti-empty {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    font-size: 14px;
+    color: var(--bs-secondary-color);
+}
+
+.noti-empty .cd-ic {
+    display: block;
+    margin-bottom: .5rem;
+    font-size: 38px;
+    color: var(--bs-border-color);
+}
+
+/* ------------------------------------------------------------ สวิตช์ใน dropdown โปรไฟล์ */
+
+/*
+ * เป็น <label> ไม่ใช่ <a> เพราะกดที่ไหนก็ได้ทั้งแถวแล้วสวิตช์ต้องสลับ
+ * ไม่ใช่ต้องเล็งให้โดนสวิตช์เล็ก ๆ ทางขวา
+ */
+.noti-switch-row {
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.noti-switch-row .form-check-input {
+    cursor: pointer;
+}
+
+/* ปิด dropdown ทันทีที่กดสวิตช์ = กดพลาดแล้วเปิดใหม่เพื่อแก้ไม่ได้ — กันไว้ */
+.noti-switch-row:hover {
+    background: var(--bs-secondary-bg);
+}

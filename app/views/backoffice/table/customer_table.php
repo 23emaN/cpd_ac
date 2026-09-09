@@ -42,12 +42,12 @@ $per_page = max(1, (int) ($_POST['per_page'] ?? 25));
                             <?php endif; ?>
                         </td>
                         <td class="text-center text-muted">
-                            <?php 
-                                if (!empty($customer['fiscal_closing_date'])) {
-                                    echo date('d/m/Y', strtotime($customer['fiscal_closing_date']));
-                                } else {
-                                    echo '-';
-                                }
+                            <?php
+                            if (!empty($customer['fiscal_closing_date'])) {
+                                echo date('d/m/Y', strtotime($customer['fiscal_closing_date']));
+                            } else {
+                                echo '-';
+                            }
                             ?>
                         </td>
                         <td class="text-center">
@@ -61,17 +61,20 @@ $per_page = max(1, (int) ($_POST['per_page'] ?? 25));
                             <?php endif; ?>
                         </td>
                         <td class="text-center text-muted">
-                            <?php 
-                                $contacts = [];
-                                if (!empty($customer['contact_tel'])) $contacts[] = $customer['contact_tel'];
-                                if (!empty($customer['line_id'])) $contacts[] = 'Line: ' . $customer['line_id'];
-                                echo !empty($contacts) ? htmlspecialchars(implode(', ', $contacts)) : '-';
+                            <?php
+                            $contacts = [];
+                            if (!empty($customer['contact_tel'])) $contacts[] = $customer['contact_tel'];
+                            if (!empty($customer['line_id'])) $contacts[] = 'Line: ' . $customer['line_id'];
+                            echo !empty($contacts) ? htmlspecialchars(implode(', ', $contacts)) : '-';
                             ?>
                         </td>
                         <td class="text-center">
                             <div class="action-btn-group">
                                 <button type="button" class="btn-action-edit" title="แก้ไข" onclick="editCustomer(<?php echo $customer['customer_id']; ?>)">
                                     <i class="ri-pencil-line"></i>
+                                </button>
+                                <button type="button" class="btn-action-drive" title="คลังไฟล์" onclick="viewCustomerDrive(<?php echo $customer['customer_id']; ?>)">
+                                    <i class="ri-folder-line"></i>
                                 </button>
                                 <button type="button" class="btn-action-delete" title="ลบ" onclick="deleteCustomer(<?php echo $customer['customer_id']; ?>)">
                                     <i class="ri-delete-bin-line"></i>

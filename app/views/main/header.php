@@ -1241,9 +1241,26 @@
             color: #2563eb !important;
         }
 
-        
+        .btn-action-drive {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: #ea580c;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-        
+        .btn-action-drive:hover {
+            background-color: #fed7aa;
+            color: #c2410c;
+            border-color: #fdba74;
+        }
 
         .btn-action-delete {
             width: 32px;
