@@ -120,8 +120,13 @@
 
                             <select class="filter-select">
                                 <option value="">ทุกผู้ดูแล</option>
-                                <option value="เมย์">เมย์</option>
-                                <option value="ชมพู่">ชมพู่</option>
+                                <?php if (! empty($data['caretakers'])): ?>
+                                    <?php foreach ($data['caretakers'] as $caretaker): ?>
+                                        <option value="<?php echo htmlspecialchars($caretaker['user_id'] ?? ''); ?>">
+                                            <?php echo htmlspecialchars(($caretaker['user_firstname'] ?? '') . ' ' . ($caretaker['lastname'] ?? '')); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
@@ -453,6 +458,10 @@
 <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script></script></script>
 <script>
 
+    function viewCustomerDrive(customer_id) {
+        window.location.href = '<?php echo BASE_URL; ?>/customer_drive?id=' + customer_id;
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
     if (typeof flatpickr !== 'undefined') {
             flatpickr("#fiscal_closing_date", {
@@ -521,11 +530,14 @@
 
         var formData = $('#addCustomerForm').serialize();
         var customerId = $('#edit_customer_id').val();
-        var baseUrl = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>';
-        var targetUrl = customerId ? baseUrl + '/customer/edit' : baseUrl + '/customer/add';
+        var targetUrl = customerId ? '/cpd_ac/public/customer/edit' : '/cpd_ac/public/customer/add';
 
         $.ajax({
+
             url: targetUrl,
+
+            // url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/add',
+
             method: 'POST',
             data: formData,
             dataType: 'json',
@@ -578,11 +590,6 @@
         });
     }
 
-    // เปิดคลังไฟล์ของลูกค้ารายนี้
-    function viewCustomerDrive(customer_id) {
-        window.location.href = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer_drive?id=' + customer_id;
-    }
-
     // แก้ไขข้อมูลลูกค้า
     function editCustomer(customer_id) {
         // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
@@ -596,7 +603,7 @@
         
         // Fetch existing data
         $.ajax({
-            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/get?id=' + customer_id,
+            url: '/cpd_ac/public/customer/get?id=' + customer_id,
             method: 'GET',
             dataType: 'json',
             success: function(response) {
@@ -687,7 +694,7 @@
 
     function processDeleteCustomer(customer_id) {
         $.ajax({
-            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/delete',
+            url: '/cpd_ac/public/customer/delete',
             method: 'POST',
             data: { customer_id: customer_id }, // ส่งผ่าน POST Data เพื่อความปลอดภัยกว่าการต่อ URL ตรงๆ
             dataType: 'json',

@@ -1,4 +1,4 @@
-@charset "UTF-8";
+﻿@charset "UTF-8";
 /**
 @File: Trezo Template Styles
 
@@ -9,8 +9,7 @@ This files table contents are outlined below>>>>>
 
 *******************************************
 **/
-/* @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"); */
-@import url('https://fonts.googleapis.com/css2?family=K2D:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 
 
 :root,
@@ -899,7 +898,7 @@ progress {
 }
 
 .blockquote-footer::before {
-  content: "— ";
+  content: "โ€”ย ";
 }
 
 /*!
@@ -1692,7 +1691,7 @@ progress {
 }
 
 .blockquote-footer::before {
-  content: "— ";
+  content: "โ€”ย ";
 }
 
 .img-fluid {
@@ -27718,12 +27717,12 @@ Theme Settings Style
         transition: all 0.2s ease-in-out;
     }
 
-    /* แถวที่กำลังลาก */
+    /* เนเธ–เธงเธ—เธตเนเธเธณเธฅเธฑเธเธฅเธฒเธ */
     .sortable-chosen {
         background-color: #ffe5e5 !important;
     }
 
-    /* ตำแหน่งที่จะแทรก */
+    /* เธ•เธณเนเธซเธเนเธเธ—เธตเนเธเธฐเนเธ—เธฃเธ */
     .sortable-ghost {
         border-top: 2px solid red !important;
     }
@@ -27740,7 +27739,7 @@ Theme Settings Style
         background-color: #ffcccc !important;
         cursor: pointer;
 
-        /* สีแดงอ่อน */
+        /* เธชเธตเนเธ”เธเธญเนเธญเธ */
     }
 
     /* card */
@@ -27749,7 +27748,7 @@ Theme Settings Style
     }
 
 
-    /* สไตล์ของสวิตช์ */
+    /* เธชเนเธ•เธฅเนเธเธญเธเธชเธงเธดเธ•เธเน */
     .switch {
         position: relative;
         display: inline-block;
@@ -27757,14 +27756,14 @@ Theme Settings Style
         height: 34px;
     }
 
-    /* ซ่อน checkbox จริง */
+    /* เธเนเธญเธ checkbox เธเธฃเธดเธ */
     .switch input {
         opacity: 0;
         width: 0;
         height: 0;
     }
 
-    /* สร้าง slider */
+    /* เธชเธฃเนเธฒเธ slider */
     .slider {
         position: absolute;
         cursor: pointer;
@@ -27777,7 +27776,7 @@ Theme Settings Style
         border-radius: 34px;
     }
 
-    /* สร้างวงกลมในสวิตช์ */
+    /* เธชเธฃเนเธฒเธเธงเธเธเธฅเธกเนเธเธชเธงเธดเธ•เธเน */
     .slider:before {
         position: absolute;
         content: "";
@@ -27790,33 +27789,33 @@ Theme Settings Style
         transition: 0.4s;
     }
 
-    /* เปลี่ยนสีเมื่อเลือก */
+    /* เน€เธเธฅเธตเนเธขเธเธชเธตเน€เธกเธทเนเธญเน€เธฅเธทเธญเธ */
     input:checked+.slider {
         background-color: #4CAF50;
     }
 
-    /* เลื่อนวงกลมเมื่อเลือก */
+    /* เน€เธฅเธทเนเธญเธเธงเธเธเธฅเธกเน€เธกเธทเนเธญเน€เธฅเธทเธญเธ */
     input:checked+.slider:before {
         transform: translateX(26px);
     }
 
     .middle {
         text-align: center;
-        /* จัดแนวนอน */
+        /* เธเธฑเธ”เนเธเธงเธเธญเธ */
         vertical-align: middle;
-        /* จัดแนวตั้ง */
+        /* เธเธฑเธ”เนเธเธงเธ•เธฑเนเธ */
     }
 
 #sortable tr {
   transition: all 0.2s ease-in-out;
 }
 
-/* แถวที่กำลังลาก */
+/* เนเธ–เธงเธ—เธตเนเธเธณเธฅเธฑเธเธฅเธฒเธ */
 .sortable-chosen {
   background-color: #ffe5e5 !important;
 }
 
-/* ตำแหน่งที่จะแทรก */
+/* เธ•เธณเนเธซเธเนเธเธ—เธตเนเธเธฐเนเธ—เธฃเธ */
 .sortable-ghost {
   border-top: 2px solid red !important;
 }
@@ -27832,7 +27831,7 @@ Theme Settings Style
 #sortable tr:hover {
   background-color: #ffcccc !important;
   cursor: pointer;
-  /* สีแดงอ่อน */
+  /* เธชเธตเนเธ”เธเธญเนเธญเธ */
 }
 
 
@@ -27843,7 +27842,7 @@ Theme Settings Style
 }
 
 
-/* สไตล์ของสวิตช์ */
+/* เธชเนเธ•เธฅเนเธเธญเธเธชเธงเธดเธ•เธเน */
 .switch {
   position: relative;
   display: inline-block;
@@ -27851,14 +27850,14 @@ Theme Settings Style
   height: 34px;
 }
 
-/* ซ่อน checkbox จริง */
+/* เธเนเธญเธ checkbox เธเธฃเธดเธ */
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-/* สร้าง slider */
+/* เธชเธฃเนเธฒเธ slider */
 .slider {
   position: absolute;
   cursor: pointer;
@@ -27871,7 +27870,7 @@ Theme Settings Style
   border-radius: 34px;
 }
 
-/* สร้างวงกลมในสวิตช์ */
+/* เธชเธฃเนเธฒเธเธงเธเธเธฅเธกเนเธเธชเธงเธดเธ•เธเน */
 .slider:before {
   position: absolute;
   content: "";
@@ -27884,21 +27883,21 @@ Theme Settings Style
   transition: 0.4s;
 }
 
-/* เปลี่ยนสีเมื่อเลือก */
+/* เน€เธเธฅเธตเนเธขเธเธชเธตเน€เธกเธทเนเธญเน€เธฅเธทเธญเธ */
 input:checked+.slider {
   background-color: #4CAF50;
 }
 
-/* เลื่อนวงกลมเมื่อเลือก */
+/* เน€เธฅเธทเนเธญเธเธงเธเธเธฅเธกเน€เธกเธทเนเธญเน€เธฅเธทเธญเธ */
 input:checked+.slider:before {
   transform: translateX(26px);
 }
 
 .middle {
   text-align: center;
-  /* จัดแนวนอน */
+  /* เธเธฑเธ”เนเธเธงเธเธญเธ */
   vertical-align: middle;
-  /* จัดแนวตั้ง */
+  /* เธเธฑเธ”เนเธเธงเธ•เธฑเนเธ */
 }
 .td-5 { width: 5%; }
 .td-10 { width: 10%; }
@@ -27911,3 +27910,4 @@ input:checked+.slider:before {
 .td-80 { width: 80%; }
 .td-90 { width: 90%; }
 .td-100 { width: 100%; }
+
