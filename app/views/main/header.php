@@ -793,11 +793,21 @@
         .modal-body .form-select {
             background-color: #ffffff !important;
             border: 1px solid #e2e8f0 !important;
-            border-radius: 12px !important;
-            padding: 12px 16px !important;
+            border-radius: 10px !important;
+            height: 38px !important;
+            padding: 0 14px !important;
+            font-size: 0.85rem !important;
+            line-height: 36px !important;
             outline: none !important;
             box-shadow: none !important;
             width: 100%;
+        }
+
+        textarea.modal-form-control,
+        textarea.modal-body .form-control {
+            height: auto !important;
+            padding: 9px 14px !important;
+            line-height: 1.5 !important;
         }
 
         .modal-form-control:focus,
@@ -1638,7 +1648,6 @@
         }
 
         .swal2-styled.swal2-confirm {
-            background-color: #e11d48 !important;
             color: #ffffff !important;
         }
 
@@ -1798,12 +1807,12 @@
             border-bottom: none;
         }
 
-        /* --- Custom Select2 Pill Design --- */
+        /* --- Custom Select2 Form Input Design System --- */
         .select2-container--default .select2-selection--single {
-            background-color: #f8fafc !important;
-            border: 1px solid #f1f5f9 !important;
-            border-radius: 14px !important;
-            height: 42px !important;
+            background-color: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+            height: 38px !important;
             display: flex !important;
             align-items: center !important;
             transition: all 0.2s ease !important;
@@ -1813,23 +1822,23 @@
         .select2-container--default .select2-selection--single:focus,
         .select2-container--default.select2-container--open .select2-selection--single {
             background-color: #ffffff !important;
-            border-color: #3b82f6 !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            border-color: #007aff !important;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1) !important;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: #334155 !important;
-            font-size: 0.875rem !important;
+            color: #1e293b !important;
+            font-size: 0.85rem !important;
             font-weight: 500 !important;
-            padding-left: 16px !important;
-            padding-right: 36px !important;
-            line-height: 40px !important;
+            padding-left: 14px !important;
+            padding-right: 32px !important;
+            line-height: 36px !important;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 40px !important;
+            height: 36px !important;
             width: 30px !important;
-            right: 10px !important;
+            right: 8px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -1845,9 +1854,22 @@
             border-width: 0 4px 5px 4px !important;
         }
 
+        .select2-container--default.select2-container--disabled .select2-selection--single {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* Select2 Form Validation State */
+        .is-invalid + .select2-container .select2-selection--single,
+        .was-validated select:invalid + .select2-container .select2-selection--single {
+            border-color: #ef4444 !important;
+        }
+
         .select2-dropdown {
-            border: 1px solid #edf2f7 !important;
-            border-radius: 14px !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
             overflow: hidden !important;
             z-index: 9999 !important;
@@ -1858,17 +1880,17 @@
         .select2-container--default .select2-results__option {
             padding: 10px 16px !important;
             font-weight: 500 !important;
-            color: #475569 !important;
+            color: #334155 !important;
         }
 
         .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #3b82f6 !important;
+            background-color: #007aff !important;
             color: #ffffff !important;
         }
 
         .select2-container--default .select2-results__option[aria-selected=true] {
             background-color: #eff6ff !important;
-            color: #1d4ed8 !important;
+            color: #007aff !important;
             font-weight: 700 !important;
         }
     </style>
