@@ -8,7 +8,7 @@ class BackofficeController
     private function checkAuth()
     {
         require_once '../app/models/AuthModel.php';
-        $user = \App\Models\AuthModel::checkWebAuth();
+        $user = \App\models\AuthModel::checkWebAuth();
 
         if (!$user) {
             header("Location: " . BASE_URL . "/login");
@@ -952,6 +952,11 @@ class BackofficeController
             ],
             'is_draft' => false,
         ];
+
+        if (isset($_GET['ajax_table']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' && isset($_GET['ajax_table']))) {
+            require '../app/views/backoffice/table/postit_table.php';
+            return;
+        }
 
         require_once '../app/views/backoffice/post_it.php';
     }

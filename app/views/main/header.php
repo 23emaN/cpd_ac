@@ -1871,6 +1871,75 @@
             color: #1d4ed8 !important;
             font-weight: 700 !important;
         }
+        /* ===== Add Company Form ===== */
+
+.company-form-group {
+    padding: 20px 24px 4px 24px;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.company-form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 0.90rem;
+    color: #334155;
+}
+
+.company-name-input {
+    display: block;
+    width: 100% !important;
+    height: 42px;
+    box-sizing: border-box !important;
+
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+
+    padding: 9px 14px !important;
+    font-size: 0.90rem !important;
+    font-weight: 500 !important;
+    color: #334155 !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+
+    transition: all 0.2s ease;
+}
+
+.company-name-input:focus {
+    background-color: #ffffff !important;
+    border-color: #007aff !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.10) !important;
+}
+
+/* ===== Validation Error ===== */
+
+.company-name-input.is-invalid {
+    background-color: #fffafa !important;
+    border: 1px solid #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10) !important;
+}
+
+.company-name-input.is-invalid:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
+
+.company-name-error {
+    display: none;
+    margin-top: 6px;
+    color: #ef4444;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.company-name-error.show {
+    display: block;
+}
     </style>
 </head>
 
@@ -2097,17 +2166,23 @@
                         เพิ่มบริษัทใหม่</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" style="padding: 24px;">
-                    <form id="addCompanyForm">
-                        <div class="mb-3">
-                            <label class="form-label"
-                                style="font-weight: 700; font-size: 0.9rem; color: #334155;">ชื่อบริษัท <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="company_name" placeholder="กรอกชื่อบริษัท"
-                                style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; font-weight: 600;">
-                        </div>
-                    </form>
-                </div>
+               <div class="company-form-group">
+
+    <label for="companyNameInput" class="company-form-label">
+        ชื่อบริษัท
+        <span class="text-danger">*</span>
+    </label>
+
+    <input type="text"
+        class="form-control company-name-input"
+        id="companyNameInput"
+        name="company_name"
+        placeholder="กรอกชื่อบริษัท"
+        oninput="clearCompanyNameError()">
+
+    <div id="companyNameError" class="company-name-error"></div>
+
+</div>
                 <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal"
                         style="border-radius: 8px; font-weight: 600;">ยกเลิก</button>
@@ -2334,36 +2409,57 @@
             }
         }
 
-        function Getmodal_add() {
-            const form = document.getElementById('addCompanyForm');
-            if (form) {
-                form.reset();
-            }
-            const modalElement = document.getElementById('addCompanyModal');
-            const myModal = new bootstrap.Modal(modalElement);
-            myModal.show();
-        }
+     function Getmodal_add() {
+    const form = document.getElementById('addCompanyForm');
+    if (form) {
+        form.reset();
+    }
+    clearCompanyNameError();
+    const modalElement = document.getElementById('addCompanyModal');
+    const myModal = new bootstrap.Modal(modalElement);
+    myModal.show();
+}
 
         let isSubmittingCompany = false;
-        function addCompany() {
-            if (isSubmittingCompany) return;
+function clearCompanyNameError() {
+    const input = document.getElementById('companyNameInput');
+    const errorEl = document.getElementById('companyNameError');
 
-            var companyName = $('input[name="company_name"]').val().trim();
-            if (!companyName) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'warning',
-                        title: 'กรุณากรอกชื่อบริษัท',
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-                } else {
-                    alert('กรุณากรอกชื่อบริษัท');
-                }
-                return;
-            }
+    if (input) {
+        input.classList.remove('is-invalid');
+    }
+
+    if (errorEl) {
+        errorEl.classList.remove('show');
+        errorEl.textContent = '';
+    }
+}
+
+function showCompanyNameError(message) {
+    const input = document.getElementById('companyNameInput');
+    const errorEl = document.getElementById('companyNameError');
+
+    if (input) {
+        input.classList.add('is-invalid');
+        input.focus();
+    }
+
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+    }
+}
+
+function addCompany() {
+    if (isSubmittingCompany) return;
+
+    var companyName = $('input[name="company_name"]').val().trim();
+    clearCompanyNameError();
+
+    if (!companyName) {
+        showCompanyNameError('กรุณากรอกชื่อบริษัท');
+        return;
+    }
 
             isSubmittingCompany = true;
             const submitBtn = $('#addCompanyModal .btn-primary');
@@ -2402,20 +2498,8 @@
                             alert(response.msg);
                             location.reload();
                         }
-                    } else {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: response.msg || 'ผิดพลาด',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        } else {
-                            alert(response.msg);
-                        }
+                      } else {
+                        showCompanyNameError(response.msg || 'ไม่สามารถบันทึกข้อมูลได้');
                     }
                 },
                 error: function (err) {

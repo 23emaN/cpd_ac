@@ -7,7 +7,7 @@ class CustomerDriveController
     private function checkAuth()
     {
         require_once '../app/models/AuthModel.php';
-        $user = \App\Models\AuthModel::checkWebAuth();
+        $user = \App\models\AuthModel::checkWebAuth();
 
         if (!$user) {
             header("Location: " . BASE_URL . "/login");

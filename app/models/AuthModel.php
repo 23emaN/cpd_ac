@@ -1,7 +1,7 @@
 <?php
-namespace App\Models;
+namespace App\models;
 
-use App\Config\Connection;
+use App\config\Connection;
 use Dotenv\Dotenv;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;

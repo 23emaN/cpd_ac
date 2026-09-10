@@ -10,7 +10,7 @@ class MainController
     private function checkAuth()
     {
         require_once '../app/models/AuthModel.php';
-        $user = \App\Models\AuthModel::checkWebAuth();
+        $user = \App\models\AuthModel::checkWebAuth();
         
         if (!$user) {
             // ถ้าเช็ค Token ไม่ผ่าน ให้เด้งไปหน้า Login
@@ -35,6 +35,7 @@ class MainController
         if (!empty($companies) && isset($companies[0]['fiscal_years'])) {
             $fiscal_years = $companies[0]['fiscal_years'];
         }
+
 
         // 2. เตรียมข้อมูลส่งไปที่ View (MVC Pattern)
         $data = [
@@ -152,7 +153,7 @@ class MainController
     {
         // 1. (Optional) Invalidate token in database if we want strictly stateful JWT
         require_once '../app/models/AuthModel.php';
-        $jwt = \App\Models\AuthModel::bearerToken();
+        $jwt = \App\models\AuthModel::bearerToken();
         if ($jwt !== '') {
             try {
                 $secretKey = $_ENV['JWT_SECRET'] ?? '';

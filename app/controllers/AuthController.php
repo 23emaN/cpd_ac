@@ -40,7 +40,7 @@ class AuthController {
                 if (password_verify($password, $user['user_password'])) {
                     // หากตรงกัน ให้บันทึก Token
                     require_once '../app/models/AuthModel.php';
-                    $token = \App\Models\AuthModel::generateToken($user);
+                    $token = \App\models\AuthModel::generateToken($user);
                     
                     // Set cookie for 1 day
                     setcookie('bo_access_token', $token, time() + 86400, '/');
