@@ -69,14 +69,21 @@ class PostItModel extends Model
         $params = ['fiscal_year_id' => $fiscalYearId];
 
         if (!empty($filters['q'])) {
+            $qVal = '%' . trim((string) $filters['q']) . '%';
             $sql .= " AND (
-                p.title LIKE :q
-                OR p.content LIKE :q
-                OR u.user_firstname LIKE :q
-                OR u.user_lastname LIKE :q
-                OR u.user_name LIKE :q
+                COALESCE(p.title, '') LIKE :q1
+                OR COALESCE(p.content, '') LIKE :q2
+                OR COALESCE(u.user_firstname, '') LIKE :q3
+                OR COALESCE(u.user_lastname, '') LIKE :q4
+                OR COALESCE(u.user_name, '') LIKE :q5
+                OR CONCAT(COALESCE(u.user_firstname, ''), ' ', COALESCE(u.user_lastname, '')) LIKE :q6
             )";
-            $params['q'] = '%' . $filters['q'] . '%';
+            $params['q1'] = $qVal;
+            $params['q2'] = $qVal;
+            $params['q3'] = $qVal;
+            $params['q4'] = $qVal;
+            $params['q5'] = $qVal;
+            $params['q6'] = $qVal;
         }
 
         if (isset($filters['user_id']) && $filters['user_id'] !== '' && $filters['user_id'] !== null) {
