@@ -1358,7 +1358,7 @@ function cd_guest_cookie(string $value, int $lifetime): void
 
     setcookie(CD_GUEST_COOKIE, $value, [
         'expires'  => $lifetime > 0 ? time() + $lifetime : 1,
-        'path'     => '/portal',
+        'path'     => '/',
         'secure'   => $https,
         'httponly' => true,
         'samesite' => 'Lax',
