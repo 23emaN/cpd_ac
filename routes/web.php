@@ -28,6 +28,8 @@ $routes = [
         'fiscal_years/get' => ['MainController', 'getFiscalYears'],
         'logout' => ['MainController', 'logout'],
         'customer/get' => ['BackofficeController', 'getCustomer'],
+        'customer/export' => ['ReportController', 'customerExcel'],
+        'report/customer' => ['ReportController', 'customerExcel'],
         'customer_drive' => ['CustomerDriveController', 'index'],
         'customer_drive/download' => ['CustomerDriveController', 'download'],
         'customer_drive/download_zip' => ['CustomerDriveController', 'downloadZip'],
@@ -56,6 +58,7 @@ $routes = [
         'customer/add' => ['BackofficeController', 'addCustomer'],
         'customer/edit' => ['BackofficeController', 'editCustomer'],
         'customer/delete' => ['BackofficeController', 'deleteCustomer'],
+        'customer/filter' => ['BackofficeController', 'customerFilter'],
         'monthly_task/comments/store' => ['BackofficeController', 'storeMonthlyTaskComment'],
         'monthly_task/update' => ['BackofficeController', 'updateMonthlyTask'],
         'registration-task/job-types/add'    => ['BackofficeController', 'addRegistrationType'],
@@ -92,7 +95,6 @@ $routes = [
         'portal/upload' => ['PortalController', 'upload'],
         'portal/upload_chunk' => ['PortalController', 'uploadChunk'],
         'closing/update' => ['BackofficeController', 'updateClosing'],
-
     ]
 ];
 

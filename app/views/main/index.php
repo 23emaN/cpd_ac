@@ -377,6 +377,78 @@ require_once __DIR__ . '/header.php';
     .year-add-card:hover .year-add-subtext {
         color: #60a5fa;
     }
+    /* ===== Add Year Form ===== */
+
+.year-form-group {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.year-form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 0.90rem;
+    color: #334155;
+}
+
+.working-year-input {
+    display: block;
+    width: 100% !important;
+    height: 42px;
+    box-sizing: border-box !important;
+
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+
+    padding: 9px 14px !important;
+    font-size: 0.90rem !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+
+    transition: all 0.2s ease;
+}
+
+.working-year-input:focus {
+    background-color: #ffffff !important;
+    border-color: #007aff !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.10) !important;
+}
+
+/* Validation Error */
+.working-year-input.is-invalid {
+    background-color: #fffafa !important;
+    border: 1px solid #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10) !important;
+}
+
+.working-year-input.is-invalid:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
+
+.working-year-error {
+    display: none;
+    margin-top: 6px;
+    color: #ef4444;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.working-year-error.show {
+    display: block;
+}
+
+.year-form-help {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 6px;
+}
 </style>
 
 <div class="main-page-wrapper">
@@ -438,26 +510,40 @@ require_once __DIR__ . '/header.php';
                     <input type="hidden" name="company_id" value="<?php echo htmlspecialchars($data['companies'][0]['id'] ?? ''); ?>">
 
                     <!-- ปี พ.ศ. -->
-                    <div class="mb-4">
-                        <label class="form-label" style="font-weight: 700; font-size: 0.9rem; color: #334155;">ปี พ.ศ. <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" name="working_year" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px; padding: 12px 16px; font-weight: 600; color: #1e293b; box-shadow: none;">
-                        <div class="form-text" style="font-size: 0.75rem; color: #94a3b8; margin-top: 6px;">กรอกปี พ.ศ. ระหว่าง 2500 ถึง 2600</div>
+                    <div class="year-form-group">
+                        <label for="workingYearInput" class="year-form-label">ปี พ.ศ. <span class="text-danger">*</span></label>
+
+                        <input type="number"
+                            class="form-control working-year-input"
+                            id="workingYearInput"
+                            name="working_year"
+                            min="2500"
+                            max="2600"
+                            placeholder="กรอกปี พ.ศ."
+                            oninput="clearWorkingYearError()">
+
+                        <div id="workingYearError" class="working-year-error"></div>
+
+                        <div class="form-text year-form-help">กรอกปี พ.ศ. ระหว่าง 2500 ถึง 2600</div>
                     </div>
 
                     <!-- คัดลอกข้อมูลจากปี (แสดงต่อเมื่อมีปีทำงานเก่าให้คัดลอก) -->
-                    <?php if (isset($data['fiscal_years']) && !empty($data['fiscal_years'])): ?>
+                    <div id="copyFromYearWrapper" style="<?php echo (isset($data['fiscal_years']) && !empty($data['fiscal_years'])) ? 'display: block;' : 'display: none;'; ?>">
                         <div class="mb-4">
                             <label class="form-label" style="font-weight: 700; font-size: 0.9rem; color: #334155;">คัดลอกข้อมูลจากปี</label>
-                            <select class="form-select" name="copy_from_year" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px; padding: 12px 16px; font-weight: 600; color: #475569; cursor: pointer; box-shadow: none;">
-                                <?php foreach ($data['fiscal_years'] as $fy): ?>
-                                    <option value="<?php echo htmlspecialchars($fy['year_id'] ?? $fy['year']); ?>">ปี <?php echo htmlspecialchars($fy['year']); ?></option>
-                                <?php endforeach; ?>
-                                <option value="">ไม่คัดลอก (เริ่มใหม่ทั้งหมด)</option>
+                            <select class="form-select" name="copy_from_year" onchange="document.getElementById('copyOptionsBox').style.display = this.value ? 'block' : 'none';" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px; padding: 12px 16px; font-weight: 600; color: #475569; cursor: pointer; box-shadow: none;">
+                                <?php if (isset($data['fiscal_years']) && !empty($data['fiscal_years'])): ?>
+                                    <?php foreach ($data['fiscal_years'] as $fy): ?>
+                                        <option value="<?php echo htmlspecialchars($fy['fiscal_id'] ?? $fy['year_id'] ?? $fy['year'] ?? ''); ?>">ปี <?php echo htmlspecialchars($fy['fiscal_years'] ?? $fy['year'] ?? ''); ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                                <option value="">ไม่คัดลอก</option>
+
                             </select>
                         </div>
 
                         <!-- ข้อมูลที่ต้องการคัดลอก -->
-                        <div class="copy-options-box" style="border: 1px dashed #cbd5e1; border-radius: 12px; padding: 20px; background-color: #ffffff;">
+                        <div id="copyOptionsBox" class="copy-options-box" style="border: 1px dashed #cbd5e1; border-radius: 12px; padding: 20px; background-color: #ffffff;">
                             <label class="form-label" style="font-weight: 700; font-size: 0.9rem; color: #1e293b; margin-bottom: 16px;">ข้อมูลที่ต้องการคัดลอก</label>
                             
                             <div class="form-check mb-3 d-flex align-items-center">
@@ -481,7 +567,7 @@ require_once __DIR__ . '/header.php';
                                 </label>
                             </div>
                         </div>
-                    <?php endif; ?>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 20px 24px; gap: 12px; justify-content: flex-end; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
@@ -505,24 +591,52 @@ require_once __DIR__ . '/header.php';
         myModal.show();
     }
     
+    function clearWorkingYearError() {
+    const input = document.getElementById('workingYearInput');
+    const errorEl = document.getElementById('workingYearError');
+
+    if (input) {
+        input.classList.remove('is-invalid');
+    }
+
+        if (errorEl) {
+            errorEl.classList.remove('show');
+            errorEl.textContent = '';
+        }
+    }
+
+    function showWorkingYearError(message) {
+    const input = document.getElementById('workingYearInput');
+    const errorEl = document.getElementById('workingYearError');
+
+    if (input) {
+        input.classList.add('is-invalid');
+        input.focus();
+    }
+
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+    }
+    }
     let isSubmittingYear = false;
     function submitAddYear() {
         if (isSubmittingYear) return;
 
-        const workingYear = $('input[name="working_year"]').val().trim();
+       const workingYear = $('#workingYearInput').val().trim();
+
+        // เคลียร์ error เดิมก่อนตรวจสอบ
+        clearWorkingYearError();
+
         if (!workingYear) {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'warning',
-                    title: 'กรุณากรอกปี พ.ศ.',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-            } else {
-                alert('กรุณากรอกปี พ.ศ.');
-            }
+            showWorkingYearError('กรุณากรอกปี พ.ศ.');
+            return;
+        }
+
+        const year = parseInt(workingYear, 10);
+
+        if (year < 2500 || year > 2600) {
+            showWorkingYearError('กรุณากรอกปี พ.ศ. ระหว่าง 2500 ถึง 2600');
             return;
         }
 
@@ -531,7 +645,19 @@ require_once __DIR__ . '/header.php';
         const originalBtnText = submitBtn.text();
         submitBtn.prop('disabled', true).text('กำลังบันทึก...');
 
-        var formData = $('#addYearForm').serialize();
+        var formData = new FormData();
+        formData.append('company_id', $('input[name="company_id"]').val());
+        formData.append('working_year', workingYear);
+        formData.append('copy_from_year', $('select[name="copy_from_year"]').val() || '');
+
+        // เก็บตัวเลือกที่ติ๊กไว้ส่งเป็น copy_options[]
+        var copyOptions = [];
+        if ($('#chkCustomers').is(':checked'))  copyOptions.push('customers');
+        if ($('#chkEmployees').is(':checked'))  copyOptions.push('employees');
+        if ($('#chkJobs').is(':checked'))       copyOptions.push('monthly_jobs');
+        copyOptions.forEach(function(opt) {
+            formData.append('copy_options[]', opt);
+        });
         
         const Toast = Swal.mixin({
             toast: true,
@@ -550,6 +676,8 @@ require_once __DIR__ . '/header.php';
             url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/fiscal_years/add",
             data: formData,
             dataType: "json",
+            processData: false,
+            contentType: false,
             success: function(response) {
                 isSubmittingYear = false;
                 submitBtn.prop('disabled', false).text(originalBtnText);
@@ -681,7 +809,9 @@ require_once __DIR__ . '/header.php';
                     $('.year-add-card').before(html);
                     
                     // อัปเดต Select คัดลอกข้อมูล
-                    $('select[name="copy_from_year"]').html(optionsHtml + '<option value="">ไม่คัดลอก (เริ่มใหม่ทั้งหมด)</option>');
+                    $('select[name="copy_from_year"]').html(optionsHtml + '<option value="">ไม่คัดลอก</option>');
+                    $('#copyFromYearWrapper').show();
+                    $('#copyOptionsBox').show();
 
                     // อัปเดตรายการปีใน Header Dropdown Menu ของบริษัทนี้
                     let headerDropdownHtml = '';
@@ -715,7 +845,8 @@ require_once __DIR__ . '/header.php';
                         $('.notice-selected-value').text('ยังไม่ได้เลือก');
                     }
                 } else {
-                    $('select[name="copy_from_year"]').html('<option value="">ไม่คัดลอก (เริ่มใหม่ทั้งหมด)</option>');
+                    $('select[name="copy_from_year"]').html('<option value="">ไม่คัดลอก</option>');
+                    $('#copyFromYearWrapper').hide();
                     $('#otherYearsList_' + companyId).html('<div class="acc-no-years-sub text-muted px-2 py-1" style="font-size: 0.78rem;">ไม่มีปีอื่นให้เลือก</div>');
                 }
             },

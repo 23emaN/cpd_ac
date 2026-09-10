@@ -164,18 +164,10 @@ class RegistrationModel extends Model
                 WHERE r.fiscal_id = :fiscal_id AND r.delete_at IS NULL AND r.closed_at IS NOT NULL";
         $params = ['fiscal_id' => $fiscalId];
         if ($keyword !== '') {
-            $sql .= " AND (r.customer_name LIKE :kw1 OR r.registration_name LIKE :kw2
-                           OR r.registration_no LIKE :kw3 OR r.customer_phone LIKE :kw4 OR r.contact_person LIKE :kw5
-                           OR rt.registration_type_name LIKE :kw6
-                           OR CONCAT_WS(' ', u.user_firstname, u.user_lastname) LIKE :kw7)";
-            $kw = '%' . $keyword . '%';
-            $params['kw1'] = $kw;
-            $params['kw2'] = $kw;
-            $params['kw3'] = $kw;
-            $params['kw4'] = $kw;
-            $params['kw5'] = $kw;
-            $params['kw6'] = $kw;
-            $params['kw7'] = $kw;
+            $sql .= " AND (r.customer_name LIKE :kw OR r.registration_name LIKE :kw
+                           OR rt.registration_type_name LIKE :kw
+                           OR CONCAT_WS(' ', u.user_firstname, u.user_lastname) LIKE :kw)";
+            $params['kw'] = '%' . $keyword . '%';
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
@@ -198,18 +190,10 @@ class RegistrationModel extends Model
                 WHERE r.fiscal_id = :fiscal_id AND r.delete_at IS NULL AND r.closed_at IS NOT NULL";
         $params = ['fiscal_id' => $fiscalId];
         if ($keyword !== '') {
-            $sql .= " AND (r.customer_name LIKE :kw1 OR r.registration_name LIKE :kw2
-                           OR r.registration_no LIKE :kw3 OR r.customer_phone LIKE :kw4 OR r.contact_person LIKE :kw5
-                           OR rt.registration_type_name LIKE :kw6
-                           OR CONCAT_WS(' ', u.user_firstname, u.user_lastname) LIKE :kw7)";
-            $kw = '%' . $keyword . '%';
-            $params['kw1'] = $kw;
-            $params['kw2'] = $kw;
-            $params['kw3'] = $kw;
-            $params['kw4'] = $kw;
-            $params['kw5'] = $kw;
-            $params['kw6'] = $kw;
-            $params['kw7'] = $kw;
+            $sql .= " AND (r.customer_name LIKE :kw OR r.registration_name LIKE :kw
+                           OR rt.registration_type_name LIKE :kw
+                           OR CONCAT_WS(' ', u.user_firstname, u.user_lastname) LIKE :kw)";
+            $params['kw'] = '%' . $keyword . '%';
         }
         $sql .= " ORDER BY r.closed_at DESC LIMIT :limit OFFSET :offset";
 

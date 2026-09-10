@@ -9,15 +9,8 @@ if (isset($_POST['data']) && is_array($_POST['data'])) {
 }
 
 $total    = (int) ($_POST['total'] ?? count($list));
-$page     = max(1, (int) ($_POST['page'] ?? $_GET['page'] ?? 1));
-$per_page = max(1, (int) ($_POST['per_page'] ?? $_GET['per_page'] ?? 25));
-
-if ($total == count($list)) {
-    $start = ($page - 1) * $per_page;
-    $paginated_list = array_slice($list, $start, $per_page);
-} else {
-    $paginated_list = $list;
-}
+$page     = max(1, (int) ($_POST['page'] ?? 1));
+$per_page = max(1, (int) ($_POST['per_page'] ?? 25));
 ?>
 
 <div class="table-wrap">
@@ -34,8 +27,8 @@ if ($total == count($list)) {
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($paginated_list)): ?>
-                <?php foreach ($paginated_list as $customer): ?>
+            <?php if (!empty($list)): ?>
+                <?php foreach ($list as $customer): ?>
                     <tr>
                         <td class="text-start">
                             <div class="table-item-title"><?php echo htmlspecialchars($customer['customer_name']); ?></div>
@@ -99,6 +92,6 @@ if ($total == count($list)) {
     </table>
 </div>
 
-<?php if (!empty($paginated_list)): ?>
+<?php if (!empty($list)): ?>
     <?php include dirname(__DIR__) . '/_pagination.php'; ?>
 <?php endif; ?>

@@ -15,17 +15,34 @@ class CustomModal extends Model
         return $stmt->fetchAll();
     }
 
-    public function getCaretakers()
+    public function getCaretakers($fiscalId = null)
     {
-        $stmt = $this->pdo->prepare("
-            SELECT u.*,
-                   t.team_name
-            FROM tbl_user u
-            LEFT JOIN tbl_team t ON u.team_id = t.team_id
-            WHERE u.user_status = 1 AND u.is_super_admin = 0
-            ORDER BY u.user_firstname ASC
-        ");
-        $stmt->execute();
+        if ($fiscalId) {
+            // กรองเฉพาะ user ที่อยู่ใน fiscal year นั้นๆ ด้วย
+            $stmt = $this->pdo->prepare("
+                SELECT u.*,
+                       t.team_name
+                FROM tbl_user u
+                LEFT JOIN tbl_team t ON u.team_id = t.team_id
+                INNER JOIN tbl_fiscal_year_user fyu ON u.user_id = fyu.user_id
+                WHERE u.user_status = 1
+                  AND u.is_super_admin = 0
+                  AND fyu.fiscal_id = :fiscal_id
+                ORDER BY u.user_firstname ASC
+            ");
+            $stmt->execute(['fiscal_id' => $fiscalId]);
+        } else {
+            // fallback: ดึง user ทั้งหมด (เพื่อ backward-compat)
+            $stmt = $this->pdo->prepare("
+                SELECT u.*,
+                       t.team_name
+                FROM tbl_user u
+                LEFT JOIN tbl_team t ON u.team_id = t.team_id
+                WHERE u.user_status = 1 AND u.is_super_admin = 0
+                ORDER BY u.user_firstname ASC
+            ");
+            $stmt->execute();
+        }
         return $stmt->fetchAll();
     }
 
@@ -272,37 +289,68 @@ class CustomModal extends Model
         }
     }
 
-    public function getCustomersByFiscalId($fiscalId)
-    {
-        // แก้: ระบุ c.delete_at ให้ชัดเจน กัน ambiguous column error เมื่อมีการ join หลายตาราง
-        $stmt = $this->pdo->prepare("
-            SELECT
-                c.customer_id,
-                c.customer_name,
-                c.active_status,
-                c.fiscal_closing_date,
-                c.customer_phone,
-                c.customer_email,
-                c.line_id,
-                fyc.accounts_amount,
-                u.user_firstname as caretaker_firstname,
-                u.user_lastname as caretaker_lastname,
-                t.team_name
-            FROM tbl_fiscal_year_customers fyc
-            INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
-            LEFT JOIN tbl_user u ON fyc.user_id = u.user_id
-            LEFT JOIN tbl_team t ON fyc.team_id = t.team_id
-            WHERE fyc.fiscal_id = :fiscal_id AND c.delete_at IS NULL
-            ORDER BY c.customer_name ASC
-        ");
-        $stmt->execute(['fiscal_id' => $fiscalId]);
-        return $stmt->fetchAll();
+   public function getCustomersByFiscalId($fiscalId, $filters = [])
+{
+    $where  = ["fyc.fiscal_id = :fiscal_id", "c.delete_at IS NULL"];
+    $params = ['fiscal_id' => $fiscalId];
+
+    // filter: สถานะ (active_status)
+    if (isset($filters['status']) && $filters['status'] !== '') {
+        $where[]  = "c.active_status = :active_status";
+        $params['active_status'] = $filters['status'];
     }
+
+    // filter: ผู้ดูแล (user_id)
+    if (! empty($filters['user_id'])) {
+        $where[]  = "fyc.user_id = :user_id";
+        $params['user_id'] = $filters['user_id'];
+    }
+    // filter: คำค้นหา (ชื่อลูกค้า / ผู้ดูแล / ทีม)
+    if (! empty($filters['keyword'])) {
+        $where[] = "(
+            c.customer_name LIKE :keyword_customer
+            OR u.user_firstname LIKE :keyword_user
+            OR u.user_lastname LIKE :keyword_lastname
+            OR t.team_name LIKE :keyword_team
+        )";
+
+    $keyword = '%' . trim($filters['keyword']) . '%';
+
+    $params['keyword_customer'] = $keyword;
+    $params['keyword_user']     = $keyword;
+    $params['keyword_lastname'] = $keyword;
+    $params['keyword_team']     = $keyword;
+}
+
+    $whereSql = implode(' AND ', $where);
+
+    $stmt = $this->pdo->prepare("
+        SELECT
+            c.customer_id,
+            c.customer_name,
+            c.active_status,
+            c.fiscal_closing_date,
+            c.customer_phone,
+            c.customer_email,
+            c.line_id,
+            fyc.accounts_amount,
+            u.user_firstname as caretaker_firstname,
+            u.user_lastname as caretaker_lastname,
+            t.team_name
+        FROM tbl_fiscal_year_customers fyc
+        INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
+        LEFT JOIN tbl_user u ON fyc.user_id = u.user_id
+        LEFT JOIN tbl_team t ON fyc.team_id = t.team_id
+        WHERE $whereSql
+        ORDER BY c.customer_name ASC
+    ");
+    $stmt->execute($params);
+    return $stmt->fetchAll();
+}
 
     public function getCustomersgid($fiscalId)
     {
-        // แก้: เพิ่ม c.delete_at IS NULL ให้ตรงกับ getCustomersByFiscalId()
-        // ก่อนหน้านี้ตัวเลขสถิติจะรวมลูกค้าที่ถูก soft-delete ไปแล้วด้วย ทำให้ไม่ตรงกับจำนวนแถวที่แสดงจริงในตาราง
+      
         $stmt = $this->pdo->prepare("
             SELECT
                 COUNT(fyc.customer_id) as total_customers,

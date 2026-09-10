@@ -1,5 +1,5 @@
 <?php
-namespace App\Config;
+namespace App\config;
 
 use PDO;
 use PDOException;
@@ -18,9 +18,9 @@ class Connection
 
         // แก้ชื่อตัวแปรให้ตรงกับในไฟล์ .env
         $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
-        $db = $_ENV['DB_DATABASE'] ?? 'cpd_ac';
-        $user = $_ENV['DB_USERNAME'] ?? 'root';
-        $pass = $_ENV['DB_PASSWORD'] ?? '1234';
+        $db = $_ENV['DB_NAME'] ?? 'cpd_ac';
+        $user = $_ENV['DB_USER'] ?? 'root';
+        $pass = $_ENV['DB_PASS'] ?? '1234';
         $port = $_ENV['DB_PORT'] ?? '3306';
         $charset = 'utf8mb4';
 

@@ -8,7 +8,7 @@ class BackofficeController
     private function checkAuth()
     {
         require_once '../app/models/AuthModel.php';
-        $user = \App\Models\AuthModel::checkWebAuth();
+        $user = \App\models\AuthModel::checkWebAuth();
 
         if (!$user) {
             header("Location: " . BASE_URL . "/login");
@@ -589,10 +589,11 @@ class BackofficeController
 
         require_once '../app/models/CustomerModal.php';
         $customModal = new CustomModal();
-        $tasks = $customModal->getTasks();
-        $caretakers = $customModal->getCaretakers();
-        $customers = $customModal->getCustomersByFiscalId($fiscal_id);
-        $stats = $customModal->getCustomersgid($fiscal_id);
+
+        $tasks       = $customModal->getTasks();
+        $caretakers  = $customModal->getCaretakers($fiscal_id);
+        $customers   = $customModal->getCustomersByFiscalId($fiscal_id);
+        $stats       = $customModal->getCustomersgid($fiscal_id);
 
         $data = [
             'title' => 'ระบบ Backoffice',
@@ -616,7 +617,43 @@ class BackofficeController
     }
 
 
-    public function addCustomer()
+
+    public function customerFilter()
+        {
+            $this->checkAuth();
+
+            $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+            if (! $fiscal_id) {
+                header('Content-Type: application/json');
+                echo json_encode(['result' => 0, 'msg' => 'ไม่พบปีบัญชีที่ใช้งานอยู่']);
+                exit();
+            }
+
+            require_once '../app/models/CustomerModal.php';
+            $customModal = new CustomModal();
+
+            $filters = [
+                'status'  => $_POST['status'] ?? '',
+                'user_id' => $_POST['user_id'] ?? '',
+                'keyword' => trim($_POST['keyword'] ?? ''),
+        ];
+
+        $customers = $customModal->getCustomersByFiscalId($fiscal_id, $filters);
+
+        ob_start();
+            $data = ['customers' => $customers];
+            require '../app/views/backoffice/table/customer_table.php';
+            $html = ob_get_clean();
+
+            header('Content-Type: application/json');
+            echo json_encode(['result' => 1, 'html' => $html]);
+        exit();
+    }
+
+
+
+     public function addCustomer()
+
     {
         $this->checkAuth();
 
@@ -745,6 +782,8 @@ class BackofficeController
     }
 
 
+
+    /////////////////////////////////////// registration_board /////////////////////////////////////////////// 
 
     public function registration_board()
     {

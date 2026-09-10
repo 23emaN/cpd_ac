@@ -12,25 +12,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
-    /* Filter Toolbar Custom Width Overrides */
-    .filter-toolbar .filter-select,
-    .filter-toolbar .select2-container {
-        width: auto !important;
-        flex: 0 0 auto !important;
-    }
-
-    .filter-toolbar .select2-container.filter-select-status,
-    .filter-toolbar .filter-group .select2-container:nth-of-type(1) {
-        width: 150px !important;
-        flex: 0 0 150px !important;
-    }
-
-    .filter-toolbar .select2-container.filter-select-sort,
-    .filter-toolbar .filter-group .select2-container:nth-of-type(2) {
-        width: 185px !important;
-        flex: 0 0 185px !important;
-    }
-
     body {
         background-color: #f8fafc;
         font-family: 'Kanit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -45,6 +26,49 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         padding: 24px 32px;
         min-height: calc(100vh - 72px);
     }
+
+    /* --- Master Card Wrapper --- */
+    .main-card-wrapper {
+        background-color: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #edf2f7;
+        box-shadow: 0 2px 12px rgba(16, 24, 40, 0.03);
+        padding: 32px;
+    }
+
+    /* --- Header Section --- */
+    .page-header-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .page-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 3px;
+        letter-spacing: -0.2px;
+    }
+
+    .page-subtitle {
+        font-size: 0.78rem;
+        color: #94a3b8;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* --- Header Action Buttons row: space between each button --- */
+    .page-header-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
     /* --- Header Action Buttons (Bootstrap Outline Buttons) --- */
     .page-header-box .btn {
         border-radius: 10px;
@@ -73,7 +97,176 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         color: #ffffff !important;
     }
 
+    .btn-add-customer {
+        background-color: #007aff;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 9px 18px;
+        font-size: 0.80rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
 
+    .btn-add-customer i {
+        color: #ffffff !important;
+        font-size: 15px;
+    }
+
+    .btn-add-customer:hover {
+        background-color: #0062cc;
+        color: #ffffff !important;
+        box-shadow: 0 6px 16px rgba(0, 122, 255, 0.35);
+    }
+
+    .btn-add-customer:hover i {
+        color: #ffffff !important;
+    }
+
+    /* --- Stats Grid (4 Cards) --- */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .stat-card {
+        background-color: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.blue {
+        background-color: #eff6ff;
+        color: #3b82f6;
+        border: 1px solid #dbeafe;
+    }
+
+    .stat-icon.green {
+        background-color: #f0fdf4;
+        color: #22c55e;
+        border: 1px solid #dcfce7;
+    }
+
+    .stat-icon.purple {
+        background-color: #faf5ff;
+        color: #a855f7;
+        border: 1px solid #f3e8ff;
+    }
+
+    .stat-icon.yellow {
+        background-color: #fefce8;
+        color: #ca8a04;
+        border: 1px solid #fef08a;
+    }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-val {
+        font-size: 1.20rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.1;
+        margin-bottom: 2px;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    /* --- Filter Toolbar (ค้นหา & ตัวกรองสถานะ) --- */
+    .filter-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .search-box-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 360px;
+    }
+
+    .search-box-wrap i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 16px;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .search-input {
+        width: 100%;
+        box-sizing: border-box;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 11px 14px 11px 40px;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        color: #334155;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+        background-color: #ffffff;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-input::placeholder {
+        color: #94a3b8;
+    }
 
     /* --- Search & Select (ใช้ใน Modal ประวัติงาน) --- */
     .history-search-wrap {
@@ -95,7 +288,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     .history-search-input {
         width: 100%;
         box-sizing: border-box;
-        padding-left: 38px !important;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 11px 14px 11px 40px;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        font-weight: 600;
+        color: #1e293b;
         font-family: inherit;
         outline: none;
         transition: all 0.2s ease;
@@ -103,8 +303,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
     .history-search-input:focus {
         background-color: #ffffff;
-        border-color: #007aff !important;
-        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1) !important;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .history-search-input::placeholder {
@@ -115,9 +315,26 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     .history-select {
         width: 100%;
         box-sizing: border-box;
-        font-family: inherit;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 11px 36px 11px 14px;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        font-weight: 600;
+        color: #1e293b;
+        cursor: pointer;
         outline: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='%2364748b'%3E%3Cpath d='M11.9997 13.1716L16.9495 8.22168L18.3637 9.63589L11.9997 16L5.63574 9.63589L7.04996 8.22168L11.9997 13.1716Z'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
         transition: all 0.2s ease;
+    }
+
+    .history-select:focus {
+        background-color: #ffffff;
+        border-color: #3b82f6;
     }
 
     /* --- Modal ตั้งค่าประเภทงานทะเบียน --- */
@@ -132,9 +349,23 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         flex: 1;
         min-width: 0;
         box-sizing: border-box;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        font-weight: 600;
+        color: #1e293b;
         font-family: inherit;
         outline: none;
         transition: all 0.2s ease;
+    }
+
+    .job-type-input:focus {
+        background-color: #ffffff;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .job-type-input::placeholder {
@@ -147,8 +378,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         color: #ffffff;
         border: none;
         border-radius: 10px;
-        height: 38px;
-        padding: 0 18px;
+        padding: 11px 18px;
         font-size: 0.82rem;
         font-weight: 700;
         display: inline-flex;
@@ -261,6 +491,35 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         color: #94a3b8;
         font-size: 0.85rem;
         padding: 40px 14px;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-select {
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 10px;
+        padding: 9px 32px 9px 14px;
+        font-size: 0.80rem;
+        font-weight: 600;
+        color: #475569;
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='%2364748b'%3E%3Cpath d='M11.9997 13.1716L16.9495 8.22168L18.3637 9.63589L11.9997 16L5.63574 9.63589L7.04996 8.22168L11.9997 13.1716Z'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        min-width: 130px;
+        transition: all 0.2s ease;
+    }
+
+    .filter-select:focus {
+        background-color: #ffffff;
+        border-color: #3b82f6;
     }
 
     /* Action Buttons (Edit & Delete — ใช้ในรายการประเภทงาน) */
@@ -425,74 +684,18 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         width: 100%;
     }
 
-    /* --- Drag & Drop (HTML5Sortable UX Enhancements) --- */
+    /* --- Drag & Drop (HTML5Sortable) --- */
     .register-task-card {
         cursor: grab;
-        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-        user-select: none;
-    }
-
-    .register-task-card:hover {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 6px 16px rgba(0, 122, 255, 0.1) !important;
-        transform: translateY(-2px);
-    }
-
-    .register-task-card:active {
-        cursor: grabbing;
-        transform: scale(0.98);
     }
 
     .register-task-card.sortable-dragging {
-        opacity: 0.25 !important;
-        border: 2px dashed #94a3b8 !important;
+        opacity: 0.4;
     }
 
-    /* ช่องจุดตำแหน่งที่จะวางการ์ด (Drop Slot) */
-    .sortable-placeholder {
-        border: 2px dashed #007aff !important;
-        background-color: #ffffff !important;
-        border-radius: 16px !important;
-        min-height: 90px !important;
-        width: 100% !important;
-        max-width: 330px !important;
-        box-sizing: border-box !important;
-        margin: 0 !important;
-        box-shadow: 0 4px 14px rgba(0, 122, 255, 0.1) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        transition: all 0.15s ease-in-out;
-    }
-
-    .sortable-placeholder::after {
-        content: 'วางการ์ดที่นี่';
-        color: #007aff;
-        font-size: 0.88rem;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        pointer-events: none;
-    }
-
-    /* คอลัมน์จุดหมายที่จะลากการ์ดมาลง (Highlight Full Swimlane Card) */
-    .board-swimlane-card:has(.sortable-placeholder),
-    .board-swimlane-card:has(.sortable-drop-target) {
-        border: 2px dashed #007aff !important;
-        background-color: #f4f8ff !important;
-        box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12) !important;
-        transition: all 0.15s ease-in-out;
-    }
-
-    /* ซ่อนข้อความยังไม่มีงานชั่วคราวขณะกำลังลากการ์ดเข้าช่องนี้ */
-    .board-swimlane-card:has(.sortable-placeholder) .board-lane-empty-msg {
-        display: none !important;
-    }
-
-    .board-status-lane.sortable-drop-target,
-    .board-status-lane:has(.sortable-placeholder) {
-        border: none !important;
-        background-color: transparent !important;
-        padding: 0 !important;
+    .board-status-lane.sortable-placeholder-active {
+        background-color: #eff6ff;
+        border-radius: 12px;
     }
 
     /* --- Task Card --- */
@@ -591,13 +794,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
     .urgency-color-input {
         width: 60px;
-        height: 38px;
+        height: 42px;
         flex-shrink: 0;
         border: 1px solid #e2e8f0;
         border-radius: 10px;
         padding: 3px;
         cursor: pointer;
-        background-color: #ffffff;
+        background-color: #f8fafc;
     }
 </style>
 
@@ -632,7 +835,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-upload-2-line"></i>
                                 <span>ตั้งค่างานทะเบียน</span>
                             </button>
-                            <button type="button" class="btn-add-action" data-bs-toggle="modal"
+                            <button type="button" class="btn-add-customer" data-bs-toggle="modal"
                                 data-bs-target="#addRegistrationTaskModal">
                                 <i class="ri-add-line"></i>
                                 <span>เพิ่มงานทะเบียน</span>
@@ -699,25 +902,23 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="filter-toolbar">
                         <div class="search-box-wrap">
                             <i class="ri-search-line"></i>
-                            <input type="text" class="search-input" id="boardSearchInput" placeholder="ค้นหาลูกค้า งาน ผู้รับผิดชอบ">
+                            <input type="text" class="search-input" placeholder="ค้นหาลูกค้า งาน ผู้รับผิดชอบ">
                         </div>
 
-                        <div class="filter-wrapper">
-                            <div class="filter-group">
-                                <select class="filter-select select2" id="boardFilterUrgency">
-                                    <option value="">ทุกระดับความเร่งด่วน</option>
-                                    <option value="1">ปกติ</option>
-                                    <option value="2">ด่วน</option>
-                                    <option value="0">ด่วนมาก</option>
-                                </select>
+                        <div class="filter-group">
+                            <select class="filter-select">
+                                <option value="">ทุกสถานะ</option>
+                                <option value="1">ปกติ</option>
+                                <option value="2">ด่วน</option>
+                                <option value="0">ด่วนมาก</option>
+                            </select>
 
-                                <select class="filter-select select2" id="boardFilterSort">
-                                    <option value="">เรียงลำดับปัจจุบัน</option>
-                                    <option value="accep_date">วันที่รับงาน (ใหม่ - เก่า)</option>
-                                    <option value="due_date">วันที่กำหนดส่ง (ใกล้สุดก่อน)</option>
-                                    <option value="urgency">ระดับความเร่งด่วน</option>
-                                </select>
-                            </div>
+                            <select class="filter-select">
+                                <option value="">เรียงลำดับปัจุบัน</option>
+                                <option value="1">วันที่รับงาน</option>
+                                <option value="2">วันที่กำหนดส่ง</option>
+                                <option value="0">ระดับความเร่งด่วน</option>
+                            </select>
                         </div>
                     </div>
 
@@ -770,6 +971,35 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <?php endforeach; ?>
                     </div> <!-- End Board Swimlanes Wrapper -->
 
+                    <!-- Pagination Toolbar ด้านล่าง -->
+                    <div class="pagination-toolbar">
+                        <div class="per-page-wrap">
+                            <span>แสดง</span>
+                            <select class="per-page-select">
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>รายการต่อหน้า</span>
+                        </div>
+
+                        <div class="pagination-info">
+                            รายการที่ 1-2 จาก 2
+                        </div>
+
+                        <div class="pagination-nav">
+                            <button type="button" class="page-btn" title="หน้าแรก"><i
+                                    class="ri-arrow-left-double-line"></i></button>
+                            <button type="button" class="page-btn" title="ก่อนหน้า"><i
+                                    class="ri-arrow-left-s-line"></i></button>
+                            <button type="button" class="page-btn active">1</button>
+                            <button type="button" class="page-btn" title="ถัดไป"><i
+                                    class="ri-arrow-right-s-line"></i></button>
+                            <button type="button" class="page-btn" title="หน้าสุดท้าย"><i
+                                    class="ri-arrow-right-double-line"></i></button>
+                        </div>
+                    </div>
+
                 </div> <!-- End .main-card-wrapper -->
             </div>
         </div>
@@ -778,12 +1008,15 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
 <!-- Modal ประวัติงานทะเบียนที่ปิดแล้ว (เทมเพลตเดียวกับ Modal เพิ่มลูกค้าใหม่) -->
 <div class="modal fade" id="historyTaskModal" tabindex="-1" aria-labelledby="historyTaskModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-dialog-custom" style="max-width: 960px;">
-        <div class="modal-content modal-content-custom">
-            <!-- Header (Fixed) -->
-            <div class="modal-header modal-header-custom" style="align-items: flex-start;">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 960px;">
+        <div class="modal-content"
+            style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
+            <!-- Header -->
+            <div class="modal-header"
+                style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
                 <div>
-                    <h5 class="modal-title modal-title-custom" id="historyTaskModalLabel" style="margin-bottom: 4px;">
+                    <h5 class="modal-title" id="historyTaskModalLabel"
+                        style="font-weight: 800; color: #1e293b; font-size: 1.25rem; margin-bottom: 4px;">
                         ประวัติงานทะเบียนที่ปิดแล้ว
                     </h5>
                     <p style="font-size: 0.82rem; color: #94a3b8; font-weight: 500; margin: 0;">
@@ -792,23 +1025,24 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         ค่าบริการรวม <span id="historyTotalAmount">0.00</span>
                     </p>
                 </div>
-                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    style="font-size: 0.9rem; opacity: 0.4;"></button>
             </div>
 
-            <!-- Body (Scrollable) -->
-            <div class="modal-body modal-body-custom">
+            <!-- Body -->
+            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
 
                 <!-- Toolbar: ค้นหา + จำนวนต่อหน้า -->
                 <div class="row g-3 mb-3">
                     <div class="col-md-8">
                         <div class="history-search-wrap">
                             <i class="ri-search-line"></i>
-                            <input type="text" id="historySearchInput" class="form-control modal-form-control history-search-input"
+                            <input type="text" id="historySearchInput" class="history-search-input"
                                 placeholder="ค้นหาลูกค้า งาน ผู้รับผิดชอบ">
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <select id="historyPerPage" class="form-select modal-form-select select2-modal">
+                        <select id="historyPerPage" class="history-select">
                             <option value="25" selected>25 รายการ</option>
                             <option value="50">50 รายการ</option>
                             <option value="100">100 รายการ</option>
@@ -853,25 +1087,34 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </table>
                 </div>
 
-                <!-- Pagination (สไตล์ _pagination.php กลาง) -->
-                <div class="d-flex justify-content-between align-items-center px-1 py-3 flex-wrap gap-2" id="historyPaginationWrapper">
-                    <span class="text-secondary" id="historyPaginationInfo">
+                <!-- Pagination -->
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3"
+                    style="padding-top: 16px;">
+                    <div style="font-size: 0.78rem; color: #64748b; font-weight: 500;" id="historyPaginationInfo">
                         แสดง 0-0 จาก 0 รายการ
-                    </span>
-
-                    <nav aria-label="pagination">
-                        <ul class="pagination mb-0" id="historyPaginationNav">
-                            <!-- Rendered dynamically by JS -->
-                        </ul>
-                    </nav>
+                    </div>
+                    <div class="d-flex align-items-center gap-1" id="historyPaginationNav">
+                        <button type="button" class="btn" id="historyPrevBtn" disabled
+                            onclick="loadHistoryTasks(historyCurrentPage - 1)"
+                            style="background-color: #f1f5f9; color: #94a3b8; border: none; border-radius: 8px; padding: 6px 16px; font-size: 0.78rem; font-weight: 700;">
+                            ก่อนหน้า
+                        </button>
+                        <span id="historyPageNumbers" class="d-flex align-items-center gap-1"></span>
+                        <button type="button" class="btn" id="historyNextBtn" disabled
+                            onclick="loadHistoryTasks(historyCurrentPage + 1)"
+                            style="background-color: #f1f5f9; color: #94a3b8; border: none; border-radius: 8px; padding: 6px 16px; font-size: 0.78rem; font-weight: 700;">
+                            ถัดไป
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Footer (Fixed) -->
-            <div class="modal-footer modal-footer-custom">
+            <!-- Footer -->
+            <div class="modal-footer"
+                style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
                 <button type="button" class="btn" data-bs-dismiss="modal"
                     style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">
-                    ยกเลิก
+                    ปิด
                 </button>
             </div>
         </div>
@@ -881,28 +1124,32 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 <!-- Modal ตั้งค่าประเภทงานทะเบียน -->
 <div class="modal fade" id="jobTypeSettingsModal" tabindex="-1" aria-labelledby="jobTypeSettingsModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-custom" style="max-width: 520px;">
-        <div class="modal-content modal-content-custom">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
+        <div class="modal-content"
+            style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
 
             <!-- Header -->
-            <div class="modal-header modal-header-custom" style="align-items: flex-start;">
+            <div class="modal-header"
+                style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
                 <div>
-                    <h5 class="modal-title modal-title-custom" id="jobTypeSettingsModalLabel" style="margin-bottom: 4px;">
+                    <h5 class="modal-title" id="jobTypeSettingsModalLabel"
+                        style="font-weight: 800; color: #1e293b; font-size: 1.25rem; margin-bottom: 4px;">
                         ตั้งค่าประเภทงานทะเบียน
                     </h5>
                     <p style="font-size: 0.82rem; color: #94a3b8; font-weight: 500; margin: 0;">
                         จัดการหมวดหมู่ประเภทงานที่ใช้เลือกตอนสร้างงานทะเบียน
                     </p>
                 </div>
-                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    style="font-size: 0.9rem; opacity: 0.4;"></button>
             </div>
 
             <!-- Body -->
-            <div class="modal-body modal-body-custom">
+            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
 
                 <!-- แถวเพิ่มประเภทงานใหม่ -->
                 <div class="job-type-add-row">
-                    <input type="text" id="jobTypeNameInput" class="form-control modal-form-control job-type-input"
+                    <input type="text" id="jobTypeNameInput" class="job-type-input"
                         placeholder="เช่น จดทะเบียนประกันสังคม" maxlength="150">
                     <button type="button" class="btn-add-type" onclick="addJobType()">
                         <i class="ri-add-line"></i>
@@ -918,10 +1165,11 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer modal-footer-custom">
+            <div class="modal-footer"
+                style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
                 <button type="button" class="btn" data-bs-dismiss="modal"
                     style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">
-                    ยกเลิก
+                    ปิด
                 </button>
             </div>
         </div>
@@ -931,28 +1179,33 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 <!-- Modal ตั้งค่างานทะเบียน -->
 <div class="modal fade" id="registrationTaskSettingsModal" tabindex="-1"
     aria-labelledby="registrationTaskSettingsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-custom" style="max-width: 520px;">
-        <div class="modal-content modal-content-custom">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
+        <div class="modal-content"
+            style="border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); background-color: #ffffff;">
 
             <!-- Header -->
-            <div class="modal-header modal-header-custom" style="align-items: flex-start;">
+            <div class="modal-header"
+                style="border-bottom: none; padding: 24px 28px 12px 28px; align-items: flex-start;">
                 <div>
-                    <h5 class="modal-title modal-title-custom" id="registrationTaskSettingsModalLabel" style="margin-bottom: 4px;">
+                    <h5 class="modal-title" id="registrationTaskSettingsModalLabel"
+                        style="font-weight: 800; color: #1e293b; font-size: 1.25rem; margin-bottom: 4px;">
                         ตั้งค่างานทะเบียน
                     </h5>
                     <p style="font-size: 0.82rem; color: #94a3b8; font-weight: 500; margin: 0;">
                         กำหนดการแจ้งเตือนและสีของระดับความเร่งด่วน
                     </p>
                 </div>
-                <button type="button" class="btn-close modal-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    style="font-size: 0.9rem; opacity: 0.4;"></button>
             </div>
 
             <!-- Body -->
-            <div class="modal-body modal-body-custom">
+            <div class="modal-body" style="padding: 12px 28px 24px 28px;">
 
                 <div class="settings-field-group">
                     <label class="settings-field-label">แจ้งเตือนงานใกล้ครบกำหนดภายในกี่วัน</label>
-                    <input type="number" min="1" id="settingsNotifyDay" class="form-control modal-form-control">
+                    <input type="number" min="1" id="settingsNotifyDay" class="job-type-input"
+                        style="width: 100%; background-color: #ffffff; border: 1px solid #e2e8f0;">
                     <small class="settings-hint" id="settingsNotifyDayHint"></small>
                 </div>
 
@@ -960,17 +1213,20 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                 <div class="urgency-row">
                     <span class="urgency-code">NORMAL</span>
-                    <input type="text" id="settingsNormalLabel" class="form-control modal-form-control">
+                    <input type="text" id="settingsNormalLabel" class="job-type-input"
+                        style="background-color: #ffffff; border: 1px solid #e2e8f0;">
                     <input type="color" id="settingsNormalColor" class="urgency-color-input">
                 </div>
                 <div class="urgency-row">
                     <span class="urgency-code">URGENT</span>
-                    <input type="text" id="settingsUrgentLabel" class="form-control modal-form-control">
+                    <input type="text" id="settingsUrgentLabel" class="job-type-input"
+                        style="background-color: #ffffff; border: 1px solid #e2e8f0;">
                     <input type="color" id="settingsUrgentColor" class="urgency-color-input">
                 </div>
                 <div class="urgency-row">
                     <span class="urgency-code">VERY_URGENT</span>
-                    <input type="text" id="settingsVeryUrgentLabel" class="form-control modal-form-control">
+                    <input type="text" id="settingsVeryUrgentLabel" class="job-type-input"
+                        style="background-color: #ffffff; border: 1px solid #e2e8f0;">
                     <input type="color" id="settingsVeryUrgentColor" class="urgency-color-input">
                 </div>
 
@@ -979,7 +1235,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer modal-footer-custom">
+            <div class="modal-footer"
+                style="border-top: none; padding: 12px 28px 28px 28px; justify-content: flex-end;">
                 <button type="button" class="btn" data-bs-dismiss="modal"
                     style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 12px; padding: 10px 24px; border: none; font-size: 0.92rem; transition: all 0.2s ease;">
                     ยกเลิก
@@ -1021,7 +1278,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </label>
                         <input type="text" class="form-control modal-form-control" name="customer_name"
                             id="regCustomerName" placeholder="">
-                        <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อลูกค้า / บริษัท</div>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -1030,7 +1286,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </label>
                             <input type="text" class="form-control modal-form-control" name="customer_phone"
                                 id="regCustomerPhone" maxlength="10" placeholder="">
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุเบอร์ติดต่อ</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label modal-form-label">
@@ -1038,7 +1293,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </label>
                             <input type="text" class="form-control modal-form-control" name="contact_person"
                                 id="regContactPerson" placeholder="">
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุผู้ติดต่อ</div>
                         </div>
                     </div>
 
@@ -1052,10 +1306,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <label class="form-label modal-form-label">
                                 ประเภทงาน <span style="color: #ef4444;">*</span>
                             </label>
-                            <select class="form-select modal-form-select select2-modal" name="registration_type_id" id="regTypeId">
+                            <select class="form-select modal-form-select" name="registration_type_id" id="regTypeId">
                                 <option value="">กำลังโหลด...</option>
                             </select>
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาเลือกประเภทงาน</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label modal-form-label">
@@ -1063,7 +1316,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </label>
                             <input type="text" class="form-control modal-form-control" name="registration_name"
                                 id="regName" placeholder="เช่น จดทะเบียนพาณิชย์">
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่องานทะเบียน</div>
                         </div>
                     </div>
 
@@ -1072,8 +1324,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             รายละเอียดงาน <span style="color: #ef4444;">*</span>
                         </label>
                         <textarea class="form-control modal-form-control" name="description" id="regDescription"
-                            rows="4" style="height: auto !important; line-height: 1.5 !important;"></textarea>
-                        <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุรายละเอียดงาน</div>
+                            rows="2"></textarea>
                     </div>
 
                     <div class="row g-3 mb-3">
@@ -1088,7 +1339,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <label class="form-label modal-form-label">
                                 ความเร่งด่วน
                             </label>
-                            <select class="form-select modal-form-select select2-modal" name="urgency_level" id="regUrgencyLevel">
+                            <select class="form-select modal-form-select" name="urgency_level" id="regUrgencyLevel">
                                 <option value="">กำลังโหลด...</option>
                             </select>
                         </div>
@@ -1099,7 +1350,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <label class="form-label modal-form-label">
                                 ผู้รับผิดชอบ <span style="color: #ef4444;">*</span>
                             </label>
-                            <select class="form-select modal-form-select select2-modal" name="assignee_user_id" id="regAssignee">
+                            <select class="form-select modal-form-select" name="assignee_user_id" id="regAssignee">
                                 <option value="">เลือกพนักงาน</option>
                                 <?php foreach (($data['employees'] ?? []) as $emp): ?>
                                     <option value="<?php echo htmlspecialchars($emp['user_id']); ?>">
@@ -1107,13 +1358,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาเลือกผู้รับผิดชอบ</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label modal-form-label">
                                 ผู้ตรวจสอบงาน
                             </label>
-                            <select class="form-select modal-form-select select2-modal" name="review_user_id" id="regReviewer">
+                            <select class="form-select modal-form-select" name="review_user_id" id="regReviewer">
                                 <option value="">ไม่ระบุ</option>
                                 <?php foreach (($data['employees'] ?? []) as $emp): ?>
                                     <option value="<?php echo htmlspecialchars($emp['user_id']); ?>">
@@ -1196,7 +1446,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </label>
                         <input type="text" class="form-control modal-form-control" id="edit_reg_customer_name"
                             placeholder="">
-                        <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อลูกค้า / บริษัท</div>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -1205,7 +1454,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </label>
                             <input type="text" class="form-control modal-form-control" id="edit_reg_customer_phone"
                                 maxlength="10" placeholder="">
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุเบอร์ติดต่อ</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label modal-form-label">
@@ -1213,7 +1461,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </label>
                             <input type="text" class="form-control modal-form-control" id="edit_reg_contact_person"
                                 placeholder="">
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุผู้ติดต่อ</div>
                         </div>
                     </div>
 
@@ -1227,10 +1474,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <label class="form-label modal-form-label">
                                 ประเภทงาน <span style="color: #ef4444;">*</span>
                             </label>
-                            <select class="form-select modal-form-select select2-modal" id="edit_reg_type_id">
+                            <select class="form-select modal-form-select" id="edit_reg_type_id">
                                 <option value="">กำลังโหลด...</option>
                             </select>
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาเลือกประเภทงาน</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label modal-form-label">
@@ -1238,7 +1484,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             </label>
                             <input type="text" class="form-control modal-form-control" id="edit_reg_name"
                                 placeholder="เช่น จดทะเบียนพาณิชย์">
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่องานทะเบียน</div>
                         </div>
                     </div>
 
@@ -1246,8 +1491,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <label class="form-label modal-form-label">
                             รายละเอียดงาน <span style="color: #ef4444;">*</span>
                         </label>
-                        <textarea class="form-control modal-form-control" id="edit_reg_description" rows="3" style="height: auto !important; line-height: 1.5 !important;"></textarea>
-                        <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุรายละเอียดงาน</div>
+                        <textarea class="form-control modal-form-control" id="edit_reg_description" rows="2"></textarea>
                     </div>
 
                     <div class="row g-3 mb-3">
@@ -1262,7 +1506,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <label class="form-label modal-form-label">
                                 ความเร่งด่วน
                             </label>
-                            <select class="form-select modal-form-select select2-modal" id="edit_reg_urgency_level">
+                            <select class="form-select modal-form-select" id="edit_reg_urgency_level">
                                 <option value="">กำลังโหลด...</option>
                             </select>
                         </div>
@@ -1273,7 +1517,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <label class="form-label modal-form-label">
                                 ผู้รับผิดชอบ <span style="color: #ef4444;">*</span>
                             </label>
-                            <select class="form-select modal-form-select select2-modal" id="edit_reg_assignee">
+                            <select class="form-select modal-form-select" id="edit_reg_assignee">
                                 <option value="">เลือกพนักงาน</option>
                                 <?php foreach (($data['employees'] ?? []) as $emp): ?>
                                     <option value="<?php echo htmlspecialchars($emp['user_id']); ?>">
@@ -1281,13 +1525,12 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาเลือกผู้รับผิดชอบ</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label modal-form-label">
                                 ผู้ตรวจสอบงาน
                             </label>
-                            <select class="form-select modal-form-select select2-modal" id="edit_reg_reviewer">
+                            <select class="form-select modal-form-select" id="edit_reg_reviewer">
                                 <option value="">ไม่ระบุ</option>
                                 <?php foreach (($data['employees'] ?? []) as $emp): ?>
                                     <option value="<?php echo htmlspecialchars($emp['user_id']); ?>">
@@ -1339,11 +1582,6 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     </div>
 </div>
 
-<?php
-// 3. นำ Footer เข้ามา (เพื่อโหลด jQuery, Select2, Bootstrap ฯลฯ ก่อนรัน Script ของหน้า)
-require_once dirname(__DIR__) . '/main/footer.php';
-?>
-
 <!-- HTML5Sortable — ใช้ทำลากการ์ดข้ามคอลัมน์สถานะบนบอร์ด -->
 <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/dragdrop.js"></script>
 
@@ -1353,28 +1591,6 @@ require_once dirname(__DIR__) . '/main/footer.php';
 
 <script>
     $(document).ready(function () {
-        if (typeof $.fn.select2 === 'function') {
-            $('.select2').not('.select2-modal').select2({
-                width: '100%'
-            });
-
-            $('#addRegistrationTaskModal .select2-modal').select2({
-                dropdownParent: $('#addRegistrationTaskModal'),
-                width: '100%'
-            });
-
-            $('#editRegistrationTaskModal .select2-modal').select2({
-                dropdownParent: $('#editRegistrationTaskModal'),
-                width: '100%'
-            });
-
-            $('#historyTaskModal .select2-modal').select2({
-                dropdownParent: $('#historyTaskModal'),
-                minimumResultsForSearch: -1,
-                width: '100%'
-            });
-        }
-
         if (typeof flatpickr !== 'undefined') {
             flatpickr('.flatpickr-date', {
                 dateFormat: 'Y-m-d',
@@ -1402,14 +1618,14 @@ require_once dirname(__DIR__) . '/main/footer.php';
     let historySearchTimer = null;
 
     // ค้นหาแบบ debounce เวลาพิมพ์ในช่องค้นหา
-    $(document).on('input keyup search change', '#historySearchInput', function () {
+    $(document).on('input', '#historySearchInput', function () {
         clearTimeout(historySearchTimer);
         historySearchTimer = setTimeout(function () {
             loadHistoryTasks(1);
-        }, 300);
+        }, 400);
     });
 
-    $(document).on('change change.select2', '#historyPerPage', function () {
+    $(document).on('change', '#historyPerPage', function () {
         loadHistoryTasks(1);
     });
 
@@ -1503,55 +1719,40 @@ require_once dirname(__DIR__) . '/main/footer.php';
         const end = Math.min(historyCurrentPage * perPage, total);
         $('#historyPaginationInfo').text('แสดง ' + start + '-' + end + ' จาก ' + total + ' รายการ');
 
-        const $nav = $('#historyPaginationNav');
-        $nav.empty();
+        $('#historyPrevBtn').prop('disabled', historyCurrentPage <= 1)
+            .css({
+                'background-color': historyCurrentPage <= 1 ? '#f1f5f9' : '#e2e8f0',
+                color: historyCurrentPage <= 1 ? '#94a3b8' : '#334155'
+            });
 
-        if (historyTotalPages <= 1) {
-            $nav.append('<li class="page-item disabled"><a class="page-link" href="javascript:void(0)">&laquo;</a></li>');
-            $nav.append('<li class="page-item disabled"><a class="page-link" href="javascript:void(0)">&lsaquo;</a></li>');
-            $nav.append('<li class="page-item active"><a class="page-link" href="javascript:void(0)">1</a></li>');
-            $nav.append('<li class="page-item disabled"><a class="page-link" href="javascript:void(0)">&rsaquo;</a></li>');
-            $nav.append('<li class="page-item disabled"><a class="page-link" href="javascript:void(0)">&raquo;</a></li>');
-            return;
+        $('#historyNextBtn').prop('disabled', historyCurrentPage >= historyTotalPages)
+            .css({
+                'background-color': historyCurrentPage >= historyTotalPages ? '#f1f5f9' : '#e2e8f0',
+                color: historyCurrentPage >= historyTotalPages ? '#94a3b8' : '#334155'
+            });
+
+        const pageNumbers = $('#historyPageNumbers');
+        pageNumbers.empty();
+        for (let i = 1; i <= historyTotalPages; i++) {
+            const isActive = i === historyCurrentPage;
+            const btn = $('<button type="button" class="btn"></button>')
+                .text(i)
+                .css({
+                    'background-color': isActive ? '#007aff' : 'transparent',
+                    color: isActive ? '#ffffff' : '#64748b',
+                    border: 'none',
+                    'border-radius': '8px',
+                    width: '30px',
+                    height: '30px',
+                    padding: '0',
+                    'font-size': '0.78rem',
+                    'font-weight': '700'
+                })
+                .on('click', function () {
+                    loadHistoryTasks(i);
+                });
+            pageNumbers.append(btn);
         }
-
-        // ปุ่ม << หน้าแรก
-        const $first = $('<li class="page-item"><a class="page-link" href="javascript:void(0)" aria-label="หน้าแรก">&laquo;</a></li>');
-        if (historyCurrentPage <= 1) $first.addClass('disabled');
-        else $first.on('click', function () { loadHistoryTasks(1); });
-        $nav.append($first);
-
-        // ปุ่ม < ก่อนหน้า
-        const $prev = $('<li class="page-item"><a class="page-link" href="javascript:void(0)" aria-label="ก่อนหน้า">&lsaquo;</a></li>');
-        if (historyCurrentPage <= 1) $prev.addClass('disabled');
-        else $prev.on('click', function () { loadHistoryTasks(historyCurrentPage - 1); });
-        $nav.append($prev);
-
-        // ปุ่มหมายเลขหน้า
-        let startP = Math.max(1, historyCurrentPage - 2);
-        let endP = Math.min(historyTotalPages, historyCurrentPage + 2);
-
-        for (let p = startP; p <= endP; p++) {
-            const $pItem = $('<li class="page-item"><a class="page-link" href="javascript:void(0)">' + p + '</a></li>');
-            if (p === historyCurrentPage) {
-                $pItem.addClass('active');
-            } else {
-                $pItem.on('click', function () { loadHistoryTasks(p); });
-            }
-            $nav.append($pItem);
-        }
-
-        // ปุ่ม > ถัดไป
-        const $next = $('<li class="page-item"><a class="page-link" href="javascript:void(0)" aria-label="ถัดไป">&rsaquo;</a></li>');
-        if (historyCurrentPage >= historyTotalPages) $next.addClass('disabled');
-        else $next.on('click', function () { loadHistoryTasks(historyCurrentPage + 1); });
-        $nav.append($next);
-
-        // ปุ่ม >> หน้าสุดท้าย
-        const $last = $('<li class="page-item"><a class="page-link" href="javascript:void(0)" aria-label="หน้าสุดท้าย">&raquo;</a></li>');
-        if (historyCurrentPage >= historyTotalPages) $last.addClass('disabled');
-        else $last.on('click', function () { loadHistoryTasks(historyTotalPages); });
-        $nav.append($last);
     }
 
     // ========== ตั้งค่าประเภทงานทะเบียน ==========
@@ -1719,13 +1920,12 @@ require_once dirname(__DIR__) . '/main/footer.php';
 
         Swal.fire({
             title: 'ยืนยันการลบประเภทงานนี้?',
-            // text: 'ประเภทงานที่ถูกลบจะไม่สามารถเลือกใช้งานในงานทะเบียนใหม่ได้อีก',
+            text: 'ประเภทงานที่ถูกลบจะไม่สามารถเลือกใช้งานในงานทะเบียนใหม่ได้อีก',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'ลบข้อมูล',
+            confirmButtonText: 'ลบ',
             cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#e11d48',
-            reverseButtons: true
+            confirmButtonColor: '#e11d48'
         }).then(function (result) {
             if (!result.isConfirmed) return;
 
@@ -1911,16 +2111,9 @@ require_once dirname(__DIR__) . '/main/footer.php';
                 if (selectedValue) {
                     $select.val(String(selectedValue));
                 }
-                if (typeof $.fn.select2 === 'function') {
-                    $select.trigger('change.select2');
-                }
             },
             error: function () {
-                const $select = $('#' + selectId);
-                $select.empty().append('<option value="">โหลดประเภทงานไม่สำเร็จ</option>');
-                if (typeof $.fn.select2 === 'function') {
-                    $select.trigger('change.select2');
-                }
+                $('#' + selectId).empty().append('<option value="">โหลดประเภทงานไม่สำเร็จ</option>');
             }
         });
     }
@@ -1942,33 +2135,15 @@ require_once dirname(__DIR__) . '/main/footer.php';
                 if (selectedValue) {
                     $select.val(String(selectedValue));
                 }
-                if (typeof $.fn.select2 === 'function') {
-                    $select.trigger('change.select2');
-                }
             },
             error: function () {
-                const $select = $('#' + selectId);
-                $select.empty().append('<option value="">โหลดข้อมูลไม่สำเร็จ</option>');
-                if (typeof $.fn.select2 === 'function') {
-                    $select.trigger('change.select2');
-                }
+                $('#' + selectId).empty().append('<option value="">โหลดข้อมูลไม่สำเร็จ</option>');
             }
         });
     }
 
-    // เคลียร์ validation คลาสเมื่อมีการพิมพ์/เลือกข้อมูล
-    $(document).on('input change', '#addRegistrationTaskForm .is-invalid, #editRegistrationTaskForm .is-invalid', function() {
-        if ($(this).val() && $(this).val().trim() !== '') {
-            $(this).removeClass('is-invalid');
-        }
-    });
-
     document.getElementById('addRegistrationTaskModal').addEventListener('show.bs.modal', function () {
         document.getElementById('addRegistrationTaskForm').reset();
-        $('#addRegistrationTaskForm .is-invalid').removeClass('is-invalid');
-        if (typeof $.fn.select2 === 'function') {
-            $('#addRegistrationTaskForm .select2-modal').val('').trigger('change.select2');
-        }
         const todayStr = new Date().toISOString().split('T')[0];
         const accepEl = document.getElementById('regAccepDate');
         if (accepEl && accepEl._flatpickr) {
@@ -1995,30 +2170,17 @@ require_once dirname(__DIR__) . '/main/footer.php';
         const description = $('#regDescription').val().trim();
         const assigneeUserId = $('#regAssignee').val();
 
-        let isValid = true;
-
-        if (!customerName) { $('#regCustomerName').addClass('is-invalid'); isValid = false; }
-        else { $('#regCustomerName').removeClass('is-invalid'); }
-
-        if (!customerPhone) { $('#regCustomerPhone').addClass('is-invalid'); isValid = false; }
-        else { $('#regCustomerPhone').removeClass('is-invalid'); }
-
-        if (!contactPerson) { $('#regContactPerson').addClass('is-invalid'); isValid = false; }
-        else { $('#regContactPerson').removeClass('is-invalid'); }
-
-        if (!registrationTypeId) { $('#regTypeId').addClass('is-invalid'); isValid = false; }
-        else { $('#regTypeId').removeClass('is-invalid'); }
-
-        if (!registrationName) { $('#regName').addClass('is-invalid'); isValid = false; }
-        else { $('#regName').removeClass('is-invalid'); }
-
-        if (!description) { $('#regDescription').addClass('is-invalid'); isValid = false; }
-        else { $('#regDescription').removeClass('is-invalid'); }
-
-        if (!assigneeUserId) { $('#regAssignee').addClass('is-invalid'); isValid = false; }
-        else { $('#regAssignee').removeClass('is-invalid'); }
-
-        if (!isValid) {
+        if (!customerName || !customerPhone || !contactPerson || !registrationTypeId || !registrationName || !description || !assigneeUserId) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'กรุณากรอกข้อมูลที่มี * ให้ครบถ้วน',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
             return;
         }
 
@@ -2118,16 +2280,10 @@ require_once dirname(__DIR__) . '/main/footer.php';
                 }
                 $('#edit_reg_assignee').val(task.assignee_user_id ?? '');
                 $('#edit_reg_reviewer').val(task.review_user_id ?? '');
-                if (typeof $.fn.select2 === 'function') {
-                    $('#edit_reg_assignee').trigger('change.select2');
-                    $('#edit_reg_reviewer').trigger('change.select2');
-                }
                 $('#edit_reg_no').val(task.registration_no);
 
                 loadRegistrationTypeOptions('edit_reg_type_id', task.registration_type_id);
                 loadUrgencyLevelOptions('edit_reg_urgency_level', task.urgency_level);
-
-                $('#editRegistrationTaskForm .is-invalid').removeClass('is-invalid');
 
                 const modalElement = document.getElementById('editRegistrationTaskModal');
                 const myModal = new bootstrap.Modal(modalElement);
@@ -2158,30 +2314,17 @@ require_once dirname(__DIR__) . '/main/footer.php';
         const description = $('#edit_reg_description').val().trim();
         const assigneeUserId = $('#edit_reg_assignee').val();
 
-        let isValid = true;
-
-        if (!customerName) { $('#edit_reg_customer_name').addClass('is-invalid'); isValid = false; }
-        else { $('#edit_reg_customer_name').removeClass('is-invalid'); }
-
-        if (!customerPhone) { $('#edit_reg_customer_phone').addClass('is-invalid'); isValid = false; }
-        else { $('#edit_reg_customer_phone').removeClass('is-invalid'); }
-
-        if (!contactPerson) { $('#edit_reg_contact_person').addClass('is-invalid'); isValid = false; }
-        else { $('#edit_reg_contact_person').removeClass('is-invalid'); }
-
-        if (!registrationTypeId) { $('#edit_reg_type_id').addClass('is-invalid'); isValid = false; }
-        else { $('#edit_reg_type_id').removeClass('is-invalid'); }
-
-        if (!registrationName) { $('#edit_reg_name').addClass('is-invalid'); isValid = false; }
-        else { $('#edit_reg_name').removeClass('is-invalid'); }
-
-        if (!description) { $('#edit_reg_description').addClass('is-invalid'); isValid = false; }
-        else { $('#edit_reg_description').removeClass('is-invalid'); }
-
-        if (!assigneeUserId) { $('#edit_reg_assignee').addClass('is-invalid'); isValid = false; }
-        else { $('#edit_reg_assignee').removeClass('is-invalid'); }
-
-        if (!isValid) {
+        if (!customerName || !customerPhone || !contactPerson || !registrationTypeId || !registrationName || !description || !assigneeUserId) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'กรุณากรอกข้อมูลที่มี * ให้ครบถ้วน',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
             return;
         }
 
@@ -2246,8 +2389,7 @@ require_once dirname(__DIR__) . '/main/footer.php';
             confirmButtonColor: '#e11d48',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'ลบข้อมูล',
-            cancelButtonText: 'ยกเลิก',
-            reverseButtons: true
+            cancelButtonText: 'ยกเลิก'
         }).then((result) => {
             if (!result.isConfirmed) return;
 
@@ -2291,9 +2433,7 @@ require_once dirname(__DIR__) . '/main/footer.php';
     // ทำให้ทุกคอลัมน์สถานะรับ/ปล่อยการ์ดข้ามกันได้ (acceptFrom ชี้กลับมาที่ selector เดียวกัน)
     sortable('.board-status-lane', {
         items: '.register-task-card',
-        acceptFrom: '.board-status-lane',
-        placeholderClass: 'sortable-placeholder',
-        dropTargetContainerClass: 'sortable-drop-target'
+        acceptFrom: '.board-status-lane'
     });
 
     // Auto-scroll หน้าจอตอนลากการ์ดเข้าใกล้ขอบบน/ล่างของจอ (บอร์ดมี 7 lane ยาวเกินจอเดียว)
@@ -2334,10 +2474,7 @@ require_once dirname(__DIR__) . '/main/footer.php';
     // อัปเดตจำนวน "X งาน" และข้อความ "ยังไม่มีงานในสถานะนี้" ของทุกคอลัมน์ ให้ตรงกับ DOM ปัจจุบัน
     function refreshRegistrationLaneCounts() {
         document.querySelectorAll('.board-status-lane').forEach(function (lane) {
-            const visibleCards = Array.from(lane.querySelectorAll('.register-task-card')).filter(function (card) {
-                return card.style.display !== 'none' && !card.classList.contains('filter-hidden');
-            });
-            const cardCount = visibleCards.length;
+            const cardCount = lane.querySelectorAll('.register-task-card').length;
 
             const swimlane = lane.closest('.board-swimlane-card');
             const countEl = swimlane ? swimlane.querySelector('.board-lane-count') : null;
@@ -2353,165 +2490,6 @@ require_once dirname(__DIR__) . '/main/footer.php';
             }
         });
     }
-
-    // ========== ค้นหา, กรอง และ Pagination ของ Registration Board ==========
-    let boardCurrentPage = 1;
-
-    function applyBoardFilters() {
-        const searchText = ($('#boardSearchInput').val() || '').trim().toLowerCase();
-        const selectedUrgency = $('#boardFilterUrgency').val();
-        const selectedSort = $('#boardFilterSort').val();
-        const perPageVal = $('#boardPerPage').val() || '25';
-        const perPage = perPageVal === 'all' ? Infinity : (parseInt(perPageVal, 10) || 25);
-
-        // 1. คัดกรองการ์ดทั้งหมดตาม Search & Urgency Level
-        const $allCards = $('.register-task-card');
-        let matchedCards = [];
-
-        $allCards.each(function () {
-            const $card = $(this);
-            const cardSearch = ($card.attr('data-search') || '').toLowerCase();
-            const cardUrgencyLevel = ($card.attr('data-urgency-level') || '');
-            const cardUrgencyLabel = ($card.attr('data-urgency-label') || '');
-
-            const matchSearch = !searchText || cardSearch.includes(searchText);
-
-            let matchUrgency = true;
-            if (selectedUrgency !== '' && selectedUrgency !== undefined && selectedUrgency !== null) {
-                if (selectedUrgency === '1') {
-                    matchUrgency = (cardUrgencyLevel === '1' || cardUrgencyLevel === 'NORMAL' || cardUrgencyLabel.includes('ปกติ'));
-                } else if (selectedUrgency === '2') {
-                    matchUrgency = (cardUrgencyLevel === '2' || cardUrgencyLevel === 'URGENT' || cardUrgencyLabel.includes('ด่วน'));
-                } else if (selectedUrgency === '0') {
-                    matchUrgency = (cardUrgencyLevel === '0' || cardUrgencyLevel === 'VERY_URGENT' || cardUrgencyLabel.includes('ด่วนมาก'));
-                } else {
-                    matchUrgency = (cardUrgencyLevel === selectedUrgency || cardUrgencyLabel === selectedUrgency);
-                }
-            }
-
-            if (matchSearch && matchUrgency) {
-                matchedCards.push($card);
-            } else {
-                $card.addClass('filter-hidden').hide();
-            }
-        });
-
-        // 2. จัดเรียงการ์ด (Sorting)
-        if (selectedSort) {
-            matchedCards.sort(function ($a, $b) {
-                if (selectedSort === 'accep_date') {
-                    return ($b.attr('data-accep-date') || '').localeCompare($a.attr('data-accep-date') || '');
-                } else if (selectedSort === 'due_date') {
-                    return ($a.attr('data-due-date') || '9999').localeCompare($b.attr('data-due-date') || '9999');
-                } else if (selectedSort === 'urgency') {
-                    return ($b.attr('data-urgency-level') || '').localeCompare($a.attr('data-urgency-level') || '');
-                }
-                return 0;
-            });
-
-            matchedCards.forEach(function ($card) {
-                const $lane = $card.closest('.board-status-lane');
-                if ($lane.length) {
-                    $lane.append($card);
-                }
-            });
-        }
-
-        // 3. คำนวณ Pagination
-        const totalMatched = matchedCards.length;
-        const totalPages = perPage === Infinity ? 1 : Math.max(1, Math.ceil(totalMatched / perPage));
-
-        if (boardCurrentPage > totalPages) {
-            boardCurrentPage = totalPages;
-        }
-
-        const startIndex = perPage === Infinity ? 0 : (boardCurrentPage - 1) * perPage;
-        const endIndex = perPage === Infinity ? totalMatched : Math.min(startIndex + perPage, totalMatched);
-
-        matchedCards.forEach(function ($card, index) {
-            if (index >= startIndex && index < endIndex) {
-                $card.removeClass('filter-hidden').show();
-            } else {
-                $card.addClass('filter-hidden').hide();
-            }
-        });
-
-        // 4. แสดงข้อมูล Pagination ข้อความและปุ่มสไตล์มาตรฐาน (_pagination.php)
-        const fromCount = totalMatched === 0 ? 0 : startIndex + 1;
-        const toCount = totalMatched === 0 ? 0 : endIndex;
-        $('#boardPaginationInfo').text('แสดง ' + fromCount + '-' + toCount + ' จาก ' + totalMatched + ' รายการ');
-
-        renderBoardPaginationNav(totalPages);
-        refreshRegistrationLaneCounts();
-    }
-
-    function renderBoardPaginationNav(totalPages) {
-        const $nav = $('#boardPaginationNav');
-        $nav.empty();
-
-        if (totalPages <= 1) {
-            $nav.append('<li class="page-item disabled"><a class="page-link" href="javascript:void(0)">&laquo;</a></li>');
-            $nav.append('<li class="page-item disabled"><a class="page-link" href="javascript:void(0)">&lsaquo;</a></li>');
-            $nav.append('<li class="page-item active"><a class="page-link" href="javascript:void(0)">1</a></li>');
-            $nav.append('<li class="page-item disabled"><a class="page-link" href="javascript:void(0)">&rsaquo;</a></li>');
-            $nav.append('<li class="page-item disabled"><a class="page-link" href="javascript:void(0)">&raquo;</a></li>');
-            return;
-        }
-
-        // ปุ่ม << หน้าแรก
-        const $first = $('<li class="page-item"><a class="page-link" href="javascript:void(0)" aria-label="หน้าแรก">&laquo;</a></li>');
-        if (boardCurrentPage <= 1) $first.addClass('disabled');
-        else $first.on('click', function () { boardCurrentPage = 1; applyBoardFilters(); });
-        $nav.append($first);
-
-        // ปุ่ม < ก่อนหน้า
-        const $prev = $('<li class="page-item"><a class="page-link" href="javascript:void(0)" aria-label="ก่อนหน้า">&lsaquo;</a></li>');
-        if (boardCurrentPage <= 1) $prev.addClass('disabled');
-        else $prev.on('click', function () { boardCurrentPage--; applyBoardFilters(); });
-        $nav.append($prev);
-
-        // ปุ่มหมายเลขหน้า
-        let startP = Math.max(1, boardCurrentPage - 2);
-        let endP = Math.min(totalPages, boardCurrentPage + 2);
-
-        for (let p = startP; p <= endP; p++) {
-            const $pItem = $('<li class="page-item"><a class="page-link" href="javascript:void(0)">' + p + '</a></li>');
-            if (p === boardCurrentPage) {
-                $pItem.addClass('active');
-            } else {
-                $pItem.on('click', function () { boardCurrentPage = p; applyBoardFilters(); });
-            }
-            $nav.append($pItem);
-        }
-
-        // ปุ่ม > ถัดไป
-        const $next = $('<li class="page-item"><a class="page-link" href="javascript:void(0)" aria-label="ถัดไป">&rsaquo;</a></li>');
-        if (boardCurrentPage >= totalPages) $next.addClass('disabled');
-        else $next.on('click', function () { boardCurrentPage++; applyBoardFilters(); });
-        $nav.append($next);
-
-        // ปุ่ม >> หน้าสุดท้าย
-        const $last = $('<li class="page-item"><a class="page-link" href="javascript:void(0)" aria-label="หน้าสุดท้าย">&raquo;</a></li>');
-        if (boardCurrentPage >= totalPages) $last.addClass('disabled');
-        else $last.on('click', function () { boardCurrentPage = totalPages; applyBoardFilters(); });
-        $nav.append($last);
-    }
-
-    // ผูก Event ให้กับ Search, Select Filter และ PerPage
-    $('#boardSearchInput').on('input keyup search', function () {
-        boardCurrentPage = 1;
-        applyBoardFilters();
-    });
-
-    $(document).on('change', '#boardFilterUrgency, #boardFilterSort, #boardPerPage', function () {
-        boardCurrentPage = 1;
-        applyBoardFilters();
-    });
-
-    // ประมวลผล Filter & Pagination ทันทีเมื่อโหลดหน้า
-    setTimeout(function () {
-        applyBoardFilters();
-    }, 100);
 
     // ทุก .board-status-lane ยิง event นี้ตัวเดียวกัน (bubbling ไม่เกี่ยวข้อง — sortable ผูก event ไว้ที่แต่ละ element)
     document.querySelectorAll('.board-status-lane').forEach(function (lane) {
@@ -2548,17 +2526,6 @@ require_once dirname(__DIR__) . '/main/footer.php';
                         }
                         // ข้อมูลบนจอกับ DB ไม่ตรงกันแล้ว โหลดหน้าใหม่ให้ตรงกับความจริง
                         location.reload();
-                    } else {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: 'ย้ายสถานะงานสำเร็จ',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                        }
                     }
                 },
                 error: function () {
@@ -2595,8 +2562,7 @@ require_once dirname(__DIR__) . '/main/footer.php';
             confirmButtonColor: '#007aff',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'ยืนยัน',
-            cancelButtonText: 'ยกเลิก',
-            reverseButtons: true
+            cancelButtonText: 'ยกเลิก'
         }).then((result) => {
             if (!result.isConfirmed) return;
 
@@ -2645,3 +2611,7 @@ require_once dirname(__DIR__) . '/main/footer.php';
         }
     })();
 </script>
+<?php
+// 3. นำ Footer เข้ามา
+require_once dirname(__DIR__) . '/main/footer.php';
+?>
