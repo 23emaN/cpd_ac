@@ -5,17 +5,7 @@ $assigneeName = trim(($task['assignee_firstname'] ?? '') . ' ' . ($task['assigne
 $isOverdue = !empty($task['due_date']) && strtotime($task['due_date']) < strtotime('today');
 $cardStyle = $urgencyColor ? 'border-color: ' . htmlspecialchars($urgencyColor) . ';' : '';
 ?>
-<?php
-$searchData = mb_strtolower(($task['registration_name'] ?? '') . ' ' . ($task['customer_name'] ?? '') . ' ' . ($task['registration_no'] ?? '') . ' ' . $assigneeName);
-?>
-<div class="register-task-card"
-    data-task-id="<?php echo (int) $task['registration']; ?>"
-    data-search="<?php echo htmlspecialchars($searchData); ?>"
-    data-urgency-level="<?php echo htmlspecialchars($task['urgency_level'] ?? ''); ?>"
-    data-urgency-label="<?php echo htmlspecialchars($task['urgency_label'] ?? ''); ?>"
-    data-accep-date="<?php echo htmlspecialchars($task['accep_date'] ?? ''); ?>"
-    data-due-date="<?php echo htmlspecialchars($task['due_date'] ?? ''); ?>"
-    style="<?php echo $cardStyle; ?>">
+<div class="register-task-card" data-task-id="<?php echo (int) $task['registration']; ?>" style="<?php echo $cardStyle; ?>">
 
     <!-- Card Top Row: Title & Action Buttons -->
     <div class="d-flex justify-content-between align-items-start mb-3">
