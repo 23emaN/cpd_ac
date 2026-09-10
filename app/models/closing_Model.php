@@ -8,6 +8,7 @@ class ClosingModel extends Model
         $stmt = $this->pdo->prepare("
             SELECT 
                 fyc.fiscal_year_id,
+                fyc.user_id,
                 c.customer_id, 
                 c.customer_name, 
                 c.fiscal_closing_date,
@@ -33,6 +34,20 @@ class ClosingModel extends Model
             LEFT JOIN tbl_user u ON fyc.user_id = u.user_id
             WHERE fyc.fiscal_id = :fiscal_id AND c.delete_at IS NULL
             ORDER BY c.customer_name ASC
+        ");
+        $stmt->execute(['fiscal_id' => $fiscalId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getCaretakersByFiscalId($fiscalId)
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT DISTINCT u.user_id, u.user_firstname, u.user_lastname
+            FROM tbl_fiscal_year_customers fyc
+            INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
+            INNER JOIN tbl_user u ON fyc.user_id = u.user_id
+            WHERE fyc.fiscal_id = :fiscal_id AND c.delete_at IS NULL
+            ORDER BY u.user_firstname ASC, u.user_lastname ASC
         ");
         $stmt->execute(['fiscal_id' => $fiscalId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

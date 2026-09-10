@@ -1222,11 +1222,7 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+
 
         .filter-select {
             background-color: #f8fafc;
@@ -1844,6 +1840,21 @@
             border-color: transparent transparent #64748b transparent !important;
             border-width: 0 4px 5px 4px !important;
         }
+
+
+        .select2-container--default.select2-container--disabled .select2-selection--single {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* Select2 Form Validation State */
+        .is-invalid+.select2-container .select2-selection--single,
+        .was-validated select:invalid+.select2-container .select2-selection--single {
+            border-color: #ef4444 !important;
+        }
+
 
         .select2-dropdown {
             border: 1px solid #edf2f7 !important;
