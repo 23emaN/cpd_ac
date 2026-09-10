@@ -1232,11 +1232,7 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+
 
         .filter-select {
             background-color: #f8fafc;
@@ -1862,8 +1858,8 @@
         }
 
         /* Select2 Form Validation State */
-        .is-invalid + .select2-container .select2-selection--single,
-        .was-validated select:invalid + .select2-container .select2-selection--single {
+        .is-invalid+.select2-container .select2-selection--single,
+        .was-validated select:invalid+.select2-container .select2-selection--single {
             border-color: #ef4444 !important;
         }
 

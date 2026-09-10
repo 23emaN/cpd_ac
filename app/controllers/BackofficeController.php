@@ -75,11 +75,16 @@ class BackofficeController
         $pnd50Done = 0;
 
         foreach ($closingList as $item) {
-            if (((string)($item['closing_status'] ?? '')) === '1') $closingDone++;
-            if (((string)($item['doc_status'] ?? '')) === '1' || ((string)($item['audit_status'] ?? '')) === '1') $docDone++;
-            if (((string)($item['boj5_status'] ?? '')) === '1') $boj5Done++;
-            if (((string)($item['dbd_efiling_status'] ?? '')) === '1') $dbdDone++;
-            if (((string)($item['pnd50_status'] ?? '')) === '1') $pnd50Done++;
+            if (((string) ($item['closing_status'] ?? '')) === '1')
+                $closingDone++;
+            if (((string) ($item['doc_status'] ?? '')) === '1' || ((string) ($item['audit_status'] ?? '')) === '1')
+                $docDone++;
+            if (((string) ($item['boj5_status'] ?? '')) === '1')
+                $boj5Done++;
+            if (((string) ($item['dbd_efiling_status'] ?? '')) === '1')
+                $dbdDone++;
+            if (((string) ($item['pnd50_status'] ?? '')) === '1')
+                $pnd50Done++;
         }
 
         $yearlyStats = [
@@ -128,7 +133,7 @@ class BackofficeController
 
     /////////////////////////////////////// tasks /////////////////////////////////////////////// 
 
-    
+
     public function tasks()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -188,7 +193,8 @@ class BackofficeController
 
         $req_amount_count = 0;
         foreach ($tasks_list as $t) {
-            if ($t['is_notify_amount'] == 1) $req_amount_count++;
+            if ($t['is_notify_amount'] == 1)
+                $req_amount_count++;
         }
         $data['req_amount_count'] = $req_amount_count;
         $data['no_req_amount_count'] = $data['total_tasks'] - $req_amount_count;
@@ -583,25 +589,25 @@ class BackofficeController
 
         require_once '../app/models/CustomerModal.php';
         $customModal = new CustomModal();
-        $tasks       = $customModal->getTasks();
-        $caretakers  = $customModal->getCaretakers();
-        $customers   = $customModal->getCustomersByFiscalId($fiscal_id);
-        $stats       = $customModal->getCustomersgid($fiscal_id);
+        $tasks = $customModal->getTasks();
+        $caretakers = $customModal->getCaretakers();
+        $customers = $customModal->getCustomersByFiscalId($fiscal_id);
+        $stats = $customModal->getCustomersgid($fiscal_id);
 
         $data = [
-            'title'             => 'ระบบ Backoffice',
-            'user'              => $this->userPayload,
-            'user_id'           => $this->userPayload['user_id'] ?? '',
-            'user_firstname'    => $this->userPayload['user_firstname'] ?? '',
-            'lastname'          => $this->userPayload['user_lastname'] ?? '',
-            'is_super_admin'    => $this->userPayload['is_super_admin'] ?? '0',
-            'fiscal_id'         => $fiscal_id,
-            'companies'         => $companies,
+            'title' => 'ระบบ Backoffice',
+            'user' => $this->userPayload,
+            'user_id' => $this->userPayload['user_id'] ?? '',
+            'user_firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
+            'fiscal_id' => $fiscal_id,
+            'companies' => $companies,
             'active_company_id' => $active_company_id,
-            'tasks'             => $tasks,
-            'caretakers'        => $caretakers,
-            'customers'         => $customers,
-            'stats'             => $stats,
+            'tasks' => $tasks,
+            'caretakers' => $caretakers,
+            'customers' => $customers,
+            'stats' => $stats,
             'active_fiscal_year' => $active_fiscal_year
         ];
 
@@ -610,7 +616,7 @@ class BackofficeController
     }
 
 
-     public function addCustomer()
+    public function addCustomer()
     {
         $this->checkAuth();
 
@@ -640,11 +646,11 @@ class BackofficeController
 
             // 1. Insert into tbl_customers
             $customerId = $customModal->insertCustomer($_POST);
-            
+
             if ($customerId) {
                 // 2. Link to Fiscal Year (tbl_fiscal_year_customers)
                 $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
-                
+
                 // 3 & 4. Generate Work Periods & Tasks
                 $customModal->generateWorkPeriodsAndTasks($customerId, $fiscal_id, $_POST);
 
@@ -726,7 +732,7 @@ class BackofficeController
         $customModal = new CustomModal();
 
         try {
-            $success = $customModal->deleteCustomer($customer_id,$fiscal_id);
+            $success = $customModal->deleteCustomer($customer_id, $fiscal_id);
             if ($success) {
                 echo json_encode(['result' => 1, 'msg' => 'ลบข้อมูลลูกค้าสำเร็จ']);
             } else {
@@ -823,7 +829,7 @@ class BackofficeController
     }
 
 
-        /////////////////////////////////////// postIt /////////////////////////////////////////////// 
+    /////////////////////////////////////// postIt /////////////////////////////////////////////// 
     public function postIt()
     {
         $this->checkAuth();
@@ -917,11 +923,6 @@ class BackofficeController
             'is_draft' => false,
         ];
 
-        if (isset($_GET['ajax_table']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' && isset($_GET['ajax_table']))) {
-            require '../app/views/backoffice/table/postit_table.php';
-            return;
-        }
-
         require_once '../app/views/backoffice/post_it.php';
     }
 
@@ -1010,7 +1011,7 @@ class BackofficeController
         $model = new PostItModel();
 
         try {
-            $item = $model->findById((int)$post_id);
+            $item = $model->findById((int) $post_id);
             if (!$item) {
                 echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูล Post-it']);
                 return;
@@ -1018,7 +1019,7 @@ class BackofficeController
 
             // สลับสถานะ 0 ↔ 1
             $newStatus = ($item['status'] === '1') ? '0' : '1';
-            $model->updateStatus((int)$post_id, $newStatus);
+            $model->updateStatus((int) $post_id, $newStatus);
 
             $label = $newStatus === '1' ? 'เสร็จแล้ว' : 'รอดำเนินการ';
             echo json_encode(['result' => 1, 'msg' => 'เปลี่ยนสถานะเป็น: ' . $label, 'new_status' => $newStatus]);
@@ -1053,7 +1054,7 @@ class BackofficeController
             $postIdInt = (int) $postId;
             $updated = $model->update($postIdInt, [
                 'title' => $title,
-                'user_id' => $assigneeId ? (int)$assigneeId : null,
+                'user_id' => $assigneeId ? (int) $assigneeId : null,
                 'due_date' => $dueDate ?: null,
                 'status' => $status,
                 'content' => $content,
@@ -1115,10 +1116,10 @@ class BackofficeController
             // Mark comments as read before fetching them
             $user_id = $this->userPayload['user_id'] ?? null;
             if ($user_id) {
-                $model->markCommentsAsRead((int)$customer_tasks_id, (int)$user_id);
+                $model->markCommentsAsRead((int) $customer_tasks_id, (int) $user_id);
             }
 
-            $comments = $model->getCommentsByTaskId((int)$customer_tasks_id);
+            $comments = $model->getCommentsByTaskId((int) $customer_tasks_id);
             echo json_encode(['result' => 1, 'comments' => $comments]);
         } catch (Throwable $e) {
             echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
@@ -1144,7 +1145,7 @@ class BackofficeController
         $model = new MonthlyTaskModal();
 
         try {
-            $success = $model->addComment((int)$customer_tasks_id, (int)$user_id, $comment_text);
+            $success = $model->addComment((int) $customer_tasks_id, (int) $user_id, $comment_text);
             if ($success) {
                 echo json_encode(['result' => 1, 'msg' => 'บันทึกความคิดเห็นสำเร็จ']);
             } else {
@@ -1158,7 +1159,7 @@ class BackofficeController
 
 
 
-        /////////////////////////////////////// closing ///////////////////////////////////////////////
+    /////////////////////////////////////// closing ///////////////////////////////////////////////
     public function closing()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -1178,7 +1179,7 @@ class BackofficeController
         $companyModel = new CompanyModel();
         $userId = $this->userPayload['user_id'] ?? null;
         $companies = $companyModel->getAllCompanies($userId);
-      // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+        // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id = '';
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่ และจำนวนลูกค้าของปีบัญชีนั้น
 
@@ -1204,6 +1205,35 @@ class BackofficeController
         $closingModel = new ClosingModel();
         $closingData = $closingModel->getClosingByFiscalId($fiscal_id);
 
+        require_once '../app/models/UserModel.php';
+        $userModel = new UserModel();
+        $employees = $userModel->getEmployeesByFiscalAndCompany($fiscal_id, $active_company_id);
+        $assignedCaretakers = $closingModel->getCaretakersByFiscalId($fiscal_id);
+
+        $caretakerMap = [];
+        if (is_array($employees)) {
+            foreach ($employees as $emp) {
+                if (!empty($emp['user_id'])) {
+                    $caretakerMap[$emp['user_id']] = [
+                        'user_id' => $emp['user_id'],
+                        'user_firstname' => $emp['user_firstname'] ?? '',
+                        'user_lastname' => $emp['user_lastname'] ?? ''
+                    ];
+                }
+            }
+        }
+        if (is_array($assignedCaretakers)) {
+            foreach ($assignedCaretakers as $ac) {
+                if (!empty($ac['user_id']) && !isset($caretakerMap[$ac['user_id']])) {
+                    $caretakerMap[$ac['user_id']] = [
+                        'user_id' => $ac['user_id'],
+                        'user_firstname' => $ac['user_firstname'] ?? '',
+                        'user_lastname' => $ac['user_lastname'] ?? ''
+                    ];
+                }
+            }
+        }
+
         $data = [
             'title' => 'ระบบ Backoffice',
             'user' => $this->userPayload,
@@ -1215,7 +1245,8 @@ class BackofficeController
             'companies' => $companies,
 
             'active_company_id' => $active_company_id,
-            'closing_data' => $closingData
+            'closing_data' => $closingData,
+            'caretakers' => array_values($caretakerMap)
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
@@ -1231,7 +1262,7 @@ class BackofficeController
 
         try {
             $result = $closingModel->updateClosingData($_POST);
-            
+
             if ($result) {
                 echo json_encode(['result' => 1, 'msg' => 'อัปเดตข้อมูลสำเร็จ']);
             } else {
@@ -1264,7 +1295,7 @@ class BackofficeController
         $companies = $companyModel->getAllCompanies($userId);
 
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
-       $active_company_id = '';
+        $active_company_id = '';
         $active_fiscal_year = '';
         foreach ($companies as $company) {
             if (isset($company['fiscal_years'])) {
@@ -1337,7 +1368,7 @@ class BackofficeController
         $model = new MonthlyTaskModal();
 
         $periodId = $input['period_id'];
-        
+
         $periodData = [
             'doc_date' => $input['doc_date'] ?? null,
             'completed_date' => $input['completed_date'] ?? null,
@@ -1348,7 +1379,7 @@ class BackofficeController
             'payment_status' => $input['payment_status'] ?? '0',
             'tax_status' => $input['tax_status'] ?? '0'
         ];
-        
+
         $tasksData = $input['tasks'] ?? [];
 
         try {
@@ -1362,7 +1393,7 @@ class BackofficeController
         }
     }
 
-        /////////////////////////////////////// yearly_dash /////////////////////////////////////////////// 
+    /////////////////////////////////////// yearly_dash /////////////////////////////////////////////// 
     public function yearly_dash()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -1412,20 +1443,26 @@ class BackofficeController
         $caretakersMap = [];
 
         foreach ($closingList as $item) {
-            $isClosingDone = ((string)($item['closing_status'] ?? '')) === '1';
-            $isDocDone = ((string)($item['doc_status'] ?? '')) === '1' || ((string)($item['audit_status'] ?? '')) === '1';
-            $isBoj5Done = ((string)($item['boj5_status'] ?? '')) === '1';
-            $isDbdDone = ((string)($item['dbd_efiling_status'] ?? '')) === '1';
-            $isPnd50Done = ((string)($item['pnd50_status'] ?? '')) === '1';
+            $isClosingDone = ((string) ($item['closing_status'] ?? '')) === '1';
+            $isDocDone = ((string) ($item['doc_status'] ?? '')) === '1' || ((string) ($item['audit_status'] ?? '')) === '1';
+            $isBoj5Done = ((string) ($item['boj5_status'] ?? '')) === '1';
+            $isDbdDone = ((string) ($item['dbd_efiling_status'] ?? '')) === '1';
+            $isPnd50Done = ((string) ($item['pnd50_status'] ?? '')) === '1';
 
-            if ($isClosingDone) $closingCompleted++;
-            if ($isDocDone) $docReceived++;
-            if ($isBoj5Done) $boj5Count++;
-            if ($isDbdDone) $dbdCount++;
-            if ($isPnd50Done) $pnd50Count++;
+            if ($isClosingDone)
+                $closingCompleted++;
+            if ($isDocDone)
+                $docReceived++;
+            if ($isBoj5Done)
+                $boj5Count++;
+            if ($isDbdDone)
+                $dbdCount++;
+            if ($isPnd50Done)
+                $pnd50Count++;
 
             $cName = trim(($item['user_firstname'] ?? '') . ' ' . ($item['user_lastname'] ?? ''));
-            if (empty($cName)) $cName = 'ไม่ระบุผู้ดูแล';
+            if (empty($cName))
+                $cName = 'ไม่ระบุผู้ดูแล';
 
             if (!isset($caretakersMap[$cName])) {
                 $caretakersMap[$cName] = ['name' => $cName, 'total' => 0, 'completed' => 0];
@@ -1565,10 +1602,18 @@ class BackofficeController
         $dashboardData = $monthlyDashModel->getDashboardStats($fiscal_id, $monthStr);
 
         $month_names = [
-            '01' => 'มกราคม', '02' => 'กุมภาพันธ์', '03' => 'มีนาคม',
-            '04' => 'เมษายน', '05' => 'พฤษภาคม', '06' => 'มิถุนายน',
-            '07' => 'กรกฎาคม', '08' => 'สิงหาคม', '09' => 'กันยายน',
-            '10' => 'ตุลาคม', '11' => 'พฤศจิกายน', '12' => 'ธันวาคม',
+            '01' => 'มกราคม',
+            '02' => 'กุมภาพันธ์',
+            '03' => 'มีนาคม',
+            '04' => 'เมษายน',
+            '05' => 'พฤษภาคม',
+            '06' => 'มิถุนายน',
+            '07' => 'กรกฎาคม',
+            '08' => 'สิงหาคม',
+            '09' => 'กันยายน',
+            '10' => 'ตุลาคม',
+            '11' => 'พฤศจิกายน',
+            '12' => 'ธันวาคม',
         ];
 
         echo json_encode([

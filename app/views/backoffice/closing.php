@@ -178,19 +178,18 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     }
 
     /* --- Filter Toolbar --- */
-    .filter-toolbar {
+    .filter-container {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        gap: 14px;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 24px;
+        width: 100%;
     }
 
     .search-box-wrap {
         position: relative;
-        flex: 1;
-        max-width: 360px;
+        width: 100%;
+        max-width: 320px;
     }
 
     .search-box-wrap i {
@@ -199,6 +198,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         top: 50%;
         transform: translateY(-50%);
         color: #94a3b8;
+        font-size: 16px;
     }
 
     .search-input {
@@ -206,7 +206,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         background-color: #f8fafc;
         border: 1px solid #f1f5f9;
         border-radius: 10px;
-        padding: 9px 12px 9px 38px;
+        padding: 8px 12px 8px 36px;
+        font-size: 0.82rem;
         color: #334155;
         font-family: inherit;
         outline: none;
@@ -228,136 +229,74 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         align-items: center;
         gap: 10px;
         width: 100%;
-        margin-bottom: 20px;
+        flex-wrap: nowrap;
+    }
+
+    @media (max-width: 1200px) {
+        .filter-group {
+            flex-wrap: wrap;
+        }
     }
 
     .filter-group .select2-container {
-        flex: 1 1 0;
-        min-width: 0;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
         width: 100% !important;
     }
 
-    /* --- Custom Select2 Pill Design --- */
-    .select2-container--default .select2-selection--single {
-        background-color: #f8fafc !important;
+    /* Select2 Pill Design matching screenshot */
+    .filter-group .select2-container--default .select2-selection--single {
+        
         border: 1px solid #f1f5f9 !important;
-        border-radius: 14px !important;
-        height: 42px !important;
+        border-radius: 10px !important;
+        height: 38px !important;
         display: flex !important;
         align-items: center !important;
         transition: all 0.2s ease !important;
         box-shadow: none !important;
     }
 
-    .select2-container--default .select2-selection--single:focus,
-    .select2-container--default.select2-container--open .select2-selection--single {
+    .filter-group .select2-container--default .select2-selection--single:focus,
+    .filter-group .select2-container--default.select2-container--open .select2-selection--single {
         background-color: #ffffff !important;
         border-color: #3b82f6 !important;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
     }
 
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: #334155 !important;
-        font-size: 0.875rem !important;
-        font-weight: 500 !important;
-        padding-left: 16px !important;
-        padding-right: 36px !important;
-        line-height: 40px !important;
+    .filter-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #1e293b !important;
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
+        padding-left: 12px !important;
+        padding-right: 28px !important;
+        line-height: 36px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 40px !important;
-        width: 30px !important;
-        right: 10px !important;
+    .filter-group .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+        width: 24px !important;
+        right: 6px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     }
 
-    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    .filter-group .select2-container--default .select2-selection--single .select2-selection__arrow b {
         border-color: #64748b transparent transparent transparent !important;
         border-width: 5px 4px 0 4px !important;
     }
 
-    .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    .filter-group .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
         border-color: transparent transparent #64748b transparent !important;
         border-width: 0 4px 5px 4px !important;
     }
 
-    /* Select2 Dropdown Popup */
-    .select2-dropdown {
-        border: 1px solid #edf2f7 !important;
-        border-radius: 14px !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
-        overflow: hidden !important;
-        z-index: 9999 !important;
-        font-size: 0.875rem !important;
-        background-color: #ffffff !important;
-    }
 
-    .select2-container--default .select2-results__option {
-        padding: 10px 16px !important;
-        font-weight: 500 !important;
-        color: #475569 !important;
-    }
 
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background-color: #3b82f6 !important;
-        color: #ffffff !important;
-    }
 
-    .select2-container--default .select2-results__option[aria-selected=true] {
-        background-color: #eff6ff !important;
-        color: #1d4ed8 !important;
-        font-weight: 700 !important;
-    }
-
-    /* --- Standard Table Styles --- */
-    .table-custom {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    .table-custom th {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #94a3b8;
-        padding: 12px 14px;
-        border-bottom: 1px solid #f1f5f9;
-        white-space: nowrap;
-    }
-
-    .table-custom td {
-        padding: 14px 14px;
-        border-bottom: 1px dashed #f1f5f9;
-        vertical-align: middle;
-    }
-
-    .table-custom tr:last-child td {
-        border-bottom: none;
-    }
-
-    /* Action Buttons */
-    .btn-action {
-        width: 30px;
-        height: 30px;
-        border-radius: 7px;
-        background-color: #ffffff;
-        border: 1px solid #edf2f7;
-        color: #64748b;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .btn-action:hover {
-        background-color: #eff6ff;
-        color: #2563eb;
-        border-color: #bfdbfe;
-    }
 
     /* --- Pagination Section --- */
     .pagination-toolbar {
@@ -494,61 +433,64 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </div>
 
 
-                    <!-- Filter Toolbar (ค้นหา & ตัวกรองสถานะ) -->
-                    <div class="filter-toolbar">
+                    <!-- Filter Toolbar (ค้นหาแถวบน, ตัวกรอง 6 ช่องแถวล่าง) -->
+                    <div class="filter-container mb-4">
                         <div class="search-box-wrap">
                             <i class="ri-search-line"></i>
                             <input type="text" class="search-input" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล รอบบัญชี">
                         </div>
-                    </div>
-                    <div class="filter-group">
-                        <select class="form-select filter-select" id="selUserClosing">
-                            <option value="">ทุกผู้ดูแล</option>
-                            <option>A</option>
-                            <option>B</option>
-                            <option>C</option>
-                        </select>
 
-                        <select class="form-select filter-select" id="selClosing">
-                            <option selected value="">ปิดงบ : ทั้งหมด</option>
-                            <option value="1">รอเอกสาร</option>
-                            <option value="2">ได้รับเอกสาร</option>
-                            <option value="3">เสร็จแล้ว</option>
-                        </select>
+                        <div class="filter-group">
+                            <select class="filter-select select2" id="selUserClosing">
+                                <option value="">ทุกผู้ดูแล</option>
+                                <?php if (!empty($data['caretakers'])): ?>
+                                    <?php foreach ($data['caretakers'] as $c): ?>
+                                        <option value="<?php echo htmlspecialchars($c['user_id'] ?? ''); ?>">
+                                            <?php echo htmlspecialchars(trim(($c['user_firstname'] ?? '') . ' ' . ($c['user_lastname'] ?? ''))); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
 
-                        <select class="form-select filter-select" id="selAuditor">
-                            <option selected value="">ผู้สอบ : ทั้งหมด</option>
-                            <option value="1">ยังไม่ได้ตรวจ</option>
-                            <option value="2">ตรวจแล้ว</option>
-                            <option value="3">ได้รับงานคืนแล้ว</option>
-                        </select>
+                            <select class="filter-select select2" id="selClosing">
+                                <option selected value="">ปิดงบ : ทั้งหมด</option>
+                                <option value="1">รอเอกสาร</option>
+                                <option value="2">ได้รับเอกสาร</option>
+                                <option value="3">เสร็จแล้ว</option>
+                            </select>
 
-                        <select class="form-select filter-select" id="selBoj5">
-                            <option selected value="">บอจ5 : ทั้งหมด</option>
-                            <option value="1">ยังไม่ได้ยื่น</option>
-                            <option value="2">นำส่งแล้ว</option>
-                        </select>
+                            <select class="filter-select select2" id="selAuditor">
+                                <option selected value="">ผู้สอบ : ทั้งหมด</option>
+                                <option value="1">ยังไม่ได้ตรวจ</option>
+                                <option value="2">ตรวจแล้ว</option>
+                                <option value="3">ได้รับงานคืนแล้ว</option>
+                            </select>
 
-                        <select class="form-select filter-select" id="selBdb">
-                            <option selected value="">BDB : ทั้งหมด</option>
-                            <option value="1">ยังไม่ได้ยื่น</option>
-                            <option value="2">นำส่งแล้ว</option>
-                        </select>
+                            <select class="filter-select select2" id="selBoj5">
+                                <option selected value="">บอจ5 : ทั้งหมด</option>
+                                <option value="1">ยังไม่ได้ยื่น</option>
+                                <option value="2">นำส่งแล้ว</option>
+                            </select>
 
-                        <select class="form-select filter-select" id="selPnd50">
-                            <option selected value="">ภ.ง.ด 50 : ทั้งหมด</option>
-                            <option value="1">รอเอกสาร</option>
-                            <option value="2">ยังไม่ได้ยื่น</option>
-                            <option value="3">นำส่งแล้ว</option>
-                        </select>
+                            <select class="filter-select select2" id="selBdb">
+                                <option selected value="">BDB : ทั้งหมด</option>
+                                <option value="1">ยังไม่ได้ยื่น</option>
+                                <option value="2">นำส่งแล้ว</option>
+                            </select>
+
+                            <select class="filter-select select2" id="selPnd50">
+                                <option selected value="">ภ.ง.ด 50 : ทั้งหมด</option>
+                                <option value="1">รอเอกสาร</option>
+                                <option value="2">ยังไม่ได้ยื่น</option>
+                                <option value="3">นำส่งแล้ว</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Table Container -->
-                    <div class="table-responsive">
-                        <?php
-                        require_once __DIR__ . '/table/closing_table.php';
-                        ?>
-                    </div>
+                    <?php
+                    require_once __DIR__ . '/table/closing_table.php';
+                    ?>
 
                 </div> <!-- End .main-card-wrapper -->
             </div>
@@ -595,7 +537,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     value="1" style="width: 1.2rem; height: 1.2rem; margin-top: 0.15rem;"
                                     onchange="toggleDateInput(this, 'doc_date')">
                                 <label class="form-check-label text-muted" for="doc_status"
-                                    style="font-weight: 600; font-size: 14px; margin-left: 8px; padding-top: 2px;">
+                                    style=" font-size: 14px; margin-left: 8px; padding-top: 2px;">
                                     ได้รับเอกสารแล้ว
                                 </label>
                             </div>
@@ -616,7 +558,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     style="width: 1.2rem; height: 1.2rem; margin-top: 0.15rem;"
                                     onchange="toggleDateInput(this, 'closing_date')">
                                 <label class="form-check-label text-muted" for="closing_status"
-                                    style="font-weight: 600; font-size: 14px; margin-left: 8px; padding-top: 2px;">
+                                    style=" font-size: 14px; margin-left: 8px; padding-top: 2px;">
                                     เสร็จแล้ว
                                 </label>
                             </div>
@@ -646,7 +588,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     value="1" style="width: 1.2rem; height: 1.2rem; margin-top: 0.15rem;"
                                     onchange="toggleDateInput(this, 'audit_date')">
                                 <label class="form-check-label text-muted" for="audit_status"
-                                    style="font-weight: 600; font-size: 14px; margin-left: 8px; padding-top: 2px;">
+                                    style=" font-size: 14px; margin-left: 8px; padding-top: 2px;">
                                     ส่งตรวจแล้ว
                                 </label>
                             </div>
@@ -667,7 +609,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     style="width: 1.2rem; height: 1.2rem; margin-top: 0.15rem;"
                                     onchange="toggleDateInput(this, 'budget_refund_date')">
                                 <label class="form-check-label text-muted" for="budget_refund_status"
-                                    style="font-weight: 600; font-size: 14px; margin-left: 8px; padding-top: 2px;">
+                                    style=" font-size: 14px; margin-left: 8px; padding-top: 2px;">
                                     ได้รับงบคืนแล้ว
                                 </label>
                             </div>
@@ -692,7 +634,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     value="1" style="width: 1.2rem; height: 1.2rem; margin-top: 0.15rem;"
                                     onchange="toggleDateInput(this, 'boj5_date')">
                                 <label class="form-check-label text-muted" for="boj5_status"
-                                    style="font-weight: 600; font-size: 14px; margin-left: 8px; padding-top: 2px;">
+                                    style=" font-size: 14px; margin-left: 8px; padding-top: 2px;">
                                     บอจ. 5 นำส่งแล้ว
                                 </label>
                             </div>
@@ -713,7 +655,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     style="width: 1.2rem; height: 1.2rem; margin-top: 0.15rem;"
                                     onchange="toggleDateInput(this, 'dbd_efiling_date')">
                                 <label class="form-check-label text-muted" for="dbd_efiling_status"
-                                    style="font-weight: 600; font-size: 14px; margin-left: 8px; padding-top: 2px;">
+                                    style=" font-size: 14px; margin-left: 8px; padding-top: 2px;">
                                     DBD E-Filing นำส่งแล้ว
                                 </label>
                             </div>
@@ -733,7 +675,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     value="1" style="width: 1.2rem; height: 1.2rem; margin-top: 0.15rem;"
                                     onchange="toggleDateInput(this, 'pnd50_date')">
                                 <label class="form-check-label text-muted" for="pnd50_status"
-                                    style="font-weight: 600; font-size: 14px; margin-left: 8px; padding-top: 2px;">
+                                    style=" font-size: 14px; margin-left: 8px; padding-top: 2px;">
                                     ภ.ง.ด.50 นำส่งแล้ว
                                 </label>
                             </div>
@@ -753,9 +695,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             <!-- Footer (Fixed) -->
             <div class="modal-footer modal-footer-custom border-top-0 pt-0 px-4 pb-4">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"
-                    style="border-radius: 8px; font-weight: 600; padding: 10px 24px; background-color: #F8FAFC; color: #475569; border: none;">ยกเลิก</button>
+                    style="border-radius: 8px;  padding: 10px 24px; background-color: #F8FAFC; color: #475569; border: none;">ยกเลิก</button>
                 <button type="button" class="btn btn-primary" onclick="submitClosing()"
-                    style="border-radius: 8px; font-weight: 600; padding: 10px 24px; background-color: #2563EB; border: none; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">บันทึกข้อมูล</button>
+                    style="border-radius: 8px;  padding: 10px 24px; background-color: #2563EB; border: none; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
@@ -782,12 +724,121 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             window.location.href = '<?php echo BASE_URL; ?>/monthly_task?month=' + selectedMonth;
         });
 
-        $('#selUserClosing').select2();
-        $('#selClosing').select2();
-        $('#selAuditor').select2();
-        $('#selBoj5').select2();
-        $('#selBdb').select2();
-        $('#selPnd50').select2();
+        if (typeof $.fn.select2 === 'function') {
+            $('.select2').select2({
+                width: '100%'
+            });
+        }
+
+        // --- Active Search and Filter Logic ---
+        function applyClosingFilters() {
+            const q = ($('.search-input').val() || '').trim().toLowerCase();
+            const selUser = String($('#selUserClosing').val() || '').trim();
+            const selClosing = String($('#selClosing').val() || '').trim();
+            const selAuditor = String($('#selAuditor').val() || '').trim();
+            const selBoj5 = String($('#selBoj5').val() || '').trim();
+            const selBdb = String($('#selBdb').val() || '').trim();
+            const selPnd50 = String($('#selPnd50').val() || '').trim();
+
+            let visibleCount = 0;
+            $('.table tbody tr.closing-row').each(function () {
+                const $tr = $(this);
+
+                const custName = String($tr.attr('data-customer-name') || $tr.data('customer-name') || '').toLowerCase();
+                const userName = String($tr.attr('data-user-name') || $tr.data('user-name') || '').toLowerCase();
+                const userId = String($tr.attr('data-user-id') || $tr.data('user-id') || '').trim();
+                const fiscalDate = String($tr.attr('data-fiscal-date') || $tr.data('fiscal-date') || '').toLowerCase();
+
+                const docStatus = String($tr.attr('data-doc-status') || $tr.data('doc-status') || '0');
+                const docDate = String($tr.attr('data-doc-date') || $tr.data('doc-date') || '');
+                const closingStatus = String($tr.attr('data-closing-status') || $tr.data('closing-status') || '0');
+                const closingDate = String($tr.attr('data-closing-date') || $tr.data('closing-date') || '');
+                const auditStatus = String($tr.attr('data-audit-status') || $tr.data('audit-status') || '0');
+                const auditDate = String($tr.attr('data-audit-date') || $tr.data('audit-date') || '');
+                const budgetRefundDate = String($tr.attr('data-budget-refund-date') || $tr.data('budget-refund-date') || '');
+                const boj5Status = String($tr.attr('data-boj5-status') || $tr.data('boj5-status') || '0');
+                const boj5Date = String($tr.attr('data-boj5-date') || $tr.data('boj5-date') || '');
+                const dbdStatus = String($tr.attr('data-dbd-status') || $tr.data('dbd-status') || '0');
+                const dbdDate = String($tr.attr('data-dbd-date') || $tr.data('dbd-date') || '');
+                const pnd50Status = String($tr.attr('data-pnd50-status') || $tr.data('pnd50-status') || '0');
+                const pnd50Date = String($tr.attr('data-pnd50-date') || $tr.data('pnd50-date') || '');
+
+                // 1. Search Query
+                let matchSearch = true;
+                if (q) {
+                    matchSearch = custName.includes(q) || userName.includes(q) || fiscalDate.includes(q);
+                }
+
+                // 2. User/Caretaker Filter
+                let matchUser = true;
+                if (selUser !== '') {
+                    matchUser = (userId === selUser);
+                }
+
+                // 3. Closing Status Filter
+                // 1 = รอเอกสาร, 2 = ได้รับเอกสาร, 3 = เสร็จแล้ว
+                let matchClosing = true;
+                if (selClosing === '1') {
+                    matchClosing = (docStatus !== '1' || !docDate);
+                } else if (selClosing === '2') {
+                    matchClosing = (docStatus === '1' && docDate !== '') && (closingStatus !== '1' || !closingDate);
+                } else if (selClosing === '3') {
+                    matchClosing = (closingStatus === '1' && closingDate !== '');
+                }
+
+                // 4. Auditor Filter
+                // 1 = ยังไม่ได้ตรวจ, 2 = ตรวจแล้ว, 3 = ได้รับงานคืนแล้ว
+                let matchAuditor = true;
+                if (selAuditor === '1') {
+                    matchAuditor = (auditStatus !== '1' || !auditDate);
+                } else if (selAuditor === '2') {
+                    matchAuditor = (auditStatus === '1' && auditDate !== '') && (!budgetRefundDate);
+                } else if (selAuditor === '3') {
+                    matchAuditor = (budgetRefundDate !== '');
+                }
+
+                // 5. Boj5 Filter
+                // 1 = ยังไม่ได้ยื่น, 2 = นำส่งแล้ว
+                let matchBoj5 = true;
+                if (selBoj5 === '1') {
+                    matchBoj5 = (boj5Status !== '1' || !boj5Date);
+                } else if (selBoj5 === '2') {
+                    matchBoj5 = (boj5Status === '1' && boj5Date !== '');
+                }
+
+                // 6. Bdb / DBD E-Filing Filter
+                // 1 = ยังไม่ได้ยื่น, 2 = นำส่งแล้ว
+                let matchBdb = true;
+                if (selBdb === '1') {
+                    matchBdb = (dbdStatus !== '1' || !dbdDate);
+                } else if (selBdb === '2') {
+                    matchBdb = (dbdStatus === '1' && dbdDate !== '');
+                }
+
+                // 7. Pnd50 Filter
+                // 1 = รอเอกสาร, 2 = ยังไม่ได้ยื่น, 3 = นำส่งแล้ว
+                let matchPnd50 = true;
+                if (selPnd50 === '1') {
+                    matchPnd50 = (docStatus !== '1' || !docDate);
+                } else if (selPnd50 === '2') {
+                    matchPnd50 = (docStatus === '1' && docDate !== '') && (pnd50Status !== '1' || !pnd50Date);
+                } else if (selPnd50 === '3') {
+                    matchPnd50 = (pnd50Status === '1' && pnd50Date !== '');
+                }
+
+                if (matchSearch && matchUser && matchClosing && matchAuditor && matchBoj5 && matchBdb && matchPnd50) {
+                    $tr.show();
+                    visibleCount++;
+                } else {
+                    $tr.hide();
+                }
+            });
+
+            $('#noClosingDataRow').toggle(visibleCount === 0);
+        }
+
+        $('.search-input').on('keyup input', applyClosingFilters);
+        $('.select2').on('change', applyClosingFilters);
     });
 
 
@@ -902,11 +953,11 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 if (response.result === 1) {
                     $('#addCustomerModal').modal('hide');
                     if (typeof Swal !== 'undefined') {
-                        sessionStorage.setItem('toast_msg', 'เพิ่มลูกค้าสำเร็จ');
+                        sessionStorage.setItem('toast_msg', 'บันทึกข้อมูลสำเร็จ');
                         sessionStorage.setItem('toast_icon', 'success');
                         location.reload();
                     } else {
-                        alert('เพิ่มลูกค้าสำเร็จ');
+                        alert('บันทึกข้อมูลสำเร็จ');
                         location.reload();
                     }
                 } else {
