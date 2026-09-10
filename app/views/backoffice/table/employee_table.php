@@ -10,16 +10,8 @@ if (isset($_POST['data']) && is_array($_POST['data'])) {
 }
 
 $total    = (int) ($_POST['total'] ?? count($list));
-$page     = max(1, (int) ($_POST['page'] ?? $_GET['page'] ?? 1));
-$per_page = max(1, (int) ($_POST['per_page'] ?? $_GET['per_page'] ?? 25));
-
-if ($total == count($list)) {
-    $start = ($page - 1) * $per_page;
-    $paginated_list = array_slice($list, $start, $per_page);
-} else {
-    $paginated_list = $list;
-}
-
+$page     = max(1, (int) ($_POST['page'] ?? 1));
+$per_page = max(1, (int) ($_POST['per_page'] ?? 25));
 $from     = $total > 0 ? ($page - 1) * $per_page + 1 : 0;
 ?>
 
@@ -37,8 +29,8 @@ $from     = $total > 0 ? ($page - 1) * $per_page + 1 : 0;
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($paginated_list)): ?>
-                <?php $n = $from; foreach ($paginated_list as $index => $emp): ?>
+            <?php if (!empty($list)): ?>
+                <?php $n = $from; foreach ($list as $index => $emp): ?>
                     <tr>
                         <td class="text-center fw-semibold text-secondary">
                             <?php echo $n++; ?>
@@ -90,6 +82,6 @@ $from     = $total > 0 ? ($page - 1) * $per_page + 1 : 0;
     </table>
 </div>
 
-<?php if (!empty($paginated_list)): ?>
+<?php if (!empty($list)): ?>
     <?php include dirname(__DIR__) . '/_pagination.php'; ?>
 <?php endif; ?>

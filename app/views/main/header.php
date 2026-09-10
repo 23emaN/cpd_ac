@@ -2114,7 +2114,7 @@
                                     <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/main"
                                         class="acc-manage-year-btn" onclick="selectCompanyById('<?php echo $companyId ?>')">
                                         <i class="ri-sound-module-line"></i>
-                                        <span>จัดการปีทำงาน</span>
+                                        <span>แก้ไขข้อมูลบริษัท</span>
                                     </a>
                                 </div>
                             </div>
@@ -2276,6 +2276,29 @@
             }
         }
 
+
+        function getSafeUrlAfterYearChange() {
+            var baseUrl = "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>";
+            var path = window.location.pathname;
+
+            // รายการ path ที่เป็นหน้า "รายละเอียดของลูกค้ารายตัว"
+            // เพิ่ม path อื่นๆ ที่ผูกกับ customer_id เฉพาะเจาะจงได้ที่นี่
+            var customerScopedPaths = [
+                '/customer_drive',   // หน้าคลังไฟล์ลูกค้า (ที่ผูกกับ id)
+                '/customer_link'     // หน้าตั้งค่าลิงก์อัปโหลด (ถ้าใช้ path นี้)
+            ];
+
+            for (var i = 0; i < customerScopedPaths.length; i++) {
+                if (path.indexOf(customerScopedPaths[i]) !== -1) {
+                    // พากลับไปหน้าลิสต์ลูกค้า ให้ user เลือกลูกค้าใหม่เองในปีที่เพิ่งสลับ
+                    return baseUrl + '/customer';
+                }
+            }
+
+            // หน้าอื่น ๆ ที่ไม่ได้ผูกกับลูกค้ารายตัว (เช่น หน้า dashboard, หน้าลิสต์ทั่วไป) ให้ reload หน้าเดิมได้ตามปกติ
+            return window.location.href;
+        }
+
         // 2. ฟังก์ชันเลือกปีทำงานจาก Dropdown
         function selectFiscalYear(companyId, year, fiscalId) {
             if (!companyId || !year) return;
@@ -2336,24 +2359,26 @@
                         data: { fiscal_id: fiscalId },
                         dataType: "json",
                         success: function (res) {
-                            if (res && res.result === 1) {
-                                if (typeof Swal !== 'undefined') {
-                                    Swal.fire({
-                                        toast: true,
-                                        position: 'top-end',
-                                        icon: 'success',
-                                        title: 'สลับปีทำงาน ' + year + ' เรียบร้อยแล้ว',
-                                        showConfirmButton: false,
-                                        timer: 1000
-                                    }).then(() => {
-                                        window.location.reload();
-                                    });
-                                } else {
-                                    window.location.reload();
-                                }
+                        var redirectUrl = getSafeUrlAfterYearChange();
+
+                        if (res && res.result === 1) {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: 'สลับปีทำงาน ' + year + ' เรียบร้อยแล้ว',
+                                    showConfirmButton: false,
+                                    timer: 1000
+                                }).then(() => {
+                                    window.location.href = redirectUrl;
+                                });
                             } else {
-                                window.location.reload();
+                                window.location.href = redirectUrl;
                             }
+                        } else {
+                            window.location.href = redirectUrl;
+                        }
                         },
                         error: function () {
                             window.location.reload();

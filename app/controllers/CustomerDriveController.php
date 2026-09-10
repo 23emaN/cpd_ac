@@ -22,13 +22,45 @@ class CustomerDriveController
     {
         $this->checkAuth();
 
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        if (!$fiscal_id) {
+            header("Location: " . BASE_URL . "/main");
+            exit();
+        }
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId       = $this->userPayload['user_id'] ?? null;
+        $companies    = $companyModel->getAllCompanies($userId);
+
+        // หา active_company_id และ active_fiscal_year จาก fiscal_id ที่ใช้งานอยู่
+        $active_company_id  = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id  = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
         $data = [
-            'title' => 'คลังไฟล์ลูกค้า',
-            'user' => $this->userPayload,
-            'user_id' => $this->userPayload['user_id'] ?? '',
-            'firstname' => $this->userPayload['user_firstname'] ?? '',
-            'lastname' => $this->userPayload['user_lastname'] ?? '',
-            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
+            'title'              => 'คลังไฟล์ลูกค้า',
+            'user'               => $this->userPayload,
+            'user_id'            => $this->userPayload['user_id'] ?? '',
+            'firstname'          => $this->userPayload['user_firstname'] ?? '',
+            'lastname'           => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin'     => $this->userPayload['is_super_admin'] ?? '0',
+            'fiscal_id'          => $fiscal_id,
+            'companies'          => $companies,
+            'active_company_id'  => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
         ];
 
         require_once '../app/views/backoffice/customer_drive/index.php';
