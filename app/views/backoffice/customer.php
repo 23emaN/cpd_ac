@@ -42,7 +42,7 @@
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">ลูกค้า</h2>
-                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <?php $fy_display = ! empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
                             <p class="page-subtitle">ภาพรวมระบบ - ลูกค้า - ปี <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
@@ -50,7 +50,7 @@
                                 <i class="ri-file-upload-line"></i>
                                 <span>Import Excel</span>
                             </button>
-                            <button type="button" class="btn-excel-action" onclick="alert('ส่งออก Excel')">
+                            <button type="button" class="btn-excel-action" onclick="exportCustomerExcel()">
                                 <i class="ri-upload-2-line"></i>
                                 <span>ส่งออก Excel</span>
                             </button>
@@ -108,30 +108,32 @@
                     <div class="filter-toolbar">
                         <div class="search-box-wrap">
                             <i class="ri-search-line"></i>
-                            <input type="text" class="search-input" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล ทีม">
+                            <input type="text" class="search-input" id="search_input" onkeyup="triggerFilterDebounced()" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล ทีม">
                         </div>
 
                         <div class="filter-group">
-                            <select class="filter-select">
+                            <select class="filter-select" id="filter_status" onchange="triggerFilterDebounced()">
                                 <option value="">ทุกสถานะ</option>
                                 <option value="1">ใช้บริการอยู่</option>
                                 <option value="0">เลิกจ้าง</option>
                             </select>
 
-                            <select class="filter-select">
-                                <option value="">ทุกผู้ดูแล</option>
-                                <?php if (! empty($data['caretakers'])): ?>
-                                    <?php foreach ($data['caretakers'] as $caretaker): ?>
-                                        <option value="<?php echo htmlspecialchars($caretaker['user_id'] ?? ''); ?>">
-                                            <?php echo htmlspecialchars(($caretaker['user_firstname'] ?? '') . ' ' . ($caretaker['lastname'] ?? '')); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
+                            <select class="filter-select" name="user_id_filter" id="user_id_filter" onchange="triggerFilterDebounced()">
+                                    <option value="" data-team-id="" data-team-name="" selected>ทั้งหมด</option>
+                                    <?php if (! empty($data['caretakers'])): ?>
+                                        <?php foreach ($data['caretakers'] as $caretaker): ?>
+                                            <option value="<?php echo htmlspecialchars($caretaker['user_id'] ?? ''); ?>">
+                                                <?php echo htmlspecialchars(($caretaker['user_firstname'] ?? '') . ' ' . ($caretaker['lastname'] ?? '')); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
                         </div>
                     </div>
 
-                    <?php require_once 'table/customer_table.php'; ?>
+                    <div id="customerTableContainer">
+                        <?php require_once 'table/customer_table.php'; ?>
+                    </div>
 
                 </div> <!-- End .main-card-wrapper -->
             </div>
@@ -458,10 +460,6 @@
 <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script></script></script>
 <script>
 
-    function viewCustomerDrive(customer_id) {
-        window.location.href = '<?php echo BASE_URL; ?>/customer_drive?id=' + customer_id;
-    }
-
     document.addEventListener("DOMContentLoaded", function() {
     if (typeof flatpickr !== 'undefined') {
             flatpickr("#fiscal_closing_date", {
@@ -472,6 +470,82 @@
             });
         }
     });
+
+    let filterDebounceTimer = null;
+
+function triggerFilterDebounced() {
+
+    clearTimeout(filterDebounceTimer);
+
+    filterDebounceTimer = setTimeout(function () {
+        loadCustomerTable();
+    }, 400);
+}
+
+
+function loadCustomerTable() {
+
+    var baseUrl = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>';
+
+    var payload = {
+        keyword: $('#search_input').val().trim(),
+        status: $('#filter_status').val(),
+        user_id: $('#user_id_filter').val()
+    };
+
+    console.log('FILTER PAYLOAD:', payload);
+
+    $.ajax({
+
+        url: baseUrl + '/customer/filter',
+
+        method: 'POST',
+
+        data: payload,
+
+        dataType: 'json',
+
+        success: function(response) {
+
+            console.log('FILTER RESPONSE:', response);
+
+            if (response.result === 1) {
+
+                $('#customerTableContainer').html(response.html);
+
+            } else {
+
+                console.error('Filter error:', response.msg);
+
+            }
+        },
+
+        error: function(xhr, status, error) {
+
+            console.error('FILTER AJAX ERROR');
+            console.error('Status:', status);
+            console.error('Error:', error);
+            console.error('Response:', xhr.responseText);
+
+        }
+
+    });
+}
+
+function exportCustomerExcel() {
+    var baseUrl = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>';
+    var keyword = ($('#search_input').val() || '').trim();
+    var status = $('#filter_status').val() || '';
+    var userId = $('#user_id_filter').val() || '';
+
+    var params = new URLSearchParams();
+    if (keyword) params.append('keyword', keyword);
+    if (status !== '') params.append('status', status);
+    if (userId) params.append('user_id', userId);
+
+    var queryString = params.toString();
+    window.location.href = baseUrl + '/report/customer' + (queryString ? '?' + queryString : '');
+}
 
     // เพิ่มข้อมูลลูกค้า
 
@@ -530,14 +604,11 @@
 
         var formData = $('#addCustomerForm').serialize();
         var customerId = $('#edit_customer_id').val();
-        var targetUrl = customerId ? '/cpd_ac/public/customer/edit' : '/cpd_ac/public/customer/add';
+        var baseUrl = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>';
+        var targetUrl = customerId ? baseUrl + '/customer/edit' : baseUrl + '/customer/add';
 
         $.ajax({
-
             url: targetUrl,
-
-            // url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/add',
-
             method: 'POST',
             data: formData,
             dataType: 'json',
@@ -590,6 +661,11 @@
         });
     }
 
+    // เปิดคลังไฟล์ของลูกค้ารายนี้
+    function viewCustomerDrive(customer_id) {
+        window.location.href = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer_drive?id=' + customer_id;
+    }
+
     // แก้ไขข้อมูลลูกค้า
     function editCustomer(customer_id) {
         // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
@@ -600,10 +676,10 @@
             document.getElementById('addCustomerModalLabel').innerText = 'แก้ไขข้อมูลลูกค้า';
             document.querySelectorAll('input[name="monthly_skip[]"]').forEach(cb => cb.checked = false);
         }
-        
+
         // Fetch existing data
         $.ajax({
-            url: '/cpd_ac/public/customer/get?id=' + customer_id,
+            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/get?id=' + customer_id,
             method: 'GET',
             dataType: 'json',
             success: function(response) {
@@ -613,7 +689,7 @@
                     $('#service_start_date').val(data.service_start_date);
                     $('#service_start_end').val(data.service_start_end);
                     $('#active_status').val(data.active_status);
-                    
+
                     if(data.user_id) {
                         $('#user_id_select').val(data.user_id);
                         updateTeamInfo();
@@ -627,33 +703,33 @@
                     if(data.fiscal_closing_date) {
                         $('#fiscal_closing_date').val(data.fiscal_closing_date);
                     }
-                    
+
                     $('#accounts_amount').val(data.f_accounts_amount || data.accounts_amount || 0);
-                    
+
                     $('input[name="contact_tel"]').val(data.customer_phone);
                     $('input[name="contact_email"]').val(data.customer_email);
                     $('input[name="contact_line_id"]').val(data.line_id);
                     $('input[name="line_token"]').val(data.line_group_token);
                     $('input[name="doc_url"]').val(data.doc_folder_url);
-                    
+
                     $('input[name="rd_user"]').val(data.rn_user);
                     $('input[name="rd_password"]').val(data.rn_password);
                     $('input[name="dbd_user"]').val(data.dbd_user);
                     $('input[name="dbd_password"]').val(data.dbd_password);
                     $('input[name="sso_user"]').val(data.sso_user);
                     $('input[name="sso_password"]').val(data.sso_password);
-                    
+
                     // check monthly skip
                     if(data.monthly_skip && data.monthly_skip.length > 0) {
                         data.monthly_skip.forEach(function(taskId) {
                             $('input[name="monthly_skip[]"][value="'+taskId+'"]').prop('checked', true);
                         });
                     }
-                    
+
                     if(data.debug_query) {
                         console.log("🔥 DEBUG QUERY:", data.debug_query);
                     }
-                    
+
                     // 2. สั่งโชว์ Modal
                     const modalElement = document.getElementById('addCustomerModal');
                     const myModal = new bootstrap.Modal(modalElement);
@@ -694,7 +770,7 @@
 
     function processDeleteCustomer(customer_id) {
         $.ajax({
-            url: '/cpd_ac/public/customer/delete',
+            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/delete',
             method: 'POST',
             data: { customer_id: customer_id }, // ส่งผ่าน POST Data เพื่อความปลอดภัยกว่าการต่อ URL ตรงๆ
             dataType: 'json',

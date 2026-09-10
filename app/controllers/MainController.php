@@ -31,7 +31,11 @@ class MainController
         $userId = $this->userPayload['user_id'] ?? null;
         $companies = $companyModel->getAllCompanies($userId);
 
-        $fiscal_years = !empty($companies) && isset($companies[0]['fiscal_years']) ? $companies[0]['fiscal_years'] : [];
+        $fiscal_years = [];
+        if (!empty($companies) && isset($companies[0]['fiscal_years'])) {
+            $fiscal_years = $companies[0]['fiscal_years'];
+        }
+
 
         // 2. เตรียมข้อมูลส่งไปที่ View (MVC Pattern)
         $data = [
@@ -81,10 +85,15 @@ class MainController
     {
         $this->checkAuth();
 
-        $companyId = trim($_POST['company_id'] ?? '');
-        $workingYear = trim($_POST['working_year'] ?? '');
+        $companyId    = trim($_POST['company_id'] ?? '');
+        $workingYear  = trim($_POST['working_year'] ?? '');
         $copyFromYear = trim($_POST['copy_from_year'] ?? '');
-        
+        // รับ array ของตัวเลือกที่ต้องการคัดลอก เช่น ['customers', 'employees', 'monthly_jobs']
+        $copyOptions  = $_POST['copy_options'] ?? [];
+        if (!is_array($copyOptions)) {
+            $copyOptions = [];
+        }
+
         if ($workingYear === '') {
             echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกปี พ.ศ.']);
             return;
@@ -99,9 +108,9 @@ class MainController
         $fiscalYearModel = new FiscalYearsModel();
         
         try {
-            $success = $fiscalYearModel->insertFiscalYears($companyId, $workingYear, $copyFromYear);
+            $newFiscalId = $fiscalYearModel->insertFiscalYears($companyId, $workingYear, $copyFromYear, $copyOptions);
 
-            if ($success) {
+            if ($newFiscalId) {
                 echo json_encode(['result' => 1, 'msg' => 'บันทึกปีทำงานเรียบร้อยแล้ว']);
             } else {
                 echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้']);
