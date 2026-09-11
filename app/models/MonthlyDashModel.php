@@ -12,7 +12,7 @@ class MonthlyDashModel extends Model {
     public function getMonthlyTasks($fiscalId, $month = null) {
         $params = ['fiscal_id' => $fiscalId];
 
-        $where = "wp.fiscal_year_id = :fiscal_id AND wp.delete_at IS NULL AND c.delete_at IS NULL";
+        $where = "wp.fiscal_year_id = :fiscal_id AND c.delete_at IS NULL";
 
         if ($month !== null && $month !== '') {
             // บังคับเทียบทั้งแบบมี 0 นำหน้า ('02') และไม่มี 0 ('2')
@@ -39,8 +39,8 @@ class MonthlyDashModel extends Model {
                 fyc.accounts_amount,
                 t.team_name,
                 u.user_firstname AS caretaker_firstname,
-                (SELECT COUNT(*) FROM tbl_customer_tasks WHERE period_id = wp.period_id AND delete_at IS NULL) AS total_tasks,
-                (SELECT COUNT(*) FROM tbl_customer_tasks WHERE period_id = wp.period_id AND status = '1' AND delete_at IS NULL) AS completed_tasks
+                (SELECT COUNT(*) FROM tbl_customer_tasks WHERE period_id = wp.period_id) AS total_tasks,
+                (SELECT COUNT(*) FROM tbl_customer_tasks WHERE period_id = wp.period_id AND status = '1') AS completed_tasks
             FROM tbl_customer_work_periods wp
             INNER JOIN tbl_customers c 
                 ON wp.customer_id = c.customer_id
@@ -51,7 +51,6 @@ class MonthlyDashModel extends Model {
             LEFT JOIN tbl_team t 
                 ON fyc.team_id = t.team_id
             WHERE {$where}
-            GROUP BY wp.period_id
             ORDER BY c.created_at ASC
         ";
 
