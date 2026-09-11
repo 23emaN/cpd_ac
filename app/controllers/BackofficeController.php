@@ -1025,6 +1025,13 @@ class BackofficeController
             ]);
 
             if ($postId > 0) {
+                if ($userId && $userId != $createdUserId) {
+                    require_once '../app/models/NotificationModel.php';
+                    // We must ensure the class is called correctly if namespace is used
+                    $notifModel = new \App\Models\NotificationModel();
+                    $notifMessage = "มีงาน Post-it ใหม่มอบหมายถึงคุณ: " . $title;
+                    $notifModel->addNotification($userId, 'post_it', $postId, $notifMessage);
+                }
                 echo json_encode(['result' => 1, 'msg' => 'บันทึก Post-it เรียบร้อยแล้ว', 'post_id' => $postId]);
             } else {
                 echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้']);
@@ -2077,4 +2084,50 @@ class BackofficeController
             : ['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้']);
     }
 
+    public function getNotifications()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+        $userId = $this->userPayload['user_id'] ?? null;
+        if (!$userId) {
+            echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
+            return;
+        }
+
+        require_once '../app/models/NotificationModel.php';
+        $notifModel = new \App\Models\NotificationModel();
+        
+        $notifications = $notifModel->getUnreadNotifications($userId, 20);
+        $count = $notifModel->getUnreadCount($userId);
+
+        echo json_encode([
+            'result' => 1,
+            'count' => $count,
+            'data' => $notifications
+        ]);
+    }
+
+    public function readNotification()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $notifId = $_POST['notif_id'] ?? null;
+
+        if (!$userId || !$notifId) {
+            echo json_encode(['result' => 0, 'msg' => 'Invalid Request']);
+            return;
+        }
+
+        require_once '../app/models/NotificationModel.php';
+        $notifModel = new \App\Models\NotificationModel();
+        
+        $success = $notifModel->markAsRead($notifId, $userId);
+
+        if ($success) {
+            echo json_encode(['result' => 1, 'msg' => 'Success']);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'Failed to mark as read']);
+        }
+    }
 }

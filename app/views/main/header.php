@@ -559,6 +559,119 @@
             flex-shrink: 0;
         }
 
+        /* --- Notification Bell --- */
+        .acc-notif-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .acc-notif-btn:hover {
+            background-color: #f1f5f9;
+            color: #2563eb;
+        }
+        .acc-notif-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: #ef4444;
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            border: 2px solid #ffffff;
+            display: none;
+        }
+        .acc-notif-menu {
+            border: 1px solid #edf2f7;
+            border-radius: 16px;
+            box-shadow: 0 16px 48px rgba(15, 23, 42, 0.16);
+            padding: 0;
+            min-width: 320px;
+            max-width: 360px;
+            background: #ffffff;
+            z-index: 99999 !important;
+            overflow: hidden;
+        }
+        .acc-notif-header {
+            padding: 15px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .acc-notif-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .acc-notif-item {
+            padding: 15px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .acc-notif-item.unread {
+            background-color: #eff6ff;
+        }
+        .acc-notif-item:hover {
+            background-color: #f8fafc;
+        }
+        .acc-notif-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+        .acc-notif-text {
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 1.4;
+        }
+        .acc-notif-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .acc-notif-action {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 5px;
+        }
+        .acc-notif-ack-btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .acc-notif-ack-btn:hover {
+            background-color: #1d4ed8;
+        }
+        .acc-notif-empty {
+            padding: 30px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
         .acc-user-profile {
             display: flex;
             align-items: center;
@@ -2144,6 +2257,22 @@
         </div>
 
         <div class="acc-actions">
+            <!-- Notification Bell -->
+            <div class="dropdown acc-notification-dropdown">
+                <button type="button" class="acc-notif-btn" id="notifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <i class="ri-notification-3-line"></i>
+                    <span class="acc-notif-badge" id="notifBadge">0</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end acc-notif-menu" aria-labelledby="notifDropdownBtn">
+                    <div class="acc-notif-header">
+                        <span>แจ้งเตือน</span>
+                    </div>
+                    <div class="acc-notif-list" id="notifListContainer">
+                        <div class="acc-notif-empty">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="acc-user-profile" title="ข้อมูลผู้ใช้งาน">
                 <div class="acc-user-avatar">
                     <i class="ri-user-3-fill"></i>
@@ -2560,4 +2689,72 @@ function addCompany() {
                 }
             }
         });
+
+        // --- Notification Logic ---
+        function loadNotifications() {
+            $.ajax({
+                url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/notification/get",
+                method: "GET",
+                dataType: "json",
+                success: function(res) {
+                    if (res && res.result === 1) {
+                        let count = res.count || 0;
+                        let badge = document.getElementById('notifBadge');
+                        if (count > 0) {
+                            badge.style.display = 'block';
+                            badge.innerText = count > 99 ? '99+' : count;
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                        
+                        let listHtml = '';
+                        if (res.data && res.data.length > 0) {
+                            res.data.forEach(function(item) {
+                                let timeStr = new Date(item.created_at).toLocaleString('th-TH');
+                                listHtml += `
+                                    <div class="acc-notif-item unread" id="notif-item-${item.notif_id}">
+                                        <div class="acc-notif-title">${item.task_type === 'post_it' ? 'งานใหม่' : 'แจ้งเตือน'}</div>
+                                        <div class="acc-notif-text">${item.message}</div>
+                                        <div class="acc-notif-time">${timeStr}</div>
+                                        <div class="acc-notif-action">
+                                            <button class="acc-notif-ack-btn" onclick="markNotificationRead(${item.notif_id})">รับทราบ</button>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        } else {
+                            listHtml = '<div class="acc-notif-empty">ไม่มีแจ้งเตือนใหม่</div>';
+                        }
+                        document.getElementById('notifListContainer').innerHTML = listHtml;
+                    }
+                }
+            });
+        }
+
+        function markNotificationRead(notifId) {
+            $.ajax({
+                url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/notification/read",
+                method: "POST",
+                data: { notif_id: notifId },
+                dataType: "json",
+                success: function(res) {
+                    if (res && res.result === 1) {
+                        let item = document.getElementById('notif-item-' + notifId);
+                        if (item) {
+                            item.classList.remove('unread');
+                            item.style.opacity = '0.5';
+                            setTimeout(() => { item.style.display = 'none'; }, 300);
+                        }
+                        loadNotifications();
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            loadNotifications();
+            // Optional: Auto fetch every 1 minute
+            setInterval(loadNotifications, 60000);
+        });
+
     </script>
