@@ -461,7 +461,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script></script></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 <script>
 
     document.addEventListener("DOMContentLoaded", function() {
