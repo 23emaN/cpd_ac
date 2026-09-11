@@ -711,23 +711,35 @@
                                 <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #334155;">การสอบทาน (Review)</h6>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 1)</label>
-                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review1_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review1_user_id" style="border-radius: 8px; font-size: 0.9rem;">
                                         <option value="0" selected>ยังไม่ได้รีวิว</option>
-                                        <option value="1">ชมพู่</option>
+                                        <?php if (!empty($employees)): ?>
+                                            <?php foreach ($employees as $emp): ?>
+                                                <option value="<?php echo $emp['user_id']; ?>"><?php echo htmlspecialchars($emp['user_firstname']); ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 2)</label>
-                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review2_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review2_user_id" style="border-radius: 8px; font-size: 0.9rem;">
                                         <option value="0" selected>ยังไม่ได้รีวิว</option>
-                                        <option value="1">ชมพู่</option>
+                                        <?php if (!empty($employees)): ?>
+                                            <?php foreach ($employees as $emp): ?>
+                                                <option value="<?php echo $emp['user_id']; ?>"><?php echo htmlspecialchars($emp['user_firstname']); ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 3)</label>
-                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review3_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_review3_user_id" style="border-radius: 8px; font-size: 0.9rem;">
                                         <option value="0" selected>ยังไม่ได้รีวิว</option>
-                                        <option value="1">ชมพู่</option>
+                                        <?php if (!empty($employees)): ?>
+                                            <?php foreach ($employees as $emp): ?>
+                                                <option value="<?php echo $emp['user_id']; ?>"><?php echo htmlspecialchars($emp['user_firstname']); ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </select>
                                 </div>
                             </div>
@@ -855,9 +867,9 @@
         <!-- Right side: Amount Input (ย้ายมาก่อน) & Select dropdown -->
         <div class="d-flex align-items-center gap-2">
             ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.nextElementSibling.value='1';}">` : ''}
-            <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0 task-status-select"
+            <select class="form-select-sm border-0 fw-semibold text-secondary flex-shrink-0 task-status-select"
                     data-customer-tasks-id="${t.customer_tasks_id}"
-                    style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
+                    style="background-color: #ffffff; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
                 <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
                 <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
             </select>
@@ -1046,9 +1058,9 @@ function saveManageTask() {
         doc_date: document.getElementById('modal_doc_date').value,
         completed_date: document.getElementById('modal_completed_date').value,
         tax_date: document.getElementById('modal_tax_date').value,
-        review1_status: document.getElementById('modal_review1_status').value,
-        review2_status: document.getElementById('modal_review2_status').value,
-        review3_status: document.getElementById('modal_review3_status').value,
+        review1_user_id: document.getElementById('modal_review1_user_id').value,
+        review2_user_id: document.getElementById('modal_review2_user_id').value,
+        review3_user_id: document.getElementById('modal_review3_user_id').value,
         payment_status: document.getElementById('modal_payment_status').value,
         tax_status: document.getElementById('modal_tax_status').value,
         tasks: []

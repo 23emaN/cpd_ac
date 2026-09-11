@@ -1388,6 +1388,13 @@ class BackofficeController
         $monthlyTaskModel = new MonthlyTaskModal();
         $monthly_tasks = $monthlyTaskModel->getMonthlyTasks($fiscal_id, $month, $userId);
 
+        require_once '../app/models/UserModel.php';
+        $userModel = new UserModel();
+        $employees = [];
+        if ($active_company_id) {
+            $employees = $userModel->getEmployeesByFiscalAndCompany($fiscal_id, $active_company_id);
+        }
+
         $data = [
             'title' => 'ระบบ Backoffice',
             'user' => $this->userPayload,
@@ -1400,7 +1407,8 @@ class BackofficeController
             'active_company_id' => $active_company_id,
             'active_fiscal_year' => $active_fiscal_year,
             'monthly_tasks' => $monthly_tasks,
-            'selected_month' => $month
+            'selected_month' => $month,
+            'employees' => $employees
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
@@ -1445,9 +1453,9 @@ class BackofficeController
             'doc_date' => $input['doc_date'] ?? null,
             'completed_date' => $input['completed_date'] ?? null,
             'tax_date' => $input['tax_date'] ?? null,
-            'review1_status' => $input['review1_status'] ?? '0',
-            'review2_status' => $input['review2_status'] ?? '0',
-            'review3_status' => $input['review3_status'] ?? '0',
+            'review1_user_id' => $input['review1_user_id'] ?? '0',
+            'review2_user_id' => $input['review2_user_id'] ?? '0',
+            'review3_user_id' => $input['review3_user_id'] ?? '0',
             'payment_status' => $input['payment_status'] ?? '0',
             'tax_status' => $input['tax_status'] ?? '0'
         ];
