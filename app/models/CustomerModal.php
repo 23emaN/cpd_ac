@@ -4,15 +4,22 @@ require_once '../app/models/Model.php';
 class CustomModal extends Model
 {
 
-    public function getTasks()
+    public function getTasks($fiscalId = null)
     {
-        $stmt = $this->pdo->prepare("SELECT tasks_id,
-                                            tasks_name
-                                    FROM tbl_tasks
-                                    WHERE delete_at IS NULL
-                                    ORDER BY list_order ASC");
-        $stmt->execute();
-        return $stmt->fetchAll();
+        if ($fiscalId) {
+            $stmt = $this->pdo->prepare("SELECT tasks_id, tasks_name
+                                        FROM tbl_tasks
+                                        WHERE fiscal_id = :fiscal_id AND delete_at IS NULL
+                                        ORDER BY list_order ASC, tasks_id ASC");
+            $stmt->execute(['fiscal_id' => $fiscalId]);
+        } else {
+            $stmt = $this->pdo->prepare("SELECT tasks_id, tasks_name
+                                        FROM tbl_tasks
+                                        WHERE delete_at IS NULL
+                                        ORDER BY list_order ASC, tasks_id ASC");
+            $stmt->execute();
+        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getCaretakers($fiscalId = null)
@@ -27,6 +34,7 @@ class CustomModal extends Model
                 INNER JOIN tbl_fiscal_year_user fyu ON u.user_id = fyu.user_id
                 WHERE u.user_status = 1
                   AND u.is_super_admin = 0
+                  AND u.delete_at IS NULL
                   AND fyu.fiscal_id = :fiscal_id
                 ORDER BY u.user_firstname ASC
             ");
@@ -38,7 +46,7 @@ class CustomModal extends Model
                        t.team_name
                 FROM tbl_user u
                 LEFT JOIN tbl_team t ON u.team_id = t.team_id
-                WHERE u.user_status = 1 AND u.is_super_admin = 0
+                WHERE u.user_status = 1 AND u.is_super_admin = 0 AND u.delete_at IS NULL
                 ORDER BY u.user_firstname ASC
             ");
             $stmt->execute();
@@ -46,11 +54,22 @@ class CustomModal extends Model
         return $stmt->fetchAll();
     }
 
-    public function getCustomerByName($name)
+    public function getCustomerByName($name, $fiscalId = null)
     {
-        // NOTE: ยังไม่ได้ scope ตาม company_id เพราะไม่แน่ใจว่า tbl_customers มีคอลัมน์นี้จริงหรือไม่
-        // (ไม่เห็นการ insert company_id ใน insertCustomer() ด้านล่าง) ถ้ามีจริง แจ้งมาได้เพื่อเพิ่มเงื่อนไข
-        $stmt = $this->pdo->prepare("SELECT * FROM tbl_customers WHERE customer_name = :name");
+        if ($fiscalId) {
+            $stmt = $this->pdo->prepare("
+                SELECT c.* 
+                FROM tbl_customers c
+                INNER JOIN tbl_fiscal_year_customers fyc ON c.customer_id = fyc.customer_id
+                WHERE c.customer_name = :name 
+                  AND fyc.fiscal_id = :fiscal_id 
+                  AND c.delete_at IS NULL
+            ");
+            $stmt->execute(['name' => $name, 'fiscal_id' => $fiscalId]);
+            return $stmt->fetch();
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM tbl_customers WHERE customer_name = :name AND delete_at IS NULL");
         $stmt->execute(['name' => $name]);
         return $stmt->fetch();
     }
@@ -259,7 +278,7 @@ class CustomModal extends Model
 
                                                      // 4. บันทึกงานรายเดือน (tbl_customer_tasks)
         $skippedTasks = $data['monthly_skip'] ?? []; // ค่าจาก checkbox งานที่ไม่ต้องทำ
-        $allTasks     = $this->getTasks();
+        $allTasks     = $this->getTasks($fiscalYearId);
 
         foreach ($allTasks as $task) {
             $taskId = $task['tasks_id'] ?? 0;
@@ -343,6 +362,7 @@ class CustomModal extends Model
             fyc.accounts_amount,
             u.user_firstname as caretaker_firstname,
             u.user_lastname as caretaker_lastname,
+            u.delete_at as caretaker_delete_at,
             t.team_name
         FROM tbl_fiscal_year_customers fyc
         INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
@@ -384,9 +404,11 @@ class CustomModal extends Model
                 f.service_start_end,
                 f.user_id,
                 f.team_id,
-                f.accounts_amount as f_accounts_amount
+                f.accounts_amount as f_accounts_amount,
+                u.delete_at as user_delete_at
             FROM tbl_customers c
             INNER JOIN tbl_fiscal_year_customers f ON c.customer_id = f.customer_id AND f.fiscal_id = :fiscal_id
+            LEFT JOIN tbl_user u ON f.user_id = u.user_id
             WHERE c.customer_id = :customer_id AND c.delete_at IS NULL
         ");
         $stmt->execute(['customer_id' => $customerId, 'fiscal_id' => $fiscalId]);
@@ -403,12 +425,16 @@ class CustomModal extends Model
         $stmtTasks = $this->pdo->prepare("
             SELECT t.tasks_id
             FROM tbl_tasks t
-            WHERE t.tasks_id NOT IN (
+            WHERE t.fiscal_id = :fiscal_id
+              AND t.delete_at IS NULL
+              AND t.tasks_id NOT IN (
                 SELECT DISTINCT ct.task_id
                 FROM tbl_customer_tasks ct
                 JOIN tbl_customer_work_periods p ON ct.period_id = p.period_id
-                WHERE p.customer_id = :customer_id AND p.fiscal_year_id = :fiscal_id
-            )
+                WHERE p.customer_id = :customer_id 
+                  AND p.fiscal_year_id = :fiscal_id
+                  AND ct.delete_at IS NULL
+              )
         ");
         $stmtTasks->execute(['customer_id' => $customerId, 'fiscal_id' => $fiscalId]);
         $skipped = $stmtTasks->fetchAll(PDO::FETCH_COLUMN);
@@ -752,7 +778,7 @@ class CustomModal extends Model
 
             if (! empty($activePeriods)) {
 
-                $allTasks = $this->getTasks();
+                $allTasks = $this->getTasks($fiscalId);
 
                 foreach ($allTasks as $task) {
 
@@ -847,17 +873,19 @@ class CustomModal extends Model
         }
     }
 
-    public function deleteCustomer($customerId, $fiscalId)
+    public function deleteCustomer($customerId, $fiscalId = null)
     {
-
-        $ownershipStmt = $this->pdo->prepare("
-            SELECT 1 FROM tbl_fiscal_year_customers
-            WHERE customer_id = :customer_id AND fiscal_id = :fiscal_id
-        ");
-        $ownershipStmt->execute(['customer_id' => $customerId, 'fiscal_id' => $fiscalId]);
-        if (! $ownershipStmt->fetch()) {
-            return false;
+        if (!empty($fiscalId)) {
+            $ownershipStmt = $this->pdo->prepare("
+                SELECT 1 FROM tbl_fiscal_year_customers
+                WHERE customer_id = :customer_id AND fiscal_id = :fiscal_id
+            ");
+            $ownershipStmt->execute(['customer_id' => $customerId, 'fiscal_id' => $fiscalId]);
+            if (! $ownershipStmt->fetch()) {
+                return false;
+            }
         }
+
         $stmt = $this->pdo->prepare("
             UPDATE tbl_customers
             SET delete_at = NOW()
