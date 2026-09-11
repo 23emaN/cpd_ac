@@ -113,7 +113,7 @@ class MainController
             if ($newFiscalId) {
                 echo json_encode(['result' => 1, 'msg' => 'บันทึกปีทำงานเรียบร้อยแล้ว']);
             } else {
-                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้']);
+                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้ (อาจไม่มีบริษัทนี้ในระบบ)']);
             }
         } catch (PDOException $e) {
             echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดฐานข้อมูล: ' . $e->getMessage()]);

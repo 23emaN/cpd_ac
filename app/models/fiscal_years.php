@@ -1,9 +1,17 @@
 <?php
+
 require_once '../app/models/Model.php';
 
 class FiscalYearsModel extends Model {
 
     public function insertFiscalYears($companyId, $workingYear, $copyFromYear, $copyOptions = []) {
+        // ตรวจสอบว่ามีบริษัทอยู่จริงหรือไม่
+        $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM tbl_companies WHERE company_id = :company_id");
+        $checkStmt->execute(['company_id' => $companyId]);
+        if ($checkStmt->fetchColumn() == 0) {
+            return false;
+        }
+
         $stmt = $this->pdo->prepare(
             "INSERT INTO tbl_fiscal_years (
                 company_id,

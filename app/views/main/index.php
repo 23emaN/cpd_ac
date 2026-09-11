@@ -512,7 +512,6 @@ require_once __DIR__ . '/header.php';
                     <!-- ปี พ.ศ. -->
                     <div class="year-form-group">
                         <label for="workingYearInput" class="year-form-label">ปี พ.ศ. <span class="text-danger">*</span></label>
-
                         <input type="number"
                             class="form-control working-year-input"
                             id="workingYearInput"
