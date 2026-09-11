@@ -334,7 +334,7 @@ class BackofficeController
         }
     }
 
-    /////////////////////////////////////// employee /////////////////////////////////////////////// 
+    /////////////////////////////////////// fiscica /////////////////////////////////////////////// 
 
     public function employee()
     {
@@ -613,7 +613,7 @@ class BackofficeController
         require_once '../app/models/CustomerModal.php';
         $customModal = new CustomModal();
 
-        $tasks       = $customModal->getTasks();
+        $tasks       = $customModal->getTasks($fiscal_id);
         $caretakers  = $customModal->getCaretakers($fiscal_id);
         $customers   = $customModal->getCustomersByFiscalId($fiscal_id);
         $stats       = $customModal->getCustomersgid($fiscal_id);
@@ -698,9 +698,9 @@ class BackofficeController
         $customModal = new CustomModal();
 
         try {
-            $existingUser = $customModal->getCustomerByName($customer_name);
+            $existingUser = $customModal->getCustomerByName($customer_name, $fiscal_id);
             if ($existingUser) {
-                echo json_encode(['result' => 0, 'msg' => 'มีลูกค้ารายนี้อยู่ในระบบแล้ว']);
+                echo json_encode(['result' => 0, 'msg' => 'มีลูกค้ารายนี้อยู่ในระบบของปีทำงานนี้แล้ว']);
                 return;
             }
 
@@ -787,6 +787,9 @@ class BackofficeController
 
         $customer_id = trim($_POST['customer_id'] ?? '');
         $fiscal_id = trim($_POST['fiscal_id'] ?? '');
+        if (empty($fiscal_id) && isset($_SESSION['fiscal_year_id'])) {
+            $fiscal_id = $_SESSION['fiscal_year_id'];
+        }
 
         require_once '../app/models/CustomerModal.php';
         $customModal = new CustomModal();

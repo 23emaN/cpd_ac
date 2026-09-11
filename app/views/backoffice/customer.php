@@ -11,29 +11,7 @@
     require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
-<style>
-    .modal-dialog-custom {
-        max-width: 1000px;
-    }
-    .modal-form-control-highlight {
-        background-color: #eff6ff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 12px 16px;
-        font-weight: 600;
-        color: #1e293b;
-        font-size: 0.92rem;
-        outline: none;
-        box-shadow: none;
-    }
-    .modal-input-icon-wrap {
-        position: relative;
-    }
-    .modal-input-icon-wrap i.modal-input-icon-clickable {
-    pointer-events: auto !important;
-    cursor: pointer !important;
-}
-</style>
+
 
 <div class="container-fluid">
     <div class="main-content d-flex flex-column">
@@ -170,10 +148,11 @@
 
                         <!-- ชื่อบริษัท / กิจการ -->
                         <div class="mb-3">
-                            <label class="form-label">
+                            <label class="form-label modal-form-label" for="customer_name">
                                 ชื่อบริษัท / กิจการ <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control modal-form-control" name="customer_name" id="customer_name" required placeholder="">
+                            <input type="text" class="form-control modal-form-control" name="customer_name" id="customer_name" placeholder="ระบุชื่อบริษัท / กิจการ">
+                            <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อบริษัท / กิจการ</div>
                         </div>
 
                         <!-- 3 คอลัมน์: เดือนที่เริ่มให้บริการ / เดือนสิ้นสุด / สถานะลูกค้า -->
@@ -245,7 +224,7 @@
                             <div class="col-md-6">
                                 <label class="form-label modal-form-label">ทีม</label>
                                 <input type="hidden" name="team_id" id="team_id_hidden">
-                                <input type="text" class="form-control modal-form-control" id="team_name_display" placeholder="เช่น ทีม A" readonly>
+                                <input type="text" class="form-control modal-form-control team-name-disabled" id="team_name_display" placeholder="ไม่มีทีม" readonly disabled>
                             </div>
                         </div>
                     </div>
@@ -320,7 +299,7 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
                                 <label class="form-label modal-form-label">เบอร์ติดต่อ</label>
-                                <input type="text" class="form-control modal-form-control" name="contact_tel" placeholder="">
+                                <input type="number" class="form-control modal-form-control" name="contact_tel" placeholder="">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label modal-form-label">อีเมล</label>
@@ -367,7 +346,7 @@
                                 <label class="form-label modal-form-label">กรมสรรพากร - Password</label>
                                 <div class="modal-input-icon-wrap">
                                     <input type="password" class="form-control modal-form-control modal-input-with-icon" name="rd_password" placeholder="">
-                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="const input = this.previousElementSibling; if(input.type === 'password'){ input.type='text'; this.classList.remove('ri-eye-line'); this.classList.add('ri-eye-off-line'); } else { input.type='password'; this.classList.remove('ri-eye-off-line'); this.classList.add('ri-eye-line'); }"></i>
+                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
                                 </div>
                             </div>
                         </div>
@@ -382,7 +361,7 @@
                                 <label class="form-label modal-form-label">กรมพัฒน์ - Password</label>
                                 <div class="modal-input-icon-wrap">
                                     <input type="password" class="form-control modal-form-control modal-input-with-icon" name="dbd_password" placeholder="">
-                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="const input = this.previousElementSibling; if(input.type === 'password'){ input.type='text'; this.classList.remove('ri-eye-line'); this.classList.add('ri-eye-off-line'); } else { input.type='password'; this.classList.remove('ri-eye-off-line'); this.classList.add('ri-eye-line'); }"></i>
+                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
                                 </div>
                             </div>
                         </div>
@@ -397,7 +376,7 @@
                                 <label class="form-label modal-form-label">ประกันสังคม - Password</label>
                                 <div class="modal-input-icon-wrap">
                                     <input type="password" class="form-control modal-form-control modal-input-with-icon" name="sso_password" placeholder="">
-                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="const input = this.previousElementSibling; if(input.type === 'password'){ input.type='text'; this.classList.remove('ri-eye-line'); this.classList.add('ri-eye-off-line'); } else { input.type='password'; this.classList.remove('ri-eye-off-line'); this.classList.add('ri-eye-line'); }"></i>
+                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
                                 </div>
                             </div>
                         </div>
@@ -461,11 +440,11 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script></script></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 <script>
 
-    document.addEventListener("DOMContentLoaded", function() {
-    if (typeof flatpickr !== 'undefined') {
+    $(document).ready(function() {
+        if (typeof flatpickr !== 'undefined') {
             flatpickr("#fiscal_closing_date", {
                 dateFormat: "d/m/Y",
                 locale: "th",
@@ -473,96 +452,136 @@
                 static: true
             });
         }
+
+        // Initialize Select2
+        if ($.fn.select2) {
+            $('#filter_status, #user_id_filter').select2({
+                width: '100%'
+            });
+            $('#addCustomerModal select').select2({
+                dropdownParent: $('#addCustomerModal'),
+                width: '100%'
+            });
+        }
+
+        // Clear validation on input
+        $('#customer_name').on('input change', function() {
+            if ($(this).val().trim()) {
+                $(this).removeClass('is-invalid');
+            }
+        });
     });
+
+    function togglePasswordVisibility(icon) {
+        const input = $(icon).siblings('input')[0];
+        if (input) {
+            if (input.type === 'password') {
+                input.type = 'text';
+                $(icon).removeClass('ri-eye-line').addClass('ri-eye-off-line');
+            } else {
+                input.type = 'password';
+                $(icon).removeClass('ri-eye-off-line').addClass('ri-eye-line');
+            }
+        }
+    }
 
     let filterDebounceTimer = null;
 
-function triggerFilterDebounced() {
+    function triggerFilterDebounced() {
+        clearTimeout(filterDebounceTimer);
+        filterDebounceTimer = setTimeout(function () {
+            loadCustomerTable();
+        }, 400);
+    }
 
-    clearTimeout(filterDebounceTimer);
+    function loadCustomerTable(page) {
+        var baseUrl = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>';
+        var payload = {
+            keyword: $('#search_input').val().trim(),
+            status: $('#filter_status').val(),
+            user_id: $('#user_id_filter').val(),
+            page: page || 1
+        };
 
-    filterDebounceTimer = setTimeout(function () {
-        loadCustomerTable();
-    }, 400);
-}
+        $('#customerTableContainer').html(`
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-start" style="width: 25%;">ชื่อลูกค้า</th>
+                            <th class="text-center" style="width: 14%;">สถานะ</th>
+                            <th class="text-center" style="width: 12%;">วันสิ้นรอบ</th>
+                            <th class="text-center" style="width: 15%;">ค่าบัญชี</th>
+                            <th class="text-center" style="width: 12%;">ผู้ดูแล</th>
+                            <th class="text-center" style="width: 10%;">ติดต่อ</th>
+                            <th class="text-center" style="width: 12%;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <span class="fw-medium" style="color: #64748b; font-size: 0.9rem;">กำลังโหลด...</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `);
 
-
-function loadCustomerTable() {
-
-    var baseUrl = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>';
-
-    var payload = {
-        keyword: $('#search_input').val().trim(),
-        status: $('#filter_status').val(),
-        user_id: $('#user_id_filter').val()
-    };
-
-    console.log('FILTER PAYLOAD:', payload);
-
-    $.ajax({
-
-        url: baseUrl + '/customer/filter',
-
-        method: 'POST',
-
-        data: payload,
-
-        dataType: 'json',
-
-        success: function(response) {
-
-            console.log('FILTER RESPONSE:', response);
-
-            if (response.result === 1) {
-
-                $('#customerTableContainer').html(response.html);
-
-            } else {
-
-                console.error('Filter error:', response.msg);
-
+        $.ajax({
+            url: baseUrl + '/customer/filter',
+            method: 'POST',
+            data: payload,
+            dataType: 'json',
+            success: function(response) {
+                if (response.result === 1) {
+                    $('#customerTableContainer').html(response.html);
+                } else {
+                    console.error('Filter error:', response.msg);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('FILTER AJAX ERROR', status, error);
             }
-        },
+        });
+    }
 
-        error: function(xhr, status, error) {
+    function exportCustomerExcel() {
+        var baseUrl = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>';
+        var keyword = ($('#search_input').val() || '').trim();
+        var status = $('#filter_status').val() || '';
+        var userId = $('#user_id_filter').val() || '';
 
-            console.error('FILTER AJAX ERROR');
-            console.error('Status:', status);
-            console.error('Error:', error);
-            console.error('Response:', xhr.responseText);
+        var params = new URLSearchParams();
+        if (keyword) params.append('keyword', keyword);
+        if (status !== '') params.append('status', status);
+        if (userId) params.append('user_id', userId);
 
-        }
-
-    });
-}
-
-function exportCustomerExcel() {
-    var baseUrl = '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>';
-    var keyword = ($('#search_input').val() || '').trim();
-    var status = $('#filter_status').val() || '';
-    var userId = $('#user_id_filter').val() || '';
-
-    var params = new URLSearchParams();
-    if (keyword) params.append('keyword', keyword);
-    if (status !== '') params.append('status', status);
-    if (userId) params.append('user_id', userId);
-
-    var queryString = params.toString();
-    window.location.href = baseUrl + '/report/customer' + (queryString ? '?' + queryString : '');
-}
+        var queryString = params.toString();
+        window.location.href = baseUrl + '/report/customer' + (queryString ? '?' + queryString : '');
+    }
 
     // เพิ่มข้อมูลลูกค้า
-
     function modal_add_customer() {
-        // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
         const form = document.getElementById('addCustomerForm');
         if(form) {
             form.reset();
             document.getElementById('edit_customer_id').value = '';
             document.getElementById('addCustomerModalLabel').innerText = 'เพิ่มลูกค้าใหม่';
             document.querySelectorAll('input[name="monthly_skip[]"]').forEach(cb => cb.checked = false);
+            $('#customer_name').removeClass('is-invalid');
+
+            // Reset Select2s
+            if ($.fn.select2) {
+                $('#addCustomerModal select').trigger('change.select2');
+            }
+            $('#team_id_hidden').val('');
+            $('#team_name_display').val('');
+
+            // Reset password inputs and icons
+            $('input[name="rd_password"], input[name="dbd_password"], input[name="sso_password"]').attr('type', 'password');
+            $('.modal-input-icon-clickable').removeClass('ri-eye-off-line').addClass('ri-eye-line');
         }
-        // 2. สั่งโชว์ Modal ผ่าน Vanilla JS ของ Bootstrap
         const modalElement = document.getElementById('addCustomerModal');
         const myModal = new bootstrap.Modal(modalElement);
         myModal.show();
@@ -570,7 +589,18 @@ function exportCustomerExcel() {
 
     function updateTeamInfo() {
         const select = document.getElementById('user_id_select');
+        if (!select || select.selectedIndex < 0) {
+            $('#team_id_hidden').val('');
+            $('#team_name_display').val('');
+            return;
+        }
+
         const selectedOption = select.options[select.selectedIndex];
+        if (!selectedOption) {
+            $('#team_id_hidden').val('');
+            $('#team_name_display').val('');
+            return;
+        }
 
         const teamId = selectedOption.getAttribute('data-team-id') || '';
         const teamName = selectedOption.getAttribute('data-team-name') || '';
@@ -578,7 +608,6 @@ function exportCustomerExcel() {
         document.getElementById('team_id_hidden').value = teamId;
         document.getElementById('team_name_display').value = teamName ? teamName : (select.value ? 'ไม่มีทีม' : '');
     }
-
 
     let isSubmittingCustomer = false;
     function submitAddCustomer() {
@@ -623,11 +652,11 @@ function exportCustomerExcel() {
                 if (response.result === 1) {
                     $('#addCustomerModal').modal('hide');
                     if (typeof Swal !== 'undefined') {
-                        sessionStorage.setItem('toast_msg', 'เพิ่มลูกค้าสำเร็จ');
+                        sessionStorage.setItem('toast_msg', customerId ? 'แก้ไขข้อมูลลูกค้าสำเร็จ' : 'เพิ่มลูกค้าสำเร็จ');
                         sessionStorage.setItem('toast_icon', 'success');
                         location.reload();
                     } else {
-                        alert('เพิ่มลูกค้าสำเร็จ');
+                        alert(customerId ? 'แก้ไขข้อมูลลูกค้าสำเร็จ' : 'เพิ่มลูกค้าสำเร็จ');
                         location.reload();
                     }
                 } else {
@@ -639,9 +668,9 @@ function exportCustomerExcel() {
                             timer: 3000,
                             timerProgressBar: true
                         });
-                        Toast.fire({ icon: 'error', title: response.msg || 'ไม่สามารถเพิ่มลูกค้าได้' });
+                        Toast.fire({ icon: 'error', title: response.msg || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
                     } else {
-                        alert(response.msg || 'ไม่สามารถเพิ่มลูกค้าได้');
+                        alert(response.msg || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
                     }
                 }
             },
@@ -679,6 +708,7 @@ function exportCustomerExcel() {
             document.getElementById('edit_customer_id').value = customer_id;
             document.getElementById('addCustomerModalLabel').innerText = 'แก้ไขข้อมูลลูกค้า';
             document.querySelectorAll('input[name="monthly_skip[]"]').forEach(cb => cb.checked = false);
+            $('#customer_name').removeClass('is-invalid');
         }
 
         // Fetch existing data
@@ -689,26 +719,30 @@ function exportCustomerExcel() {
             success: function(response) {
                 if(response.result === 1) {
                     var data = response.data;
-                    $('#customer_name').val(data.customer_name);
-                    $('#service_start_date').val(data.service_start_date);
-                    $('#service_start_end').val(data.service_start_end);
-                    $('#active_status').val(data.active_status);
+                    $('#customer_name').val(data.customer_name).removeClass('is-invalid');
+                    $('#service_start_date').val(data.service_start_date).trigger('change.select2');
+                    $('#service_start_end').val(data.service_start_end).trigger('change.select2');
+                    $('select[name="active_status"]').val(data.active_status).trigger('change.select2');
 
-                    if(data.user_id) {
-                        $('#user_id_select').val(data.user_id);
+                    if(data.user_id && !data.user_delete_at) {
+                        $('#user_id_select').val(data.user_id).trigger('change.select2');
                         updateTeamInfo();
                     } else {
-                        $('#user_id_select').val('');
+                        $('#user_id_select').val('').trigger('change.select2');
                         $('#team_id_hidden').val('');
                         $('#team_name_display').val('');
                     }
 
-                    $('#closing_status').val(data.closing_status);
+                    $('#closing_status').val(data.closing_status).trigger('change.select2');
                     if(data.fiscal_closing_date) {
                         $('#fiscal_closing_date').val(data.fiscal_closing_date);
                     }
 
                     $('#accounts_amount').val(data.f_accounts_amount || data.accounts_amount || 0);
+
+                    $('select[name="is_vat"]').val(data.is_vat || 0).trigger('change.select2');
+                    $('select[name="is_employees"]').val(data.is_employees || 0).trigger('change.select2');
+                    $('select[name="is_social_security"]').val(data.is_social_security || 0).trigger('change.select2');
 
                     $('input[name="contact_tel"]').val(data.customer_phone);
                     $('input[name="contact_email"]').val(data.customer_email);
@@ -717,21 +751,18 @@ function exportCustomerExcel() {
                     $('input[name="doc_url"]').val(data.doc_folder_url);
 
                     $('input[name="rd_user"]').val(data.rn_user);
-                    $('input[name="rd_password"]').val(data.rn_password);
+                    $('input[name="rd_password"]').val(data.rn_password || '').attr('type', 'password');
                     $('input[name="dbd_user"]').val(data.dbd_user);
-                    $('input[name="dbd_password"]').val(data.dbd_password);
+                    $('input[name="dbd_password"]').val(data.dbd_password || '').attr('type', 'password');
                     $('input[name="sso_user"]').val(data.sso_user);
-                    $('input[name="sso_password"]').val(data.sso_password);
+                    $('input[name="sso_password"]').val(data.sso_password || '').attr('type', 'password');
+                    $('.modal-input-icon-clickable').removeClass('ri-eye-off-line').addClass('ri-eye-line');
 
                     // check monthly skip
                     if(data.monthly_skip && data.monthly_skip.length > 0) {
                         data.monthly_skip.forEach(function(taskId) {
                             $('input[name="monthly_skip[]"][value="'+taskId+'"]').prop('checked', true);
                         });
-                    }
-
-                    if(data.debug_query) {
-                        console.log("🔥 DEBUG QUERY:", data.debug_query);
                     }
 
                     // 2. สั่งโชว์ Modal
@@ -773,10 +804,14 @@ function exportCustomerExcel() {
     }
 
     function processDeleteCustomer(customer_id) {
+        const fiscalId = $('input[name="fiscal_id"]').val() || '';
         $.ajax({
             url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer/delete',
             method: 'POST',
-            data: { customer_id: customer_id }, // ส่งผ่าน POST Data เพื่อความปลอดภัยกว่าการต่อ URL ตรงๆ
+            data: { 
+                customer_id: customer_id,
+                fiscal_id: fiscalId
+            },
             dataType: 'json',
             success: function(response) {
                 if (response.result === 1) {
