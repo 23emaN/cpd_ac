@@ -4,6 +4,25 @@ require_once '../app/models/Model.php';
 class MonthlyTaskModal extends Model
 {
 
+    public function getReviewUsers()
+{
+    $sql = "
+        SELECT
+            user_id,
+            user_firstname,
+            user_lastname
+        FROM tbl_user
+        WHERE delete_at IS NULL
+          AND user_status = '1'
+        ORDER BY user_firstname ASC
+    ";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
     public function getMonthlyTasks($fiscalId, $month = null, $userId = null)
     {
         $sql = "SELECT
@@ -15,9 +34,6 @@ class MonthlyTaskModal extends Model
             p.review1_status,
             p.review2_status,
             p.review3_status,
-            p.review1_user_id,
-            p.review2_user_id,
-            p.review3_user_id,
             c.customer_id,
             c.customer_name,
             c.rn_user,
@@ -156,36 +172,67 @@ class MonthlyTaskModal extends Model
     }
 }
     public function updatePeriodData(int $periodId, array $data)
-    {
-        // Convert flatpickr dates (d/m/Y) to Y-m-d format
-        $docDate       = ! empty($data['doc_date']) ? DateTime::createFromFormat('d/m/Y', $data['doc_date'])->format('Y-m-d') : null;
-        $completedDate = ! empty($data['completed_date']) ? DateTime::createFromFormat('d/m/Y', $data['completed_date'])->format('Y-m-d') : null;
-        $taxDate       = ! empty($data['tax_date']) ? DateTime::createFromFormat('d/m/Y', $data['tax_date'])->format('Y-m-d') : null;
+{
+    // Convert flatpickr dates (d/m/Y) to Y-m-d format
+    $docDate = !empty($data['doc_date'])
+        ? DateTime::createFromFormat('d/m/Y', $data['doc_date'])->format('Y-m-d')
+        : null;
 
-        $sql = "UPDATE tbl_customer_work_periods SET
+    $completedDate = !empty($data['completed_date'])
+        ? DateTime::createFromFormat('d/m/Y', $data['completed_date'])->format('Y-m-d')
+        : null;
+
+    $taxDate = !empty($data['tax_date'])
+        ? DateTime::createFromFormat('d/m/Y', $data['tax_date'])->format('Y-m-d')
+        : null;
+
+    $sql = "UPDATE tbl_customer_work_periods SET
                 doc_date = :doc_date,
                 completed_date = :completed_date,
                 tax_date = :tax_date,
-                review1_user_id = :r1,
-                review2_user_id = :r2,
-                review3_user_id = :r3,
+
+                review1_status = :r1,
+                review1_user_id = :review1_user_id,
+
+                review2_status = :r2,
+                review2_user_id = :review2_user_id,
+
+                review3_status = :r3,
+                review3_user_id = :review3_user_id,
+
                 payment_status = :payment,
                 tax_status = :tax
-                WHERE period_id = :id";
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            'doc_date'       => $docDate,
-            'completed_date' => $completedDate,
-            'tax_date'       => $taxDate,
-            'r1'             => !empty($data['review1_user_id']) ? $data['review1_user_id'] : null,
-            'r2'             => !empty($data['review2_user_id']) ? $data['review2_user_id'] : null,
-            'r3'             => !empty($data['review3_user_id']) ? $data['review3_user_id'] : null,
-            'payment'        => $data['payment_status'],
-            'tax'            => $data['tax_status'],
-            'id'             => $periodId,
-        ]);
-    }
+            WHERE period_id = :id";
+
+    $stmt = $this->pdo->prepare($sql);
+
+    $stmt->execute([
+        'doc_date' => $docDate,
+        'completed_date' => $completedDate,
+        'tax_date' => $taxDate,
+
+        'r1' => $data['review1_status'] ?? '0',
+        'review1_user_id' => !empty($data['review1_user_id'])
+            ? (int)$data['review1_user_id']
+            : null,
+
+        'r2' => $data['review2_status'] ?? '0',
+        'review2_user_id' => !empty($data['review2_user_id'])
+            ? (int)$data['review2_user_id']
+            : null,
+
+        'r3' => $data['review3_status'] ?? '0',
+        'review3_user_id' => !empty($data['review3_user_id'])
+            ? (int)$data['review3_user_id']
+            : null,
+
+        'payment' => $data['payment_status'] ?? '0',
+        'tax' => $data['tax_status'] ?? '0',
+
+        'id' => $periodId,
+    ]);
+}
 
     public function updateTaskData(int $periodId, array $tasks)
     {
