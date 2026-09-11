@@ -231,7 +231,7 @@
     box-shadow: -5px 0 0 var(--brand-soft), 5px 0 0 var(--brand-soft);
 }
 .flatpickr-day.today { border-color: var(--brand-400); }
-.swal2-styled.swal2-confirm { background-color: var(--brand-500) !important; }
+.swal2-styled.swal2-confirm { background-color: var(--brand-500); }
 .swal2-styled.swal2-confirm:focus { box-shadow: 0 0 0 3px rgba(96,93,255,.4) !important; }
 
 /* =====================================================================

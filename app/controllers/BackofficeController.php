@@ -551,6 +551,29 @@ class BackofficeController
         }
     }
 
+    public function getEmployeeAssignedCustomers()
+    {
+        $this->checkAuth();
+
+        $userId = trim($_GET['user_id'] ?? $_POST['user_id'] ?? '');
+
+        if ($userId === '') {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบรหัสพนักงาน', 'data' => []]);
+            return;
+        }
+
+        require_once '../app/models/UserModel.php';
+        $userModel = new UserModel();
+
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+        $customers = $userModel->getAssignedCustomersByUser($userId, $fiscal_id);
+
+        echo json_encode([
+            'result' => 1,
+            'data' => $customers
+        ]);
+    }
+
     /////////////////////////////////////// customer /////////////////////////////////////////////// 
     public function customer()
     {
