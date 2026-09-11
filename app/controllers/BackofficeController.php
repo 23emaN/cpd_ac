@@ -1054,6 +1054,9 @@ class BackofficeController
                     $notifModel = new \App\Models\NotificationModel();
                     $notifMessage = "มีงาน Post-it ใหม่มอบหมายถึงคุณ: " . $title;
                     $notifModel->addNotification($userId, 'post_it', $postId, $notifMessage);
+                    
+                    // Trigger Web Push
+                    $this->sendWebPush($userId, "มอบหมายงาน Post-it ใหม่", $title, ($_ENV['APP_URL'] ?? '') . "/post_it");
                 }
                 echo json_encode(['result' => 1, 'msg' => 'บันทึก Post-it เรียบร้อยแล้ว', 'post_id' => $postId]);
             } else {
@@ -2151,6 +2154,109 @@ class BackofficeController
             echo json_encode(['result' => 1, 'msg' => 'Success']);
         } else {
             echo json_encode(['result' => 0, 'msg' => 'Failed to mark as read']);
+        }
+    }
+
+    public function getVapidPublicKey()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'publicKey' => $_ENV['VAPID_PUBLIC_KEY'] ?? ''
+        ]);
+    }
+
+    public function subscribePush()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+        $userId = $this->userPayload['user_id'] ?? null;
+        if (!$userId) {
+            echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (empty($input['endpoint'])) {
+            echo json_encode(['result' => 0, 'msg' => 'Invalid data']);
+            return;
+        }
+
+        try {
+            require_once '../app/config/Connection.php';
+            $pdo = \App\config\Connection::getInstance()->getPdo();
+            
+            $endpoint = $input['endpoint'];
+            $p256dh = $input['keys']['p256dh'] ?? '';
+            $auth = $input['keys']['auth'] ?? '';
+
+            // Check if exists
+            $stmt = $pdo->prepare("SELECT id FROM tbl_push_subscriptions WHERE endpoint = ?");
+            $stmt->execute([$endpoint]);
+            
+            if ($stmt->fetch()) {
+                // Update
+                $stmt = $pdo->prepare("UPDATE tbl_push_subscriptions SET user_id = ?, p256dh = ?, auth = ? WHERE endpoint = ?");
+                $stmt->execute([$userId, $p256dh, $auth, $endpoint]);
+            } else {
+                // Insert
+                $stmt = $pdo->prepare("INSERT INTO tbl_push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$userId, $endpoint, $p256dh, $auth]);
+            }
+
+            echo json_encode(['result' => 1, 'msg' => 'Subscribed']);
+        } catch (\Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    private function sendWebPush($userId, $title, $body, $url = '')
+    {
+        try {
+            require_once '../app/config/Connection.php';
+            require_once '../vendor/autoload.php';
+            $pdo = \App\config\Connection::getInstance()->getPdo();
+            
+            $stmt = $pdo->prepare("SELECT endpoint, p256dh, auth FROM tbl_push_subscriptions WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            $subs = $stmt->fetchAll();
+            
+            if (empty($subs)) return;
+
+            $auth = [
+                'VAPID' => [
+                    'subject' => 'mailto:admin@' . ($_SERVER['HTTP_HOST'] ?? 'localhost'),
+                    'publicKey' => $_ENV['VAPID_PUBLIC_KEY'] ?? '',
+                    'privateKey' => $_ENV['VAPID_PRIVATE_KEY'] ?? ''
+                ]
+            ];
+
+            $webPush = new \Minishlink\WebPush\WebPush($auth);
+
+            $payload = json_encode([
+                'title' => $title,
+                'body' => $body,
+                'url' => $url ?: ($_ENV['APP_URL'] ?? '')
+            ]);
+
+            foreach ($subs as $sub) {
+                $subscription = \Minishlink\WebPush\Subscription::create([
+                    'endpoint' => $sub['endpoint'],
+                    'publicKey' => $sub['p256dh'],
+                    'authToken' => $sub['auth'],
+                ]);
+                $webPush->queueNotification($subscription, $payload);
+            }
+
+            foreach ($webPush->flush() as $report) {
+                if (!$report->isSuccess()) {
+                    if ($report->getResponse() && in_array($report->getResponse()->getStatusCode(), [404, 410])) {
+                        $delStmt = $pdo->prepare("DELETE FROM tbl_push_subscriptions WHERE endpoint = ?");
+                        $delStmt->execute([$report->getRequest()->getUri()->__toString()]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            error_log("WebPush Error: " . $e->getMessage());
         }
     }
 }

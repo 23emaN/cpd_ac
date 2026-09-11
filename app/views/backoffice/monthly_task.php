@@ -830,40 +830,40 @@
     taskCount.textContent = data.tasks.length + ' งาน';
     let html = '';
     data.tasks.forEach((t, idx) => {
-        const isLast = idx === data.tasks.length - 1;
-        const isNotifyAmount = t.is_notify_amount == 1 || t.is_notify_amount === true;
-        const hasComment = !!(t.comment && t.comment.trim() !== '');
+    const isLast = idx === data.tasks.length - 1;
+    const isNotifyAmount = t.is_notify_amount == 1 || t.is_notify_amount === true;
+    const hasComment = !!(t.comment && t.comment.trim() !== '');
 
-        html += `
-        <div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
-            <!-- Left side: Task Name & Badge -->
-            <div class="d-flex align-items-center gap-2">
-                <span class="fw-bold" style="font-size:0.88rem; color:#1e293b;">${t.task_name}</span>
-                ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
-            </div>
+    html += `
+    <div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
+        <!-- Left side: Task Name & Badge -->
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold" style="font-size:0.88rem; color:#1e293b;">${t.task_name}</span>
+            ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
+        </div>
 
-             <button type="button" class="btn-task-comment position-relative"
-                data-customer-tasks-id="${t.customer_tasks_id}"
-                data-task-name="${t.task_name}"
-                data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
-                title="เพิ่มความคิดเห็น"
-                style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
-                <i class="ri-chat-3-line" style="font-size: 15px;"></i>
-                ${(t.unread_comments && t.unread_comments > 0) ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 3px 5px; transform: translate(-30%, -30%) !important;">${t.unread_comments}</span>` : ''}
-             </button>
+         <button type="button" class="btn-task-comment position-relative"
+            data-customer-tasks-id="${t.customer_tasks_id}"
+            data-task-name="${t.task_name}"
+            data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
+            title="เพิ่มความคิดเห็น"
+            style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
+            <i class="ri-chat-3-line" style="font-size: 15px;"></i>
+            ${(t.unread_comments && t.unread_comments > 0) ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 3px 5px; transform: translate(-30%, -30%) !important;">${t.unread_comments}</span>` : ''}
+         </button>
 
-            <!-- Right side: Select dropdown & Amount Input -->
-            <div class="d-flex align-items-center gap-2">
-                <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0 task-status-select"
-                        data-customer-tasks-id="${t.customer_tasks_id}"
-                        style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
-                    <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
-                    <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
-                </select>
-                ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.previousElementSibling.value='1';}">` : ''}
-            </div>
-        </div>`;
-    });
+        <!-- Right side: Amount Input (ย้ายมาก่อน) & Select dropdown -->
+        <div class="d-flex align-items-center gap-2">
+            ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.nextElementSibling.value='1';}">` : ''}
+            <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0 task-status-select"
+                    data-customer-tasks-id="${t.customer_tasks_id}"
+                    style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
+                <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
+                <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
+            </select>
+        </div>
+    </div>`;
+});
     taskList.innerHTML = html;
 
     document.querySelectorAll('.btn-task-comment').forEach(btn => {
@@ -1059,8 +1059,8 @@ function saveManageTask() {
     taskSelects.forEach(select => {
         const ctid = select.getAttribute('data-customer-tasks-id');
         const status = select.value;
-        const amountInput = document.querySelector(`.task-amount-input[data-customer-tasks-id="${ctid}"]`);
-        const amount = amountInput ? amountInput.value : 0;
+       const amountInput = document.querySelector(`.task-amount-input[data-customer-tasks-id="${ctid}"]`);
+const amount = (amountInput && amountInput.value !== '') ? amountInput.value : 0;
         payload.tasks.push({
             customer_tasks_id: ctid,
             status: status,

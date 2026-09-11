@@ -289,22 +289,23 @@ class CustomModal extends Model
         }
     }
 
-   public function getCustomersByFiscalId($fiscalId, $filters = [])
+  public function getCustomersByFiscalId($fiscalId, $filters = [])
 {
     $where  = ["fyc.fiscal_id = :fiscal_id", "c.delete_at IS NULL"];
     $params = ['fiscal_id' => $fiscalId];
-
+ 
     // filter: สถานะ (active_status)
     if (isset($filters['status']) && $filters['status'] !== '') {
         $where[]  = "c.active_status = :active_status";
         $params['active_status'] = $filters['status'];
     }
-
+ 
     // filter: ผู้ดูแล (user_id)
     if (! empty($filters['user_id'])) {
         $where[]  = "fyc.user_id = :user_id";
         $params['user_id'] = $filters['user_id'];
     }
+ 
     // filter: คำค้นหา (ชื่อลูกค้า / ผู้ดูแล / ทีม)
     if (! empty($filters['keyword'])) {
         $where[] = "(
@@ -313,17 +314,17 @@ class CustomModal extends Model
             OR u.user_lastname LIKE :keyword_lastname
             OR t.team_name LIKE :keyword_team
         )";
-
-    $keyword = '%' . trim($filters['keyword']) . '%';
-
-    $params['keyword_customer'] = $keyword;
-    $params['keyword_user']     = $keyword;
-    $params['keyword_lastname'] = $keyword;
-    $params['keyword_team']     = $keyword;
-}
-
+ 
+        $keyword = '%' . trim($filters['keyword']) . '%';
+ 
+        $params['keyword_customer'] = $keyword;
+        $params['keyword_user']     = $keyword;
+        $params['keyword_lastname'] = $keyword;
+        $params['keyword_team']     = $keyword;
+    }
+ 
     $whereSql = implode(' AND ', $where);
-
+ 
     $stmt = $this->pdo->prepare("
         SELECT
             c.customer_id,
@@ -333,6 +334,12 @@ class CustomModal extends Model
             c.customer_phone,
             c.customer_email,
             c.line_id,
+            c.rn_user,
+            c.dbd_user,
+            c.sso_user,
+            c.rn_password,
+            c.dbd_password,
+            c.sso_password,
             fyc.accounts_amount,
             u.user_firstname as caretaker_firstname,
             u.user_lastname as caretaker_lastname,
@@ -347,6 +354,7 @@ class CustomModal extends Model
     $stmt->execute($params);
     return $stmt->fetchAll();
 }
+ 
 
     public function getCustomersgid($fiscalId)
     {
