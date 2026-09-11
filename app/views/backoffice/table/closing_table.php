@@ -1,4 +1,3 @@
-
 <?php
 $list = [];
 
@@ -58,7 +57,6 @@ $paginated_list = $list;
                         <td class="text-center">
                             <span class="text-secondary"><?php echo htmlspecialchars($row['user_firstname'].' '.$row['user_lastname'] ?? '-'); ?></span>
                         </td>
-
 
                         <!-- สถานะปิดงบ -->
                         <td class="text-center">
@@ -153,27 +151,6 @@ $paginated_list = $list;
     </table>
 </div>
 
-<!-- Pagination Toolbar -->
-<div class="pagination-toolbar mt-3 d-flex justify-content-between align-items-center">
-    <div class="d-flex align-items-center gap-2 text-muted">
-        <span>แสดง</span>
-        <select class="per-page-select form-select form-select-sm" style="width: auto;">
-            <option value="25" selected>25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </select>
-        <span>รายการต่อหน้า</span>
-    </div>
-
-    <div class="text-muted">
-        รายการที่ 1-<?php echo count($data['closing_data'] ?? []); ?> จาก <?php echo count($data['closing_data'] ?? []); ?>
-    </div>
-
-    <div class="d-flex align-items-center gap-1">
-        <button type="button" class="btn btn-sm btn-outline-secondary" title="หน้าแรก"><i class="ri-arrow-left-double-line"></i></button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" title="ก่อนหน้า"><i class="ri-arrow-left-s-line"></i></button>
-        <button type="button" class="btn btn-sm btn-primary active">1</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" title="ถัดไป"><i class="ri-arrow-right-s-line"></i></button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" title="หน้าสุดท้าย"><i class="ri-arrow-right-double-line"></i></button>
-    </div>
-</div>
+<?php if (!empty($paginated_list)): ?>
+    <?php include dirname(__DIR__) . '/_pagination.php'; ?>
+<?php endif; ?>
