@@ -14,7 +14,7 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
     <meta name="referrer" content="no-referrer">
     <title>ส่งเอกสาร</title>
     <link rel="icon" type="image/png" href="<?php echo $baseUrl; ?>/assets/images/am-group-logo.png">
-    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/pt_assets/portal.css?v=<?php echo filemtime(__DIR__ . '/../../../public/pt_assets/portal.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/portal/portal.css?v=<?php echo filemtime(__DIR__ . '/../../../public/portal/portal.css'); ?>">
 </head>
 
 <body>
@@ -64,9 +64,9 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
     </main>
 
     <?php if ($usable): ?>
-        <script src="<?php echo $baseUrl; ?>/pt_assets/portal.js?v=<?php echo filemtime(__DIR__ . '/../../../public/pt_assets/portal.js'); ?>"
+        <script src="<?php echo $baseUrl; ?>/portal/portal.js?v=<?php echo filemtime(__DIR__ . '/../../../public/portal/portal.js'); ?>"
             data-api="<?php echo cd_e($baseUrl . '/portal/'); ?>"></script>
-        <script src="<?php echo $baseUrl; ?>/pt_assets/auth-init.js?v=<?php echo filemtime(__DIR__ . '/../../../public/pt_assets/auth-init.js'); ?>"></script>
+        <script src="<?php echo $baseUrl; ?>/portal/auth-init.js?v=<?php echo filemtime(__DIR__ . '/../../../public/portal/auth-init.js'); ?>"></script>
     <?php endif; ?>
 </body>
 

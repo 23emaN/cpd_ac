@@ -2166,23 +2166,23 @@
                         เพิ่มบริษัทใหม่</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-               <div class="company-form-group">
+               <form id="addCompanyForm">
+                    <div class="company-form-group">
+                        <label for="companyNameInput" class="company-form-label">
+                            ชื่อบริษัท
+                            <span class="text-danger">*</span>
+                        </label>
 
-    <label for="companyNameInput" class="company-form-label">
-        ชื่อบริษัท
-        <span class="text-danger">*</span>
-    </label>
+                        <input type="text"
+                            class="form-control company-name-input"
+                            id="companyNameInput"
+                            name="company_name"
+                            placeholder="กรอกชื่อบริษัท"
+                            oninput="clearCompanyNameError()">
 
-    <input type="text"
-        class="form-control company-name-input"
-        id="companyNameInput"
-        name="company_name"
-        placeholder="กรอกชื่อบริษัท"
-        oninput="clearCompanyNameError()">
-
-    <div id="companyNameError" class="company-name-error"></div>
-
-</div>
+                        <div id="companyNameError" class="company-name-error"></div>
+                    </div>
+                </form>
                 <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal"
                         style="border-radius: 8px; font-weight: 600;">ยกเลิก</button>

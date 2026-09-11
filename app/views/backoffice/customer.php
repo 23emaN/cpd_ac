@@ -29,6 +29,10 @@
     .modal-input-icon-wrap {
         position: relative;
     }
+    .modal-input-icon-wrap i.modal-input-icon-clickable {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
 </style>
 
 <div class="container-fluid">
