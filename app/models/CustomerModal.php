@@ -58,11 +58,11 @@ class CustomModal extends Model
     {
         if ($fiscalId) {
             $stmt = $this->pdo->prepare("
-                SELECT c.* 
+                SELECT c.*
                 FROM tbl_customers c
                 INNER JOIN tbl_fiscal_year_customers fyc ON c.customer_id = fyc.customer_id
-                WHERE c.customer_name = :name 
-                  AND fyc.fiscal_id = :fiscal_id 
+                WHERE c.customer_name = :name
+                  AND fyc.fiscal_id = :fiscal_id
                   AND c.delete_at IS NULL
             ");
             $stmt->execute(['name' => $name, 'fiscal_id' => $fiscalId]);
@@ -308,43 +308,43 @@ class CustomModal extends Model
         }
     }
 
-  public function getCustomersByFiscalId($fiscalId, $filters = [])
-{
-    $where  = ["fyc.fiscal_id = :fiscal_id", "c.delete_at IS NULL"];
-    $params = ['fiscal_id' => $fiscalId];
- 
-    // filter: สถานะ (active_status)
-    if (isset($filters['status']) && $filters['status'] !== '') {
-        $where[]  = "c.active_status = :active_status";
-        $params['active_status'] = $filters['status'];
-    }
- 
-    // filter: ผู้ดูแล (user_id)
-    if (! empty($filters['user_id'])) {
-        $where[]  = "fyc.user_id = :user_id";
-        $params['user_id'] = $filters['user_id'];
-    }
- 
-    // filter: คำค้นหา (ชื่อลูกค้า / ผู้ดูแล / ทีม)
-    if (! empty($filters['keyword'])) {
-        $where[] = "(
+    public function getCustomersByFiscalId($fiscalId, $filters = [])
+    {
+        $where  = ["fyc.fiscal_id = :fiscal_id", "c.delete_at IS NULL"];
+        $params = ['fiscal_id' => $fiscalId];
+
+        // filter: สถานะ (active_status)
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $where[]                 = "c.active_status = :active_status";
+            $params['active_status'] = $filters['status'];
+        }
+
+        // filter: ผู้ดูแล (user_id)
+        if (! empty($filters['user_id'])) {
+            $where[]           = "fyc.user_id = :user_id";
+            $params['user_id'] = $filters['user_id'];
+        }
+
+        // filter: คำค้นหา (ชื่อลูกค้า / ผู้ดูแล / ทีม)
+        if (! empty($filters['keyword'])) {
+            $where[] = "(
             c.customer_name LIKE :keyword_customer
             OR u.user_firstname LIKE :keyword_user
             OR u.user_lastname LIKE :keyword_lastname
             OR t.team_name LIKE :keyword_team
         )";
- 
-        $keyword = '%' . trim($filters['keyword']) . '%';
- 
-        $params['keyword_customer'] = $keyword;
-        $params['keyword_user']     = $keyword;
-        $params['keyword_lastname'] = $keyword;
-        $params['keyword_team']     = $keyword;
-    }
- 
-    $whereSql = implode(' AND ', $where);
- 
-    $stmt = $this->pdo->prepare("
+
+            $keyword = '%' . trim($filters['keyword']) . '%';
+
+            $params['keyword_customer'] = $keyword;
+            $params['keyword_user']     = $keyword;
+            $params['keyword_lastname'] = $keyword;
+            $params['keyword_team']     = $keyword;
+        }
+
+        $whereSql = implode(' AND ', $where);
+
+        $stmt = $this->pdo->prepare("
         SELECT
             c.customer_id,
             c.customer_name,
@@ -371,14 +371,13 @@ class CustomModal extends Model
         WHERE $whereSql
         ORDER BY c.customer_name ASC
     ");
-    $stmt->execute($params);
-    return $stmt->fetchAll();
-}
- 
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
 
     public function getCustomersgid($fiscalId)
     {
-      
+
         $stmt = $this->pdo->prepare("
             SELECT
                 COUNT(fyc.customer_id) as total_customers,
@@ -422,21 +421,26 @@ class CustomModal extends Model
             $customer['fiscal_closing_date'] = date('d/m/Y', strtotime($customer['fiscal_closing_date']));
         }
 
-        $stmtTasks = $this->pdo->prepare("
-            SELECT t.tasks_id
-            FROM tbl_tasks t
-            WHERE t.fiscal_id = :fiscal_id
-              AND t.delete_at IS NULL
-              AND t.tasks_id NOT IN (
+        $stmtTasks = $this->pdo->prepare(
+            "SELECT t.tasks_id
+             FROM tbl_tasks t
+             WHERE t.fiscal_id = :task_fiscal_id
+             AND t.delete_at IS NULL
+             AND t.tasks_id NOT IN (
                 SELECT DISTINCT ct.task_id
                 FROM tbl_customer_tasks ct
                 JOIN tbl_customer_work_periods p ON ct.period_id = p.period_id
-                WHERE p.customer_id = :customer_id 
-                  AND p.fiscal_year_id = :fiscal_id
-                  AND ct.delete_at IS NULL
-              )
+                WHERE p.customer_id = :customer_id
+                AND p.fiscal_year_id = :period_fiscal_id
+          AND ct.delete_at IS NULL
+    )
         ");
-        $stmtTasks->execute(['customer_id' => $customerId, 'fiscal_id' => $fiscalId]);
+
+        $stmtTasks->execute([
+            'customer_id'      => $customerId,
+            'task_fiscal_id'   => $fiscalId,
+            'period_fiscal_id' => $fiscalId,
+        ]);
         $skipped = $stmtTasks->fetchAll(PDO::FETCH_COLUMN);
 
         $customer['monthly_skip'] = $skipped;
@@ -645,7 +649,7 @@ class CustomModal extends Model
                 } else {
 
                     $insertPeriodStmt = $this->pdo->prepare(
-                    "INSERT INTO tbl_customer_work_periods (
+                        "INSERT INTO tbl_customer_work_periods (
                         customer_id,
                         fiscal_year_id,
                         period_month,
@@ -765,7 +769,7 @@ class CustomModal extends Model
                 );
 
                 $skipStmt = $this->pdo->prepare(
-                "UPDATE tbl_customer_tasks
+                    "UPDATE tbl_customer_tasks
                 SET delete_at = NOW()
                 WHERE task_id IN ($taskPlaceholders)
                   AND period_id IN ($periodPlaceholders)
@@ -875,7 +879,7 @@ class CustomModal extends Model
 
     public function deleteCustomer($customerId, $fiscalId = null)
     {
-        if (!empty($fiscalId)) {
+        if (! empty($fiscalId)) {
             $ownershipStmt = $this->pdo->prepare("
                 SELECT 1 FROM tbl_fiscal_year_customers
                 WHERE customer_id = :customer_id AND fiscal_id = :fiscal_id
