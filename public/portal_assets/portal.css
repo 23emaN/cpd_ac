@@ -1,0 +1,593 @@
+/*
+ * หน้าแขก (portal) — สไตล์ชีตของตัวเอง ไม่พึ่ง template CSS ก้อนใหญ่ของแอปหลัก
+ * และไม่โหลดฟอนต์ไอคอนจากภายนอกเลย เพราะนี่คือหน้าเดียวที่คนนอกเข้าถึงได้
+ * โดยไม่ต้องล็อกอิน — ยิ่งพึ่งพาน้อย ยิ่งมีอะไรให้พังน้อย
+ *
+ * สีหลัก #605DFF อ้างอิงจาก --bs-primary ของแอปหลัก ให้ลูกค้ารู้สึกว่าเป็น
+ * ระบบเดียวกัน แม้หน้านี้จะแยกโค้ดออกมาต่างหากทั้งหมด
+ */
+
+:root {
+    --pt-primary: #605DFF;
+    --pt-primary-dark: #4b48d6;
+    --pt-ink: #1e2433;
+    --pt-ink-2: #5b6472;
+    --pt-ink-3: #8a93a2;
+    --pt-border: #e5e8ef;
+    --pt-bg: #f4f5fa;
+    --pt-danger: #e5484d;
+    --pt-success: #1a9d5c;
+    --pt-warn: #f0ad4e;
+    --pt-radius: 16px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/*
+ * ต้องมี — ไม่งั้น element ที่ประกาศ display อื่นในชีตนี้ (เช่น .pt-dropzone
+ * ที่ตั้ง display:flex, .pt-thead ที่ตั้ง display:grid) จะทับค่า display:none
+ * ของแอตทริบิวต์ hidden เพราะ specificity เท่ากันแต่ประกาศทีหลัง
+ */
+[hidden] {
+    display: none !important;
+}
+
+body {
+    margin: 0;
+    background: var(--pt-bg);
+    color: var(--pt-ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Sarabun', Tahoma, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.pt-warn {
+    background: var(--pt-warn);
+    color: #4a2e00;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------ หน้ากรอกรหัส */
+
+.pt-wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+}
+
+.pt-card {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: var(--pt-radius);
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1);
+    padding: 40px 32px;
+    text-align: center;
+}
+
+.pt-logo {
+    height: 56px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
+.pt-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--pt-ink);
+}
+
+.pt-lead {
+    font-size: 14px;
+    color: var(--pt-ink-2);
+    margin: 0 0 24px;
+    white-space: pre-line;
+}
+
+.pt-otp-label {
+    font-size: 13px;
+    color: var(--pt-ink-2);
+    margin: 0 0 12px;
+}
+
+.pt-otp {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.pt-otp-box {
+    width: 44px;
+    height: 52px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    border: 1.5px solid var(--pt-border);
+    border-radius: 10px;
+    color: var(--pt-ink);
+    background: #fafbfd;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.pt-otp-box:focus {
+    outline: none;
+    border-color: var(--pt-primary);
+    box-shadow: 0 0 0 3px rgba(96, 93, 255, 0.15);
+    background: #fff;
+}
+
+.pt-error {
+    background: #fdecec;
+    color: var(--pt-danger);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.pt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    background: var(--pt-primary);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 13px 20px;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+
+.pt-btn:hover {
+    background: var(--pt-primary-dark);
+}
+
+.pt-btn:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+.pt-btn-ghost {
+    background: transparent;
+    color: var(--pt-ink-2);
+    border: 1px solid var(--pt-border);
+    width: auto;
+}
+
+.pt-btn-ghost:hover {
+    background: var(--pt-bg);
+    color: var(--pt-ink);
+}
+
+.pt-foot {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--pt-ink-3);
+}
+
+/* ------------------------------------------------------------ หน้าคลังไฟล์ */
+
+body.pt-app {
+    background: var(--pt-bg);
+}
+
+.pt-bar {
+    background: #fff;
+    border-bottom: 1px solid var(--pt-border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.pt-bar-in {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+}
+
+.pt-bar-logo {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.pt-bar-text {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.pt-bar-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pt-bar-sub {
+    font-size: 12px;
+    color: var(--pt-ink-3);
+    margin: 0;
+}
+
+.pt-bar-out {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.pt-main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 20px 100px;
+}
+
+.pt-msg {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #fff7e6;
+    border: 1px solid #ffe4a3;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #6b4a00;
+}
+
+.pt-msg-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--pt-warn);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.pt-tools {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.pt-btn-new {
+    width: auto;
+    padding: 10px 18px;
+}
+
+.pt-plus {
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.pt-tools-note {
+    font-size: 13px;
+    color: var(--pt-ink-2);
+}
+
+.pt-panel {
+    background: #fff;
+    border-radius: var(--pt-radius);
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+    overflow: hidden;
+}
+
+.pt-thead,
+.pt-item {
+    display: grid;
+    grid-template-columns: 1fr 90px 120px 140px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 20px;
+}
+
+.pt-thead {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pt-ink-3);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    border-bottom: 1px solid var(--pt-border);
+}
+
+.pt-item {
+    border-bottom: 1px solid var(--pt-border);
+    font-size: 14px;
+}
+
+.pt-item:last-child {
+    border-bottom: none;
+}
+
+.pt-item-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.pt-item-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.pt-item-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+}
+
+.pt-item-where {
+    font-size: 12px;
+    color: var(--pt-ink-3);
+}
+
+.pt-col-size,
+.pt-col-when {
+    font-size: 13px;
+    color: var(--pt-ink-2);
+}
+
+.pt-col-act {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.pt-item-act {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pt-primary);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.pt-item-act:hover {
+    text-decoration: underline;
+}
+
+.pt-item-del {
+    color: var(--pt-danger);
+}
+
+/* กล่องสีพร้อมตัวย่อนามสกุล — ไม่พึ่งฟอนต์ไอคอนใด ๆ เลย (ดู Portal.fileIcon) */
+.pt-file-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .02em;
+    color: #fff;
+    background: var(--pt-ink-3);
+}
+
+.pt-file-icon-image   { background: #2e90fa; }
+.pt-file-icon-pdf     { background: #e5484d; }
+.pt-file-icon-sheet   { background: #1a9d5c; }
+.pt-file-icon-doc     { background: #605DFF; }
+.pt-file-icon-archive { background: #8a93a2; }
+.pt-file-icon-text    { background: #6b7280; }
+
+.pt-empty {
+    text-align: center;
+    padding: 56px 20px;
+    color: var(--pt-ink-3);
+}
+
+.pt-empty-icon {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 8px;
+    color: var(--pt-border);
+}
+
+.pt-empty-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pt-ink-2);
+}
+
+.pt-empty-sub {
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.pt-hint {
+    font-size: 12px;
+    color: var(--pt-ink-3);
+    margin-top: 12px;
+    text-align: center;
+}
+
+/* ------------------------------------------------------------ แผงอัปโหลด */
+
+.pt-uploader {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 340px;
+    max-width: calc(100vw - 24px);
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(16, 24, 40, 0.18);
+    overflow: hidden;
+    z-index: 20;
+}
+
+.pt-uploader-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--pt-ink);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pt-uploader-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px 6px;
+    opacity: .8;
+}
+
+.pt-uploader-btn:hover {
+    opacity: 1;
+}
+
+.pt-queue {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.pt-uploader.pt-uploader-min .pt-queue {
+    display: none;
+}
+
+.pt-up {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--pt-border);
+    font-size: 13px;
+}
+
+.pt-up:last-child {
+    border-bottom: none;
+}
+
+.pt-up-name {
+    display: block;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pt-up-note {
+    display: block;
+    font-size: 12px;
+    color: var(--pt-ink-3);
+    margin: 2px 0 6px;
+}
+
+.pt-up-bar {
+    display: block;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--pt-border);
+    overflow: hidden;
+}
+
+.pt-up-bar i {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--pt-primary);
+    transition: width .2s ease;
+}
+
+.pt-up-done .pt-up-note {
+    color: var(--pt-success);
+}
+
+.pt-up-done .pt-up-bar i {
+    background: var(--pt-success);
+}
+
+.pt-up-fail .pt-up-note {
+    color: var(--pt-danger);
+}
+
+/* ------------------------------------------------------------ ลากไฟล์วาง */
+
+.pt-dropzone {
+    position: fixed;
+    inset: 0;
+    background: rgba(96, 93, 255, 0.92);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pt-dropzone-in {
+    text-align: center;
+    color: #fff;
+}
+
+.pt-dropzone-icon {
+    font-size: 48px;
+    line-height: 1;
+    margin-bottom: 12px;
+}
+
+.pt-dropzone-text {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* ------------------------------------------------------------ จอเล็ก */
+
+@media (max-width: 640px) {
+    .pt-thead {
+        display: none;
+    }
+
+    .pt-item {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 14px 16px;
+    }
+
+    .pt-col-act {
+        justify-content: flex-start;
+        margin-top: 4px;
+    }
+
+    .pt-card {
+        padding: 32px 20px;
+    }
+}

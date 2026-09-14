@@ -81,6 +81,40 @@ class MainController
         }
     }
 
+    public function editCompany()
+    {
+        $this->checkAuth();
+
+        $companyId = trim($_POST['company_id'] ?? '');
+        $companyName = trim($_POST['company_name'] ?? '');
+
+        if ($companyName === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกชื่อบริษัท']);
+            return;
+        }
+
+        if ($companyId === '') {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลบริษัท']);
+            return;
+        }
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+
+        try {
+            $userId = $this->userPayload['user_id'] ?? null;
+            $success = $companyModel->updateCompany($companyId, $companyName, $userId);
+
+            if ($success) {
+                echo json_encode(['result' => 1, 'msg' => 'แก้ไขบริษัทเรียบร้อยแล้ว']);
+            } else {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้ หรือไม่มีสิทธิ์แก้ไข']);
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดของฐานข้อมูล: ' . $e->getMessage()]);
+        }
+    }
+
     public function addFiscalYear()
     {
         $this->checkAuth();
@@ -113,6 +147,39 @@ class MainController
             if ($newFiscalId) {
                 echo json_encode(['result' => 1, 'msg' => 'บันทึกปีทำงานเรียบร้อยแล้ว']);
             } else {
+                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้ (อาจไม่มีบริษัทนี้ในระบบ)']);
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดฐานข้อมูล: ' . $e->getMessage()]);
+        }
+    }
+
+    public function editFiscalYear()
+    {
+        $this->checkAuth();
+
+        $fiscalId    = trim($_POST['fiscal_id'] ?? '');
+        $workingYear = trim($_POST['working_year'] ?? '');
+
+        if ($workingYear === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกปี พ.ศ.']);
+            return;
+        }
+
+        if ($fiscalId === '') {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลปีทำงาน']);
+            return;
+        }
+
+        require_once '../app/models/fiscal_years.php';
+        $fiscalYearModel = new FiscalYearsModel();
+        
+        try {
+            $success = $fiscalYearModel->updateFiscalYear($fiscalId, $workingYear);
+
+            if ($success) {
+                echo json_encode(['result' => 1, 'msg' => 'แก้ไขข้อมูลปีทำงานเรียบร้อยแล้ว']);
+            } else {
                 echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้']);
             }
         } catch (PDOException $e) {
@@ -129,9 +196,11 @@ class MainController
             return;
         }
         
+        $userId = $this->userPayload['user_id'] ?? null;
+
         require_once '../app/models/fiscal_years.php';
         $fiscalYearModel = new FiscalYearsModel();
-        $fiscalYears = $fiscalYearModel->getFiscalYearsByCompany($companyId);
+        $fiscalYears = $fiscalYearModel->getFiscalYearsByCompany($companyId, $userId);
         
         echo json_encode(['result' => 1, 'data' => $fiscalYears]);
     }

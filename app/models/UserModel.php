@@ -20,7 +20,8 @@ class UserModel extends Model {
                 create_at,
                 is_super_admin,
                 position, 
-                team_id
+                team_id,
+                fiscal_id
             ) VALUES (
                 :user_name,
                 :user_password,
@@ -30,7 +31,8 @@ class UserModel extends Model {
                 NOW(),
                 '0',
                 :position, 
-                :team_id
+                :team_id,
+                :fiscal_id
             )"
         );
         $stmt->execute([
@@ -39,7 +41,8 @@ class UserModel extends Model {
             'user_firstname' => $data['user_firstname'],
             'user_lastname' => $data['user_lastname'],
             'position' => $data['position'] ?? null,
-            'team_id' => $data['team_id'] ?? null
+            'team_id' => $data['team_id'] ?? null,
+            'fiscal_id' => $data['fiscal_id'] ?? null
         ]);
         return $this->pdo->lastInsertId();
     }
@@ -50,7 +53,8 @@ class UserModel extends Model {
                 user_firstname = :user_firstname, 
                 user_lastname = :user_lastname, 
                 position = :position, 
-                team_id = :team_id
+                team_id = :team_id,
+                user_status = :user_status
              WHERE user_id = :user_id"
         );
         return $stmt->execute([
@@ -58,7 +62,8 @@ class UserModel extends Model {
             'user_firstname' => $data['user_firstname'],
             'user_lastname' => $data['user_lastname'],
             'position' => $data['position'] ?? null,
-            'team_id' => $data['team_id'] ?? null
+            'team_id' => $data['team_id'] ?? null,
+            'user_status' => $data['user_status'] ?? '1'
         ]);
     }
 

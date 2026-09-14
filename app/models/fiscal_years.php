@@ -1,9 +1,17 @@
 <?php
+
 require_once '../app/models/Model.php';
 
 class FiscalYearsModel extends Model {
 
     public function insertFiscalYears($companyId, $workingYear, $copyFromYear, $copyOptions = []) {
+        // ตรวจสอบว่ามีบริษัทอยู่จริงหรือไม่
+        $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM tbl_companies WHERE company_id = :company_id");
+        $checkStmt->execute(['company_id' => $companyId]);
+        if ($checkStmt->fetchColumn() == 0) {
+            return false;
+        }
+
         $stmt = $this->pdo->prepare(
             "INSERT INTO tbl_fiscal_years (
                 company_id,
@@ -45,6 +53,18 @@ class FiscalYearsModel extends Model {
         }
 
         return $newFiscalId;
+    }
+
+    public function updateFiscalYear($fiscalId, $workingYear) {
+        $stmt = $this->pdo->prepare(
+            "UPDATE tbl_fiscal_years 
+             SET fiscal_years = :working_year
+             WHERE fiscal_id = :fiscal_id"
+        );
+        return $stmt->execute([
+            'working_year' => $workingYear,
+            'fiscal_id' => $fiscalId
+        ]);
     }
 
     /**
@@ -269,19 +289,44 @@ class FiscalYearsModel extends Model {
         return true;
     }
 
-    public function getFiscalYearsByCompany($companyId) {
-        $stmt = $this->pdo->prepare(
-            "SELECT 
-                tbl_fiscal_years.*,
-                COUNT(tbl_fiscal_year_customers.customer_id) AS customer_count,
-                COALESCE(SUM(tbl_fiscal_year_customers.accounts_amount), 0) AS monthly_fee
-            FROM tbl_fiscal_years
-            LEFT JOIN tbl_fiscal_year_customers ON tbl_fiscal_years.fiscal_id = tbl_fiscal_year_customers.fiscal_id
-            WHERE tbl_fiscal_years.company_id = :company_id
-            GROUP BY tbl_fiscal_years.fiscal_id
-            ORDER BY tbl_fiscal_years.fiscal_years DESC"
-        );
-        $stmt->execute(['company_id' => $companyId]);
-        return $stmt->fetchAll();
+    public function getFiscalYearsByCompany($companyId, $userId = null) {
+        $isSuperAdmin = 0;
+        $userFiscalId = null;
+
+        if ($userId) {
+            $stmtUser = $this->pdo->prepare("SELECT is_super_admin, fiscal_id FROM tbl_user WHERE user_id = :user_id");
+            $stmtUser->execute(['user_id' => $userId]);
+            $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
+            if ($userData) {
+                $isSuperAdmin = (int)$userData['is_super_admin'];
+                $userFiscalId = $userData['fiscal_id'];
+            }
+        }
+
+        $query = "SELECT 
+                    tbl_fiscal_years.*,
+                    COUNT(tbl_fiscal_year_customers.customer_id) AS customer_count,
+                    COALESCE(SUM(tbl_fiscal_year_customers.accounts_amount), 0) AS monthly_fee
+                FROM tbl_fiscal_years
+                LEFT JOIN tbl_fiscal_year_customers ON tbl_fiscal_years.fiscal_id = tbl_fiscal_year_customers.fiscal_id
+                WHERE tbl_fiscal_years.company_id = :company_id";
+
+        // ถ้าไม่ใช่ Super Admin ให้ดึงมาแค่ปีบัญชีเดียวตาม fiscal_id ของตัวเอง
+        if ($isSuperAdmin !== 1 && $userFiscalId) {
+            $query .= " AND tbl_fiscal_years.fiscal_id = :user_fiscal_id";
+        }
+
+        $query .= " GROUP BY tbl_fiscal_years.fiscal_id
+                    ORDER BY tbl_fiscal_years.fiscal_years DESC";
+
+        $stmt = $this->pdo->prepare($query);
+
+        $params = ['company_id' => $companyId];
+        if ($isSuperAdmin !== 1 && $userFiscalId) {
+            $params['user_fiscal_id'] = $userFiscalId;
+        }
+
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

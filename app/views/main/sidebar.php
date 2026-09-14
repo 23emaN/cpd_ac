@@ -10,7 +10,7 @@ $overview_pages = ['backoffice'];
 $monthly_dash_pages = ['monthly_dash'];
 $yearly_dash_pages = ['yearly_dash'];
 $monthly_task_pages = ['monthly_tasks', 'monthly_task'];
-$closing_pages = ['closing', 'financial_statement'];
+$closing_pages = ['closing',];
 $registration_pages = ['registration', 'registration_board', 'register_board'];
 $customer_pages = ['customer', 'customer_add', 'customer_edit'];
 $employee_pages = ['employee', 'employee_add', 'employee_edit', 'staff'];
@@ -19,6 +19,7 @@ $message_pages = ['messages', 'chat', 'customer_message'];
 $postit_pages = ['post_it', 'postit', 'notes', 'reminders'];
 $system_setting_pages = ['settings', 'setting', 'system_setting'];
 $manual_pages = ['manual', 'tutorial', 'videos'];
+$assinge_pages = ['assign_task'];
 
 ?>
 
@@ -308,6 +309,19 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
             </li>
 
             <!-- หมวดหมู่: ตั้งค่าระบบ -->
+            <li class="menu-title small">
+                <span class="menu-title-text">การมอบหมายงาน</span>
+            </li>
+
+            <li class="menu-item <?php echo in_array($now_page, $assinge_pages) ? 'open active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assign_task"
+                    class="menu-link <?php echo in_array($now_page, $assinge_pages) ? 'active' : '' ?>">
+                    <i class="ri-user-heart-line menu-icon"></i>
+                    <span class="title">การมอบหมายงาน</span>
+                </a>
+            </li>
+
+            <!-- หมวดหมู่: ตั้งค่าระบบ -->
             <!-- <li class="menu-title small">
                 <span class="menu-title-text">ตั้งค่าระบบ</span>
             </li>
@@ -345,5 +359,56 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
 
             window.location.reload();
         });
+
+        // Initialize Web Push
+        subscribeUserToPush();
     });
+
+    function urlB64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    async function subscribeUserToPush() {
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            try {
+                const baseUrl = "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>";
+                const registration = await navigator.serviceWorker.register(baseUrl + '/sw.js');
+                await navigator.serviceWorker.ready;
+
+                const response = await fetch(baseUrl + '/notification/vapid-public-key');
+                const data = await response.json();
+                
+                if (!data.publicKey) return false;
+
+                const applicationServerKey = urlB64ToUint8Array(data.publicKey);
+                
+                let permission = Notification.permission;
+                if (permission === 'default') {
+                    permission = await Notification.requestPermission();
+                }
+
+                if (permission === 'granted') {
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: applicationServerKey
+                    });
+
+                    await fetch(baseUrl + '/notification/subscribe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(subscription)
+                    });
+                }
+            } catch (error) {
+                console.error('Push Subscription error:', error);
+            }
+        }
+    }
 </script>

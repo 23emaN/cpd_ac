@@ -1225,10 +1225,11 @@ var sortable = (function () {
                   // vertical center.
                   var placeAfter = false;
                   try {
-                      var elementMiddleVertical = offset(element).top + element.offsetHeight / 2;
-                      var elementMiddleHorizontal = offset(element).left + element.offsetWidth / 2;
-                      placeAfter = (options.orientation === 'vertical' && (pageY >= elementMiddleVertical)) ||
-                          (options.orientation === 'horizontal' && (pageX >= elementMiddleHorizontal));
+                      var elementOffset = offset(element);
+                      var elementMiddleVertical = elementOffset.top + element.offsetHeight / 2;
+                      var elementMiddleHorizontal = elementOffset.left + element.offsetWidth / 2;
+                      placeAfter = (pageY > elementMiddleVertical) ||
+                          (pageY >= elementOffset.top && pageX >= elementMiddleHorizontal);
                   }
                   catch (e) {
                       placeAfter = placeholderIndex < thisIndex;
@@ -1258,7 +1259,7 @@ var sortable = (function () {
                       return data.placeholder;
                   });
                   // check if element is not in placeholders
-                  if (placeholders.indexOf(element) === -1 && sortableElement === element && !filter(element.children, options.items).length) {
+                  if (placeholders.indexOf(element) === -1 && sortableElement === element) {
                       placeholders.forEach(function (element) { return element.remove(); });
                       element.appendChild(store(sortableElement).placeholder);
                   }

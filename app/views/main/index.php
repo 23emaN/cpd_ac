@@ -512,7 +512,6 @@ require_once __DIR__ . '/header.php';
                     <!-- ปี พ.ศ. -->
                     <div class="year-form-group">
                         <label for="workingYearInput" class="year-form-label">ปี พ.ศ. <span class="text-danger">*</span></label>
-
                         <input type="number"
                             class="form-control working-year-input"
                             id="workingYearInput"
@@ -577,8 +576,175 @@ require_once __DIR__ . '/header.php';
         </div>
     </div>
 </div>
+</div>
+
+<!-- Modal แก้ไขปีทำงาน -->
+<div class="modal fade" id="editYearModal" tabindex="-1" aria-labelledby="editYearModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
+                <h5 class="modal-title" id="editYearModalLabel" style="font-weight: 800; color: #1e293b; font-size: 1.15rem;">แก้ไขปีทำงาน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.8rem; opacity: 0.5;"></button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <form id="editYearForm">
+                    <input type="hidden" name="company_id" id="editCompanyId">
+                    <input type="hidden" name="fiscal_id" id="editFiscalId">
+
+                    <!-- ปี พ.ศ. -->
+                    <div class="year-form-group">
+                        <label for="editWorkingYearInput" class="year-form-label">ปี พ.ศ. <span class="text-danger">*</span></label>
+                        <input type="number"
+                            class="form-control working-year-input"
+                            id="editWorkingYearInput"
+                            name="working_year"
+                            min="2500"
+                            max="2600"
+                            placeholder="กรอกปี พ.ศ."
+                            oninput="clearEditWorkingYearError()">
+
+                        <div id="editWorkingYearError" class="working-year-error"></div>
+                        <div class="form-text year-form-help">กรอกปี พ.ศ. ระหว่าง 2500 ถึง 2600</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 20px 24px; gap: 12px; justify-content: flex-end; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #f8fafc; color: #334155; font-weight: 700; border-radius: 10px; padding: 10px 24px; border: none; font-size: 0.95rem;">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditYear()" style="background-color: #0066fe; font-weight: 700; border-radius: 10px; padding: 10px 24px; border: none; box-shadow: 0 4px 12px rgba(0,102,254,0.25); font-size: 0.95rem;">บันทึก</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
+    function EditYear(companyId, year, fiscalId) {
+        const form = document.getElementById('editYearForm');
+        if(form) form.reset();
+        
+        document.getElementById('editCompanyId').value = companyId;
+        document.getElementById('editFiscalId').value = fiscalId;
+        document.getElementById('editWorkingYearInput').value = year;
+        
+        clearEditWorkingYearError();
+
+        const modalElement = document.getElementById('editYearModal');
+        const myModal = new bootstrap.Modal(modalElement);
+        myModal.show();
+    }
+    
+    function clearEditWorkingYearError() {
+        const input = document.getElementById('editWorkingYearInput');
+        const errorEl = document.getElementById('editWorkingYearError');
+        if (input) input.classList.remove('is-invalid');
+        if (errorEl) {
+            errorEl.classList.remove('show');
+            errorEl.textContent = '';
+        }
+    }
+    
+    function showEditWorkingYearError(message) {
+        const input = document.getElementById('editWorkingYearInput');
+        const errorEl = document.getElementById('editWorkingYearError');
+
+        if (input) {
+            input.classList.add('is-invalid');
+            input.focus();
+        }
+
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+    }
+
+    let isSubmittingEditYear = false;
+    function submitEditYear() {
+        if (isSubmittingEditYear) return;
+
+        const workingYear = $('#editWorkingYearInput').val().trim();
+        clearEditWorkingYearError();
+
+        if (!workingYear) {
+            showEditWorkingYearError('กรุณากรอกปี พ.ศ.');
+            return;
+        }
+
+        const year = parseInt(workingYear, 10);
+        if (year < 2500 || year > 2600) {
+            showEditWorkingYearError('กรุณากรอกปี พ.ศ. ระหว่าง 2500 ถึง 2600');
+            return;
+        }
+
+        isSubmittingEditYear = true;
+        const submitBtn = $('#editYearModal .btn-primary');
+        const originalBtnText = submitBtn.text();
+        submitBtn.prop('disabled', true).text('กำลังบันทึก...');
+
+        var formData = new FormData();
+        formData.append('fiscal_id', $('#editFiscalId').val());
+        formData.append('working_year', workingYear);
+
+
+
+        $.ajax({
+            type: "POST",
+            url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/fiscal_years/edit",
+            data: formData,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                isSubmittingEditYear = false;
+                submitBtn.prop('disabled', false).text(originalBtnText);
+
+                if(response.result === 1) {
+                    if(typeof Swal !== 'undefined') {
+                        const modalElement = document.getElementById('editYearModal');
+                        if (modalElement) {
+                            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                            if (modalInstance) modalInstance.hide();
+                        }
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.msg,
+                            showConfirmButton: true,
+                            confirmButtonText: 'ตกลง'
+                        }).then(() => {
+                            location.reload(); 
+                        });
+                    } else {
+                        alert(response.msg);
+                        location.reload();
+                    }
+                } else {
+                    if(typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: response.msg,
+                            showConfirmButton: true,
+                            confirmButtonText: 'ตกลง'
+                        });
+                    } else {
+                        alert(response.msg);
+                    }
+                }
+            },
+            error: function(err) {
+                isSubmittingEditYear = false;
+                submitBtn.prop('disabled', false).text(originalBtnText);
+                if(typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                        showConfirmButton: true,
+                        confirmButtonText: 'ตกลง'
+                    });
+                } else {
+                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+                }
+            }
+        });
+    }
     function Addyear() {
         // 1. เคลียร์ข้อมูลในฟอร์มเก่าทิ้ง (ถ้ามี)
         const form = document.getElementById('addYearForm');
@@ -659,17 +825,7 @@ require_once __DIR__ . '/header.php';
             formData.append('copy_options[]', opt);
         });
         
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        });
+
 
         $.ajax({
             type: "POST",
@@ -690,9 +846,11 @@ require_once __DIR__ . '/header.php';
                             const modalInstance = bootstrap.Modal.getInstance(modalElement);
                             if (modalInstance) modalInstance.hide();
                         }
-                        Toast.fire({
+                        Swal.fire({
                             icon: 'success',
-                            title: response.msg
+                            title: response.msg,
+                            showConfirmButton: true,
+                            confirmButtonText: 'ตกลง'
                         }).then(() => {
                             location.reload(); 
                         });
@@ -703,9 +861,11 @@ require_once __DIR__ . '/header.php';
                 } else {
                     // ถ้าบันทึกไม่สำเร็จ แจ้งเตือน Error
                     if(typeof Swal !== 'undefined') {
-                        Toast.fire({
+                        Swal.fire({
                             icon: 'error',
-                            title: response.msg
+                            title: response.msg,
+                            showConfirmButton: true,
+                            confirmButtonText: 'ตกลง'
                         });
                     } else {
                         alert(response.msg);
@@ -717,9 +877,11 @@ require_once __DIR__ . '/header.php';
                 submitBtn.prop('disabled', false).text(originalBtnText);
                 console.error("AJAX Error:", err);
                 if(typeof Swal !== 'undefined') {
-                    Toast.fire({
+                    Swal.fire({
                         icon: 'error',
-                        title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'
+                        title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                        showConfirmButton: true,
+                        confirmButtonText: 'ตกลง'
                     });
                 } else {
                     alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
@@ -794,7 +956,7 @@ require_once __DIR__ . '/header.php';
                                         <button type="button" class="btn-fy-select" onclick="event.stopPropagation(); goToBackoffice('${companyId}', '${year}', '${fiscalId}')">
                                             เลือกปีนี้
                                         </button>
-                                        <button type="button" class="btn-fy-edit" title="แก้ไข" onclick="event.stopPropagation();">
+                                        <button type="button" class="btn-fy-edit" title="แก้ไข" onclick="event.stopPropagation(); EditYear('${companyId}', '${year}', '${fiscalId}')">
                                             <i class="ri-pencil-line"></i>
                                         </button>
                                     </div>
@@ -902,6 +1064,9 @@ require_once __DIR__ . '/header.php';
     $(document).ready(function() {
         // เมื่อคลิกปุ่ม Workspace (บริษัท) ให้โหลดรายการปีใหม่
         $(document).on('click', '.acc-workspace-btn', function() {
+            if ($(this).attr('data-already-active') === 'true') {
+                return;
+            }
             let companyId = $(this).attr('data-company-id');
             if (companyId) {
                 loadFiscalYears(companyId);

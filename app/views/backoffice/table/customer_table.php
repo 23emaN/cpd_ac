@@ -54,10 +54,10 @@ $per_page = max(1, (int) ($_POST['per_page'] ?? 25));
                             <span class="fee-amount-text"><?php echo number_format($customer['accounts_amount'] ?? 0, 2); ?> บาท</span>
                         </td>
                         <td class="text-center">
-                            <?php if (!empty($customer['caretaker_firstname'])): ?>
+                            <?php if (!empty($customer['caretaker_firstname']) && empty($customer['caretaker_delete_at'])): ?>
                                 <span class="caretaker-text"><?php echo htmlspecialchars($customer['caretaker_firstname']); ?></span>
                             <?php else: ?>
-                                <span class="text-muted">-</span>
+                                <span>ไม่ระบุ</span>
                             <?php endif; ?>
                         </td>
                         <td class="text-center text-muted">

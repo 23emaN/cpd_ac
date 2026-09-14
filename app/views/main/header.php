@@ -559,6 +559,119 @@
             flex-shrink: 0;
         }
 
+        /* --- Notification Bell --- */
+        .acc-notif-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .acc-notif-btn:hover {
+            background-color: #f1f5f9;
+            color: #2563eb;
+        }
+        .acc-notif-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: #ef4444;
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            border: 2px solid #ffffff;
+            display: none;
+        }
+        .acc-notif-menu {
+            border: 1px solid #edf2f7;
+            border-radius: 16px;
+            box-shadow: 0 16px 48px rgba(15, 23, 42, 0.16);
+            padding: 0;
+            min-width: 320px;
+            max-width: 360px;
+            background: #ffffff;
+            z-index: 99999 !important;
+            overflow: hidden;
+        }
+        .acc-notif-header {
+            padding: 15px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .acc-notif-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .acc-notif-item {
+            padding: 15px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .acc-notif-item.unread {
+            background-color: #eff6ff;
+        }
+        .acc-notif-item:hover {
+            background-color: #f8fafc;
+        }
+        .acc-notif-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+        .acc-notif-text {
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 1.4;
+        }
+        .acc-notif-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .acc-notif-action {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 5px;
+        }
+        .acc-notif-ack-btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .acc-notif-ack-btn:hover {
+            background-color: #1d4ed8;
+        }
+        .acc-notif-empty {
+            padding: 30px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
         .acc-user-profile {
             display: flex;
             align-items: center;
@@ -852,6 +965,11 @@
             font-size: 18px !important;
             pointer-events: none !important;
             z-index: 5 !important;
+        }
+
+        .modal-input-icon-wrap i.modal-input-icon-clickable {
+            pointer-events: auto !important;
+            cursor: pointer !important;
         }
 
         .modal-content-keen {
@@ -1222,11 +1340,7 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+
 
         .filter-select {
             background-color: #f8fafc;
@@ -1845,6 +1959,21 @@
             border-width: 0 4px 5px 4px !important;
         }
 
+
+        .select2-container--default.select2-container--disabled .select2-selection--single {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* Select2 Form Validation State */
+        .is-invalid+.select2-container .select2-selection--single,
+        .was-validated select:invalid+.select2-container .select2-selection--single {
+            border-color: #ef4444 !important;
+        }
+
+
         .select2-dropdown {
             border: 1px solid #edf2f7 !important;
             border-radius: 14px !important;
@@ -1939,6 +2068,88 @@
 
 .company-name-error.show {
     display: block;
+}
+
+/* ระบบราชการ */
+.gov-accounts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.gov-account-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.gov-account-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+}
+
+
+.gov-account-fields {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    min-width: 0;
+}
+
+.gov-account-fields .modal-input-icon-wrap {
+    margin: 0;
+}
+
+.gov-account-remove {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s ease, color .15s ease;
+}
+
+.gov-account-remove:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.gov-accounts-empty {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    color: #94a3b8;
+    font-size: .85rem;
+    text-align: center;
+}
+
+.gov-accounts-empty.show {
+    display: flex;
+}
+
+.gov-accounts-empty i {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 576px) {
+    .gov-account-fields {
+        grid-template-columns: 1fr;
+    }
 }
     </style>
 </head>
@@ -2111,8 +2322,9 @@
 
                                 <!-- ท้ายเมนู: จัดการปีทำงาน -->
                                 <div class="acc-menu-footer">
-                                    <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/main"
-                                        class="acc-manage-year-btn" onclick="selectCompanyById('<?php echo $companyId ?>')">
+                                    <a href="javascript:void(0);"
+                                        class="acc-manage-year-btn"
+                                                onclick="openEditCompanyModal('<?php echo $companyId ?>', '<?php echo htmlspecialchars($companyName, ENT_QUOTES) ?>')">
                                         <i class="ri-sound-module-line"></i>
                                         <span>แก้ไขข้อมูลบริษัท</span>
                                     </a>
@@ -2133,6 +2345,22 @@
         </div>
 
         <div class="acc-actions">
+            <!-- Notification Bell -->
+            <div class="dropdown acc-notification-dropdown">
+                <button type="button" class="acc-notif-btn" id="notifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <i class="ri-notification-3-line"></i>
+                    <span class="acc-notif-badge" id="notifBadge">0</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end acc-notif-menu" aria-labelledby="notifDropdownBtn">
+                    <div class="acc-notif-header">
+                        <span>แจ้งเตือน</span>
+                    </div>
+                    <div class="acc-notif-list" id="notifListContainer">
+                        <div class="acc-notif-empty">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="acc-user-profile" title="ข้อมูลผู้ใช้งาน">
                 <div class="acc-user-avatar">
                     <i class="ri-user-3-fill"></i>
@@ -2166,23 +2394,23 @@
                         เพิ่มบริษัทใหม่</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-               <div class="company-form-group">
+               <form id="addCompanyForm">
+                    <div class="company-form-group">
+                        <label for="companyNameInput" class="company-form-label">
+                            ชื่อบริษัท
+                            <span class="text-danger">*</span>
+                        </label>
 
-    <label for="companyNameInput" class="company-form-label">
-        ชื่อบริษัท
-        <span class="text-danger">*</span>
-    </label>
+                        <input type="text"
+                            class="form-control company-name-input"
+                            id="companyNameInput"
+                            name="company_name"
+                            placeholder="กรอกชื่อบริษัท"
+                            oninput="clearCompanyNameError()">
 
-    <input type="text"
-        class="form-control company-name-input"
-        id="companyNameInput"
-        name="company_name"
-        placeholder="กรอกชื่อบริษัท"
-        oninput="clearCompanyNameError()">
-
-    <div id="companyNameError" class="company-name-error"></div>
-
-</div>
+                        <div id="companyNameError" class="company-name-error"></div>
+                    </div>
+                </form>
                 <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal"
                         style="border-radius: 8px; font-weight: 600;">ยกเลิก</button>
@@ -2193,8 +2421,43 @@
         </div>
     </div>
 
-    <script
-        src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/jquery-3.1.1.min.js"></script>
+
+    <!-- Modal แก้ไขบริษัท -->
+<div class="modal fade" id="editCompanyModal" tabindex="-1" aria-labelledby="editCompanyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
+                <h5 class="modal-title" id="editCompanyModalLabel" style="font-weight: 800; color: #1e293b;">
+                    แก้ไขข้อมูลบริษัท</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editCompanyForm">
+                <input type="hidden" id="editCompanyId" name="company_id" value="">
+                <div class="company-form-group">
+                    <label for="editCompanyNameInput" class="company-form-label">
+                        ชื่อบริษัท
+                        <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                        class="form-control company-name-input"
+                        id="editCompanyNameInput"
+                        name="company_name"
+                        placeholder="กรอกชื่อบริษัท"
+                        oninput="clearEditCompanyNameError()">
+                    <div id="editCompanyNameError" class="company-name-error"></div>
+                </div>
+            </form>
+            <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                    style="border-radius: 8px; font-weight: 600;">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditCompany()"
+                    style="border-radius: 8px; font-weight: 700; background-color: #0066fe; border: none; padding: 8px 20px;">บันทึก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/jquery-3.1.1.min.js"></script>
 
     <script>
         // ตรวจสอบว่าอยู่ในหน้าฝั่ง Backoffice หรือไม่
@@ -2212,6 +2475,20 @@
             );
         }
 
+        // ซ่อนปุ่ม 3 ขีด (toggle sidebar) ถ้าอยู่หน้าแรก หรือหน้าที่ไม่มี sidebar
+        function toggleBurgerMenuVisibility() {
+            const burgerBtn = document.getElementById('header-burger-menu');
+            if (!burgerBtn) return;
+
+            const isBackoffice = checkIsBackoffice();
+
+            if (!isBackoffice) {
+                burgerBtn.style.display = 'none';
+            } else {
+                burgerBtn.style.display = 'flex';
+            }
+        }
+
         // ฟังก์ชันย้ายตำแหน่งการ์ดบริษัทไปหน้าสุด
         function moveCompanyCardToFront(companyId) {
             if (!companyId) return;
@@ -2226,6 +2503,13 @@
         // 1. ฟังก์ชันเลือกบริษัท
         function selectCompany(element, companyId) {
             if (!element) return;
+
+            // ตรวจสอบว่ามีคลาส active อยู่แล้วหรือไม่
+            if (element.classList.contains('active')) {
+                element.setAttribute('data-already-active', 'true');
+                return;
+            }
+            element.removeAttribute('data-already-active');
 
             // ถอด active ออกจากทุกปุ่ม Workspace
             document.querySelectorAll('.acc-workspace-btn').forEach(function (b) {
@@ -2450,18 +2734,18 @@ function showCompanyNameError(message) {
     }
 }
 
-function addCompany() {
-    if (isSubmittingCompany) return;
+    function addCompany() {
+        if (isSubmittingCompany) return;
 
-    var companyName = $('input[name="company_name"]').val().trim();
-    clearCompanyNameError();
+        var companyName = $('input[name="company_name"]').val().trim();
+        clearCompanyNameError();
 
-    if (!companyName) {
-        showCompanyNameError('กรุณากรอกชื่อบริษัท');
-        return;
-    }
+        if (!companyName) {
+            showCompanyNameError('กรุณากรอกชื่อบริษัท');
+            return;
+        }
 
-            isSubmittingCompany = true;
+        isSubmittingCompany = true;
             const submitBtn = $('#addCompanyModal .btn-primary');
             submitBtn.prop('disabled', true).text('กำลังบันทึก...');
 
@@ -2484,13 +2768,10 @@ function addCompany() {
 
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
-                                toast: true,
-                                position: 'top-end',
                                 icon: 'success',
                                 title: response.msg || 'บันทึกสำเร็จ',
-                                showConfirmButton: false,
-                                timer: 1500,
-                                timerProgressBar: true
+                                showConfirmButton: true,
+                                confirmButtonText: 'ตกลง'
                             }).then(() => {
                                 location.reload();
                             });
@@ -2508,23 +2789,119 @@ function addCompany() {
                     console.error("AJAX Error:", err);
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
-                            toast: true,
-                            position: 'top-end',
                             icon: 'error',
                             title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
+                            showConfirmButton: true,
+                            confirmButtonText: 'ตกลง'
                         });
                     } else {
                         alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
                     }
                 }
             });
+    }
+
+    // modal แก้ไข
+    function openEditCompanyModal(companyId, companyName) {
+        clearEditCompanyNameError();
+        document.getElementById('editCompanyId').value = companyId;
+        document.getElementById('editCompanyNameInput').value = companyName;
+
+        const modalElement = document.getElementById('editCompanyModal');
+        const myModal = new bootstrap.Modal(modalElement);
+        myModal.show();
+    }
+
+    // เคลียร์ค่าในกรณีที่ปิดแล้วเปิด modal ใหม่
+    function clearEditCompanyNameError() {
+        const input = document.getElementById('editCompanyNameInput');
+        const errorEl = document.getElementById('editCompanyNameError');
+        if (input) input.classList.remove('is-invalid');
+        if (errorEl) {
+            errorEl.classList.remove('show');
+            errorEl.textContent = '';
+        }
+    }
+
+    function showEditCompanyNameError(message) {
+        const input = document.getElementById('editCompanyNameInput');
+        const errorEl = document.getElementById('editCompanyNameError');
+        if (input) {
+            input.classList.add('is-invalid');
+            input.focus();
+        }
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+    }
+
+    let isSubmittingEditCompany = false;
+
+    function submitEditCompany() {
+        if (isSubmittingEditCompany) return;
+
+        var companyName = $('#editCompanyNameInput').val().trim();
+        clearEditCompanyNameError();
+
+        if (!companyName) {
+            showEditCompanyNameError('กรุณากรอกชื่อบริษัท');
+            return;
         }
 
+        isSubmittingEditCompany = true;
+        const submitBtn = $('#editCompanyModal .btn-primary');
+        submitBtn.prop('disabled', true).text('กำลังบันทึก...');
+
+        var formData = $('#editCompanyForm').serialize();
+        $.ajax({
+            type: "POST",
+            url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/company/edit",
+            data: formData,
+            dataType: "json",
+            success: function (response) {
+            isSubmittingEditCompany = false;
+            submitBtn.prop('disabled', false).text('บันทึก');
+
+            if (response.result === 1) {
+                const modalElement = document.getElementById('editCompanyModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) modalInstance.hide();
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.msg || 'บันทึกสำเร็จ',
+                        showConfirmButton: true,
+                        confirmButtonText: 'ตกลง'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    location.reload();
+                }
+            } else {
+                showEditCompanyNameError(response.msg || 'ไม่สามารถบันทึกข้อมูลได้');
+            }
+        },
+        error: function () {
+            isSubmittingEditCompany = false;
+            submitBtn.prop('disabled', false).text('บันทึก');
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                    showConfirmButton: true,
+                    confirmButtonText: 'ตกลง'
+                });
+            }
+        }
+    });
+}
         // คืนค่าบริษัทที่เคยเลือกไว้เมื่อเปิดหน้าเว็บ และจัดตำแหน่งการ์ดให้อยู่หน้าสุดใน Backoffice
         $(document).ready(function () {
+            toggleBurgerMenuVisibility(); // <-- เพิ่มบรรทัดนี้
+
             const isBackoffice = checkIsBackoffice();
 
             if (isBackoffice) {
@@ -2549,4 +2926,72 @@ function addCompany() {
                 }
             }
         });
+
+        // --- Notification Logic ---
+        function loadNotifications() {
+            $.ajax({
+                url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/notification/get",
+                method: "GET",
+                dataType: "json",
+                success: function(res) {
+                    if (res && res.result === 1) {
+                        let count = res.count || 0;
+                        let badge = document.getElementById('notifBadge');
+                        if (count > 0) {
+                            badge.style.display = 'block';
+                            badge.innerText = count > 99 ? '99+' : count;
+                        } else {
+                            badge.style.display = 'none';
+                        }
+
+                        let listHtml = '';
+                        if (res.data && res.data.length > 0) {
+                            res.data.forEach(function(item) {
+                                let timeStr = new Date(item.created_at).toLocaleString('th-TH');
+                                listHtml += `
+                                    <div class="acc-notif-item unread" id="notif-item-${item.notif_id}">
+                                        <div class="acc-notif-title">${item.task_type === 'post_it' ? 'งานใหม่' : 'แจ้งเตือน'}</div>
+                                        <div class="acc-notif-text">${item.message}</div>
+                                        <div class="acc-notif-time">${timeStr}</div>
+                                        <div class="acc-notif-action">
+                                            <button class="acc-notif-ack-btn" onclick="markNotificationRead(${item.notif_id})">รับทราบ</button>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        } else {
+                            listHtml = '<div class="acc-notif-empty">ไม่มีแจ้งเตือนใหม่</div>';
+                        }
+                        document.getElementById('notifListContainer').innerHTML = listHtml;
+                    }
+                }
+            });
+        }
+
+        function markNotificationRead(notifId) {
+            $.ajax({
+                url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/notification/read",
+                method: "POST",
+                data: { notif_id: notifId },
+                dataType: "json",
+                success: function(res) {
+                    if (res && res.result === 1) {
+                        let item = document.getElementById('notif-item-' + notifId);
+                        if (item) {
+                            item.classList.remove('unread');
+                            item.style.opacity = '0.5';
+                            setTimeout(() => { item.style.display = 'none'; }, 300);
+                        }
+                        loadNotifications();
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            loadNotifications();
+            // Optional: Auto fetch every 1 minute
+            setInterval(loadNotifications, 60000);
+        });
+
     </script>
