@@ -1,18 +1,18 @@
 <?php
-// view fragment: render ตารางพนักงาน
-$list = [];
-if (isset($_POST['data']) && is_array($_POST['data'])) {
+    // view fragment: render ตารางพนักงาน
+    $list = [];
+    if (isset($_POST['data']) && is_array($_POST['data'])) {
     $list = $_POST['data'];
-} elseif (isset($employees) && is_array($employees)) {
+    } elseif (isset($employees) && is_array($employees)) {
     $list = $employees;
-} elseif (isset($data['employees']) && is_array($data['employees'])) {
+    } elseif (isset($data['employees']) && is_array($data['employees'])) {
     $list = $data['employees'];
-}
+    }
 
-$total    = (int) ($_POST['total'] ?? count($list));
-$page     = max(1, (int) ($_POST['page'] ?? 1));
-$per_page = max(1, (int) ($_POST['per_page'] ?? 25));
-$from     = $total > 0 ? ($page - 1) * $per_page + 1 : 0;
+    $total    = (int) ($_POST['total'] ?? count($list));
+    $page     = max(1, (int) ($_POST['page'] ?? 1));
+    $per_page = max(1, (int) ($_POST['per_page'] ?? 25));
+    $from     = $total > 0 ? ($page - 1) * $per_page + 1 : 0;
 ?>
 
 <!-- Employee Table -->
@@ -29,9 +29,14 @@ $from     = $total > 0 ? ($page - 1) * $per_page + 1 : 0;
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($list)): ?>
-                <?php $n = $from; foreach ($list as $index => $emp): ?>
-                    <tr>
+            <?php if (! empty($list)): ?>
+                <?php $n = $from;foreach ($list as $index => $emp): ?>
+                    <tr
+                        data-name="<?php echo htmlspecialchars(mb_strtolower($emp['user_firstname'] . ' ' . $emp['user_lastname'])); ?>"
+                        data-position="<?php echo htmlspecialchars(mb_strtolower($emp['position'] ?? '')); ?>"
+                        data-team="<?php echo htmlspecialchars($emp['team_name'] ?? ''); ?>"
+                        data-status="<?php echo htmlspecialchars($emp['user_status'] ?? '1'); ?>"
+                    >
                         <td class="text-center fw-semibold text-secondary">
                             <?php echo $n++; ?>
                         </td>
@@ -82,6 +87,6 @@ $from     = $total > 0 ? ($page - 1) * $per_page + 1 : 0;
     </table>
 </div>
 
-<?php if (!empty($list)): ?>
+<?php if (! empty($list)): ?>
     <?php include dirname(__DIR__) . '/_pagination.php'; ?>
 <?php endif; ?>

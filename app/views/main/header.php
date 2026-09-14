@@ -967,6 +967,11 @@
             z-index: 5 !important;
         }
 
+        .modal-input-icon-wrap i.modal-input-icon-clickable {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+        }
+
         .modal-content-keen {
             border: none !important;
             border-radius: 16px !important;

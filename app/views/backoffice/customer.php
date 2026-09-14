@@ -93,7 +93,7 @@
                             <input type="text" class="search-input" id="search_input" onkeyup="triggerFilterDebounced()" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล ทีม">
                         </div>
 
-                        <div class="filter-group">
+                        <div class="filter-group" style="display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;">
                             <select class="filter-select" id="filter_status" onchange="triggerFilterDebounced()">
                                 <option value="">ทุกสถานะ</option>
                                 <option value="1">ใช้บริการอยู่</option>
@@ -101,15 +101,15 @@
                             </select>
 
                             <select class="filter-select" name="user_id_filter" id="user_id_filter" onchange="triggerFilterDebounced()">
-                                    <option value="" data-team-id="" data-team-name="" selected>ทั้งหมด</option>
-                                    <?php if (! empty($data['caretakers'])): ?>
-                                        <?php foreach ($data['caretakers'] as $caretaker): ?>
-                                            <option value="<?php echo htmlspecialchars($caretaker['user_id'] ?? ''); ?>">
-                                                <?php echo htmlspecialchars(($caretaker['user_firstname'] ?? '') . ' ' . ($caretaker['lastname'] ?? '')); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
+                                <option value="" data-team-id="" data-team-name="" selected>ทั้งหมด</option>
+                                <?php if (! empty($data['caretakers'])): ?>
+                                    <?php foreach ($data['caretakers'] as $caretaker): ?>
+                                        <option value="<?php echo htmlspecialchars($caretaker['user_id'] ?? ''); ?>">
+                                            <?php echo htmlspecialchars(($caretaker['user_firstname'] ?? '') . ' ' . ($caretaker['lastname'] ?? '')); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
                         </div>
                     </div>
 
@@ -260,7 +260,7 @@
                             </div>
                         </div>
 
-                        <!-- แถวที่ 2: จด VAT / มีพนักงาน / ประกันสังคม -->
+                        <!-- แถวที่ 2: จด VAT / มีพนักงาน / ประกันสังคม / cpd / cpa -->
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label modal-form-label">จด VAT</label>
@@ -284,6 +284,19 @@
                                     <option value="0" selected>ไม่มีประกันสังคม</option>
                                     <option value="1">มีประกันสังคม</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <!-- แถวที่ 3: ผู้ทำบัญชี (CPD) / ผู้สอบบัญชี (CPA) -->
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-6">
+                                <label class="form-label modal-form-label">ผู้ทำบัญชี (CPD)</label>
+                                <input type="text" class="form-control modal-form-control" name="cpd_name" id="cpd_name" placeholder="ชื่อผู้ทำบัญชี">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label modal-form-label">ผู้สอบบัญชี (CPA)</label>
+                                <input type="text" class="form-control modal-form-control" name="cpa_name" id="cpa_name" placeholder="ชื่อผู้สอบบัญชี">
                             </div>
                         </div>
                     </div>
@@ -312,10 +325,10 @@
                         </div>
 
                         <!-- URL เก็บไฟล์เอกสารลูกค้า -->
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <label class="form-label modal-form-label">URL เก็บไฟล์เอกสารลูกค้า</label>
                             <input type="text" class="form-control modal-form-control" name="doc_url" placeholder="เช่น https://drive.google.com/...">
-                        </div>
+                        </div> -->
 
                         <!-- LINE Group ID / Token -->
                         <div class="mb-3">
@@ -346,7 +359,7 @@
                                 <label class="form-label modal-form-label">กรมสรรพากร - Password</label>
                                 <div class="modal-input-icon-wrap">
                                     <input type="password" class="form-control modal-form-control modal-input-with-icon" name="rd_password" placeholder="">
-                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
+                                    <i class="ri-eye-off-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
                                 </div>
                             </div>
                         </div>
@@ -361,7 +374,7 @@
                                 <label class="form-label modal-form-label">กรมพัฒน์ - Password</label>
                                 <div class="modal-input-icon-wrap">
                                     <input type="password" class="form-control modal-form-control modal-input-with-icon" name="dbd_password" placeholder="">
-                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
+                                    <i class="ri-eye-off-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
                                 </div>
                             </div>
                         </div>
@@ -376,7 +389,7 @@
                                 <label class="form-label modal-form-label">ประกันสังคม - Password</label>
                                 <div class="modal-input-icon-wrap">
                                     <input type="password" class="form-control modal-form-control modal-input-with-icon" name="sso_password" placeholder="">
-                                    <i class="ri-eye-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
+                                    <i class="ri-eye-off-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
                                 </div>
                             </div>
                         </div>
@@ -477,10 +490,10 @@
         if (input) {
             if (input.type === 'password') {
                 input.type = 'text';
-                $(icon).removeClass('ri-eye-line').addClass('ri-eye-off-line');
-            } else {
-                input.type = 'password';
                 $(icon).removeClass('ri-eye-off-line').addClass('ri-eye-line');
+            } else {
+            input.type = 'password';
+            $(icon).removeClass('ri-eye-line').addClass('ri-eye-off-line');
             }
         }
     }
@@ -580,7 +593,7 @@
 
             // Reset password inputs and icons
             $('input[name="rd_password"], input[name="dbd_password"], input[name="sso_password"]').attr('type', 'password');
-            $('.modal-input-icon-clickable').removeClass('ri-eye-off-line').addClass('ri-eye-line');
+            $('.modal-input-icon-clickable').removeClass('ri-eye-line').addClass('ri-eye-off-line');
         }
         const modalElement = document.getElementById('addCustomerModal');
         const myModal = new bootstrap.Modal(modalElement);
@@ -756,7 +769,7 @@
                     $('input[name="dbd_password"]').val(data.dbd_password || '').attr('type', 'password');
                     $('input[name="sso_user"]').val(data.sso_user);
                     $('input[name="sso_password"]').val(data.sso_password || '').attr('type', 'password');
-                    $('.modal-input-icon-clickable').removeClass('ri-eye-off-line').addClass('ri-eye-line');
+                    $('.modal-input-icon-clickable').removeClass('ri-eye-line').addClass('ri-eye-off-line');
 
                     // check monthly skip
                     if(data.monthly_skip && data.monthly_skip.length > 0) {

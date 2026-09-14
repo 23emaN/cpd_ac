@@ -130,17 +130,17 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="filter-toolbar">
                         <div class="search-box-wrap">
                             <i class="ri-search-line"></i>
-                            <input type="text" class="search-input" placeholder="ค้นหาชื่อ ตำแหน่ง ทีม">
+                            <input type="text" id="employeeSearchInput" class="search-input" placeholder="ค้นหาชื่อ ตำแหน่ง ทีม">
                         </div>
 
                         <div class="filter-group">
-                            <select class="filter-select">
+                            <select id="employeeStatusFilter" class="filter-select">
                                 <option value="">ทุกสถานะ</option>
                                 <option value="1">ใช้งานอยู่</option>
                                 <option value="0">เลิกจ้าง</option>
                             </select>
 
-                            <select class="filter-select">
+                            <select id="employeeTeamFilter" class="filter-select">
                                 <option value="">ทุกทีม</option>
                                 <?php foreach (array_keys($uniqueTeams) as $teamName): ?>
                                     <option value="<?php echo htmlspecialchars($teamName); ?>"><?php echo htmlspecialchars($teamName); ?></option>
@@ -277,7 +277,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุนามสกุล</div>
                         </div>
 
-                        <div class="row g-3">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="modal-form-label" for="edit_user_position">
                                    ตำแหน่ง
@@ -294,6 +294,16 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     </ul>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="modal-form-label" for="edit_user_status">
+                               สถานะ <span style="color: #ef4444;">*</span>
+                            </label>
+                            <select class="form-select modal-form-control" name="user_status" id="edit_user_status">
+                                <option value="1">ใช้งานอยู่</option>
+                                <option value="0">เลิกจ้าง</option>
+                            </select>
                         </div>
                     </div>
                 </form>
@@ -353,6 +363,60 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 $('.autocomplete-list').hide();
             }
         });
+
+        // --- filter
+        function filterEmployeeTable() {
+            const searchText   = $('#employeeSearchInput').val().trim().toLowerCase();
+            const statusFilter = $('#employeeStatusFilter').val();
+            const teamFilter   = $('#employeeTeamFilter').val();
+
+            $('.table-wrap table tbody tr[data-name]').each(function() {
+                const row = $(this);
+                const name     = row.data('name') || '';
+                const position = row.data('position') || '';
+                const team     = (row.data('team') || '').toString();
+                const status   = (row.data('status') || '').toString();
+
+                const matchSearch = searchText === '' 
+                    || name.includes(searchText) 
+                    || position.includes(searchText)
+                    || team.toLowerCase().includes(searchText);
+
+                const matchStatus = statusFilter === '' || status === statusFilter;
+                const matchTeam   = teamFilter === '' || team === teamFilter;
+
+                if (matchSearch && matchStatus && matchTeam) {
+                row.show();
+            } else {
+                row.hide();
+            }
+        });
+
+        checkEmptyResult();
+    }
+
+    // แสดงข้อความ "ไม่พบข้อมูล" ถ้ากรองแล้วไม่เจอเลย
+    function checkEmptyResult() {
+        const tbody = $('.table-wrap table tbody');
+        const visibleRows = tbody.find('tr[data-name]:visible').length;
+        
+        tbody.find('.no-result-row').remove();
+
+        if (visibleRows === 0) {
+            tbody.append(`
+                <tr class="no-result-row">
+                    <td colspan="6" class="text-center py-5 text-muted fw-medium">
+                        ไม่พบข้อมูลที่ตรงกับเงื่อนไขที่ค้นหา
+                    </td>
+                </tr>
+            `);
+        }
+    }
+
+    // Bind events
+    $('#employeeSearchInput').on('keyup', filterEmployeeTable);
+    $('#employeeStatusFilter').on('change', filterEmployeeTable);
+    $('#employeeTeamFilter').on('change', filterEmployeeTable);
     });
 
 
@@ -488,6 +552,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             $('#edit_user_lastname').val(emp.user_lastname);
             $('#edit_user_position').val(emp.position);
             $('#edit_team_name').val(emp.team_name);
+            $('#edit_user_status').val(emp.user_status);
             
             const modalElement = document.getElementById('editEmployeeModal');
             const myModal = new bootstrap.Modal(modalElement);
@@ -503,6 +568,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         var userLastname = $('#edit_user_lastname').val().trim();
         var userPosition = $('#edit_user_position').val().trim();
         var userTeamName = $('#edit_team_name').val().trim();
+        var userStatus = $('#edit_user_status').val();
 
         let isValid = true;
 
@@ -536,7 +602,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 user_firstname: userFirstname,
                 user_lastname: userLastname,
                 user_position: userPosition,
-                team_name: userTeamName
+                team_name: userTeamName,
+                user_status: userStatus
             },
             dataType: 'json',
             success: function(response) {

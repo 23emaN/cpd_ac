@@ -334,7 +334,7 @@ class BackofficeController
         }
     }
 
-    /////////////////////////////////////// fiscica /////////////////////////////////////////////// 
+    /////////////////////////////////////// employee /////////////////////////////////////////////// 
 
     public function employee()
     {
@@ -455,7 +455,8 @@ class BackofficeController
                 'user_firstname' => $user_firstname,
                 'user_lastname' => $user_lastname,
                 'position' => $user_position,
-                'team_id' => $team_id
+                'team_id' => $team_id,
+                'fiscal_id' => $fiscal_id
             ];
             $newUserId = $userModel->insertUser($userData);
 
@@ -482,6 +483,7 @@ class BackofficeController
         $user_lastname = trim($_POST['user_lastname'] ?? '');
         $user_position = trim($_POST['user_position'] ?? '');
         $team_name = trim($_POST['team_name'] ?? '');
+        $user_status = trim($_POST['user_status'] ?? '');
 
         if ($user_id === '' || $user_firstname === '' || $user_lastname === '') {
             echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน']);
@@ -509,7 +511,8 @@ class BackofficeController
                 'user_firstname' => $user_firstname,
                 'user_lastname' => $user_lastname,
                 'position' => $user_position,
-                'team_id' => $team_id
+                'team_id' => $team_id,
+                'user_status' => $user_status
             ];
 
             $success = $userModel->updateUser($userData);
