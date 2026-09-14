@@ -22,6 +22,19 @@ class CompanyModel extends Model {
         ]);
     }
 
+    public function updateCompany($companyId, $companyName, $userId) {
+        $stmt = $this->pdo->prepare(
+            "UPDATE tbl_companies 
+             SET company_name = :name
+             WHERE company_id = :company_id AND user_id = :user_id"
+        );
+        return $stmt->execute([
+            'name' => $companyName,
+            'company_id' => $companyId,
+            'user_id' => $userId
+        ]);
+    }
+
     public function getAllCompanies($userId = null) {
         if ($userId) {
             $stmt = $this->pdo->prepare("SELECT * FROM tbl_companies WHERE user_id = :user_id ORDER BY created_at DESC");

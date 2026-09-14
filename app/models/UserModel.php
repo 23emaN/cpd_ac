@@ -20,7 +20,8 @@ class UserModel extends Model {
                 create_at,
                 is_super_admin,
                 position, 
-                team_id
+                team_id,
+                fiscal_id
             ) VALUES (
                 :user_name,
                 :user_password,
@@ -30,7 +31,8 @@ class UserModel extends Model {
                 NOW(),
                 '0',
                 :position, 
-                :team_id
+                :team_id,
+                :fiscal_id
             )"
         );
         $stmt->execute([

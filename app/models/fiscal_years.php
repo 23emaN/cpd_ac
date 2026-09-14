@@ -55,6 +55,18 @@ class FiscalYearsModel extends Model {
         return $newFiscalId;
     }
 
+    public function updateFiscalYear($fiscalId, $workingYear) {
+        $stmt = $this->pdo->prepare(
+            "UPDATE tbl_fiscal_years 
+             SET fiscal_years = :working_year
+             WHERE fiscal_id = :fiscal_id"
+        );
+        return $stmt->execute([
+            'working_year' => $workingYear,
+            'fiscal_id' => $fiscalId
+        ]);
+    }
+
     /**
      * ดึง customer_id ทั้งหมดที่ผูกกับ fiscal_id ที่ระบุ
      */

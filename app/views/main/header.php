@@ -2235,8 +2235,9 @@
 
                                 <!-- ท้ายเมนู: จัดการปีทำงาน -->
                                 <div class="acc-menu-footer">
-                                    <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/main"
-                                        class="acc-manage-year-btn" onclick="selectCompanyById('<?php echo $companyId ?>')">
+                                    <a href="javascript:void(0);"
+                                        class="acc-manage-year-btn"
+                                                onclick="openEditCompanyModal('<?php echo $companyId ?>', '<?php echo htmlspecialchars($companyName, ENT_QUOTES) ?>')">
                                         <i class="ri-sound-module-line"></i>
                                         <span>แก้ไขข้อมูลบริษัท</span>
                                     </a>
@@ -2333,8 +2334,43 @@
         </div>
     </div>
 
-    <script
-        src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/jquery-3.1.1.min.js"></script>
+
+    <!-- Modal แก้ไขบริษัท -->
+<div class="modal fade" id="editCompanyModal" tabindex="-1" aria-labelledby="editCompanyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
+                <h5 class="modal-title" id="editCompanyModalLabel" style="font-weight: 800; color: #1e293b;">
+                    แก้ไขข้อมูลบริษัท</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editCompanyForm">
+                <input type="hidden" id="editCompanyId" name="company_id" value="">
+                <div class="company-form-group">
+                    <label for="editCompanyNameInput" class="company-form-label">
+                        ชื่อบริษัท
+                        <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                        class="form-control company-name-input"
+                        id="editCompanyNameInput"
+                        name="company_name"
+                        placeholder="กรอกชื่อบริษัท"
+                        oninput="clearEditCompanyNameError()">
+                    <div id="editCompanyNameError" class="company-name-error"></div>
+                </div>
+            </form>
+            <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                    style="border-radius: 8px; font-weight: 600;">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditCompany()"
+                    style="border-radius: 8px; font-weight: 700; background-color: #0066fe; border: none; padding: 8px 20px;">บันทึก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/js/jquery-3.1.1.min.js"></script>
 
     <script>
         // ตรวจสอบว่าอยู่ในหน้าฝั่ง Backoffice หรือไม่
@@ -2352,6 +2388,20 @@
             );
         }
 
+        // ซ่อนปุ่ม 3 ขีด (toggle sidebar) ถ้าอยู่หน้าแรก หรือหน้าที่ไม่มี sidebar
+        function toggleBurgerMenuVisibility() {
+            const burgerBtn = document.getElementById('header-burger-menu');
+            if (!burgerBtn) return;
+
+            const isBackoffice = checkIsBackoffice();
+
+            if (!isBackoffice) {
+                burgerBtn.style.display = 'none';
+            } else {
+                burgerBtn.style.display = 'flex';
+            }
+        }
+
         // ฟังก์ชันย้ายตำแหน่งการ์ดบริษัทไปหน้าสุด
         function moveCompanyCardToFront(companyId) {
             if (!companyId) return;
@@ -2366,6 +2416,13 @@
         // 1. ฟังก์ชันเลือกบริษัท
         function selectCompany(element, companyId) {
             if (!element) return;
+
+            // ตรวจสอบว่ามีคลาส active อยู่แล้วหรือไม่
+            if (element.classList.contains('active')) {
+                element.setAttribute('data-already-active', 'true');
+                return;
+            }
+            element.removeAttribute('data-already-active');
 
             // ถอด active ออกจากทุกปุ่ม Workspace
             document.querySelectorAll('.acc-workspace-btn').forEach(function (b) {
@@ -2590,18 +2647,18 @@ function showCompanyNameError(message) {
     }
 }
 
-function addCompany() {
-    if (isSubmittingCompany) return;
+    function addCompany() {
+        if (isSubmittingCompany) return;
 
-    var companyName = $('input[name="company_name"]').val().trim();
-    clearCompanyNameError();
+        var companyName = $('input[name="company_name"]').val().trim();
+        clearCompanyNameError();
 
-    if (!companyName) {
-        showCompanyNameError('กรุณากรอกชื่อบริษัท');
-        return;
-    }
+        if (!companyName) {
+            showCompanyNameError('กรุณากรอกชื่อบริษัท');
+            return;
+        }
 
-            isSubmittingCompany = true;
+        isSubmittingCompany = true;
             const submitBtn = $('#addCompanyModal .btn-primary');
             submitBtn.prop('disabled', true).text('กำลังบันทึก...');
 
@@ -2624,13 +2681,10 @@ function addCompany() {
 
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
-                                toast: true,
-                                position: 'top-end',
                                 icon: 'success',
                                 title: response.msg || 'บันทึกสำเร็จ',
-                                showConfirmButton: false,
-                                timer: 1500,
-                                timerProgressBar: true
+                                showConfirmButton: true,
+                                confirmButtonText: 'ตกลง'
                             }).then(() => {
                                 location.reload();
                             });
@@ -2648,23 +2702,119 @@ function addCompany() {
                     console.error("AJAX Error:", err);
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
-                            toast: true,
-                            position: 'top-end',
                             icon: 'error',
                             title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
+                            showConfirmButton: true,
+                            confirmButtonText: 'ตกลง'
                         });
                     } else {
                         alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
                     }
                 }
             });
+    }
+
+    // modal แก้ไข
+    function openEditCompanyModal(companyId, companyName) {
+        clearEditCompanyNameError();
+        document.getElementById('editCompanyId').value = companyId;
+        document.getElementById('editCompanyNameInput').value = companyName;
+
+        const modalElement = document.getElementById('editCompanyModal');
+        const myModal = new bootstrap.Modal(modalElement);
+        myModal.show();
+    }
+
+    // เคลียร์ค่าในกรณีที่ปิดแล้วเปิด modal ใหม่
+    function clearEditCompanyNameError() {
+        const input = document.getElementById('editCompanyNameInput');
+        const errorEl = document.getElementById('editCompanyNameError');
+        if (input) input.classList.remove('is-invalid');
+        if (errorEl) {
+            errorEl.classList.remove('show');
+            errorEl.textContent = '';
+        }
+    }
+
+    function showEditCompanyNameError(message) {
+        const input = document.getElementById('editCompanyNameInput');
+        const errorEl = document.getElementById('editCompanyNameError');
+        if (input) {
+            input.classList.add('is-invalid');
+            input.focus();
+        }
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+    }
+
+    let isSubmittingEditCompany = false;
+
+    function submitEditCompany() {
+        if (isSubmittingEditCompany) return;
+
+        var companyName = $('#editCompanyNameInput').val().trim();
+        clearEditCompanyNameError();
+
+        if (!companyName) {
+            showEditCompanyNameError('กรุณากรอกชื่อบริษัท');
+            return;
         }
 
+        isSubmittingEditCompany = true;
+        const submitBtn = $('#editCompanyModal .btn-primary');
+        submitBtn.prop('disabled', true).text('กำลังบันทึก...');
+
+        var formData = $('#editCompanyForm').serialize();
+        $.ajax({
+            type: "POST",
+            url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/company/edit",
+            data: formData,
+            dataType: "json",
+            success: function (response) {
+            isSubmittingEditCompany = false;
+            submitBtn.prop('disabled', false).text('บันทึก');
+
+            if (response.result === 1) {
+                const modalElement = document.getElementById('editCompanyModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) modalInstance.hide();
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.msg || 'บันทึกสำเร็จ',
+                        showConfirmButton: true,
+                        confirmButtonText: 'ตกลง'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    location.reload();
+                }
+            } else {
+                showEditCompanyNameError(response.msg || 'ไม่สามารถบันทึกข้อมูลได้');
+            }
+        },
+        error: function () {
+            isSubmittingEditCompany = false;
+            submitBtn.prop('disabled', false).text('บันทึก');
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                    showConfirmButton: true,
+                    confirmButtonText: 'ตกลง'
+                });
+            }
+        }
+    });
+}
         // คืนค่าบริษัทที่เคยเลือกไว้เมื่อเปิดหน้าเว็บ และจัดตำแหน่งการ์ดให้อยู่หน้าสุดใน Backoffice
         $(document).ready(function () {
+            toggleBurgerMenuVisibility(); // <-- เพิ่มบรรทัดนี้
+
             const isBackoffice = checkIsBackoffice();
 
             if (isBackoffice) {
@@ -2706,7 +2856,7 @@ function addCompany() {
                         } else {
                             badge.style.display = 'none';
                         }
-                        
+
                         let listHtml = '';
                         if (res.data && res.data.length > 0) {
                             res.data.forEach(function(item) {
