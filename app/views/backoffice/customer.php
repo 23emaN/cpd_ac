@@ -136,7 +136,7 @@
 
             <!-- Body (Scrollable) -->
             <div class="modal-body modal-body-custom">
-                <form id="addCustomerForm">
+                <form id="addCustomerForm" autocomplete="off">
                     <!-- Hidden Fields -->
                     <input type="hidden" name="fiscal_id" value="<?php echo htmlspecialchars($data['fiscal_id'] ?? ''); ?>">
                     <input type="hidden" name="company_id" value="<?php echo htmlspecialchars($data['active_company_id'] ?? ''); ?>">
@@ -347,51 +347,20 @@
 
                     <!-- Section: ระบบราชการ -->
                     <div>
-                        <h6 class="modal-section-title">ระบบราชการ</h6>
-
-                        <!-- กรมสรรพากร -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label modal-form-label">กรมสรรพากร - User</label>
-                                <input type="text" class="form-control modal-form-control" name="rd_user" placeholder="">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label modal-form-label">กรมสรรพากร - Password</label>
-                                <div class="modal-input-icon-wrap">
-                                    <input type="password" class="form-control modal-form-control modal-input-with-icon" name="rd_password" placeholder="">
-                                    <i class="ri-eye-off-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
-                                </div>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="modal-section-title mb-0">ระบบราชการ</h6>
+                            <button type="button" class="btn btn-sm modal-video-btn" onclick="addAccountRow()">
+                                <i class="ri-add-line"></i> เพิ่มข้อมูล
+                            </button>
                         </div>
 
-                        <!-- กรมพัฒน์ -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label modal-form-label">กรมพัฒน์ - User</label>
-                                <input type="text" class="form-control modal-form-control" name="dbd_user" placeholder="">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label modal-form-label">กรมพัฒน์ - Password</label>
-                                <div class="modal-input-icon-wrap">
-                                    <input type="password" class="form-control modal-form-control modal-input-with-icon" name="dbd_password" placeholder="">
-                                    <i class="ri-eye-off-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
-                                </div>
-                            </div>
+                        <div id="accountsList" class="gov-accounts-list">
+                            <!-- Dynamic rows will be added here -->
                         </div>
 
-                        <!-- ประกันสังคม -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label modal-form-label">ประกันสังคม - User</label>
-                                <input type="text" class="form-control modal-form-control" name="sso_user" placeholder="">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label modal-form-label">ประกันสังคม - Password</label>
-                                <div class="modal-input-icon-wrap">
-                                    <input type="password" class="form-control modal-form-control modal-input-with-icon" name="sso_password" placeholder="">
-                                    <i class="ri-eye-off-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
-                                </div>
-                            </div>
+                        <div id="accountsEmptyState" class="gov-accounts-empty">
+                            <i class="ri-shield-keyhole-line"></i>
+                            <span>ยังไม่มีข้อมูลระบบราชการ กด "เพิ่มข้อมูล" เพื่อเริ่มเพิ่ม</span>
                         </div>
                     </div>
 
@@ -483,6 +452,7 @@
                 $(this).removeClass('is-invalid');
             }
         });
+        updateAccountsEmptyState();
     });
 
     function togglePasswordVisibility(icon) {
@@ -592,8 +562,9 @@
             $('#team_name_display').val('');
 
             // Reset password inputs and icons
-            $('input[name="rd_password"], input[name="dbd_password"], input[name="sso_password"]').attr('type', 'password');
-            $('.modal-input-icon-clickable').removeClass('ri-eye-line').addClass('ri-eye-off-line');
+            document.getElementById('accountsList').innerHTML = '';
+            addAccountRow();  
+            updateAccountsEmptyState();
         }
         const modalElement = document.getElementById('addCustomerModal');
         const myModal = new bootstrap.Modal(modalElement);
@@ -763,13 +734,16 @@
                     $('input[name="line_token"]').val(data.line_group_token);
                     $('input[name="doc_url"]').val(data.doc_folder_url);
 
-                    $('input[name="rd_user"]').val(data.rn_user);
-                    $('input[name="rd_password"]').val(data.rn_password || '').attr('type', 'password');
-                    $('input[name="dbd_user"]').val(data.dbd_user);
-                    $('input[name="dbd_password"]').val(data.dbd_password || '').attr('type', 'password');
-                    $('input[name="sso_user"]').val(data.sso_user);
-                    $('input[name="sso_password"]').val(data.sso_password || '').attr('type', 'password');
-                    $('.modal-input-icon-clickable').removeClass('ri-eye-line').addClass('ri-eye-off-line');
+                    // Clear and load accounts
+                    document.getElementById('accountsList').innerHTML = '';
+                    if (data.accounts && data.accounts.length > 0) {
+                        data.accounts.forEach(acc => {
+                            addAccountRow(acc.account_name, acc.account_user_name, acc.account_password);
+                        });
+                    } else {
+                        // Compatibility with old data if they don't have accounts but have old fields
+                        if (data.rn_user || data.rn_password) addAccountRow('', data.rn_user || '', data.rn_password || '');
+                    }
 
                     // check monthly skip
                     if(data.monthly_skip && data.monthly_skip.length > 0) {
@@ -849,6 +823,44 @@
                 }
             }
         });
+    }
+
+    function updateAccountsEmptyState() {
+        const list = document.getElementById('accountsList');
+        const empty = document.getElementById('accountsEmptyState');
+        if (list && empty) {
+            empty.classList.toggle('show', list.children.length === 0);
+        }
+    }
+
+    function addAccountRow(name = '', user = '', pass = '') {
+        const list = document.getElementById('accountsList');
+        const card = document.createElement('div');
+        card.className = 'gov-account-card';
+        card.innerHTML = `
+            <div class="gov-account-fields">
+                <input type="text" class="form-control modal-form-control" name="account_name[]" value="${name}"
+                   placeholder="เช่น กรมสรรพากร"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                   data-lpignore="true" data-1p-ignore data-form-type="other">
+                <input type="text" class="form-control modal-form-control" name="account_user_name[]" value="${user}"
+                   placeholder="Username/ID"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                   data-lpignore="true" data-1p-ignore data-form-type="other">
+                <div class="modal-input-icon-wrap">
+                    <input type="password" class="form-control modal-form-control modal-input-with-icon" name="account_password[]" value="${pass}"
+                       placeholder="รหัสผ่าน"
+                       autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false"
+                       data-lpignore="true" data-1p-ignore data-form-type="other" readonly onfocus="this.removeAttribute('readonly')">
+                    <i class="ri-eye-off-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
+                </div>
+            </div>
+            <button type="button" class="gov-account-remove" onclick="this.closest('.gov-account-card').remove(); updateAccountsEmptyState();" title="ลบข้อมูล">
+                <i class="ri-delete-bin-line"></i>
+            </button>
+        `;
+        list.appendChild(card);
+        updateAccountsEmptyState();
     }
 </script>
 <?php

@@ -2069,6 +2069,88 @@
 .company-name-error.show {
     display: block;
 }
+
+/* ระบบราชการ */
+.gov-accounts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.gov-account-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.gov-account-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+}
+
+
+.gov-account-fields {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    min-width: 0;
+}
+
+.gov-account-fields .modal-input-icon-wrap {
+    margin: 0;
+}
+
+.gov-account-remove {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s ease, color .15s ease;
+}
+
+.gov-account-remove:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.gov-accounts-empty {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    color: #94a3b8;
+    font-size: .85rem;
+    text-align: center;
+}
+
+.gov-accounts-empty.show {
+    display: flex;
+}
+
+.gov-accounts-empty i {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 576px) {
+    .gov-account-fields {
+        grid-template-columns: 1fr;
+    }
+}
     </style>
 </head>
 

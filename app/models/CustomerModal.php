@@ -102,12 +102,6 @@ class CustomModal extends Model
                 cpd_name,
                 cpa_name,
                 accounts_amount,
-                rn_user,
-                rn_password,
-                dbd_user,
-                dbd_password,
-                sso_user,
-                sso_password,
                 created_at
             ) VALUES (
                 :fiscal_id,
@@ -125,12 +119,6 @@ class CustomModal extends Model
                 :cpd_name,
                 :cpa_name,
                 :accounts_amount,
-                :rd_user,
-                :rd_password,
-                :dbd_user,
-                :dbd_password,
-                :sso_user,
-                :sso_password,
                 NOW()
             )
         ");
@@ -151,15 +139,61 @@ class CustomModal extends Model
             'cpd_name'            => $data['cpd_name'] ?? null,
             'cpa_name'            => $data['cpa_name'] ?? null,
             'accounts_amount'     => $data['accounts_amount'] ?? 0,
-            'rd_user'             => $data['rd_user'] ?? null,
-            'rd_password'         => $data['rd_password'] ?? null,
-            'dbd_user'            => $data['dbd_user'] ?? null,
-            'dbd_password'        => $data['dbd_password'] ?? null,
-            'sso_user'            => $data['sso_user'] ?? null,
-            'sso_password'        => $data['sso_password'] ?? null,
         ]);
 
         return $result ? $this->pdo->lastInsertId() : false;
+    }
+
+    public function insertCustomerAccounts($customerId, $fiscalId, $names, $user_names, $passwords)
+    {
+        $stmt = $this->pdo->prepare("
+            INSERT INTO tbl_customer_accounts (
+                fiscal_year_id,
+                customer_id,
+                account_name,
+                account_user_name,
+                account_password,
+                created_at
+            ) VALUES (
+                :fiscal_year_id,
+                :customer_id,
+                :account_name,
+                :account_user_name,
+                :account_password,
+                NOW()
+            )
+        ");
+
+        if (is_array($names)) {
+            for ($i = 0; $i < count($names); $i++) {
+                $name = trim($names[$i] ?? '');
+                $user = trim($user_names[$i] ?? '');
+                $pass = trim($passwords[$i] ?? '');
+                
+                if ($name !== '') {
+                    $stmt->execute([
+                        'fiscal_year_id'    => $fiscalId,
+                        'customer_id'       => $customerId,
+                        'account_name'      => $name,
+                        'account_user_name' => $user,
+                        'account_password'  => $pass,
+                    ]);
+                }
+            }
+        }
+    }
+
+    public function deleteCustomerAccounts($customerId)
+    {
+        $stmt = $this->pdo->prepare("DELETE FROM tbl_customer_accounts WHERE customer_id = :customer_id");
+        $stmt->execute(['customer_id' => $customerId]);
+    }
+
+    public function getFiscalYearCustomerId($customerId, $fiscalId)
+    {
+        $stmt = $this->pdo->prepare("SELECT fiscal_year_id FROM tbl_fiscal_year_customers WHERE customer_id = :customer_id AND fiscal_id = :fiscal_id");
+        $stmt->execute(['customer_id' => $customerId, 'fiscal_id' => $fiscalId]);
+        return $stmt->fetchColumn();
     }
 
     public function linkCustomerToFiscalYear($customerId, $fiscalId, $data)
@@ -350,7 +384,7 @@ class CustomModal extends Model
 
         $whereSql = implode(' AND ', $where);
 
-        $stmt = $this->pdo->prepare("
+       $stmt = $this->pdo->prepare("
         SELECT
             c.customer_id,
             c.customer_name,
@@ -359,12 +393,6 @@ class CustomModal extends Model
             c.customer_phone,
             c.customer_email,
             c.line_id,
-            c.rn_user,
-            c.dbd_user,
-            c.sso_user,
-            c.rn_password,
-            c.dbd_password,
-            c.sso_password,
             fyc.accounts_amount,
             u.user_firstname as caretaker_firstname,
             u.user_lastname as caretaker_lastname,
@@ -451,6 +479,20 @@ class CustomModal extends Model
 
         $customer['monthly_skip'] = $skipped;
 
+        // Fetch dynamic accounts
+        $stmtAcc = $this->pdo->prepare("
+            SELECT a.account_name, a.account_user_name, a.account_password 
+            FROM tbl_customer_accounts a
+            INNER JOIN tbl_fiscal_year_customers f ON a.fiscal_year_id = f.fiscal_year_id
+            WHERE a.customer_id = :customer_id AND f.fiscal_id = :fiscal_id 
+            ORDER BY a.account_id ASC
+        ");
+        $stmtAcc->execute([
+            'customer_id' => $customerId,
+            'fiscal_id'   => $fiscalId
+        ]);
+        $customer['accounts'] = $stmtAcc->fetchAll(PDO::FETCH_ASSOC);
+
         // หมายเหตุ: ลบ debug_query ที่หลุดไปกับ response จริงออกแล้ว (เคยเปิดเผยโครงสร้าง SQL/ตารางให้ฝั่ง client เห็นโดยไม่จำเป็น)
 
         return $customer;
@@ -518,13 +560,7 @@ class CustomModal extends Model
                 is_social_security = :is_social_security,
                 cpd_name = :cpd_name,
                 cpa_name = :cpa_name,
-                accounts_amount = :accounts_amount,
-                rn_user = :rd_user,
-                rn_password = :rd_password,
-                dbd_user = :dbd_user,
-                dbd_password = :dbd_password,
-                sso_user = :sso_user,
-                sso_password = :sso_password
+                accounts_amount = :accounts_amount
             WHERE customer_id = :customer_id
         ");
 
@@ -543,12 +579,6 @@ class CustomModal extends Model
                 'cpd_name'            => $data['cpd_name'] ?? null,
                 'cpa_name'            => $data['cpa_name'] ?? null,
                 'accounts_amount'     => $data['accounts_amount'] ?? 0,
-                'rd_user'             => $data['rd_user'] ?? null,
-                'rd_password'         => $data['rd_password'] ?? null,
-                'dbd_user'            => $data['dbd_user'] ?? null,
-                'dbd_password'        => $data['dbd_password'] ?? null,
-                'sso_user'            => $data['sso_user'] ?? null,
-                'sso_password'        => $data['sso_password'] ?? null,
                 'customer_id'         => $customerId,
             ]);
 

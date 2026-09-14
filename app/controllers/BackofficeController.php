@@ -712,10 +712,16 @@ class BackofficeController
 
             if ($customerId) {
                 // 2. Link to Fiscal Year (tbl_fiscal_year_customers)
-                $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
+                $fiscalYearCustomerId = $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
 
                 // 3 & 4. Generate Work Periods & Tasks
                 $customModal->generateWorkPeriodsAndTasks($customerId, $fiscal_id, $_POST);
+
+                // 5. Insert Accounts
+                $account_names = $_POST['account_name'] ?? [];
+                $account_user_names = $_POST['account_user_name'] ?? [];
+                $account_passwords = $_POST['account_password'] ?? [];
+                $customModal->insertCustomerAccounts($customerId, $fiscalYearCustomerId, $account_names, $account_user_names, $account_passwords);
 
                 echo json_encode(['result' => 1, 'msg' => 'เพิ่มลูกค้าสำเร็จ', 'customer_id' => $customerId]);
             } else {
@@ -775,6 +781,14 @@ class BackofficeController
         try {
             $success = $customModal->updateCustomer($_POST);
             if ($success) {
+                // Update accounts
+                $customModal->deleteCustomerAccounts($customer_id);
+                $account_names = $_POST['account_name'] ?? [];
+                $account_user_names = $_POST['account_user_name'] ?? [];
+                $account_passwords = $_POST['account_password'] ?? [];
+                $fiscalYearCustomerId = $customModal->getFiscalYearCustomerId($customer_id, $fiscal_id);
+                $customModal->insertCustomerAccounts($customer_id, $fiscalYearCustomerId, $account_names, $account_user_names, $account_passwords);
+
                 echo json_encode(['result' => 1, 'msg' => 'แก้ไขข้อมูลลูกค้าสำเร็จ']);
             } else {
                 echo json_encode(['result' => 0, 'msg' => 'แก้ไขข้อมูลลูกค้าไม่สำเร็จ']);
