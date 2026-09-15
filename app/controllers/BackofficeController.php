@@ -334,7 +334,7 @@ class BackofficeController
         }
     }
 
-    /////////////////////////////////////// employee /////////////////////////////////////////////// 
+    /////////////////////////////////////// fiscica /////////////////////////////////////////////// 
 
     public function employee()
     {
@@ -712,16 +712,10 @@ class BackofficeController
 
             if ($customerId) {
                 // 2. Link to Fiscal Year (tbl_fiscal_year_customers)
-                $fiscalYearCustomerId = $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
+                $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
 
                 // 3 & 4. Generate Work Periods & Tasks
                 $customModal->generateWorkPeriodsAndTasks($customerId, $fiscal_id, $_POST);
-
-                // 5. Insert Accounts
-                $account_names = $_POST['account_name'] ?? [];
-                $account_user_names = $_POST['account_user_name'] ?? [];
-                $account_passwords = $_POST['account_password'] ?? [];
-                $customModal->insertCustomerAccounts($customerId, $fiscalYearCustomerId, $account_names, $account_user_names, $account_passwords);
 
                 echo json_encode(['result' => 1, 'msg' => 'เพิ่มลูกค้าสำเร็จ', 'customer_id' => $customerId]);
             } else {
@@ -781,14 +775,6 @@ class BackofficeController
         try {
             $success = $customModal->updateCustomer($_POST);
             if ($success) {
-                // Update accounts
-                $customModal->deleteCustomerAccounts($customer_id);
-                $account_names = $_POST['account_name'] ?? [];
-                $account_user_names = $_POST['account_user_name'] ?? [];
-                $account_passwords = $_POST['account_password'] ?? [];
-                $fiscalYearCustomerId = $customModal->getFiscalYearCustomerId($customer_id, $fiscal_id);
-                $customModal->insertCustomerAccounts($customer_id, $fiscalYearCustomerId, $account_names, $account_user_names, $account_passwords);
-
                 echo json_encode(['result' => 1, 'msg' => 'แก้ไขข้อมูลลูกค้าสำเร็จ']);
             } else {
                 echo json_encode(['result' => 0, 'msg' => 'แก้ไขข้อมูลลูกค้าไม่สำเร็จ']);
@@ -1404,9 +1390,24 @@ class BackofficeController
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $month = $_GET['month'] ?? '09'; // Default to month 09 or current month
+        $customerId = isset($_GET['customer_id']) && ctype_digit((string) $_GET['customer_id'])
+            ? (int) $_GET['customer_id']
+            : null;
         require_once '../app/models/monthly_task_Modal.php';
         $monthlyTaskModel = new MonthlyTaskModal();
-        $monthly_tasks = $monthlyTaskModel->getMonthlyTasks($fiscal_id, $month, $userId);
+        $monthly_tasks = $monthlyTaskModel->getMonthlyTasks(
+            $fiscal_id,
+            $customerId ? null : $month,
+            $userId,
+            $customerId
+        );
+        $monthly_task_stats = $monthlyTaskModel->getMonthlyTaskStats(
+            $fiscal_id,
+            $customerId ? null : $month,
+            $customerId
+        );
+        $monthly_task_customers = $monthlyTaskModel->getMonthlyTaskCustomers($fiscal_id);
+        $monthly_task_caretakers = $monthlyTaskModel->getCaretakersByFiscalId($fiscal_id);
         $review_users = $monthlyTaskModel->getReviewUsers();
         $data = [
             'title' => 'ระบบ Backoffice',
@@ -1420,7 +1421,12 @@ class BackofficeController
             'active_company_id' => $active_company_id,
             'active_fiscal_year' => $active_fiscal_year,
             'monthly_tasks' => $monthly_tasks,
+            'monthly_task_stats' => $monthly_task_stats,
             'selected_month' => $month,
+            'selected_customer_id' => $customerId,
+            'monthly_task_customers' => $monthly_task_customers,
+            'monthly_task_caretakers' => $monthly_task_caretakers,
+            'is_customer_year_view' => $customerId !== null,
             'review_users' => $review_users,
             'review1_user_id' => $this->userPayload['user_id'] ?? null,
             'review2_user_id' => $this->userPayload['user_id'] ?? null,
@@ -1429,6 +1435,74 @@ class BackofficeController
 
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/monthly_task.php';
+    }
+
+    public function filterMonthlyTasks()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+
+        $fiscalId = $_SESSION['fiscal_year_id'] ?? null;
+        if (!$fiscalId) {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่พบปีบัญชี']);
+            return;
+        }
+
+        $month = $_GET['month'] ?? '';
+        $customerId = ctype_digit((string) ($_GET['customer_id'] ?? '')) ? (int) $_GET['customer_id'] : null;
+        $caretakerId = ctype_digit((string) ($_GET['caretaker_id'] ?? '')) ? (int) $_GET['caretaker_id'] : null;
+        $docStatus = $_GET['doc_status'] ?? '';
+        $taskStatus = $_GET['task_status'] ?? '';
+        $taxStatus = $_GET['tax_status'] ?? '';
+        $paymentStatus = $_GET['payment_status'] ?? '';
+        $keyword = trim($_GET['keyword'] ?? '');
+
+        require_once '../app/models/monthly_task_Modal.php';
+        $model = new MonthlyTaskModal();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $monthlyTasks = $model->getMonthlyTasks(
+            $fiscalId,
+            $customerId ? null : $month,
+            $userId,
+            $customerId,
+            $caretakerId,
+            $docStatus,
+            $taskStatus,
+            $taxStatus,
+            $paymentStatus,
+            $keyword
+        );
+        $stats = $model->getMonthlyTaskStats(
+            $fiscalId,
+            $customerId ? null : $month,
+            $customerId,
+            $caretakerId,
+            $docStatus,
+            $taskStatus,
+            $taxStatus,
+            $paymentStatus,
+            $keyword
+        );
+
+        $data = [
+            'monthly_tasks' => $monthlyTasks,
+            'active_fiscal_year' => '',
+            'selected_customer_id' => $customerId,
+        ];
+
+        ob_start();
+        if ($customerId) {
+            require '../app/views/backoffice/table/monthly_task_customer.php';
+        } else {
+            require '../app/views/backoffice/table/mounthly_task.php';
+        }
+        $tableHtml = ob_get_clean();
+
+        echo json_encode([
+            'status' => 'success',
+            'html' => $tableHtml,
+            'stats' => $stats,
+        ], JSON_UNESCAPED_UNICODE);
     }
 
     public function getMonthlyTaskItems()
@@ -1445,9 +1519,24 @@ class BackofficeController
         require_once '../app/models/monthly_task_Modal.php';
         $model = new MonthlyTaskModal();
         $user_id = $this->userPayload['user_id'] ?? null;
-        $tasks = $model->getTasksByPeriodId($period_id, $user_id);
+        try {
+            $tasks = $model->getTasksByPeriodId($period_id, $user_id);
+            $accounts = $model->getCustomerAccountsByPeriodId((int) $period_id);
+        } catch (Throwable $e) {
+            echo json_encode([
+                'result' => 0,
+                'tasks' => [],
+                'accounts' => [],
+                'msg' => 'ไม่สามารถโหลดข้อมูลได้'
+            ], JSON_UNESCAPED_UNICODE);
+            return;
+        }
 
-        echo json_encode(['result' => 1, 'tasks' => $tasks]);
+        echo json_encode([
+            'result' => 1,
+            'tasks' => $tasks,
+            'accounts' => $accounts,
+        ], JSON_UNESCAPED_UNICODE);
     }
     public function updateMonthlyTask()
     {

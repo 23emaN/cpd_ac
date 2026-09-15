@@ -324,6 +324,38 @@
         font-weight: 700 !important;
     }
 
+    .month-filter-disabled {
+        opacity: 0.58;
+    }
+
+    .month-filter-disabled .select2-container {
+        cursor: not-allowed;
+    }
+
+    .month-filter-disabled .select2-selection--single {
+        background-color: #e2e8f0 !important;
+        border-color: #cbd5e1 !important;
+        color: #64748b !important;
+        box-shadow: none !important;
+        cursor: not-allowed !important;
+    }
+
+    .month-filter-disabled .select2-selection__rendered,
+    .month-filter-disabled .select2-selection__arrow b {
+        color: #64748b !important;
+    }
+
+    #manageModal .select2-container {
+        width: 100% !important;
+    }
+
+    #manageModal .select2-container--default .select2-selection--single {
+        background-color: #f8fafc !important;
+        border: 0 !important;
+        border-radius: 8px !important;
+        height: 42px !important;
+    }
+
     /* --- Standard Table Styles --- */
     .table-custom {
         width: 100%;
@@ -477,6 +509,123 @@
         background-color: #007aff;
         color: #ffffff;
     }
+
+    /* --- Comment Chat Thread --- */
+    .comment-thread-panel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        margin: 6px 0 16px;
+        padding: 14px;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
+    }
+
+    .comment-thread-list {
+        max-height: 280px;
+        overflow-y: auto;
+        margin-bottom: 14px;
+        padding: 2px 4px 2px 2px;
+    }
+
+    .comment-day-divider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 14px 0;
+        color: #94a3b8;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+
+    .comment-day-divider::before,
+    .comment-day-divider::after {
+        content: '';
+        height: 1px;
+        flex: 1;
+        background: #e2e8f0;
+    }
+
+    .comment-message {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin: 8px 0;
+    }
+
+    .comment-message.is-mine {
+        align-items: flex-end;
+    }
+
+    .comment-content-row {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .comment-message.is-mine .comment-content-row {
+        flex-direction: row-reverse;
+    }
+
+    .comment-bubble {
+        max-width: min(calc(100% - 72px), 440px);
+        padding: 8px 11px 7px;
+        border-radius: 14px 14px 14px 4px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 5px rgba(15, 23, 42, 0.04);
+    }
+
+    .comment-message.is-mine .comment-bubble {
+        border-color: #bfdbfe;
+        border-radius: 14px 14px 4px 14px;
+        background: #dbeafe;
+    }
+
+    .comment-author {
+        display: block;
+        margin: 0 8px 3px;
+        color: #2563eb;
+        font-size: 0.7rem;
+        font-weight: 800;
+    }
+
+    .comment-message.is-mine .comment-author {
+        color: #1d4ed8;
+    }
+
+    .comment-body {
+        color: #334155;
+        font-size: 0.82rem;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .comment-time {
+        display: none;
+        flex: 0 0 auto;
+        margin: 0 2px;
+        color: #94a3b8;
+        font-size: 0.64rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .comment-message.is-mine .comment-time {
+        color: #64748b;
+    }
+
+    @media (max-width: 576px) {
+        .comment-bubble {
+            max-width: calc(100% - 72px);
+        }
+
+        .comment-content-row {
+            max-width: 100%;
+        }
+    }
 </style>
 
 <div class="container-fluid">
@@ -496,8 +645,12 @@
                             </p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn-excel-action">
+                            <button type="button" class="btn-excel-action" id="exportMonthlyButton" onclick="exportMonthlyTaskExcel('monthly')" style="display: <?php echo !empty($data['is_customer_year_view']) ? 'none' : 'inline-flex'; ?>;">
                                 <i class="ri-upload-2-line"></i>
+                                <span>ส่งออก Excel</span>
+                            </button>
+                            <button type="button" class="btn-excel-action" onclick="exportMonthlyTaskExcel('customer_year')" id="exportCustomerYearButton" style="display: <?php echo !empty($data['is_customer_year_view']) ? 'inline-flex' : 'none'; ?>;">
+                                <i class="ri-user-3-line"></i>
                                 <span>ส่งออก Excel</span>
                             </button>
                         </div>
@@ -505,21 +658,12 @@
 
                     <!-- Stats Grid -->
                     <?php
-                    $monthly_tasks_list = $data['monthly_tasks'] ?? [];
-                    $total_customers_count = count($monthly_tasks_list);
-                    $doc_received_count = 0;
-                    $completed_count = 0;
-                    $tax_count = 0;
-                    $payment_count = 0;
-
-                    foreach ($monthly_tasks_list as $t_item) {
-                        if (($t_item['doc_status'] ?? '0') === '1') $doc_received_count++;
-                        $tot = (int)($t_item['total_tasks'] ?? 0);
-                        $comp = (int)($t_item['completed_tasks'] ?? 0);
-                        if ($tot > 0 && $tot === $comp) $completed_count++;
-                        if (($t_item['tax_status'] ?? '0') === '1') $tax_count++;
-                        if (($t_item['payment_status'] ?? '0') === '1') $payment_count++;
-                    }
+                    $monthly_task_stats = $data['monthly_task_stats'] ?? [];
+                    $total_customers_count = (int) ($monthly_task_stats['total_customers'] ?? 0);
+                    $doc_received_count = (int) ($monthly_task_stats['doc_received'] ?? 0);
+                    $completed_count = (int) ($monthly_task_stats['completed'] ?? 0);
+                    $tax_count = (int) ($monthly_task_stats['tax_submitted'] ?? 0);
+                    $payment_count = (int) ($monthly_task_stats['payment_received'] ?? 0);
                     ?>
                     <div class="stats-grid">
                         <div class="stat-card">
@@ -527,7 +671,7 @@
                                 <i class="ri-user-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val"><?php echo number_format($total_customers_count); ?></span>
+                                <span class="stat-val" id="statTotalCustomers"><?php echo number_format($total_customers_count); ?></span>
                                 <span class="stat-label">ลูกค้าในเดือนนี้</span>
                             </div>
                         </div>
@@ -537,7 +681,7 @@
                                 <i class="ri-draft-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val"><?php echo number_format($doc_received_count); ?></span>
+                                <span class="stat-val" id="statDocReceived"><?php echo number_format($doc_received_count); ?></span>
                                 <span class="stat-label">ได้รับเอกสาร</span>
                             </div>
                         </div>
@@ -547,7 +691,7 @@
                                 <i class="ri-checkbox-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val"><?php echo number_format($completed_count); ?></span>
+                                <span class="stat-val" id="statCompleted"><?php echo number_format($completed_count); ?></span>
                                 <span class="stat-label">งานเสร็จแล้ว</span>
                             </div>
                         </div>
@@ -557,7 +701,7 @@
                                 <i class="ri-mail-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val"><?php echo number_format($tax_count); ?></span>
+                                <span class="stat-val" id="statTaxSubmitted"><?php echo number_format($tax_count); ?></span>
                                 <span class="stat-label">ยื่นภาษีแล้ว</span>
                             </div>
                         </div>
@@ -567,17 +711,18 @@
                                 <i class="ri-wallet-3-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val"><?php echo number_format($payment_count); ?></span>
+                                <span class="stat-val" id="statPaymentReceived"><?php echo number_format($payment_count); ?></span>
                                 <span class="stat-label">ได้รับเงินแล้ว</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Month Selector Row (Bootstrap Utility Classes) -->
-                    <div class="d-flex align-items-center gap-2 my-4">
-                        <span class=" me-1">เลือกเดือน:</span>
-                        <div class="w-auto">
-                            <select class="form-select" id="monthSelect">
+                    <div class="d-flex align-items-center gap-2 my-4" id="monthlyTaskFilters">
+                        <div class="d-flex align-items-center gap-2 <?php echo !empty($data['is_customer_year_view']) ? 'month-filter-disabled' : ''; ?>" id="monthFilterWrap">
+                            <span class="me-1">เลือกเดือน:</span>
+                            <div class="w-auto" id="monthSelectWrap">
+                            <select class="form-select" id="monthSelect" <?php echo !empty($data['is_customer_year_view']) ? 'disabled' : ''; ?>>
                                 <?php
                                     $selectedMonth = (int) ($data['selected_month'] ?? date('n'));
                                     $months        = [
@@ -594,11 +739,28 @@
                                         11 => 'พฤศจิกายน',
                                         12 => 'ธันวาคม',
                                     ];
-                                    foreach ($months as $num => $name) {
-                                        $isSelected = ($num === $selectedMonth) ? 'selected' : '';
-                                        echo "<option value=\"$num\" $isSelected>$name</option>";
+                                    if (!empty($data['is_customer_year_view'])) {
+                                        echo '<option value="" selected>ไม่ระบุ</option>';
+                                    } else {
+                                        foreach ($months as $num => $name) {
+                                            $isSelected = ($num === $selectedMonth) ? 'selected' : '';
+                                            echo "<option value=\"$num\" $isSelected>$name</option>";
+                                        }
                                     }
                                 ?>
+                            </select>
+                            </div>
+                        </div>
+                        <span class="ms-3 me-1">เลือกลูกค้า:</span>
+                        <div class="customer-select-wrap" style="min-width: 200px; max-width: 200px; width: 100%;">
+                            <select class="form-select" id="customerSelect">
+                                <option value="all" <?php echo empty($data['selected_customer_id']) ? 'selected' : ''; ?>>ทั้งหมด</option>
+                                <?php foreach (($data['monthly_task_customers'] ?? []) as $customer): ?>
+                                    <option value="<?php echo (int) $customer['customer_id']; ?>"
+                                        <?php echo ((int) ($data['selected_customer_id'] ?? 0) === (int) $customer['customer_id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($customer['customer_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
@@ -606,18 +768,16 @@
                     <div class="filter-toolbar mb-3">
                         <div class="search-box-wrap">
                             <i class="ri-search-line"></i>
-                            <input type="text" class="search-input" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล ทีม">
+                            <input type="text" class="search-input" id="monthlyTaskSearch" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล ทีม">
                         </div>
 
                         <div class="filter-group mb-4">
-                            <?php
-                                $users = ['เมย์', 'ชมพู่', 'นิว'];
-                            ?>
                             <select class="form-select filter-select" id="selUser">
                                 <option value="">ทุกผู้ดูแล</option>
-                                <?php foreach ($users as $user): ?>
-                                    <option value="<?php echo htmlspecialchars($user); ?>">
-                                        <?php echo htmlspecialchars($user); ?>
+                                <?php foreach (($data['monthly_task_caretakers'] ?? []) as $user): ?>
+                                    <?php $userName = trim(($user['user_firstname'] ?? '') . ' ' . ($user['user_lastname'] ?? '')); ?>
+                                    <option value="<?php echo (int) $user['user_id']; ?>">
+                                        <?php echo htmlspecialchars($userName ?: 'ไม่ระบุชื่อ'); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -650,7 +810,13 @@
 
                     <!-- Table Container -->
 
-                    <?php include 'table/mounthly_task.php'; ?>
+                    <div id="monthlyTaskTable">
+                        <?php if (!empty($data['is_customer_year_view'])): ?>
+                            <?php include 'table/monthly_task_customer.php'; ?>
+                        <?php else: ?>
+                            <?php include 'table/mounthly_task.php'; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -674,6 +840,16 @@
 
                 <div class="modal-body" style="padding: 24px;">
                     <form id="formManageTask">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-secondary" style="font-size: 0.95rem;">ระบบราชการ</span>
+                                <span id="modalAccountCount" class="text-muted fw-semibold" style="font-size: 0.8rem;">- บัญชี</span>
+                            </div>
+                            <div id="modalAccountList" class="row g-3">
+                                <div class="col-12 text-center text-muted py-3" style="font-size: 0.85rem;">กำลังโหลด...</div>
+                            </div>
+                        </div>
+
                         <!-- Row 1: Dates -->
                         <div class="row mb-4">
                             <div class="col-md-6">
@@ -703,7 +879,6 @@
                             </div>
                         </div>
 
-
                         <!-- Row 3 & 4: Reviewer & Status (Two Columns Layout) -->
                         <div class="row">
                             <!-- Left Column: Reviews -->
@@ -711,11 +886,11 @@
                                 <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #334155;">การสอบทาน (Review)</h6>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 1)</label>
-                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold modal-search-select"
     id="modal_review1_user_id"
     style="border-radius: 8px; font-size: 0.9rem;">
 
-    <option value="">-- เลือกผู้สอบทาน --</option>
+    <option value="">เลือกผู้สอบทาน</option>
 
     <?php foreach (($data['review_users'] ?? []) as $reviewUser): ?>
         <option value="<?php echo (int)$reviewUser['user_id']; ?>">
@@ -732,11 +907,11 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 2)</label>
-                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold modal-search-select"
     id="modal_review2_user_id"
     style="border-radius: 8px; font-size: 0.9rem;">
 
-    <option value="">-- เลือกผู้สอบทาน --</option>
+    <option value="">เลือกผู้สอบทาน</option>
 
     <?php foreach (($data['review_users'] ?? []) as $reviewUser): ?>
         <option value="<?php echo (int)$reviewUser['user_id']; ?>">
@@ -753,11 +928,11 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 3)</label>
-                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold"
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold modal-search-select"
     id="modal_review3_user_id"
     style="border-radius: 8px; font-size: 0.9rem;">
 
-    <option value="">-- เลือกผู้สอบทาน --</option>
+    <option value="">เลือกผู้สอบทาน</option>
 
     <?php foreach (($data['review_users'] ?? []) as $reviewUser): ?>
         <option value="<?php echo (int)$reviewUser['user_id']; ?>">
@@ -779,14 +954,14 @@
                                 <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #334155;">สถานะเพิ่มเติม</h6>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการเก็บเงิน</label>
-                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_payment_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold modal-search-select" id="modal_payment_status" style="border-radius: 8px; font-size: 0.9rem;">
                                         <option value="0" selected>ยังไม่ได้รับ</option>
                                         <option value="1">ได้รับเงินแล้ว</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">สถานะการยื่นภาษี</label>
-                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold" id="modal_tax_status" style="border-radius: 8px; font-size: 0.9rem;">
+                                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold modal-search-select" id="modal_tax_status" style="border-radius: 8px; font-size: 0.9rem;">
                                         <option value="0" selected>ยังไม่ได้ยื่น</option>
                                         <option value="1">ยื่นแล้ว</option>
                                     </select>
@@ -826,18 +1001,105 @@
                 });
             }
 
-            $('#monthSelect').select2().on('change', function () {
-                var selectedMonth = $(this).val();
-                // รีเฟรชหน้าและส่ง param month ไปทาง URL
-                window.location.href = '<?php echo BASE_URL; ?>/monthly_task?month=' + selectedMonth;
+            $('#monthSelect').select2();
+
+            $('#customerSelect').select2({
+                placeholder: 'ค้นหาชื่อลูกค้า',
+                width: '100%'
             });
+
+            if (<?php echo !empty($data['is_customer_year_view']) ? 'true' : 'false'; ?>) {
+                $('#monthFilterWrap').addClass('month-filter-disabled');
+            }
 
             $('#selUser').select2();
             $('#selDocument').select2();
             $('#selTask').select2();
             $('#selTax').select2();
             $('#selPayment').select2();
+
+            $('.modal-search-select').select2({
+                width: '100%',
+                dropdownParent: $('#manageModal'),
+                minimumResultsForSearch: 0
+            });
+
+            $('#monthSelect, #customerSelect, #selUser, #selDocument, #selTask, #selTax, #selPayment')
+                .on('change', refreshMonthlyTaskTable);
+
+            let searchTimer;
+            $('#monthlyTaskSearch').on('input', function () {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(refreshMonthlyTaskTable, 300);
+            });
+
+            $('#customerSelect').on('change', function () {
+                const hasCustomer = $(this).val() && $(this).val() !== 'all';
+                $('#monthFilterWrap').toggleClass('month-filter-disabled', hasCustomer);
+                $('#monthSelect').prop('disabled', hasCustomer).trigger('change.select2');
+                $('#exportCustomerYearButton').toggle(hasCustomer);
+                $('#exportMonthlyButton').toggle(!hasCustomer);
+            });
+
+            function refreshMonthlyTaskTable() {
+                const customerValue = $('#customerSelect').val();
+                const params = new URLSearchParams({
+                    month: customerValue === 'all' ? $('#monthSelect').val() : '',
+                    customer_id: customerValue === 'all' ? '' : (customerValue || ''),
+                    caretaker_id: $('#selUser').val() || '',
+                    doc_status: $('#selDocument').val() || '',
+                    task_status: $('#selTask').val() || '',
+                    tax_status: $('#selTax').val() || '',
+                    payment_status: $('#selPayment').val() || ''
+                    ,keyword: $('#monthlyTaskSearch').val().trim()
+                });
+
+                $('#monthlyTaskTable').html(`
+                    <div class="d-flex justify-content-center align-items-center py-5 text-muted">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        กำลังโหลดข้อมูล...
+                    </div>
+                `);
+
+                fetch('<?php echo BASE_URL; ?>/monthly_task/filter?' + params.toString(), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status !== 'success') {
+                            throw new Error(data.message || 'ไม่สามารถโหลดข้อมูลได้');
+                        }
+
+                        $('#monthlyTaskTable').html(data.html);
+                        $('#statTotalCustomers').text(Number(data.stats.total_customers || 0).toLocaleString());
+                        $('#statDocReceived').text(Number(data.stats.doc_received || 0).toLocaleString());
+                        $('#statCompleted').text(Number(data.stats.completed || 0).toLocaleString());
+                        $('#statTaxSubmitted').text(Number(data.stats.tax_submitted || 0).toLocaleString());
+                        $('#statPaymentReceived').text(Number(data.stats.payment_received || 0).toLocaleString());
+                    })
+                    .catch(error => {
+                        $('#monthlyTaskTable').html('<div class="text-center text-danger py-5">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>');
+                        console.error(error);
+                    });
+            }
         });
+
+        function exportMonthlyTaskExcel(exportMode) {
+            const customerValue = $('#customerSelect').val();
+            const params = new URLSearchParams({
+            export_mode: exportMode,
+            month: exportMode === 'monthly' ? ($('#monthSelect').val() || '0') : '0',
+            customer_id: exportMode === 'customer_year' ? (customerValue || '0') : '0',
+                caretaker_id: $('#selUser').val() || '',
+                doc_status: $('#selDocument').val() || '',
+                task_status: $('#selTask').val() || '',
+                tax_status: $('#selTax').val() || '',
+                payment_status: $('#selPayment').val() || '',
+                keyword: ($('#monthlyTaskSearch').val() || '').trim()
+            });
+
+            window.location.href = '<?php echo BASE_URL; ?>/monthly_task/export?' + params.toString();
+        }
 
         let currentManagePeriodId = null;
 
@@ -855,15 +1117,21 @@
             // โหลด tasks จาก DB ตาม period_id
             const taskList = document.getElementById('modalTaskList');
             const taskCount = document.getElementById('modalTaskCount');
+            const accountList = document.getElementById('modalAccountList');
+            const accountCount = document.getElementById('modalAccountCount');
 
             taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
             taskCount.textContent = '- งาน';
+            accountList.innerHTML = '<div class="col-12 text-center text-muted py-3" style="font-size:0.85rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
+            accountCount.textContent = '- บัญชี';
 
             if (!period_id) return;
 
             fetch('<?php echo BASE_URL; ?>/monthly_task/items?period_id=' + period_id)
                 .then(res => res.json())
                .then(data => {
+                renderCustomerAccounts(data.accounts || [], accountList, accountCount);
+
                 if (data.result !== 1 || !data.tasks.length) {
          taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;">ไม่พบรายการงาน</div>';
          taskCount.textContent = '0 งาน';
@@ -896,7 +1164,7 @@
 
         <!-- Right side: Amount Input (ย้ายมาก่อน) & Select dropdown -->
         <div class="d-flex align-items-center gap-2">
-            ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.nextElementSibling.value='1';}">` : ''}
+            ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 3px !important;height: 30px !important; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.nextElementSibling.value='1';}">` : ''}
             <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0 task-status-select"
                     data-customer-tasks-id="${t.customer_tasks_id}"
                     style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
@@ -918,7 +1186,30 @@
         })
         .catch(() => {
             taskList.innerHTML = '<div class="text-center text-danger py-3" style="font-size:0.85rem;">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+            accountList.innerHTML = '<div class="col-12 text-center text-danger py-3" style="font-size:0.85rem;">ไม่สามารถโหลดบัญชีได้</div>';
+            accountCount.textContent = '0 บัญชี';
         });
+    }
+
+    function renderCustomerAccounts(accounts, accountList, accountCount) {
+        const accountRows = accounts.length ? accounts : [{
+            account_name: 'ไม่ระบุ',
+            account_pasword: 'ไม่ระบุ'
+        }];
+
+        accountCount.textContent = accountRows.length + ' บัญชี';
+        accountList.innerHTML = accountRows.map((account, index) => `
+            <div class="col-12" style="${index > 0 ? 'border-top: 1px solid #e2e8f0; padding-top: 10px;' : ''}">
+                <div>${escapeHtml(account.account_name || '')} - User</div>
+                <div>${escapeHtml(account.account_pasword || '')} - Passwprd</div>
+            </div>
+        `).join('');
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>'"]/g, character => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;'
+        }[character]));
     }
 
     function toggleCommentThread(customerTasksId, taskName, triggerElement) {
@@ -943,25 +1234,15 @@
     if (icon) icon.className = 'ri-arrow-up-s-line';
 
     const panelHtml = `
-        <div class="comment-thread-panel" style="
-            background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
-            border-radius: 16px;
-            margin: 6px 0 16px;
-            padding: 16px;
-            border: 1.5px solid #dbeafe;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.06);
-            opacity: 0;
-            transform: translateY(-6px);
-            transition: opacity 0.2s ease, transform 0.2s ease;
-        ">
+        <div class="comment-thread-panel" style="opacity: 0; transform: translateY(-6px); transition: opacity 0.2s ease, transform 0.2s ease;">
             <div class="d-flex align-items-center gap-2 mb-3">
-                <div style="width:26px; height:26px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 6px rgba(37,99,235,0.35);">
+                <div style="width:26px; height:26px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center;">
                     <i class="ri-chat-3-fill" style="color:#fff; font-size:0.75rem;"></i>
                 </div>
-                <span style="font-size:0.82rem; font-weight:800; color:#1e3a8a; letter-spacing:0.2px;">${taskName}</span>
-                <span class="comment-count-badge" style="font-size:0.68rem; font-weight:700; color:#2563eb; background:#dbeafe; padding:2px 8px; border-radius:20px; margin-left:auto;">…</span>
+                <span style="font-size:0.82rem; font-weight:800; color:#1e3a8a;">${escapeHtml(taskName)}</span>
+                
             </div>
-            <div class="comment-thread-list" style="max-height: 240px; overflow-y:auto; margin-bottom: 14px; padding-right: 4px;">
+            <div class="comment-thread-list">
                 <div class="text-center text-muted py-3" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>
             </div>
             <div class="d-flex gap-2 align-items-center">
@@ -1032,7 +1313,7 @@ function loadComments(customerTasksId, listEl, countBadge) {
         .then(res => res.json())
         .then(data => {
             const comments = data.comments || [];
-            // if (countBadge) countBadge.textContent = comments.length + ' ข้อความ';
+            if (countBadge) countBadge.textContent = comments.length + ' ข้อความ';
 
             if (!comments.length) {
                 listEl.innerHTML = `
@@ -1042,16 +1323,23 @@ function loadComments(customerTasksId, listEl, countBadge) {
                     </div>`;
                 return;
             }
+            let previousDay = '';
             listEl.innerHTML = comments.map(c => {
-                const name = c.user_name || 'ไม่ระบุ';
-                return `
-                <div class="mb-2">
-                    <div style="background:#fff; border-left: 3px solid #93c5fd; border-radius: 4px; padding:8px 12px; box-shadow: 0 1px 4px rgba(15,23,42,0.04);">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span style="font-size:0.75rem; font-weight:800; color:#475569;">${name}</span>
-                            <span style="font-size:0.65rem; color:#94a3b8; font-weight:600;">${c.created_at_display || ''}</span>
+                const dayKey = String(c.create_at || '').slice(0, 10) || String(c.created_at_display || '').slice(0, 10);
+                const dayLabel = formatCommentDate(c.create_at, c.created_at_display);
+                const isMine = String(c.comment_user_id) === String(MONTHLY_TASK_CURRENT_USER_ID);
+                const dayDivider = dayKey !== previousDay
+                    ? `<div class="comment-day-divider"><span>${escapeHtml(dayLabel)}</span></div>`
+                    : '';
+                previousDay = dayKey;
+
+                return `${dayDivider}
+                <div class="comment-message ${isMine ? 'is-mine' : ''}">
+                    <span class="comment-author">${escapeHtml(c.user_name || 'ไม่ระบุ')}</span>
+                    <div class="comment-content-row">
+                        <div class="comment-bubble">
+                            <div class="comment-body">${escapeHtml(c.comment_text || '')}</div>
                         </div>
-                        <div style="font-size:0.8rem; color:#334155; line-height:1.4; word-break:break-word;">${c.comment_text}</div>
                     </div>
                 </div>`;
             }).join('');
@@ -1060,6 +1348,22 @@ function loadComments(customerTasksId, listEl, countBadge) {
         .catch(() => {
             listEl.innerHTML = '<div class="text-center text-dark py-3" style="font-size:0.8rem;">ยังไม่มีข้อมูล</div>';
         });
+}
+
+const MONTHLY_TASK_CURRENT_USER_ID = <?php echo json_encode((string) ($data['user_id'] ?? '')); ?>;
+
+function formatCommentDate(rawDate, fallback) {
+    if (!rawDate) return fallback || 'ไม่ระบุวันที่';
+    const date = new Date(String(rawDate).replace(' ', 'T'));
+    if (Number.isNaN(date.getTime())) return fallback || 'ไม่ระบุวันที่';
+    return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function formatCommentTime(rawDate, fallback) {
+    if (!rawDate) return fallback || '';
+    const timeMatch = String(rawDate).match(/\b(\d{2}):(\d{2})(?::\d{2})?\b/);
+    if (!timeMatch) return fallback || '';
+    return `${timeMatch[1]}:${timeMatch[2]} น.`;
 }
 
 function postComment(customerTasksId, text) {
