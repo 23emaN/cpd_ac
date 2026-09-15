@@ -795,6 +795,86 @@
             max-width: 800px !important;
         }
 
+        /* --- Mobile Responsive Rules for Header --- */
+        @media (max-width: 768px) {
+            .acc-topbar {
+                padding: 10px 15px;
+                min-height: 60px;
+            }
+            .acc-brand-info {
+                display: none;
+            }
+            .acc-company-container {
+                max-width: calc(100vw - 220px);
+                padding: 4px;
+                scrollbar-width: none;
+            }
+            .acc-company-container::-webkit-scrollbar {
+                display: none;
+            }
+            .acc-workspace-btn {
+                padding: 6px 10px 6px 8px;
+                height: 40px;
+                min-height: 40px;
+            }
+            .acc-workspace-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+            .acc-workspace-name {
+                font-size: 0.8rem;
+                max-width: 90px;
+            }
+            .acc-workspace-year {
+                font-size: 0.65rem;
+            }
+            .acc-workspace-badge {
+                display: none;
+            }
+            .acc-add-workspace-btn {
+                height: 40px;
+                min-height: 40px;
+                padding: 0 10px;
+            }
+            .acc-add-workspace-text {
+                display: none;
+            }
+            .acc-add-workspace-icon {
+                width: 24px;
+                height: 24px;
+            }
+            .acc-user-info {
+                display: none;
+            }
+            .acc-user-profile {
+                padding: 4px;
+                border: none;
+                background: transparent;
+            }
+            .acc-user-avatar {
+                width: 32px;
+                height: 32px;
+            }
+            .acc-logout-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            .acc-notif-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 17px;
+            }
+            .header-burger-menu {
+                width: 38px;
+                height: 38px;
+                margin-left: 8px;
+                margin-right: 4px;
+                font-size: 18px;
+            }
+        }
+
         /* ==================================================
            --- Global Modal Custom Styling (Standard CPD ACC) ---
            ================================================== */
@@ -2361,18 +2441,30 @@
                 </div>
             </div>
 
-            <div class="acc-user-profile" title="ข้อมูลผู้ใช้งาน">
-                <div class="acc-user-avatar">
-                    <i class="ri-user-3-fill"></i>
+            <div class="dropdown">
+                <div class="acc-user-profile" title="ข้อมูลผู้ใช้งาน" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;" id="profileDropdownBtn">
+                    <div class="acc-user-avatar">
+                        <i class="ri-user-3-fill"></i>
+                    </div>
+                    <div class="acc-user-info d-none d-sm-flex pe-2">
+                        <span class="acc-user-name">
+                            <?php echo htmlspecialchars(trim(($data['firstname'] ?? $_SESSION['user_firstname'] ?? '') . ' ' . ($data['lastname'] ?? $_SESSION['user_lastname'] ?? 'ผู้ใช้งาน'))) ?>
+                        </span>
+                        <span class="acc-user-role">
+                            <?php echo(! empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
+                        </span>
+                    </div>
                 </div>
-                <div class="acc-user-info d-none d-sm-flex">
-                    <span class="acc-user-name">
-                        <?php echo htmlspecialchars(trim(($data['firstname'] ?? $_SESSION['user_firstname'] ?? '') . ' ' . ($data['lastname'] ?? $_SESSION['user_lastname'] ?? 'ผู้ใช้งาน'))) ?>
-                    </span>
-                    <span class="acc-user-role">
-                        <?php echo(! empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
-                    </span>
-                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdownBtn" style="border-radius: 12px; min-width: 250px; padding: 10px; border: 1px solid #edf2f7; margin-top: 10px;">
+                    <li>
+                        <div class="d-flex align-items-center justify-content-between px-3 py-2">
+                            <span style="font-weight: 500; font-size: 14px; color: #475569;">อนุญาตการแจ้งเตือน</span>
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input" type="checkbox" id="webPushToggle" style="cursor: pointer; width: 40px; height: 20px;">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
             </div>
 
             <!-- Logout Button -->
@@ -2992,6 +3084,37 @@ function showCompanyNameError(message) {
             loadNotifications();
             // Optional: Auto fetch every 1 minute
             setInterval(loadNotifications, 60000);
+
+            // Web Push Toggle Logic
+            const webPushToggle = document.getElementById('webPushToggle');
+            if (webPushToggle) {
+                // Initial State
+                if (Notification.permission === 'granted' && localStorage.getItem('web_push_enabled') !== 'false') {
+                    webPushToggle.checked = true;
+                }
+
+                webPushToggle.addEventListener('change', async function() {
+                    const isChecked = this.checked;
+                    this.disabled = true;
+
+                    if (isChecked) {
+                        if (typeof subscribeUserToPush === 'function') {
+                            const success = await subscribeUserToPush();
+                            if (success) {
+                                localStorage.setItem('web_push_enabled', 'true');
+                            } else {
+                                this.checked = false;
+                            }
+                        }
+                    } else {
+                        if (typeof unsubscribeUserFromPush === 'function') {
+                            await unsubscribeUserFromPush();
+                            localStorage.setItem('web_push_enabled', 'false');
+                        }
+                    }
+                    this.disabled = false;
+                });
+            }
         });
 
     </script>

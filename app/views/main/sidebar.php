@@ -188,7 +188,81 @@ $assinge_pages = ['assign_task'];
         display: none !important;
         content: none !important;
     }
+
+    /* --- Mobile Responsive Rules for Sidebar --- */
+    @media (max-width: 768px) {
+        .sidebar-area {
+            position: fixed !important;
+            top: 0 !important;
+            left: -280px; /* Hide outside viewport by default */
+            height: 100% !important;
+            min-height: 100vh !important;
+            width: 260px !important;
+            z-index: 100000 !important; /* Force above header */
+            transition: left 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            padding-top: 20px; /* ลด padding-top เพราะไม่มี topbar บังแล้ว */
+            background-color: #ffffff !important;
+        }
+
+        /* เมื่อถูกสั่งเปิดโดยคลิก Burger Menu (custom.js จะเปลี่ยน attribute ของ body เป็น sidebar-hide ในมือถือ) */
+        body[sidebar-data-theme="sidebar-hide"] .sidebar-area {
+            left: 0 !important;
+        }
+
+        /* Backdrop พื้นหลังสีดำจางๆ บนมือถือ */
+        .sidebar-backdrop {
+            display: none !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100vh !important;
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            z-index: 99999 !important;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        body[sidebar-data-theme="sidebar-hide"] .sidebar-backdrop {
+            display: block !important;
+            opacity: 1 !important;
+        }
+        
+        /* ปิดโหมดซ่อนเมนูเล็ก (Mini sidebar) บนมือถือ ให้โชว์แบบเต็มเสมอเมื่อเปิด */
+        [sidebar-data-theme="sidebar-hide"] .sidebar-area,
+        body[sidebar-data-theme="sidebar-hide"] .sidebar-area {
+            width: 260px !important;
+        }
+        [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-title,
+        [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link .title {
+            display: block !important;
+        }
+        [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link {
+            justify-content: flex-start !important;
+            padding: 7px 12px !important;
+        }
+        [sidebar-data-theme="sidebar-hide"] .sidebar-area .menu-item .menu-link .menu-icon {
+            margin-right: 10px !important;
+            font-size: 1.15rem !important;
+        }
+
+        /* ล้างระยะห่างของเนื้อหาหลักที่ถูกดันโดยเมนูด้านซ้ายบนจอคอม */
+        body .main-content,
+        body[sidebar-data-theme="sidebar-hide"] .main-content,
+        body .layout-page,
+        body .content-wrapper,
+        .main-page-wrapper {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+    }
 </style>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="document.body.setAttribute('sidebar-data-theme', 'sidebar-show');"></div>
 
 <div class="sidebar-area" id="sidebar-area">
 
@@ -360,8 +434,7 @@ $assinge_pages = ['assign_task'];
             window.location.reload();
         });
 
-        // Initialize Web Push
-        subscribeUserToPush();
+        // Initialize Web Push is now handled by the profile toggle in header.php
     });
 
     function urlB64ToUint8Array(base64String) {
@@ -400,15 +473,44 @@ $assinge_pages = ['assign_task'];
                         applicationServerKey: applicationServerKey
                     });
 
-                    await fetch(baseUrl + '/notification/subscribe', {
+                    const saveRes = await fetch(baseUrl + '/notification/subscribe', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(subscription)
                     });
+                    
+                    if (saveRes.ok) return true;
                 }
+                return false;
             } catch (error) {
                 console.error('Push Subscription error:', error);
+                return false;
             }
         }
+        return false;
+    }
+
+    async function unsubscribeUserFromPush() {
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                const subscription = await registration.pushManager.getSubscription();
+                if (subscription) {
+                    await subscription.unsubscribe();
+                    
+                    const baseUrl = "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>";
+                    await fetch(baseUrl + '/notification/unsubscribe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ endpoint: subscription.endpoint })
+                    });
+                }
+                return true;
+            } catch (error) {
+                console.error('Push Unsubscription error:', error);
+                return false;
+            }
+        }
+        return false;
     }
 </script>

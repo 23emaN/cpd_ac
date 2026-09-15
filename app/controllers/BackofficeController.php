@@ -2288,28 +2288,6 @@ class BackofficeController
         ]);
     }
 
-    public function getNotifications()
-    {
-        header('Content-Type: application/json; charset=utf-8');
-        $this->checkAuth();
-        $userId = $this->userPayload['user_id'] ?? null;
-        if (!$userId) {
-            echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
-            return;
-        }
-
-        require_once '../app/models/NotificationModel.php';
-        $notifModel = new \App\Models\NotificationModel();
-        
-        $notifications = $notifModel->getUnreadNotifications($userId, 20);
-        $count = $notifModel->getUnreadCount($userId);
-
-        echo json_encode([
-            'result' => 1,
-            'count' => $count,
-            'data' => $notifications
-        ]);
-    }
 
 
     public function readNotification()
@@ -2390,6 +2368,38 @@ class BackofficeController
         }
     }
 
+    public function unsubscribePush()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+        $userId = $this->userPayload['user_id'] ?? null;
+
+        if (! $userId) {
+            echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (empty($input['endpoint'])) {
+            echo json_encode(['result' => 0, 'msg' => 'Invalid data']);
+            return;
+        }
+
+        try {
+            require_once '../app/config/Connection.php';
+            $pdo = \App\config\Connection::getInstance()->getPdo();
+            $endpoint = $input['endpoint'];
+
+            // Delete subscription
+            $stmt = $pdo->prepare("DELETE FROM tbl_push_subscriptions WHERE endpoint = ? AND user_id = ?");
+            $stmt->execute([$endpoint, $userId]);
+
+            echo json_encode(['result' => 1, 'msg' => 'Unsubscribed']);
+        } catch (\Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => $e->getMessage()]);
+        }
+    }
+
     private function sendWebPush($userId, $title, $body, $url = '')
     {
         try {
@@ -2446,6 +2456,11 @@ class BackofficeController
 
      function assign_task()
         {
+            // เปิดแสดง Error ทั้งหมดบนหน้าจอ (สำหรับการ Debug)
+            ini_set('display_errors', '1');
+            ini_set('display_startup_errors', '1');
+            error_reporting(E_ALL);
+
             // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
             $this->checkAuth();
 
@@ -2457,18 +2472,166 @@ class BackofficeController
                 exit();
             }
 
+            require_once '../app/models/CompanyModel.php';
+            $companyModel = new CompanyModel();
+            $userId       = $this->userPayload['user_id'] ?? null;
+            $companies    = $companyModel->getAllCompanies($userId);
+
+            // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+            $active_company_id  = '';
+            $active_fiscal_year = '';
+            foreach ($companies as $company) {
+                if (isset($company['fiscal_years'])) {
+                    foreach ($company['fiscal_years'] as $fy) {
+                        $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                        if ($fy_id == $fiscal_id) {
+                            $active_company_id  = $company['company_id'] ?? $company['id'] ?? '';
+                            $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            require_once '../app/models/UserModel.php';
+            $userModel = new UserModel();
+            $employees = $userModel->getEmployeesByFiscalAndCompany($fiscal_id, $active_company_id);
+
+            require_once '../app/models/AssignTaskModel.php';
+            $assignTaskModel = new AssignTaskModel();
+
+            // Pagination setup
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $limit = 10;
+            $offset = ($page - 1) * $limit;
+
+            // Filters
+            $filters = [
+                'assignee_id' => $_GET['assignee_id'] ?? '',
+                'status' => $_GET['status'] ?? ''
+            ];
+
+            $tasks = $assignTaskModel->getAssignTasks($active_company_id, $fiscal_id, $filters, $limit, $offset);
+            $totalTasks = $assignTaskModel->getAssignTasksCount($active_company_id, $fiscal_id, $filters);
+            $totalPages = ceil($totalTasks / $limit);
+            $stats = $assignTaskModel->getAssignTaskStats($active_company_id, $fiscal_id);
+
             // 3. เตรียมข้อมูล
             $data = [
-                'title'          => 'การมอบหมายงาน',
-                'user'           => $this->userPayload,
-                'user_id'        => $this->userPayload['user_id'] ?? '',
-                'firstname'      => $this->userPayload['user_firstname'] ?? '',
-                'lastname'       => $this->userPayload['user_lastname'] ?? '',
-                'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
-                'fiscal_id'      => $fiscal_id,
+                'title'              => 'การมอบหมายงาน',
+                'user'               => $this->userPayload,
+                'user_id'            => $this->userPayload['user_id'] ?? '',
+                'firstname'          => $this->userPayload['user_firstname'] ?? '',
+                'lastname'           => $this->userPayload['user_lastname'] ?? '',
+                'is_super_admin'     => $this->userPayload['is_super_admin'] ?? '0',
+                'fiscal_id'          => $fiscal_id,
+                'companies'          => $companies,
+                'active_company_id'  => $active_company_id,
+                'active_fiscal_year' => $active_fiscal_year,
+                'employees'          => $employees,
+                'tasks'              => $tasks,
+                'stats'              => $stats,
+                'pagination'         => [
+                    'current_page' => $page,
+                    'total_pages'  => $totalPages,
+                    'total_items'  => $totalTasks,
+                    'limit'        => $limit
+                ],
+                'filters'            => $filters
             ];
 
             // 4. ดึงหน้า View มาแสดงผล
             require_once '../app/views/backoffice/assign_task.php';
+        }
+        
+        function saveAssignTask()
+        {
+            // เปิดแสดง Error สำหรับ Debug (ควรปิดตอน Production)
+            ini_set('display_errors', '1');
+            error_reporting(E_ALL);
+
+            $this->checkAuth();
+            
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+                $user_id   = $this->userPayload['user_id'] ?? null;
+                
+                // ดึง active_company_id จาก logic เดิม (หรือถ้า front-end ส่งมาก็ใช้จาก POST ได้เลย)
+                // สำหรับความง่ายในตอนนี้ หากไม่ได้ส่ง company_id มา ให้ดึงจาก company ของ user ที่เกี่ยวกับ fiscal_id
+                require_once '../app/models/CompanyModel.php';
+                $companyModel = new CompanyModel();
+                $companies    = $companyModel->getAllCompanies($user_id);
+                $active_company_id = '';
+                foreach ($companies as $company) {
+                    if (isset($company['fiscal_years'])) {
+                        foreach ($company['fiscal_years'] as $fy) {
+                            if (($fy['fiscal_id'] ?? $fy['id'] ?? '') == $fiscal_id) {
+                                $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                                break 2;
+                            }
+                        }
+                    }
+                }
+                
+                if (empty($active_company_id) || empty($fiscal_id)) {
+                    echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลปีบัญชีหรือบริษัทที่กำลังใช้งาน']);
+                    exit;
+                }
+
+                $assign_title  = $_POST['assign_title'] ?? '';
+                $assign_detail = $_POST['assign_detail'] ?? '';
+                $assignee_id   = $_POST['user_id'] ?? ''; // จาก Select
+                $due_date      = $_POST['due_date'] ?? '';
+
+                if (empty($assign_title) || empty($assignee_id) || empty($due_date)) {
+                    echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน']);
+                    exit;
+                }
+
+                require_once '../app/models/AssignTaskModel.php';
+                $assignTaskModel = new AssignTaskModel();
+                
+                $data = [
+                    'company_id'     => $active_company_id,
+                    'user_id'        => $assignee_id,
+                    'fiscal_id'      => $fiscal_id,
+                    'assign_title'   => $assign_title,
+                    'assign_detail'  => $assign_detail,
+                    'due_date'       => $due_date,
+                    'create_user_id' => $user_id
+                ];
+                
+                try {
+                    $assign_id = $assignTaskModel->createAssignTask($data);
+                    if ($assign_id) {
+                        
+                        // -- ส่งอีเมลแจ้งเตือน --
+                        require_once '../app/models/UserModel.php';
+                        $userModelForMail = new UserModel();
+                        $assignedUser = $userModelForMail->getUserById($assignee_id);
+                        
+                        $emailSent = false;
+                        if ($assignedUser && !empty($assignedUser['user_email'])) {
+                            $toEmail = $assignedUser['user_email']; 
+                            $toName = trim(($assignedUser['user_firstname'] ?? '') . ' ' . ($assignedUser['user_lastname'] ?? ''));
+                            
+                            require_once '../app/services/MailService.php';
+                            $mailService = new \App\Services\MailService();
+                            $emailSent = $mailService->sendTaskAssignmentEmail($toEmail, $toName, $assign_title, $due_date, $assign_detail);
+                        }
+
+                        $msg = 'มอบหมายงานสำเร็จ';
+                        if (!$emailSent) {
+                            $msg .= ' (แต่ไม่สามารถส่งอีเมลแจ้งเตือนได้ อาจตั้งค่า SMTP ไม่ถูกต้องหรือไม่มีอีเมล)';
+                        }
+                        
+                        echo json_encode(['result' => 1, 'msg' => $msg]);
+                    } else {
+                        echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถมอบหมายงานได้']);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+                }
+            }
         }
 }

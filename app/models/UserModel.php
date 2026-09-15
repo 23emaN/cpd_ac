@@ -9,6 +9,12 @@ class UserModel extends Model {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getUserById($userId) {
+        $stmt = $this->pdo->prepare("SELECT * FROM tbl_user WHERE user_id = :user_id");
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function insertUser($data) {
         $stmt = $this->pdo->prepare(
             "INSERT INTO tbl_user (
