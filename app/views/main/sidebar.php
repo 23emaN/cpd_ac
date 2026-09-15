@@ -8,6 +8,7 @@ $now_page = trim(strtok($current_url, '/'));
 
 $overview_pages = ['backoffice'];
 $monthly_dash_pages = ['monthly_dash'];
+$customer_dash_pages = ['customer_dash'];
 $yearly_dash_pages = ['yearly_dash'];
 $monthly_task_pages = ['monthly_tasks', 'monthly_task'];
 $closing_pages = ['closing',];
@@ -300,6 +301,14 @@ $assinge_pages = ['assign_task'];
                 </a>
             </li>
 
+            <li class="menu-item <?php echo in_array($now_page, $customer_dash_pages) ? 'open active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/customer_dash"
+                    class="menu-link <?php echo in_array($now_page, $customer_dash_pages) ? 'active' : '' ?>">
+                    <i class="ri-user-search-line menu-icon"></i>
+                    <span class="title">แดชบอร์ดลูกค้า</span>
+                </a>
+            </li>
+
             <li class="menu-item <?php echo in_array($now_page, $yearly_dash_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/yearly_dash"
                     class="menu-link <?php echo in_array($now_page, $yearly_dash_pages) ? 'active' : '' ?>">
@@ -455,7 +464,15 @@ $assinge_pages = ['assign_task'];
                 const registration = await navigator.serviceWorker.register(baseUrl + '/sw.js');
                 await navigator.serviceWorker.ready;
 
-                const response = await fetch(baseUrl + '/notification/vapid-public-key');
+                const response = await fetch(baseUrl + '/notification/vapid-public-key', {
+                    credentials: 'same-origin',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok || !(response.headers.get('content-type') || '').includes('application/json')) {
+                    return false;
+                }
+
                 const data = await response.json();
                 
                 if (!data.publicKey) return false;
@@ -475,6 +492,7 @@ $assinge_pages = ['assign_task'];
 
                     const saveRes = await fetch(baseUrl + '/notification/subscribe', {
                         method: 'POST',
+                        credentials: 'same-origin',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(subscription)
                     });

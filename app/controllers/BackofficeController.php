@@ -665,6 +665,109 @@ class BackofficeController
     }
 
 
+<<<<<<< HEAD
+=======
+
+    public function customer_dash()
+    {
+        $this->checkAuth();
+
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+        if (!$fiscal_id) {
+            header("Location: " . BASE_URL . "/main");
+            exit();
+        }
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $companies = $companyModel->getAllCompanies($userId);
+
+        $active_company_id = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            foreach ($company['fiscal_years'] ?? [] as $fy) {
+                $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                if ($fy_id == $fiscal_id) {
+                    $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                    $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                    break 2;
+                }
+            }
+        }
+
+        require_once '../app/models/CustomerModal.php';
+        require_once '../app/models/CustomerDashModel.php';
+        $customerModel = new CustomModal();
+        $customerDashModel = new CustomerDashModel();
+        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id);
+        $totalTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
+        $completedTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
+        $totalAccountsAmount = array_sum(array_map(static fn ($customer) => (float) ($customer['accounts_amount'] ?? 0), $customerWork));
+        $completedCustomers = count(array_filter($customerWork, static function ($customer) {
+            return (int) ($customer['total_tasks'] ?? 0) > 0
+                && (int) ($customer['total_tasks'] ?? 0) === (int) ($customer['completed_tasks'] ?? 0);
+        }));
+
+        $data = [
+            'title' => 'แดชบอร์ดลูกค้า',
+            'user' => $this->userPayload,
+            'user_id' => $this->userPayload['user_id'] ?? '',
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
+            'fiscal_id' => $fiscal_id,
+            'companies' => $companies,
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'stats' => $customerModel->getCustomersgid($fiscal_id),
+            'customers' => $customerWork,
+            'work_stats' => [
+                'total_customers' => count($customerWork),
+                'total_tasks' => $totalTasks,
+                'completed_tasks' => $completedTasks,
+                'unfinished_tasks' => max(0, $totalTasks - $completedTasks),
+                'total_accounts_amount' => $totalAccountsAmount,
+                'completed_customers' => $completedCustomers,
+            ],
+        ];
+
+        require_once '../app/views/backoffice/customer_dash.php';
+    }
+
+    public function customerDashboardDetails()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+
+        $fiscalId = $_SESSION['fiscal_year_id'] ?? null;
+        $customerId = ctype_digit((string) ($_GET['customer_id'] ?? ''))
+            ? (int) $_GET['customer_id']
+            : 0;
+        if (!$fiscalId || $customerId < 1) {
+            echo json_encode(['result' => 0, 'msg' => 'ข้อมูลไม่ครบถ้วน'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        require_once '../app/models/CustomerDashModel.php';
+        $model = new CustomerDashModel();
+        $details = $model->getCustomerWorkDetails($fiscalId, $customerId);
+
+        ob_start();
+        $data = [
+            'customer_task_details' => $details,
+            'customer_task_customer_name' => $details[0]['customer_name'] ?? 'ลูกค้าที่เลือก',
+        ];
+        require '../app/views/backoffice/table/customer_task_detail.php';
+        $html = ob_get_clean();
+
+        echo json_encode([
+            'result' => 1,
+            'html' => $html,
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+>>>>>>> 82025dc (Dashbord Customer)
     public function customerFilter()
     {
         $this->checkAuth();

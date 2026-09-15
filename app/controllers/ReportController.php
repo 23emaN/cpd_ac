@@ -48,6 +48,42 @@ class ReportController
         $customerReport->export($customers);
     }
 
+    public function customerDashboardExcel()
+    {
+        $this->checkAuth();
+
+        $fiscalId = $_SESSION['fiscal_year_id'] ?? null;
+        if (!$fiscalId) {
+            header('Location: ' . BASE_URL . '/customer_dash');
+            exit();
+        }
+
+        require_once '../app/models/CustomerDashModel.php';
+        require_once '../app/reports/CustomerDashReport.php';
+        require_once '../app/models/CompanyModel.php';
+
+        $model = new CustomerDashModel();
+        $companies = (new CompanyModel())->getAllCompanies($this->userPayload['user_id'] ?? null);
+        $companyName = 'ไม่ระบุบริษัท';
+        $fiscalYear = 'ไม่ระบุปี';
+        foreach ($companies as $company) {
+            foreach (($company['fiscal_years'] ?? []) as $fiscal) {
+                $currentFiscalId = $fiscal['fiscal_id'] ?? $fiscal['id'] ?? null;
+                if ((string) $currentFiscalId === (string) $fiscalId) {
+                    $companyName = $company['company_name'] ?? $company['name'] ?? $companyName;
+                    $fiscalYear = $fiscal['fiscal_years'] ?? $fiscal['working_year'] ?? $fiscal['year'] ?? $fiscalYear;
+                    break 2;
+                }
+            }
+        }
+
+        (new CustomerDashReport())->export(
+            $model->getCustomerWorkDashboard($fiscalId),
+            $fiscalYear,
+            $companyName
+        );
+    }
+
     public function monthlyTaskExcel()
     {
         $this->checkAuth();
