@@ -173,6 +173,7 @@ class MonthlyTaskModal extends Model
     }
 
     public function getMonthlyTasks($fiscalId, $month = null, $userId = null, $customerId = null, $caretakerId = null, $docStatus = null, $taskStatus = null, $taxStatus = null, $paymentStatus = null, $keyword = '')
+
     {
         $sql = "SELECT
             p.period_id,
@@ -185,9 +186,6 @@ class MonthlyTaskModal extends Model
             p.review3_status,
             c.customer_id,
             c.customer_name,
-            c.rn_user,
-            c.dbd_user,
-            c.sso_user,
             fyc.accounts_amount,
             t.team_name,
             u.user_firstname as caretaker_firstname,
@@ -380,6 +378,7 @@ class MonthlyTaskModal extends Model
             return [];
         }
     }
+
 
     public function updatePeriodData(int $periodId, array $data)
 {

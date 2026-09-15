@@ -892,6 +892,7 @@
 
     <option value="">เลือกผู้สอบทาน</option>
 
+
     <?php foreach (($data['review_users'] ?? []) as $reviewUser): ?>
         <option value="<?php echo (int)$reviewUser['user_id']; ?>">
             <?php echo htmlspecialchars(
@@ -913,6 +914,7 @@
 
     <option value="">เลือกผู้สอบทาน</option>
 
+
     <?php foreach (($data['review_users'] ?? []) as $reviewUser): ?>
         <option value="<?php echo (int)$reviewUser['user_id']; ?>">
             <?php echo htmlspecialchars(
@@ -933,6 +935,7 @@
     style="border-radius: 8px; font-size: 0.9rem;">
 
     <option value="">เลือกผู้สอบทาน</option>
+
 
     <?php foreach (($data['review_users'] ?? []) as $reviewUser): ?>
         <option value="<?php echo (int)$reviewUser['user_id']; ?>">
@@ -1132,6 +1135,7 @@
                .then(data => {
                 renderCustomerAccounts(data.accounts || [], accountList, accountCount);
 
+
                 if (data.result !== 1 || !data.tasks.length) {
          taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;">ไม่พบรายการงาน</div>';
          taskCount.textContent = '0 งาน';
@@ -1165,6 +1169,7 @@
         <!-- Right side: Amount Input (ย้ายมาก่อน) & Select dropdown -->
         <div class="d-flex align-items-center gap-2">
             ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 3px !important;height: 30px !important; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.nextElementSibling.value='1';}">` : ''}
+
             <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0 task-status-select"
                     data-customer-tasks-id="${t.customer_tasks_id}"
                     style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">

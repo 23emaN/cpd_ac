@@ -196,9 +196,11 @@ class MainController
             return;
         }
         
+        $userId = $this->userPayload['user_id'] ?? null;
+
         require_once '../app/models/fiscal_years.php';
         $fiscalYearModel = new FiscalYearsModel();
-        $fiscalYears = $fiscalYearModel->getFiscalYearsByCompany($companyId);
+        $fiscalYears = $fiscalYearModel->getFiscalYearsByCompany($companyId, $userId);
         
         echo json_encode(['result' => 1, 'data' => $fiscalYears]);
     }

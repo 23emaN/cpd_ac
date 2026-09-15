@@ -19,6 +19,7 @@ $message_pages = ['messages', 'chat', 'customer_message'];
 $postit_pages = ['post_it', 'postit', 'notes', 'reminders'];
 $system_setting_pages = ['settings', 'setting', 'system_setting'];
 $manual_pages = ['manual', 'tutorial', 'videos'];
+$assinge_pages = ['assign_task'];
 
 ?>
 
@@ -304,6 +305,19 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
                     class="menu-link <?php echo in_array($now_page, $postit_pages) ? 'active' : '' ?>">
                     <i class="ri-sticky-note-line menu-icon"></i>
                     <span class="title">Post-it แจ้งเตือน</span>
+                </a>
+            </li>
+
+            <!-- หมวดหมู่: ตั้งค่าระบบ -->
+            <li class="menu-title small">
+                <span class="menu-title-text">การมอบหมายงาน</span>
+            </li>
+
+            <li class="menu-item <?php echo in_array($now_page, $assinge_pages) ? 'open active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assign_task"
+                    class="menu-link <?php echo in_array($now_page, $assinge_pages) ? 'active' : '' ?>">
+                    <i class="ri-user-heart-line menu-icon"></i>
+                    <span class="title">การมอบหมายงาน</span>
                 </a>
             </li>
 
