@@ -47,4 +47,98 @@ class ReportController
         $customerReport = new CustomerReport();
         $customerReport->export($customers);
     }
+
+    public function monthlyTaskExcel()
+    {
+        $this->checkAuth();
+
+        $fiscalId = $_SESSION['fiscal_year_id'] ?? null;
+        if (!$fiscalId) {
+            header('Location: ' . BASE_URL . '/monthly_task');
+            exit();
+        }
+
+        $customerId = ctype_digit((string) ($_GET['customer_id'] ?? ''))
+            ? (int) $_GET['customer_id']
+            : 0;
+        $month = ctype_digit((string) ($_GET['month'] ?? ''))
+            ? (int) $_GET['month']
+            : 0;
+        $exportMode = $_GET['export_mode'] ?? '';
+
+        if ($exportMode === 'customer_year') {
+            $month = 0;
+        } elseif ($exportMode === 'monthly') {
+            $customerId = 0;
+        } else {
+            header('Location: ' . BASE_URL . '/monthly_task');
+            exit();
+        }
+
+        if (($exportMode === 'customer_year' && $customerId === 0)
+            || ($exportMode === 'monthly' && ($month < 1 || $month > 12))) {
+            header('Location: ' . BASE_URL . '/monthly_task');
+            exit();
+        }
+
+        $filters = [
+            'caretaker_id' => ctype_digit((string) ($_GET['caretaker_id'] ?? '')) ? (int) $_GET['caretaker_id'] : null,
+            'doc_status' => $_GET['doc_status'] ?? '',
+            'task_status' => $_GET['task_status'] ?? '',
+            'tax_status' => $_GET['tax_status'] ?? '',
+            'payment_status' => $_GET['payment_status'] ?? '',
+            'keyword' => trim($_GET['keyword'] ?? ''),
+        ];
+
+        require_once '../app/models/monthly_task_Modal.php';
+        require_once '../app/reports/MonthlyTaskReport.php';
+        $model = new MonthlyTaskModal();
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $companies = $companyModel->getAllCompanies($this->userPayload['user_id'] ?? null);
+        $companyName = 'ไม่ระบุบริษัท';
+        $fiscalYear = 'ไม่ระบุปี';
+        foreach ($companies as $company) {
+            foreach (($company['fiscal_years'] ?? []) as $fiscal) {
+                $currentFiscalId = $fiscal['fiscal_id'] ?? $fiscal['id'] ?? null;
+                if ((string) $currentFiscalId === (string) $fiscalId) {
+                    $companyName = $company['company_name'] ?? 'ไม่ระบุบริษัท';
+                    $fiscalYear = $fiscal['fiscal_years'] ?? $fiscal['working_year'] ?? $fiscal['year'] ?? 'ไม่ระบุปี';
+                    break 2;
+                }
+            }
+        }
+
+        $customerName = '';
+        if ($customerId > 0) {
+            $customerList = $model->getMonthlyTaskCustomers($fiscalId);
+            foreach ($customerList as $customer) {
+                if ((int) $customer['customer_id'] === $customerId) {
+                    $customerName = $customer['customer_name'];
+                    break;
+                }
+            }
+        }
+
+        $tasks = $model->getMonthlyTasks(
+            $fiscalId,
+            $month > 0 ? $month : null,
+            $this->userPayload['user_id'] ?? null,
+            $customerId > 0 ? $customerId : null,
+            $filters['caretaker_id'],
+            $filters['doc_status'],
+            $filters['task_status'],
+            $filters['tax_status'],
+            $filters['payment_status'],
+            $filters['keyword']
+        );
+
+        $report = new MonthlyTaskReport();
+        if ($exportMode === 'customer_year') {
+            $report->exportCustomerYear($tasks, $filters, $customerId, $customerName, $fiscalYear, $companyName);
+        }
+
+        $report->exportMonthly($tasks, $filters, $month, $fiscalYear, $companyName);
+    }
 }

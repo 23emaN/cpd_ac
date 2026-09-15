@@ -80,6 +80,7 @@ class BackofficeController
         $pnd50Done    = 0;
 
         foreach ($closingList as $item) {
+
             if (((string) ($item['closing_status'] ?? '')) === '1') {
                 $closingDone++;
             }
@@ -147,6 +148,7 @@ class BackofficeController
 
     /////////////////////////////////////// tasks ///////////////////////////////////////////////
 
+
     public function tasks()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -206,6 +208,7 @@ class BackofficeController
 
         $req_amount_count = 0;
         foreach ($tasks_list as $t) {
+
             if ($t['is_notify_amount'] == 1) {
                 $req_amount_count++;
             }
@@ -348,7 +351,7 @@ class BackofficeController
         }
     }
 
-    /////////////////////////////////////// employee ///////////////////////////////////////////////
+
 
     public function employee()
     {
@@ -467,6 +470,7 @@ class BackofficeController
                 'user_name'      => $user_name,
                 'user_password'  => password_hash($user_password, PASSWORD_DEFAULT),
                 'user_firstname' => $user_firstname,
+
                 'user_lastname'  => $user_lastname,
                 'position'       => $user_position,
                 'team_id'        => $team_id,
@@ -494,6 +498,7 @@ class BackofficeController
 
         $user_id        = trim($_POST['user_id'] ?? '');
         $user_firstname = trim($_POST['user_firstname'] ?? '');
+
         $user_lastname  = trim($_POST['user_lastname'] ?? '');
         $user_position  = trim($_POST['user_position'] ?? '');
         $team_name      = trim($_POST['team_name'] ?? '');
@@ -523,6 +528,7 @@ class BackofficeController
             $userData = [
                 'user_id'        => $user_id,
                 'user_firstname' => $user_firstname,
+
                 'user_lastname'  => $user_lastname,
                 'position'       => $user_position,
                 'team_id'        => $team_id,
@@ -587,6 +593,7 @@ class BackofficeController
 
         echo json_encode([
             'result' => 1,
+
             'data'   => $customers,
         ]);
     }
@@ -630,6 +637,7 @@ class BackofficeController
         require_once '../app/models/CustomerModal.php';
         $customModal = new CustomModal();
 
+
         $tasks      = $customModal->getTasks($fiscal_id);
         $caretakers = $customModal->getCaretakers($fiscal_id);
         $customers  = $customModal->getCustomersByFiscalId($fiscal_id);
@@ -655,6 +663,7 @@ class BackofficeController
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/customer.php';
     }
+
 
     public function customerFilter()
     {
@@ -687,6 +696,7 @@ class BackofficeController
         echo json_encode(['result' => 1, 'html' => $html]);
         exit();
     }
+
 
     public function addCustomer()
     {
@@ -798,6 +808,7 @@ class BackofficeController
         $this->checkAuth();
 
         $customer_id = trim($_POST['customer_id'] ?? '');
+
         $fiscal_id   = trim($_POST['fiscal_id'] ?? '');
         if (empty($fiscal_id) && isset($_SESSION['fiscal_year_id'])) {
             $fiscal_id = $_SESSION['fiscal_year_id'];
@@ -900,6 +911,7 @@ class BackofficeController
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/registration_board.php';
     }
+
 
     /////////////////////////////////////// postIt ///////////////////////////////////////////////
     public function postIt()
@@ -1061,6 +1073,7 @@ class BackofficeController
                 if ($userId && $userId != $createdUserId) {
                     require_once '../app/models/NotificationModel.php';
                     // We must ensure the class is called correctly if namespace is used
+
                     $notifModel   = new \App\Models\NotificationModel();
                     $notifMessage = "มีงาน Post-it ใหม่มอบหมายถึงคุณ: " . $title;
                     $notifModel->addNotification($userId, 'post_it', $postId, $notifMessage);
@@ -1093,6 +1106,7 @@ class BackofficeController
 
         try {
             $item = $model->findById((int) $post_id);
+
             if (! $item) {
                 echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูล Post-it']);
                 return;
@@ -1132,6 +1146,7 @@ class BackofficeController
 
         try {
             $postIdInt = (int) $postId;
+
             $updated   = $model->update($postIdInt, [
                 'title'      => $title,
                 'user_id'    => $assigneeId ? (int) $assigneeId : null,
@@ -1308,6 +1323,35 @@ class BackofficeController
             }
         }
 
+        require_once '../app/models/UserModel.php';
+        $userModel = new UserModel();
+        $employees = $userModel->getEmployeesByFiscalAndCompany($fiscal_id, $active_company_id);
+        $assignedCaretakers = $closingModel->getCaretakersByFiscalId($fiscal_id);
+
+        $caretakerMap = [];
+        if (is_array($employees)) {
+            foreach ($employees as $emp) {
+                if (!empty($emp['user_id'])) {
+                    $caretakerMap[$emp['user_id']] = [
+                        'user_id' => $emp['user_id'],
+                        'user_firstname' => $emp['user_firstname'] ?? '',
+                        'user_lastname' => $emp['user_lastname'] ?? ''
+                    ];
+                }
+            }
+        }
+        if (is_array($assignedCaretakers)) {
+            foreach ($assignedCaretakers as $ac) {
+                if (!empty($ac['user_id']) && !isset($caretakerMap[$ac['user_id']])) {
+                    $caretakerMap[$ac['user_id']] = [
+                        'user_id' => $ac['user_id'],
+                        'user_firstname' => $ac['user_firstname'] ?? '',
+                        'user_lastname' => $ac['user_lastname'] ?? ''
+                    ];
+                }
+            }
+        }
+
         $data = [
             'title'             => 'ระบบ Backoffice',
             'user'              => $this->userPayload,
@@ -1319,6 +1363,7 @@ class BackofficeController
             'companies'         => $companies,
 
             'active_company_id' => $active_company_id,
+
             'closing_data'      => $closingData,
             'caretakers'        => array_values($caretakerMap),
         ];
@@ -1366,7 +1411,6 @@ class BackofficeController
         $companyModel = new CompanyModel();
         $userId       = $this->userPayload['user_id'] ?? null;
         $companies    = $companyModel->getAllCompanies($userId);
-
         // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
         $active_company_id  = '';
         $active_fiscal_year = '';
@@ -1385,31 +1429,120 @@ class BackofficeController
 
                                          // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $month = $_GET['month'] ?? '09'; // Default to month 09 or current month
+        $customerId = isset($_GET['customer_id']) && ctype_digit((string) $_GET['customer_id'])
+            ? (int) $_GET['customer_id']
+            : null;
         require_once '../app/models/monthly_task_Modal.php';
         $monthlyTaskModel = new MonthlyTaskModal();
-        $monthly_tasks    = $monthlyTaskModel->getMonthlyTasks($fiscal_id, $month, $userId);
-        $review_users     = $monthlyTaskModel->getReviewUsers();
-        $data             = [
-            'title'              => 'ระบบ Backoffice',
-            'user'               => $this->userPayload,
-            'user_id'            => $this->userPayload['user_id'] ?? '',
-            'firstname'          => $this->userPayload['user_firstname'] ?? '',
-            'lastname'           => $this->userPayload['user_lastname'] ?? '',
-            'is_super_admin'     => $this->userPayload['is_super_admin'] ?? '0',
-            'fiscal_id'          => $fiscal_id,
-            'companies'          => $companies,
-            'active_company_id'  => $active_company_id,
+        $monthly_tasks = $monthlyTaskModel->getMonthlyTasks(
+            $fiscal_id,
+            $customerId ? null : $month,
+            $userId,
+            $customerId
+        );
+        $monthly_task_stats = $monthlyTaskModel->getMonthlyTaskStats(
+            $fiscal_id,
+            $customerId ? null : $month,
+            $customerId
+        );
+        $monthly_task_customers = $monthlyTaskModel->getMonthlyTaskCustomers($fiscal_id);
+        $monthly_task_caretakers = $monthlyTaskModel->getCaretakersByFiscalId($fiscal_id);
+        $review_users = $monthlyTaskModel->getReviewUsers();
+        $data = [
+            'title' => 'ระบบ Backoffice',
+            'user' => $this->userPayload,
+            'user_id' => $this->userPayload['user_id'] ?? '',
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
+            'fiscal_id' => $fiscal_id,
+            'companies' => $companies,
+            'active_company_id' => $active_company_id,
             'active_fiscal_year' => $active_fiscal_year,
-            'monthly_tasks'      => $monthly_tasks,
-            'selected_month'     => $month,
-            'review_users'       => $review_users,
-            'review1_user_id'    => $this->userPayload['user_id'] ?? null,
-            'review2_user_id'    => $this->userPayload['user_id'] ?? null,
-            'review3_user_id'    => $this->userPayload['user_id'] ?? null,
+            'monthly_tasks' => $monthly_tasks,
+            'monthly_task_stats' => $monthly_task_stats,
+            'selected_month' => $month,
+            'selected_customer_id' => $customerId,
+            'monthly_task_customers' => $monthly_task_customers,
+            'monthly_task_caretakers' => $monthly_task_caretakers,
+            'is_customer_year_view' => $customerId !== null,
+            'review_users' => $review_users,
+            'review1_user_id' => $this->userPayload['user_id'] ?? null,
+            'review2_user_id' => $this->userPayload['user_id'] ?? null,
+            'review3_user_id' => $this->userPayload['user_id'] ?? null,
+
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/monthly_task.php';
+    }
+
+    public function filterMonthlyTasks()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+
+        $fiscalId = $_SESSION['fiscal_year_id'] ?? null;
+        if (!$fiscalId) {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่พบปีบัญชี']);
+            return;
+        }
+
+        $month = $_GET['month'] ?? '';
+        $customerId = ctype_digit((string) ($_GET['customer_id'] ?? '')) ? (int) $_GET['customer_id'] : null;
+        $caretakerId = ctype_digit((string) ($_GET['caretaker_id'] ?? '')) ? (int) $_GET['caretaker_id'] : null;
+        $docStatus = $_GET['doc_status'] ?? '';
+        $taskStatus = $_GET['task_status'] ?? '';
+        $taxStatus = $_GET['tax_status'] ?? '';
+        $paymentStatus = $_GET['payment_status'] ?? '';
+        $keyword = trim($_GET['keyword'] ?? '');
+
+        require_once '../app/models/monthly_task_Modal.php';
+        $model = new MonthlyTaskModal();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $monthlyTasks = $model->getMonthlyTasks(
+            $fiscalId,
+            $customerId ? null : $month,
+            $userId,
+            $customerId,
+            $caretakerId,
+            $docStatus,
+            $taskStatus,
+            $taxStatus,
+            $paymentStatus,
+            $keyword
+        );
+        $stats = $model->getMonthlyTaskStats(
+            $fiscalId,
+            $customerId ? null : $month,
+            $customerId,
+            $caretakerId,
+            $docStatus,
+            $taskStatus,
+            $taxStatus,
+            $paymentStatus,
+            $keyword
+        );
+
+        $data = [
+            'monthly_tasks' => $monthlyTasks,
+            'active_fiscal_year' => '',
+            'selected_customer_id' => $customerId,
+        ];
+
+        ob_start();
+        if ($customerId) {
+            require '../app/views/backoffice/table/monthly_task_customer.php';
+        } else {
+            require '../app/views/backoffice/table/mounthly_task.php';
+        }
+        $tableHtml = ob_get_clean();
+
+        echo json_encode([
+            'status' => 'success',
+            'html' => $tableHtml,
+            'stats' => $stats,
+        ], JSON_UNESCAPED_UNICODE);
     }
 
     public function getMonthlyTaskItems()
@@ -1426,9 +1559,25 @@ class BackofficeController
         require_once '../app/models/monthly_task_Modal.php';
         $model   = new MonthlyTaskModal();
         $user_id = $this->userPayload['user_id'] ?? null;
-        $tasks   = $model->getTasksByPeriodId($period_id, $user_id);
+        try {
+            $tasks = $model->getTasksByPeriodId($period_id, $user_id);
+            $accounts = $model->getCustomerAccountsByPeriodId((int) $period_id);
+        } catch (Throwable $e) {
+            echo json_encode([
+                'result' => 0,
+                'tasks' => [],
+                'accounts' => [],
+                'msg' => 'ไม่สามารถโหลดข้อมูลได้'
+            ], JSON_UNESCAPED_UNICODE);
+            return;
+        }
 
-        echo json_encode(['result' => 1, 'tasks' => $tasks]);
+
+        echo json_encode([
+            'result' => 1,
+            'tasks' => $tasks,
+            'accounts' => $accounts,
+        ], JSON_UNESCAPED_UNICODE);
     }
     public function updateMonthlyTask()
     {
@@ -1469,6 +1618,7 @@ class BackofficeController
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
 
     /////////////////////////////////////// yearly_dash ///////////////////////////////////////////////
     public function yearly_dash()
@@ -1521,35 +1671,26 @@ class BackofficeController
 
         foreach ($closingList as $item) {
             $isClosingDone = ((string) ($item['closing_status'] ?? '')) === '1';
-            $isDocDone     = ((string) ($item['doc_status'] ?? '')) === '1' || ((string) ($item['audit_status'] ?? '')) === '1';
-            $isBoj5Done    = ((string) ($item['boj5_status'] ?? '')) === '1';
-            $isDbdDone     = ((string) ($item['dbd_efiling_status'] ?? '')) === '1';
-            $isPnd50Done   = ((string) ($item['pnd50_status'] ?? '')) === '1';
+            $isDocDone = ((string) ($item['doc_status'] ?? '')) === '1' || ((string) ($item['audit_status'] ?? '')) === '1';
+            $isBoj5Done = ((string) ($item['boj5_status'] ?? '')) === '1';
+            $isDbdDone = ((string) ($item['dbd_efiling_status'] ?? '')) === '1';
+            $isPnd50Done = ((string) ($item['pnd50_status'] ?? '')) === '1';
 
-            if ($isClosingDone) {
+            if ($isClosingDone)
                 $closingCompleted++;
-            }
-
-            if ($isDocDone) {
+            if ($isDocDone)
                 $docReceived++;
-            }
-
-            if ($isBoj5Done) {
+            if ($isBoj5Done)
                 $boj5Count++;
-            }
-
-            if ($isDbdDone) {
+            if ($isDbdDone)
                 $dbdCount++;
-            }
-
-            if ($isPnd50Done) {
+            if ($isPnd50Done)
                 $pnd50Count++;
-            }
 
             $cName = trim(($item['user_firstname'] ?? '') . ' ' . ($item['user_lastname'] ?? ''));
-            if (empty($cName)) {
+            if (empty($cName))
                 $cName = 'ไม่ระบุผู้ดูแล';
-            }
+
 
             if (! isset($caretakersMap[$cName])) {
                 $caretakersMap[$cName] = ['name' => $cName, 'total' => 0, 'completed' => 0];
@@ -2147,10 +2288,35 @@ class BackofficeController
         ]);
     }
 
+    public function getNotifications()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+        $userId = $this->userPayload['user_id'] ?? null;
+        if (!$userId) {
+            echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
+            return;
+        }
+
+        require_once '../app/models/NotificationModel.php';
+        $notifModel = new \App\Models\NotificationModel();
+        
+        $notifications = $notifModel->getUnreadNotifications($userId, 20);
+        $count = $notifModel->getUnreadCount($userId);
+
+        echo json_encode([
+            'result' => 1,
+            'count' => $count,
+            'data' => $notifications
+        ]);
+    }
+
+
     public function readNotification()
     {
         header('Content-Type: application/json; charset=utf-8');
         $this->checkAuth();
+
         $userId  = $this->userPayload['user_id'] ?? null;
         $notifId = $_POST['notif_id'] ?? null;
 
@@ -2175,6 +2341,7 @@ class BackofficeController
     {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
+
             'publicKey' => $_ENV['VAPID_PUBLIC_KEY'] ?? '',
         ]);
     }
@@ -2184,6 +2351,7 @@ class BackofficeController
         header('Content-Type: application/json; charset=utf-8');
         $this->checkAuth();
         $userId = $this->userPayload['user_id'] ?? null;
+
         if (! $userId) {
             echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
             return;
@@ -2198,7 +2366,6 @@ class BackofficeController
         try {
             require_once '../app/config/Connection.php';
             $pdo = \App\config\Connection::getInstance()->getPdo();
-
             $endpoint = $input['endpoint'];
             $p256dh   = $input['keys']['p256dh'] ?? '';
             $auth     = $input['keys']['auth'] ?? '';
@@ -2229,7 +2396,6 @@ class BackofficeController
             require_once '../app/config/Connection.php';
             require_once '../vendor/autoload.php';
             $pdo = \App\config\Connection::getInstance()->getPdo();
-
             $stmt = $pdo->prepare("SELECT endpoint, p256dh, auth FROM tbl_push_subscriptions WHERE user_id = ?");
             $stmt->execute([$userId]);
             $subs = $stmt->fetchAll();

@@ -40,6 +40,7 @@ class CompanyModel extends Model {
         $userFiscalId = null;
 
         if ($userId) {
+
             $stmtUser = $this->pdo->prepare("SELECT is_super_admin, fiscal_id FROM tbl_user WHERE user_id = :user_id");
             $stmtUser->execute(['user_id' => $userId]);
             $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
@@ -70,12 +71,25 @@ class CompanyModel extends Model {
             $stmt = $this->pdo->prepare("SELECT * FROM tbl_companies ORDER BY created_at DESC");
             $stmt->execute();
         }
+
         
         $companies = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($companies as &$company) {
             $cId = $company['company_id'] ?? $company['id'] ?? 0;
-            
+            // ดึง "ทุกปีทำงาน" ของบริษัทนี้ ที่มี active_status = 1 เพื่อให้ไปแสดงใน dropdown
+            $stmtFy = $this->pdo->prepare(
+                "SELECT 
+                    tbl_fiscal_years.*,
+                    COUNT(tbl_fiscal_year_customers.customer_id) AS customer_count
+                FROM tbl_fiscal_years
+                LEFT JOIN tbl_fiscal_year_customers ON tbl_fiscal_years.fiscal_id = tbl_fiscal_year_customers.fiscal_id
+                WHERE tbl_fiscal_years.company_id = :company_id
+                  AND tbl_fiscal_years.active_status = 1
+                GROUP BY tbl_fiscal_years.fiscal_id
+                ORDER BY tbl_fiscal_years.fiscal_years DESC"
+            );
+            $stmtFy->execute(['company_id' => $cId]);
             $queryFy = "SELECT 
                             tbl_fiscal_years.*,
                             COUNT(tbl_fiscal_year_customers.customer_id) AS customer_count

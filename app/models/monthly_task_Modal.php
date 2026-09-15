@@ -23,7 +23,157 @@ class MonthlyTaskModal extends Model
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-    public function getMonthlyTasks($fiscalId, $month = null, $userId = null)
+    public function getMonthlyTaskCustomers($fiscalId)
+    {
+        $sql = "SELECT DISTINCT
+                    c.customer_id,
+                    c.customer_name
+                FROM tbl_customer_work_periods p
+                INNER JOIN tbl_customers c
+                    ON p.customer_id = c.customer_id
+                LEFT JOIN tbl_fiscal_year_customers fyc
+                    ON p.customer_id = fyc.customer_id
+                    AND p.fiscal_year_id = fyc.fiscal_id
+                WHERE p.fiscal_year_id = :fiscal_id
+                  AND p.delete_at IS NULL
+                  AND c.delete_at IS NULL
+                ORDER BY c.customer_name ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['fiscal_id' => $fiscalId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getCaretakersByFiscalId($fiscalId)
+    {
+        $sql = "SELECT DISTINCT
+                    u.user_id,
+                    u.user_firstname,
+                    u.user_lastname
+                FROM tbl_fiscal_year_user fyu
+                INNER JOIN tbl_user u
+                    ON fyu.user_id = u.user_id
+                WHERE fyu.fiscal_id = :fiscal_id
+                  AND u.user_status = '1'
+                  AND u.is_super_admin = '0'
+                  AND u.delete_at IS NULL
+                ORDER BY u.user_firstname ASC, u.user_lastname ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['fiscal_id' => $fiscalId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getMonthlyTaskStats($fiscalId, $month = null, $customerId = null, $caretakerId = null, $docStatus = null, $taskStatus = null, $taxStatus = null, $paymentStatus = null, $keyword = '')
+    {
+        $sql = "SELECT
+                    COUNT(DISTINCT p.customer_id) AS total_customers,
+                    COUNT(DISTINCT CASE WHEN p.doc_status = '1' THEN p.period_id END) AS doc_received,
+                    COUNT(DISTINCT CASE WHEN p.tax_status = '1' THEN p.period_id END) AS tax_submitted,
+                    COUNT(DISTINCT CASE WHEN p.payment_status = '1' THEN p.period_id END) AS payment_received,
+                    COUNT(DISTINCT CASE WHEN (
+                        (SELECT COUNT(*)
+                         FROM tbl_customer_tasks ct_total
+                         WHERE ct_total.period_id = p.period_id
+                           AND ct_total.delete_at IS NULL) > 0
+                        AND
+                        (SELECT COUNT(*)
+                         FROM tbl_customer_tasks ct_done
+                         WHERE ct_done.period_id = p.period_id
+                           AND ct_done.status = '1'
+                           AND ct_done.delete_at IS NULL)
+                        =
+                        (SELECT COUNT(*)
+                         FROM tbl_customer_tasks ct_all
+                         WHERE ct_all.period_id = p.period_id
+                           AND ct_all.delete_at IS NULL)
+                    ) THEN p.period_id END) AS completed
+                FROM tbl_customer_work_periods p
+                INNER JOIN tbl_customers c
+                    ON p.customer_id = c.customer_id
+                WHERE p.fiscal_year_id = :fiscal_id
+                  AND p.delete_at IS NULL
+                  AND c.delete_at IS NULL";
+
+        $params = ['fiscal_id' => $fiscalId];
+
+        if ($month !== null && $month !== '') {
+            $sql .= " AND (p.period_month = :month OR CAST(p.period_month AS UNSIGNED) = :month_int)";
+            $params['month'] = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $params['month_int'] = (int) $month;
+        }
+
+        if ($customerId !== null && $customerId !== '') {
+            $sql .= " AND p.customer_id = :customer_id";
+            $params['customer_id'] = (int) $customerId;
+        }
+
+        if ($keyword !== '') {
+            $sql .= " AND (
+                        c.customer_name LIKE :keyword_customer
+                        OR EXISTS (
+                            SELECT 1
+                            FROM tbl_fiscal_year_customers fyc_search
+                            LEFT JOIN tbl_user u_search ON fyc_search.user_id = u_search.user_id
+                            LEFT JOIN tbl_team t_search ON fyc_search.team_id = t_search.team_id
+                            WHERE fyc_search.customer_id = p.customer_id
+                              AND fyc_search.fiscal_id = p.fiscal_year_id
+                              AND (
+                                  CONCAT_WS(' ', u_search.user_firstname, u_search.user_lastname) LIKE :keyword_user
+                                  OR t_search.team_name LIKE :keyword_team
+                              )
+                        )
+                    )";
+            $searchValue = '%' . $keyword . '%';
+            $params['keyword_customer'] = $searchValue;
+            $params['keyword_user'] = $searchValue;
+            $params['keyword_team'] = $searchValue;
+        }
+
+        if ($caretakerId !== null && $caretakerId !== '') {
+                        $sql .= " AND EXISTS (
+                                                SELECT 1
+                                                FROM tbl_fiscal_year_customers fyc_filter
+                                                WHERE fyc_filter.customer_id = p.customer_id
+                                                    AND fyc_filter.fiscal_id = p.fiscal_year_id
+                                                    AND fyc_filter.user_id = :caretaker_id
+                                        )";
+            $params['caretaker_id'] = (int) $caretakerId;
+        }
+        if ($docStatus === '1') $sql .= " AND p.doc_status = '1'";
+        if ($docStatus === '2') $sql .= " AND p.doc_status <> '1'";
+        if ($taxStatus === '1') $sql .= " AND p.tax_status = '1'";
+        if ($taxStatus === '2') $sql .= " AND p.tax_status <> '1'";
+        if ($paymentStatus === '1') $sql .= " AND p.payment_status = '1'";
+        if ($paymentStatus === '2') $sql .= " AND p.payment_status <> '1'";
+        if ($taskStatus === '1') {
+            $sql .= " AND (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter WHERE ct_filter.period_id = p.period_id AND ct_filter.delete_at IS NULL) > 0
+                      AND (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter_done WHERE ct_filter_done.period_id = p.period_id AND ct_filter_done.status = '1' AND ct_filter_done.delete_at IS NULL)
+                      = (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter_all WHERE ct_filter_all.period_id = p.period_id AND ct_filter_all.delete_at IS NULL)";
+        }
+        if ($taskStatus === '2') {
+            $sql .= " AND ((SELECT COUNT(*) FROM tbl_customer_tasks ct_filter WHERE ct_filter.period_id = p.period_id AND ct_filter.delete_at IS NULL) = 0
+                      OR (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter_done WHERE ct_filter_done.period_id = p.period_id AND ct_filter_done.status = '1' AND ct_filter_done.delete_at IS NULL)
+                      < (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter_all WHERE ct_filter_all.period_id = p.period_id AND ct_filter_all.delete_at IS NULL))";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $stats = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        return [
+            'total_customers' => (int) ($stats['total_customers'] ?? 0),
+            'doc_received' => (int) ($stats['doc_received'] ?? 0),
+            'completed' => (int) ($stats['completed'] ?? 0),
+            'tax_submitted' => (int) ($stats['tax_submitted'] ?? 0),
+            'payment_received' => (int) ($stats['payment_received'] ?? 0),
+        ];
+    }
+
+    public function getMonthlyTasks($fiscalId, $month = null, $userId = null, $customerId = null, $caretakerId = null, $docStatus = null, $taskStatus = null, $taxStatus = null, $paymentStatus = null, $keyword = '')
+
     {
         $sql = "SELECT
             p.period_id,
@@ -109,6 +259,44 @@ class MonthlyTaskModal extends Model
             $params['month_int'] = (int) $month;
         }
 
+        if ($customerId !== null && $customerId !== '') {
+            $sql .= " AND p.customer_id = :customer_id";
+            $params['customer_id'] = (int) $customerId;
+        }
+
+        if ($keyword !== '') {
+            $sql .= " AND (
+                        c.customer_name LIKE :keyword_customer
+                        OR CONCAT_WS(' ', u.user_firstname, u.user_lastname) LIKE :keyword_user
+                        OR t.team_name LIKE :keyword_team
+                    )";
+            $searchValue = '%' . $keyword . '%';
+            $params['keyword_customer'] = $searchValue;
+            $params['keyword_user'] = $searchValue;
+            $params['keyword_team'] = $searchValue;
+        }
+
+        if ($caretakerId !== null && $caretakerId !== '') {
+            $sql .= " AND fyc.user_id = :caretaker_id";
+            $params['caretaker_id'] = (int) $caretakerId;
+        }
+        if ($docStatus === '1') $sql .= " AND p.doc_status = '1'";
+        if ($docStatus === '2') $sql .= " AND p.doc_status <> '1'";
+        if ($taxStatus === '1') $sql .= " AND p.tax_status = '1'";
+        if ($taxStatus === '2') $sql .= " AND p.tax_status <> '1'";
+        if ($paymentStatus === '1') $sql .= " AND p.payment_status = '1'";
+        if ($paymentStatus === '2') $sql .= " AND p.payment_status <> '1'";
+        if ($taskStatus === '1') {
+            $sql .= " AND (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter WHERE ct_filter.period_id = p.period_id AND ct_filter.delete_at IS NULL) > 0
+                      AND (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter_done WHERE ct_filter_done.period_id = p.period_id AND ct_filter_done.status = '1' AND ct_filter_done.delete_at IS NULL)
+                      = (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter_all WHERE ct_filter_all.period_id = p.period_id AND ct_filter_all.delete_at IS NULL)";
+        }
+        if ($taskStatus === '2') {
+            $sql .= " AND ((SELECT COUNT(*) FROM tbl_customer_tasks ct_filter WHERE ct_filter.period_id = p.period_id AND ct_filter.delete_at IS NULL) = 0
+                      OR (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter_done WHERE ct_filter_done.period_id = p.period_id AND ct_filter_done.status = '1' AND ct_filter_done.delete_at IS NULL)
+                      < (SELECT COUNT(*) FROM tbl_customer_tasks ct_filter_all WHERE ct_filter_all.period_id = p.period_id AND ct_filter_all.delete_at IS NULL))";
+        }
+
         $sql .= " ORDER BY c.created_at ASC";
 
         $stmt = $this->pdo->prepare($sql);
@@ -164,10 +352,34 @@ class MonthlyTaskModal extends Model
         return $rows;
 
     } catch (\PDOException $e) {
-        header('Content-Type: application/json');
-        echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง']);
+        throw $e;
     }
 }
+
+    public function getCustomerAccountsByPeriodId($periodId)
+    {
+        $sql = "SELECT
+                    ca.accounts_id,
+                    ca.account_name,
+                    ca.account_pasword
+                FROM tbl_customer_accounts ca
+                INNER JOIN tbl_customer_work_periods p
+                    ON ca.customer_id = p.customer_id
+                    AND ca.fiscal_year_id = p.fiscal_year_id
+                WHERE p.period_id = :period_id
+                ORDER BY ca.accounts_id ASC";
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['period_id' => $periodId]);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
+
+
     public function updatePeriodData(int $periodId, array $data)
 {
     // Convert flatpickr dates (d/m/Y) to Y-m-d format
@@ -255,7 +467,7 @@ class MonthlyTaskModal extends Model
                 c.comment_user_id,
                 c.comment_detail AS comment_text,
                 c.create_at,
-                u.user_firstname AS user_name,
+                TRIM(CONCAT_WS(' ', u.user_firstname, u.user_lastname)) AS user_name,
                 DATE_FORMAT(c.create_at, '%d/%m/%Y %H:%i') AS created_at_display
             FROM tbl_comment_tasks c
             LEFT JOIN tbl_user u ON c.comment_user_id = u.user_id
