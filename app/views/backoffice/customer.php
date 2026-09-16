@@ -238,27 +238,43 @@
 
                         <!-- แถวที่ 1: ปิดงบประจำปี / วันสิ้นรอบบัญชี / ค่าทำบัญชีต่อเดือน -->
                         <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label modal-form-label">ปิดงบประจำปี</label>
+                            <div class="col-md-6">
+                                <label class="form-label modal-form-label">ปิดงบ</label>
                                 <select class="form-select modal-form-select" name="closing_status" id="closing_status">
-                                    <option value="0" selected>ปิดงบประจำปี</option>
-                                    <option value="1">ไม่ปิดงบ</option>
+                                    <option value="0" selected>ปิดงบประจำเดือน</option>
+                                    <option value="1">ปิดงบประจำปี</option>
+                                    <option value="2">ไม่ปิดงบ</option>
                                 </select>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label modal-form-label">วันสิ้นรอบบัญชี</label>
                                 <div class="modal-input-icon-wrap">
                                     <input type="text" class="form-control modal-form-control modal-input-with-icon" name="fiscal_closing_date" id="fiscal_closing_date" value="31/12/2026" placeholder="31/12/2026">
                                     <i class="ri-calendar-line modal-input-icon modal-input-icon-static"></i>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="col-md-4">
+                        <div class="row g-3 mb-3">
+                             <div class="col-md-4">
                                 <label class="form-label modal-form-label">ค่าทำบัญชีต่อเดือน</label>
-                                <input type="number" step="0.01" class="form-control modal-form-control" name="accounts_amount" id="accounts_amount" value="2000" placeholder="2000">
+                                <input type="number" step="0.01" class="form-control modal-form-control" name="accounts_amount" id="accounts_amount" value="0" >
+                            </div>
+
+                             <div class="col-md-4">
+                                <label class="form-label modal-form-label">ค่าปิดบัญชี</label>
+                                <input type="number" step="0.01" class="form-control modal-form-control" name="closing_amount" id="closing_amount" value="0" >
+                            </div>
+
+                             <div class="col-md-4">
+                                <label class="form-label modal-form-label">ค่าสอบบัญชี</label>
+                                <input type="number" step="0.01" class="form-control modal-form-control" name="auditing_amount" id="auditing_amount" value="0" >
                             </div>
                         </div>
+
+
+                       
 
                         <!-- แถวที่ 2: จด VAT / มีพนักงาน / ประกันสังคม / cpd / cpa -->
                         <div class="row g-3">
@@ -752,6 +768,8 @@
                     }
 
                     $('#accounts_amount').val(data.f_accounts_amount || data.accounts_amount || 0);
+                    $('#closing_amount').val(data.closing_amount || 0);
+                    $('#auditing_amount').val(data.auditing_amount || 0);
 
                     $('select[name="is_vat"]').val(data.is_vat || 0).trigger('change.select2');
                     $('select[name="is_employees"]').val(data.is_employees || 0).trigger('change.select2');

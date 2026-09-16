@@ -714,6 +714,8 @@ class BackofficeController
         $totalTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
         $completedTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
         $totalAccountsAmount = array_sum(array_map(static fn ($customer) => (float) ($customer['accounts_amount'] ?? 0), $customerWork));
+        $totalClosingAmount = array_sum(array_map(static fn ($customer) => (float) ($customer['closing_amount'] ?? 0), $customerWork));
+        $totalAuditingAmount = array_sum(array_map(static fn ($customer) => (float) ($customer['auditing_amount'] ?? 0), $customerWork));
         $completedCustomers = count(array_filter($customerWork, static function ($customer) {
             return (int) ($customer['total_tasks'] ?? 0) > 0
                 && (int) ($customer['total_tasks'] ?? 0) === (int) ($customer['completed_tasks'] ?? 0);
@@ -738,6 +740,8 @@ class BackofficeController
                 'completed_tasks' => $completedTasks,
                 'unfinished_tasks' => max(0, $totalTasks - $completedTasks),
                 'total_accounts_amount' => $totalAccountsAmount,
+                'total_closing_amount' => $totalClosingAmount,
+                'total_auditing_amount' => $totalAuditingAmount,
                 'completed_customers' => $completedCustomers,
             ],
         ];

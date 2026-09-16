@@ -208,6 +208,8 @@ class CustomModal extends Model
                 user_id,
                 team_id,
                 accounts_amount,
+                closing_amount,
+                auditing_amount,
                 created_at
             ) VALUES (
                 :fiscal_id,
@@ -217,6 +219,8 @@ class CustomModal extends Model
                 :user_id,
                 :team_id,
                 :accounts_amount,
+                :closing_amount,
+                :auditing_amount,
                 NOW()
             )
         ");
@@ -395,6 +399,8 @@ class CustomModal extends Model
             c.customer_email,
             c.line_id,
             fyc.accounts_amount,
+            fyc.closing_amount,
+            fyc.auditing_amount,
             u.user_firstname as caretaker_firstname,
             u.user_lastname as caretaker_lastname,
             u.delete_at as caretaker_delete_at,
@@ -439,6 +445,8 @@ class CustomModal extends Model
                 f.user_id,
                 f.team_id,
                 f.accounts_amount as f_accounts_amount,
+                f.closing_amount,
+                f.auditing_amount,
                 u.delete_at as user_delete_at
             FROM tbl_customers c
             INNER JOIN tbl_fiscal_year_customers f ON c.customer_id = f.customer_id AND f.fiscal_id = :fiscal_id
@@ -589,7 +597,9 @@ class CustomModal extends Model
                 service_start_end = :service_start_end,
                 user_id = :user_id,
                 team_id = :team_id,
-                accounts_amount = :accounts_amount
+                accounts_amount = :accounts_amount,
+                closing_amount = :closing_amount,
+                auditing_amount = :auditing_amount
             WHERE customer_id = :customer_id
               AND fiscal_id = :fiscal_id
         ");
@@ -604,6 +614,8 @@ class CustomModal extends Model
                     ? $data['team_id']
                     : null,
                 'accounts_amount'    => $data['accounts_amount'] ?? 0,
+                'closing_amount'    => $data['closing_amount'] ?? 0,
+                'auditing_amount'    => $data['auditing_amount'] ?? 0,
                 'customer_id'        => $customerId,
                 'fiscal_id'          => $fiscalId,
             ]);
