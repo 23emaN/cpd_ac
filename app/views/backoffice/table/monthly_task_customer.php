@@ -50,6 +50,9 @@ foreach ($data['monthly_tasks'] ?? [] as $task) {
             <?php for ($month = 1; $month <= 12; $month++): ?>
                 <?php
                 $task = $tasksByMonth[$month] ?? null;
+                if (!$task)
+                    continue; // แสดงเฉพาะเดือนที่มีงาน
+            
                 $subtitle = $customerName . ' · ' . $monthNames[$month] . ' ปี ' . ($data['active_fiscal_year'] ?? '');
                 $total = (int) ($task['total_tasks'] ?? 0);
                 $completed = (int) ($task['completed_tasks'] ?? 0);
@@ -70,7 +73,7 @@ foreach ($data['monthly_tasks'] ?? [] as $task) {
                             <?php if ($task): ?>
                                 <div class="action-btn-group flex-shrink-0">
                                     <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"
-                                        onclick="Modal_manage(<?php echo (int) $task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><i
+                                        onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><i
                                             class="ri-pencil-line"></i></button>
                                 </div>
                             <?php endif; ?>
@@ -80,7 +83,7 @@ foreach ($data['monthly_tasks'] ?? [] as $task) {
                     <td class="text-center"><span class="caretaker-text">ทดสอบ</span></td>
                     <!-- <td class="text-center">
                         <?php if (!empty($task['unread_comments'])): ?>
-                            <span class="badge bg-danger" style="cursor: pointer;" title="มีความคิดเห็นที่ยังไม่ได้อ่าน" onclick="Modal_manage(<?php echo (int) $task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><?php echo (int) $task['unread_comments']; ?></span>
+                            <span class="badge bg-danger" style="cursor: pointer;" title="มีความคิดเห็นที่ยังไม่ได้อ่าน" onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><?php echo (int) $task['unread_comments']; ?></span>
                         <?php else: ?>
                             <span class="text-muted">ไม่ระบุ</span>
                         <?php endif; ?>

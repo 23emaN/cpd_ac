@@ -633,7 +633,7 @@
         <div class="content-wrapper">
             <div class="main-page-wrapper">
 
-                <div class="main-card-wrapper">
+                <div class="main-card-wrapper" id="mainListContainer">
 
                     <!-- Page Header Section -->
                     <div class="page-header-box">
@@ -739,12 +739,20 @@
                                         11 => 'พฤศจิกายน',
                                         12 => 'ธันวาคม',
                                     ];
+                                    
                                     if (!empty($data['is_customer_year_view'])) {
                                         echo '<option value="" selected>ไม่ระบุ</option>';
                                     } else {
-                                        foreach ($months as $num => $name) {
-                                            $isSelected = ($num === $selectedMonth) ? 'selected' : '';
-                                            echo "<option value=\"$num\" $isSelected>$name</option>";
+                                        $available = $data['available_months'] ?? [];
+                                        if (empty($available)) {
+                                            echo '<option value="" disabled>ไม่มีข้อมูลเดือน</option>';
+                                        } else {
+                                            foreach ($months as $num => $name) {
+                                                if (in_array($num, $available)) {
+                                                    $isSelected = ($num === $selectedMonth) ? 'selected' : '';
+                                                    echo "<option value=\"$num\" $isSelected>$name</option>";
+                                                }
+                                            }
                                         }
                                     }
                                 ?>
@@ -818,10 +826,18 @@
                         <?php endif; ?>
                     </div>
                 </div>
+
+                <!-- Detail View Container (Hidden by default) -->
+                <div id="monthlyTaskDetailContainer" class="d-none">
+                    <?php include 'table/monthly_task_detail.php'; ?>
+                </div>
+
             </div>
         </div>
     </div>
 
+
+    <!-- 
     <div class="modal fade" id="manageModal" tabindex="-1" aria-labelledby="manageModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
             <div class="modal-content"
@@ -831,12 +847,13 @@
                         <h5 class="modal-title fw-bold" id="manageModalLabel"
                             style="color: #1e293b; font-size: 1.15rem;">อัปเดตงานรายเดือน</h5>
                         <div class="text-muted mt-1" id="manageModalSubtitle" style="font-size: 0.85rem;">
-                            <!-- Subtitle will be set dynamically via JavaScript Modal_manage() -->
+                             Subtitle will be set dynamically via JavaScript Modal_manage()
                         </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
                         style="margin-top: -15px; margin-right: -10px;"></button>
                 </div>
+
 
                 <div class="modal-body" style="padding: 24px;">
                     <form id="formManageTask">
@@ -850,7 +867,7 @@
                             </div>
                         </div>
 
-                        <!-- Row 1: Dates -->
+                       
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-secondary"
@@ -875,20 +892,20 @@
 
                             <div id="modalTaskList" class="task-list-container"
                                 style="max-height: 280px; overflow-y: auto; padding: 0 16px; border-radius: 10px; border: 1px solid #e2e8f0; background-color: #ffffff;">
-                                <!-- Task items will be populated by JS -->
+                               
                             </div>
                         </div>
 
-                        <!-- Row 3 & 4: Reviewer & Status (Two Columns Layout) -->
+                       
                         <div class="row">
-                            <!-- Left Column: Reviews -->
+                           
                             <div class="col-md-6 pe-md-4 border-end">
                                 <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #334155;">การสอบทาน (Review)</h6>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold text-secondary" style="font-size: 0.85rem;">ผู้สอบทาน (รีวิว 1)</label>
                                     <select class="form-select bg-light border-0 py-2 text-muted fw-semibold modal-search-select"
-    id="modal_review1_user_id"
-    style="border-radius: 8px; font-size: 0.9rem;">
+                                        id="modal_review1_user_id"
+                                        style="border-radius: 8px; font-size: 0.9rem;">
 
     <option value="">เลือกผู้สอบทาน</option>
 
@@ -952,7 +969,7 @@
                                 </div>
                             </div>
 
-                            <!-- Right Column: Status & Dates -->
+                           
                             <div class="col-md-6 ps-md-4 mt-4 mt-md-0">
                                 <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #334155;">สถานะเพิ่มเติม</h6>
                                 <div class="mb-3">
@@ -986,7 +1003,8 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> 
+    -->
 
     <!-- Flatpickr JS & Thai locale -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -1012,7 +1030,7 @@
             });
 
             if (<?php echo !empty($data['is_customer_year_view']) ? 'true' : 'false'; ?>) {
-                $('#monthFilterWrap').addClass('month-filter-disabled');
+                $('#monthFilterWrap').addClass('d-none');
             }
 
             $('#selUser').select2();
@@ -1021,9 +1039,8 @@
             $('#selTax').select2();
             $('#selPayment').select2();
 
-            $('.modal-search-select').select2({
+            $('.detail-search-select').select2({
                 width: '100%',
-                dropdownParent: $('#manageModal'),
                 minimumResultsForSearch: 0
             });
 
@@ -1038,11 +1055,16 @@
 
             $('#customerSelect').on('change', function () {
                 const hasCustomer = $(this).val() && $(this).val() !== 'all';
-                $('#monthFilterWrap').toggleClass('month-filter-disabled', hasCustomer);
+                $('#monthFilterWrap').toggleClass('d-none', hasCustomer);
                 $('#monthSelect').prop('disabled', hasCustomer).trigger('change.select2');
                 $('#exportCustomerYearButton').toggle(hasCustomer);
                 $('#exportMonthlyButton').toggle(!hasCustomer);
             });
+
+            window.GetData = function(page) {
+                // Not actually paginating in backend right now, just refresh
+                refreshMonthlyTaskTable();
+            };
 
             function refreshMonthlyTaskTable() {
                 const customerValue = $('#customerSelect').val();
@@ -1106,22 +1128,22 @@
 
         let currentManagePeriodId = null;
 
-        function Modal_manage(period_id, subtitleStr) {
+        function showTaskDetail(period_id, subtitleStr) {
             currentManagePeriodId = period_id;
-            const modalElement = document.getElementById('manageModal');
-            const myModal = new bootstrap.Modal(modalElement);
+            
+            $('#mainListContainer').addClass('d-none');
+            $('#monthlyTaskDetailContainer').removeClass('d-none');
 
             if (subtitleStr) {
-                document.getElementById('manageModalSubtitle').textContent = subtitleStr;
+                const subtitleEl = document.getElementById('manageDetailSubtitle');
+                if (subtitleEl) subtitleEl.textContent = subtitleStr;
             }
 
-            myModal.show();
-
             // โหลด tasks จาก DB ตาม period_id
-            const taskList = document.getElementById('modalTaskList');
-            const taskCount = document.getElementById('modalTaskCount');
-            const accountList = document.getElementById('modalAccountList');
-            const accountCount = document.getElementById('modalAccountCount');
+            const taskList = document.getElementById('detailTaskList');
+            const taskCount = document.getElementById('detailTaskCount');
+            const accountList = document.getElementById('detailAccountList');
+            const accountCount = document.getElementById('detailAccountCount');
 
             taskList.innerHTML = '<div class="text-center text-muted py-3" style="font-size:0.85rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>';
             taskCount.textContent = '- งาน';
@@ -1134,6 +1156,52 @@
                 .then(res => res.json())
                .then(data => {
                 renderCustomerAccounts(data.accounts || [], accountList, accountCount);
+
+                // Populate modal fields with data.period
+                if (data.period) {
+                    const setDate = (id, ymd) => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        if (!ymd || ymd === '0000-00-00') {
+                            el.value = '';
+                            if (el._flatpickr) el._flatpickr.clear();
+                        } else {
+                            const parts = ymd.split('-');
+                            if (parts.length === 3) {
+                                const dmy = parts[2] + '/' + parts[1] + '/' + parts[0];
+                                el.value = dmy;
+                                if (el._flatpickr) el._flatpickr.setDate(dmy);
+                            }
+                        }
+                    };
+
+                    setDate('detail_doc_date', data.period.doc_date);
+                    setDate('detail_tax_date_1', data.period.tax_date_1);
+                    setDate('detail_completed_date_1', data.period.completed_date_1);
+                    setDate('detail_tax_date_2', data.period.tax_date_2);
+                    setDate('detail_completed_date_2', data.period.completed_date_2);
+
+                    $('#detail_review1_user_id').val(data.period.review1_user_id || '').trigger('change');
+                    $('#detail_review2_user_id').val(data.period.review2_user_id || '').trigger('change');
+                    $('#detail_review3_user_id').val(data.period.review3_user_id || '').trigger('change');
+                    
+                    $('#detail_payment_status').val(data.period.payment_status || '0').trigger('change');
+                    $('#detail_tax_status').val(data.period.tax_status || '0').trigger('change');
+                } else {
+                    // clear fields if no period data
+                    ['detail_doc_date', 'detail_tax_date_1', 'detail_completed_date_1', 'detail_tax_date_2', 'detail_completed_date_2'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) { el.value = ''; if(el._flatpickr) el._flatpickr.clear(); }
+                    });
+                    ['detail_review1_user_id', 'detail_review2_user_id', 'detail_review3_user_id'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) { el.value = ''; $(el).trigger('change'); }
+                    });
+                    ['detail_payment_status', 'detail_tax_status'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) { el.value = '0'; $(el).trigger('change'); }
+                    });
+                }
 
 
                 if (data.result !== 1 || !data.tasks.length) {
@@ -1149,26 +1217,34 @@
     const hasComment = !!(t.comment && t.comment.trim() !== '');
 
     html += `
-    <div class="d-flex justify-content-between align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
+    <div id="task-row-${t.customer_tasks_id}" class="d-flex align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
         <!-- Left side: Task Name & Badge -->
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2" style="flex: 1;">
             <span class="fw-bold" style="font-size:0.88rem; color:#1e293b;">${t.task_name}</span>
             ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
         </div>
 
-         <button type="button" class="btn-task-comment position-relative"
-            data-customer-tasks-id="${t.customer_tasks_id}"
-            data-task-name="${t.task_name}"
-            data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
-            title="เพิ่มความคิดเห็น"
-            style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
-            <i class="ri-chat-3-line" style="font-size: 15px;"></i>
-            ${(t.unread_comments && t.unread_comments > 0) ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 3px 5px; transform: translate(-30%, -30%) !important;">${t.unread_comments}</span>` : ''}
-         </button>
+        <!-- Center: Comment Button -->
+        <div class="d-flex justify-content-center align-items-center" style="flex: 0 0 auto;">
+            <button type="button" class="btn-task-comment position-relative"
+                data-customer-tasks-id="${t.customer_tasks_id}"
+                data-task-name="${t.task_name}"
+                data-comment="${(t.comment || '').replace(/"/g, '&quot;')}"
+                title="เพิ่มความคิดเห็น"
+                style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid ${hasComment ? '#93c5fd' : '#e2e8f0'}; background-color: ${hasComment ? '#eff6ff' : '#ffffff'}; color: ${hasComment ? '#2563eb' : '#94a3b8'}; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;">
+                <i class="ri-chat-3-line" style="font-size: 15px;"></i>
+                ${(t.unread_comments && t.unread_comments > 0) ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 3px 5px; transform: translate(-30%, -30%) !important;">${t.unread_comments}</span>` : ''}
+            </button>
+        </div>
 
-        <!-- Right side: Amount Input (ย้ายมาก่อน) & Select dropdown -->
-        <div class="d-flex align-items-center gap-2">
-            ${isNotifyAmount ? `<input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 130px; border-radius: 3px !important;height: 30px !important; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.nextElementSibling.value='1';}">` : ''}
+        <!-- Right side: Amount Input & Select dropdown -->
+        <div class="d-flex align-items-center justify-content-end gap-2" style="flex: 1;">
+            ${isNotifyAmount ? `
+                <div class="d-flex align-items-center gap-2">
+                    <input class="form-check-input flex-shrink-0 task-amount-checkbox" type="checkbox" data-customer-tasks-id="${t.customer_tasks_id}" style="cursor: pointer; width: 30px !important; height: 30px !important; margin: 0; border-radius: 3px !important; margin-top: 0;">
+                    <input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 110px; border-radius: 3px !important;height: 30px !important; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.parentElement.nextElementSibling.value='1';}">
+                </div>
+            ` : ''}
 
             <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0 task-status-select"
                     data-customer-tasks-id="${t.customer_tasks_id}"
@@ -1180,6 +1256,62 @@
     </div>`;
 });
     taskList.innerHTML = html;
+
+    // Summary Logic
+    const updateSummary = () => {
+        let sum = 0;
+        const allChecked = document.querySelectorAll('.task-amount-checkbox:checked');
+        let bottomMostElement = null;
+
+        if (allChecked.length > 0) {
+            const lastCb = allChecked[allChecked.length - 1];
+            bottomMostElement = document.getElementById(`task-row-${lastCb.dataset.customerTasksId}`);
+            
+            allChecked.forEach(cb => {
+                const taskId = cb.dataset.customerTasksId;
+                const input = document.querySelector(`.task-amount-input[data-customer-tasks-id="${taskId}"]`);
+                if (input && input.value) {
+                    sum += parseFloat(input.value) || 0;
+                }
+            });
+        }
+
+        let summaryRow = document.getElementById('taskAmountSummaryRow');
+        
+        if (bottomMostElement) {
+            if (!summaryRow) {
+                summaryRow = document.createElement('div');
+                summaryRow.id = 'taskAmountSummaryRow';
+                summaryRow.className = 'd-flex align-items-center w-100 py-2 px-3 rounded mb-2 mt-2';
+                summaryRow.style.backgroundColor = '#e0f2fe';
+                summaryRow.style.border = '1px dashed #7dd3fc';
+                summaryRow.innerHTML = `
+                    <div class="fw-bold text-center w-100" style="font-size: 0.95rem; color: #0284c7;">
+                        รวมยอดที่เลือก: <span id="taskAmountSummaryValue" style="color: #0369a1; font-size: 1.1rem; margin-left: 5px;">0.00</span> บาท
+                    </div>
+                `;
+            }
+            bottomMostElement.parentNode.insertBefore(summaryRow, bottomMostElement.nextSibling);
+            document.getElementById('taskAmountSummaryValue').textContent = sum.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        } else if (summaryRow) {
+            summaryRow.remove();
+        }
+    };
+
+    document.querySelectorAll('.task-amount-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            updateSummary();
+        });
+    });
+
+    document.querySelectorAll('.task-amount-input').forEach(input => {
+        input.addEventListener('input', function() {
+            const cb = document.querySelector(`.task-amount-checkbox[data-customer-tasks-id="${this.dataset.customerTasksId}"]`);
+            if (cb && cb.checked) {
+                updateSummary();
+            }
+        });
+    });
 
     document.querySelectorAll('.btn-task-comment').forEach(btn => {
         btn.addEventListener('click', function () {
@@ -1199,14 +1331,36 @@
     function renderCustomerAccounts(accounts, accountList, accountCount) {
         const accountRows = accounts.length ? accounts : [{
             account_name: 'ไม่ระบุ',
-            account_pasword: 'ไม่ระบุ'
+            account_user_name: 'ไม่ระบุ',
+            account_password: 'ไม่ระบุ'
         }];
 
         accountCount.textContent = accountRows.length + ' บัญชี';
         accountList.innerHTML = accountRows.map((account, index) => `
-            <div class="col-12" style="${index > 0 ? 'border-top: 1px solid #e2e8f0; padding-top: 10px;' : ''}">
-                <div>${escapeHtml(account.account_name || '')} - User</div>
-                <div>${escapeHtml(account.account_pasword || '')} - Passwprd</div>
+            <div class="col-md-6 col-lg-6">
+                <div class="p-2 rounded d-flex justify-content-between align-items-center" style="background-color: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease;">
+                    
+                    <!--  left -->
+                    <div class="text-end flex-shrink-0 pe-2" style="color: #e2e8f0;">
+                        <i class="ri-shield-user-line" style="font-size: 72px; line-height: 1;"></i>
+                    </div>
+                    
+
+                    <!--  right -->
+                    
+
+                    <div class="pe-4 flex-grow-1">
+                        <h6 class="mb-3">${escapeHtml(account.account_name || 'ไม่ระบุ')}</h6>
+                        
+                        <div class="mb-2">
+                            <span class="d-block" style="font-size: 0.75rem;">USERNAME : ${escapeHtml(account.account_user_name || '-')}</span>
+                        </div>
+                        
+                        <div>
+                            <span class="d-block" style="font-size: 0.75rem;">PASSWORD : ${escapeHtml(account.account_password || '-')}</span>
+                        </div>  
+                    </div>
+                </div>
             </div>
         `).join('');
     }
@@ -1218,7 +1372,7 @@
     }
 
     function toggleCommentThread(customerTasksId, taskName, triggerElement) {
-    const row = triggerElement.closest('.d-flex.justify-content-between');
+    const row = triggerElement.closest('.d-flex.align-items-center.w-100');
     const existing = row.nextElementSibling;
     const icon = triggerElement.querySelector('i');
 
@@ -1389,28 +1543,37 @@ function updateCommentBadge(button, hasComment) {
     }
 }
 
-function saveManageTask() {
+function hideTaskDetail() {
+    $('#monthlyTaskDetailContainer').addClass('d-none');
+    $('#mainListContainer').removeClass('d-none');
+}
+
+function saveTaskDetail() {
     if (!currentManagePeriodId) return;
+
+    const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
 
     const payload = {
     period_id: currentManagePeriodId,
 
-    doc_date: document.getElementById('modal_doc_date').value,
-    completed_date: document.getElementById('modal_completed_date').value,
-    tax_date: document.getElementById('modal_tax_date').value,
+    doc_date: getVal('detail_doc_date'),
+    tax_date_1: getVal('detail_tax_date_1'),
+    completed_date_1: getVal('detail_completed_date_1'),
+    tax_date_2: getVal('detail_tax_date_2'),
+    completed_date_2: getVal('detail_completed_date_2'),
 
     // Review Status
-    review1_status: document.getElementById('modal_review1_user_id').value ? '1' : '0',
-    review2_status: document.getElementById('modal_review2_user_id').value ? '1' : '0',
-    review3_status: document.getElementById('modal_review3_user_id').value ? '1' : '0',
+    review1_status: getVal('detail_review1_user_id') ? '1' : '0',
+    review2_status: getVal('detail_review2_user_id') ? '1' : '0',
+    review3_status: getVal('detail_review3_user_id') ? '1' : '0',
 
     // Review User ID
-    review1_user_id: document.getElementById('modal_review1_user_id').value || null,
-    review2_user_id: document.getElementById('modal_review2_user_id').value || null,
-    review3_user_id: document.getElementById('modal_review3_user_id').value || null,
+    review1_user_id: document.getElementById('detail_review1_user_id').value || null,
+    review2_user_id: document.getElementById('detail_review2_user_id').value || null,
+    review3_user_id: document.getElementById('detail_review3_user_id').value || null,
 
-    payment_status: document.getElementById('modal_payment_status').value,
-    tax_status: document.getElementById('modal_tax_status').value,
+    payment_status: document.getElementById('detail_payment_status').value,
+    tax_status: document.getElementById('detail_tax_status').value,
 
     tasks: []
 };
@@ -1449,7 +1612,14 @@ const amount = (amountInput && amountInput.value !== '') ? amountInput.value : 0
                 showConfirmButton: false,
                 timer: 1500
             }).then(() => {
-                location.reload();
+                hideTaskDetail();
+                if (typeof window.GetData === 'function') {
+                    window.GetData();
+                } else if (typeof refreshMonthlyTaskTable === 'function') {
+                    refreshMonthlyTaskTable();
+                } else {
+                    location.reload();
+                }
             });
         } else {
             Swal.fire({
