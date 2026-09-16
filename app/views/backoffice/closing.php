@@ -523,6 +523,20 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <input type="hidden" name="closing_id" id="closing_id" value="">
                     <input type="hidden" name="customer_id" id="closing_customer_id" value="">
                     <input type="hidden" name="fiscal_year_id" id="closing_fiscal_year_id" value="">
+                    <!-- Section: ระบบราชการ -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="modal-section-title mb-0" style="font-weight: 700; font-size: 15px; color: #334155;">
+                                ระบบราชการ
+                            </h6>
+                            <span id="modal_accounts_count" style="font-size: 13px; font-weight: 500; color: #64748B;">0 บัญชี</span>
+                        </div>
+                        <div id="modal_accounts_container">
+                            <!-- จะถูกเติมข้อมูลจาก JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="modal-section-divider my-4" style="border-top: 1px dashed #E2E8F0;"></div>
 
                     <!-- Section: สถานะปิดงบ -->
                     <div class="mb-4">
@@ -889,6 +903,31 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         const year = data.fiscal_year || (new Date().getFullYear() + 543);
         document.getElementById('modal_clossing_subtitle').innerText = `${data.customer_name || 'ไม่ระบุชื่อ'} · ปี ${year}`;
 
+        // ข้อมูลระบบราชการ (ดึงมาทั้งหมด)
+        const accountsContainer = document.getElementById('modal_accounts_container');
+        const accountsCount = document.getElementById('modal_accounts_count');
+        accountsContainer.innerHTML = '';
+        if (data.accounts && data.accounts.length > 0) {
+            accountsCount.innerText = data.accounts.length + ' บัญชี';
+            data.accounts.forEach(acc => {
+                const accDiv = document.createElement('div');
+                accDiv.className = 'mb-3';
+                accDiv.innerHTML = `
+                    <div style="font-weight: 600; font-size: 14px; color: #475569; margin-bottom: 2px;">${acc.account_name}</div>
+                    <div style="font-size: 13px; color: #64748B; margin-bottom: 2px;">
+                      - User : ${acc.account_user_name || 'ไม่ระบุ'} 
+                    </div>
+                    <div style="font-size: 13px; color: #64748B;">
+                        - Password : ${acc.account_password || 'ไม่ระบุ'} 
+                    </div>
+                `;
+                accountsContainer.appendChild(accDiv);
+            });
+        } else {
+            accountsCount.innerText = '0 บัญชี';
+            accountsContainer.innerHTML = '<div class="text-muted" style="font-size: 13px;">ไม่มีข้อมูลบัญชี</div>';
+        }
+
         // Helper function to format YYYY-MM-DD to DD/MM/YYYY
         const formatDate = (dateStr) => {
             if (!dateStr) return '';
@@ -942,7 +981,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
         $.ajax({
 
-            url: '/cpd_ac/public/closing/update',
+            url: '<?php echo BASE_URL; ?>/closing/update',
             method: 'POST',
             data: formData,
             dataType: 'json',

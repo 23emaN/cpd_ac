@@ -449,11 +449,7 @@ class BackofficeController
         try {
             // เช็คว่า username ซ้ำไหม
             $existingUser = $userModel->getUserByUsername($user_name);
-            if ($existingUser) {
-                echo json_encode(['result' => 0, 'msg' => 'ชื่อผู้ใช้นี้มีในระบบแล้ว กรุณาใช้ชื่ออื่น']);
-                return;
-            }
-
+            
             // จัดการเรื่องทีม
             $team_id = null;
             if ($team_name !== '') {
@@ -464,28 +460,38 @@ class BackofficeController
                     $team_id = $teamModel->addTeam($team_name);
                 }
             }
-
-            // บันทึก User
-            $userData = [
-                'user_name' => $user_name,
-                'user_password' => password_hash($user_password, PASSWORD_DEFAULT),
-                'user_firstname' => $user_firstname,
-
-                'user_lastname' => $user_lastname,
-                'position' => $user_position,
-                'team_id' => $team_id,
-                'fiscal_id' => $fiscal_id,
-            ];
-            $newUserId = $userModel->insertUser($userData);
-
-            if ($newUserId) {
                 // เชื่อมพนักงานกับบริษัทและปีทำงาน
-                $userModel->linkUserToCompany($newUserId, $company_id);
-                $userModel->linkUserToFiscalYear($newUserId, $fiscal_id);
+                // (ในทางปฏิบัติควรเช็คด้วยว่าเคยเชื่อมหรือยัง เพื่อป้องกัน duplicate keys)
+                try {
+                    $userModel->linkUserToCompany($userId, $company_id);
+                } catch (PDOException $e) { /* Ignore if already linked */ }
+                
+                try {
+                    $userModel->linkUserToFiscalYear($userId, $fiscal_id);
+                } catch (PDOException $e) { /* Ignore if already linked */ }
 
-                echo json_encode(['result' => 1, 'msg' => 'เพิ่มพนักงานเรียบร้อยแล้ว']);
+                echo json_encode(['result' => 1, 'msg' => 'พบผู้ใช้นี้ในระบบ ทำการเพิ่มสิทธิ์การเข้าถึงบริษัทและปีบัญชีนี้ให้เรียบร้อยแล้ว']);
             } else {
-                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลพนักงานได้']);
+                // บันทึก User ใหม่
+                $userData = [
+                    'user_name'      => $user_name,
+                    'user_password'  => password_hash($user_password, PASSWORD_DEFAULT),
+                    'user_firstname' => $user_firstname,
+                    'user_lastname'  => $user_lastname,
+                    'position'       => $user_position,
+                    'team_id'        => $team_id
+                ];
+                $newUserId = $userModel->insertUser($userData);
+
+                if ($newUserId) {
+                    // เชื่อมพนักงานกับบริษัทและปีทำงาน
+                    $userModel->linkUserToCompany($newUserId, $company_id);
+                    $userModel->linkUserToFiscalYear($newUserId, $fiscal_id);
+
+                    echo json_encode(['result' => 1, 'msg' => 'เพิ่มพนักงานใหม่เรียบร้อยแล้ว']);
+                } else {
+                    echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลพนักงานได้']);
+                }
             }
         } catch (PDOException $e) {
             echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดฐานข้อมูล: ' . $e->getMessage()]);
@@ -699,9 +705,12 @@ class BackofficeController
         $customerModel = new CustomModal();
         $customerDashModel = new CustomerDashModel();
         $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id);
-        $totalTasks = array_sum(array_map(static fn($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
-        $completedTasks = array_sum(array_map(static fn($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
-        $totalAccountsAmount = array_sum(array_map(static fn($customer) => (float) ($customer['accounts_amount'] ?? 0), $customerWork));
+
+        $totalTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
+        $completedTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
+        $totalAccountsAmount = array_sum(array_map(static fn ($customer) => (float) ($customer['accounts_amount'] ?? 0), $customerWork));
+        $totalClosingAmount = array_sum(array_map(static fn ($customer) => (float) ($customer['closing_amount'] ?? 0), $customerWork));
+        $totalAuditingAmount = array_sum(array_map(static fn ($customer) => (float) ($customer['auditing_amount'] ?? 0), $customerWork));
         $completedCustomers = count(array_filter($customerWork, static function ($customer) {
             return (int) ($customer['total_tasks'] ?? 0) > 0
                 && (int) ($customer['total_tasks'] ?? 0) === (int) ($customer['completed_tasks'] ?? 0);
@@ -726,6 +735,8 @@ class BackofficeController
                 'completed_tasks' => $completedTasks,
                 'unfinished_tasks' => max(0, $totalTasks - $completedTasks),
                 'total_accounts_amount' => $totalAccountsAmount,
+                'total_closing_amount' => $totalClosingAmount,
+                'total_auditing_amount' => $totalAuditingAmount,
                 'completed_customers' => $completedCustomers,
             ],
         ];
@@ -831,7 +842,10 @@ class BackofficeController
 
             if ($customerId) {
                 // 2. Link to Fiscal Year (tbl_fiscal_year_customers)
-                $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
+                $fiscalYearId = $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
+                
+                // Add accounts
+                $customModal->insertCustomerAccounts($customerId, $fiscalYearId, $_POST['account_name'] ?? [], $_POST['account_user_name'] ?? [], $_POST['account_password'] ?? []);
 
                 // 3 & 4. Generate Work Periods & Tasks
                 $customModal->generateWorkPeriodsAndTasks($customerId, $fiscal_id, $_POST);
@@ -894,6 +908,11 @@ class BackofficeController
         try {
             $success = $customModal->updateCustomer($_POST);
             if ($success) {
+                $fiscalYearId = $customModal->getFiscalYearCustomerId($customer_id, $fiscal_id);
+                if ($fiscalYearId) {
+                    $customModal->deleteCustomerAccounts($customer_id, $fiscalYearId);
+                    $customModal->insertCustomerAccounts($customer_id, $fiscalYearId, $_POST['account_name'] ?? [], $_POST['account_user_name'] ?? [], $_POST['account_password'] ?? []);
+                }
                 echo json_encode(['result' => 1, 'msg' => 'แก้ไขข้อมูลลูกค้าสำเร็จ']);
             } else {
                 echo json_encode(['result' => 0, 'msg' => 'แก้ไขข้อมูลลูกค้าไม่สำเร็จ']);
@@ -2384,6 +2403,7 @@ class BackofficeController
             : ['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้']);
     }
 
+
     public function getNotifications()
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -2406,6 +2426,7 @@ class BackofficeController
             'data' => $notifications,
         ]);
     }
+
 
 
     public function readNotification()
@@ -2436,8 +2457,13 @@ class BackofficeController
     public function getVapidPublicKey()
     {
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode([
 
+        // โหลด .env ถ้ายังไม่ได้โหลด
+        if (empty($_ENV['VAPID_PUBLIC_KEY']) && class_exists('Dotenv\Dotenv')) {
+            \Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
+        }
+
+        echo json_encode([
             'publicKey' => $_ENV['VAPID_PUBLIC_KEY'] ?? '',
         ]);
     }
@@ -2481,6 +2507,38 @@ class BackofficeController
             }
 
             echo json_encode(['result' => 1, 'msg' => 'Subscribed']);
+        } catch (\Throwable $e) {
+            echo json_encode(['result' => 0, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    public function unsubscribePush()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $this->checkAuth();
+        $userId = $this->userPayload['user_id'] ?? null;
+
+        if (! $userId) {
+            echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (empty($input['endpoint'])) {
+            echo json_encode(['result' => 0, 'msg' => 'Invalid data']);
+            return;
+        }
+
+        try {
+            require_once '../app/config/Connection.php';
+            $pdo = \App\config\Connection::getInstance()->getPdo();
+            $endpoint = $input['endpoint'];
+
+            // Delete subscription
+            $stmt = $pdo->prepare("DELETE FROM tbl_push_subscriptions WHERE endpoint = ? AND user_id = ?");
+            $stmt->execute([$endpoint, $userId]);
+
+            echo json_encode(['result' => 1, 'msg' => 'Unsubscribed']);
         } catch (\Throwable $e) {
             echo json_encode(['result' => 0, 'msg' => $e->getMessage()]);
         }
@@ -2540,11 +2598,15 @@ class BackofficeController
 
     /////////////////////////////////////// assign_task ///////////////////////////////////////////////
 
-    function assign_task()
-    {
-        // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
-        $this->checkAuth();
 
+     function assign_task()
+        {
+            // เปิดแสดง Error ทั้งหมดบนหน้าจอ (สำหรับการ Debug)
+            ini_set('display_errors', '1');
+            ini_set('display_startup_errors', '1');
+            error_reporting(E_ALL);
+            // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
+            $this->checkAuth();
         // 2. รับค่า fiscal_id จาก Session
         $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
 
@@ -2552,6 +2614,7 @@ class BackofficeController
             header("Location: " . BASE_URL . "/main");
             exit();
         }
+
 
         // 3. เตรียมข้อมูล
         $data = [
@@ -2567,4 +2630,174 @@ class BackofficeController
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/assign_task.php';
     }
+
+            require_once '../app/models/CompanyModel.php';
+            $companyModel = new CompanyModel();
+            $userId       = $this->userPayload['user_id'] ?? null;
+            $companies    = $companyModel->getAllCompanies($userId);
+
+            // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+            $active_company_id  = '';
+            $active_fiscal_year = '';
+            foreach ($companies as $company) {
+                if (isset($company['fiscal_years'])) {
+                    foreach ($company['fiscal_years'] as $fy) {
+                        $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                        if ($fy_id == $fiscal_id) {
+                            $active_company_id  = $company['company_id'] ?? $company['id'] ?? '';
+                            $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            require_once '../app/models/UserModel.php';
+            $userModel = new UserModel();
+            $employees = $userModel->getEmployeesByFiscalAndCompany($fiscal_id, $active_company_id);
+
+            require_once '../app/models/AssignTaskModel.php';
+            $assignTaskModel = new AssignTaskModel();
+
+            // Pagination setup
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $limit = 10;
+            $offset = ($page - 1) * $limit;
+
+            // Filters
+            $filters = [
+                'assignee_id' => $_GET['assignee_id'] ?? '',
+                'status' => $_GET['status'] ?? ''
+            ];
+
+            $tasks = $assignTaskModel->getAssignTasks($active_company_id, $fiscal_id, $filters, $limit, $offset);
+            $totalTasks = $assignTaskModel->getAssignTasksCount($active_company_id, $fiscal_id, $filters);
+            $totalPages = ceil($totalTasks / $limit);
+            $stats = $assignTaskModel->getAssignTaskStats($active_company_id, $fiscal_id);
+
+            // 3. เตรียมข้อมูล
+            $data = [
+                'title'              => 'การมอบหมายงาน',
+                'user'               => $this->userPayload,
+                'user_id'            => $this->userPayload['user_id'] ?? '',
+                'firstname'          => $this->userPayload['user_firstname'] ?? '',
+                'lastname'           => $this->userPayload['user_lastname'] ?? '',
+                'is_super_admin'     => $this->userPayload['is_super_admin'] ?? '0',
+                'fiscal_id'          => $fiscal_id,
+                'companies'          => $companies,
+                'active_company_id'  => $active_company_id,
+                'active_fiscal_year' => $active_fiscal_year,
+                'employees'          => $employees,
+                'tasks'              => $tasks,
+                'stats'              => $stats,
+                'pagination'         => [
+                    'current_page' => $page,
+                    'total_pages'  => $totalPages,
+                    'total_items'  => $totalTasks,
+                    'limit'        => $limit
+                ],
+                'filters'            => $filters
+            ];
+
+            // 4. ดึงหน้า View มาแสดงผล
+            require_once '../app/views/backoffice/assign_task.php';
+        }
+        
+        function saveAssignTask()
+        {
+            // เปิดแสดง Error สำหรับ Debug (ควรปิดตอน Production)
+            ini_set('display_errors', '1');
+            error_reporting(E_ALL);
+
+            $this->checkAuth();
+            
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+                $user_id   = $this->userPayload['user_id'] ?? null;
+                
+                // ดึง active_company_id จาก logic เดิม (หรือถ้า front-end ส่งมาก็ใช้จาก POST ได้เลย)
+                // สำหรับความง่ายในตอนนี้ หากไม่ได้ส่ง company_id มา ให้ดึงจาก company ของ user ที่เกี่ยวกับ fiscal_id
+                require_once '../app/models/CompanyModel.php';
+                $companyModel = new CompanyModel();
+                $companies    = $companyModel->getAllCompanies($user_id);
+                $active_company_id = '';
+                foreach ($companies as $company) {
+                    if (isset($company['fiscal_years'])) {
+                        foreach ($company['fiscal_years'] as $fy) {
+                            if (($fy['fiscal_id'] ?? $fy['id'] ?? '') == $fiscal_id) {
+                                $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                                break 2;
+                            }
+                        }
+                    }
+                }
+                
+                if (empty($active_company_id) || empty($fiscal_id)) {
+                    echo json_encode(['result' => 0, 'msg' => 'ไม่พบข้อมูลปีบัญชีหรือบริษัทที่กำลังใช้งาน']);
+                    exit;
+                }
+
+                $assign_title  = $_POST['assign_title'] ?? '';
+                $assign_detail = $_POST['assign_detail'] ?? '';
+                $assignee_id   = $_POST['user_id'] ?? ''; // จาก Select
+                $due_date      = $_POST['due_date'] ?? '';
+
+                if (empty($assign_title) || empty($assignee_id) || empty($due_date)) {
+                    echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน']);
+                    exit;
+                }
+
+                require_once '../app/models/AssignTaskModel.php';
+                $assignTaskModel = new AssignTaskModel();
+                
+                $data = [
+                    'company_id'     => $active_company_id,
+                    'user_id'        => $assignee_id,
+                    'fiscal_id'      => $fiscal_id,
+                    'assign_title'   => $assign_title,
+                    'assign_detail'  => $assign_detail,
+                    'due_date'       => $due_date,
+                    'create_user_id' => $user_id
+                ];
+                
+                try {
+                    $assign_id = $assignTaskModel->createAssignTask($data);
+                    if ($assign_id) {
+                        
+                        // -- ส่งอีเมลแจ้งเตือน --
+                        require_once '../app/models/UserModel.php';
+                        $userModelForMail = new UserModel();
+                        $assignedUser = $userModelForMail->getUserById($assignee_id);
+                        
+                        $emailSent = false;
+                        if ($assignedUser && !empty($assignedUser['user_email'])) {
+                            $toEmail = $assignedUser['user_email']; 
+                            $toName = trim(($assignedUser['user_firstname'] ?? '') . ' ' . ($assignedUser['user_lastname'] ?? ''));
+                            
+                            require_once '../app/services/MailService.php';
+                            $mailService = new \App\Services\MailService();
+                            $emailSent = $mailService->sendTaskAssignmentEmail($toEmail, $toName, $assign_title, $due_date, $assign_detail);
+                        }
+
+                        // -- ส่งแจ้งเตือน Web Push & กระดิ่ง --
+                        require_once '../app/models/NotificationModel.php';
+                        $notifModel = new \App\Models\NotificationModel();
+                        $notifMsg = "คุณได้รับมอบหมายงานใหม่: {$assign_title} (กำหนดส่ง: {$due_date})";
+                        $notifModel->addNotification($assignee_id, 'assign_task', $assign_id, $notifMsg);
+                        $this->sendWebPush($assignee_id, 'งานใหม่', $notifMsg, '/assign_task');
+
+                        $msg = 'มอบหมายงานสำเร็จ';
+                        if (!$emailSent) {
+                            $msg .= ' (แต่ไม่สามารถส่งอีเมลแจ้งเตือนได้ อาจตั้งค่า SMTP ไม่ถูกต้องหรือไม่มีอีเมล)';
+                        }
+                        
+                        echo json_encode(['result' => 1, 'msg' => $msg]);
+                    } else {
+                        echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถมอบหมายงานได้']);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+                }
+            }
+        }
 }

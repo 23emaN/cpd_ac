@@ -67,6 +67,9 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.removeItem('toast_msg');
         sessionStorage.removeItem('toast_icon');
     }
+
+    // Mobile Sidebar logic is now fully handled via CSS relying on custom.js body[sidebar-data-theme] toggle
+    // Backdrop click to close is handled via inline onclick in sidebar.php
 });
 </script>
 

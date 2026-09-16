@@ -36,6 +36,7 @@ class CustomModal extends Model
                   AND u.is_super_admin = 0
                   AND u.delete_at IS NULL
                   AND fyu.fiscal_id = :fiscal_id
+                GROUP BY u.user_id
                 ORDER BY u.user_firstname ASC
             ");
             $stmt->execute(['fiscal_id' => $fiscalId]);
@@ -183,10 +184,10 @@ class CustomModal extends Model
         }
     }
 
-    public function deleteCustomerAccounts($customerId)
+    public function deleteCustomerAccounts($customerId, $fiscalYearId)
     {
-        $stmt = $this->pdo->prepare("DELETE FROM tbl_customer_accounts WHERE customer_id = :customer_id");
-        $stmt->execute(['customer_id' => $customerId]);
+        $stmt = $this->pdo->prepare("DELETE FROM tbl_customer_accounts WHERE customer_id = :customer_id AND fiscal_year_id = :fiscal_year_id");
+        $stmt->execute(['customer_id' => $customerId, 'fiscal_year_id' => $fiscalYearId]);
     }
 
     public function getFiscalYearCustomerId($customerId, $fiscalId)
@@ -207,6 +208,8 @@ class CustomModal extends Model
                 user_id,
                 team_id,
                 accounts_amount,
+                closing_amount,
+                auditing_amount,
                 created_at
             ) VALUES (
                 :fiscal_id,
@@ -216,6 +219,8 @@ class CustomModal extends Model
                 :user_id,
                 :team_id,
                 :accounts_amount,
+                :closing_amount,
+                :auditing_amount,
                 NOW()
             )
         ");
@@ -394,6 +399,8 @@ class CustomModal extends Model
             c.customer_email,
             c.line_id,
             fyc.accounts_amount,
+            fyc.closing_amount,
+            fyc.auditing_amount,
             u.user_firstname as caretaker_firstname,
             u.user_lastname as caretaker_lastname,
             u.delete_at as caretaker_delete_at,
@@ -417,7 +424,9 @@ class CustomModal extends Model
                 COUNT(fyc.customer_id) as total_customers,
                 SUM(CASE WHEN c.active_status = 1 THEN 1 ELSE 0 END) as active_customers,
                 SUM(CASE WHEN c.active_status = 0 THEN 1 ELSE 0 END) as inactive_customers,
-                SUM(fyc.accounts_amount) as total_accounts_amount
+                SUM(fyc.accounts_amount) as total_accounts_amount,
+                SUM(fyc.closing_amount) as total_closing_amount,
+                SUM(fyc.auditing_amount) as total_auditing_amount
             FROM tbl_fiscal_year_customers fyc
             INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
             WHERE fyc.fiscal_id = :fiscal_id AND c.delete_at IS NULL
@@ -438,6 +447,8 @@ class CustomModal extends Model
                 f.user_id,
                 f.team_id,
                 f.accounts_amount as f_accounts_amount,
+                f.closing_amount,
+                f.auditing_amount,
                 u.delete_at as user_delete_at
             FROM tbl_customers c
             INNER JOIN tbl_fiscal_year_customers f ON c.customer_id = f.customer_id AND f.fiscal_id = :fiscal_id
@@ -588,7 +599,9 @@ class CustomModal extends Model
                 service_start_end = :service_start_end,
                 user_id = :user_id,
                 team_id = :team_id,
-                accounts_amount = :accounts_amount
+                accounts_amount = :accounts_amount,
+                closing_amount = :closing_amount,
+                auditing_amount = :auditing_amount
             WHERE customer_id = :customer_id
               AND fiscal_id = :fiscal_id
         ");
@@ -603,6 +616,8 @@ class CustomModal extends Model
                     ? $data['team_id']
                     : null,
                 'accounts_amount'    => $data['accounts_amount'] ?? 0,
+                'closing_amount'    => $data['closing_amount'] ?? 0,
+                'auditing_amount'    => $data['auditing_amount'] ?? 0,
                 'customer_id'        => $customerId,
                 'fiscal_id'          => $fiscalId,
             ]);

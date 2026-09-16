@@ -449,6 +449,44 @@ require_once __DIR__ . '/header.php';
     color: #94a3b8;
     margin-top: 6px;
 }
+
+/* --- Mobile Responsive Rules for Index --- */
+@media (max-width: 768px) {
+    .main-page-wrapper {
+        padding: 16px 12px;
+        min-height: calc(100vh - 60px);
+    }
+    
+    .year-container-card {
+        padding: 20px 16px;
+    }
+    
+    .section-header-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .year-notice-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px;
+        gap: 12px;
+    }
+    
+    .notice-selected-box {
+        margin-left: 0;
+        text-align: left;
+    }
+    
+    .year-card-grid {
+        grid-template-columns: 1fr; /* 1 card per row on mobile */
+    }
+    
+    .page-main-heading {
+        font-size: 1.15rem;
+    }
+}
 </style>
 
 <div class="main-page-wrapper">
