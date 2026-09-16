@@ -43,8 +43,8 @@
                         </div>
                     </div>
 
-                    <!-- Stats Grid (4 กล่องสถิติ) -->
-                    <div class="stats-grid">
+                    <!-- 1) การ์ดแสดงสถิติ -->
+                    <div class="stats-grid" style="grid-template-columns: repeat(6, 1fr);">
                         <div class="stat-card">
                             <div class="stat-icon blue">
                                 <i class="ri-user-line"></i>
@@ -82,6 +82,26 @@
                             <div class="stat-info">
                                 <span class="stat-val"><?php echo number_format($data['stats']['total_accounts_amount'] ?? 0, 2); ?></span>
                                 <span class="stat-label">ค่าบัญชีต่อเดือน</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon yellow">
+                                <i class="ri-wallet-3-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-val"><?php echo number_format($data['stats']['total_closing_amount'] ?? 0, 2); ?></span>
+                                <span class="stat-label">ค่าปิดบัญชี</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon yellow">
+                                <i class="ri-wallet-3-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-val"><?php echo number_format($data['stats']['total_auditing_amount'] ?? 0, 2); ?></span>
+                                <span class="stat-label">ค่าสอบบัญชี</span>
                             </div>
                         </div>
                     </div>

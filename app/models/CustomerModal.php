@@ -424,7 +424,9 @@ class CustomModal extends Model
                 COUNT(fyc.customer_id) as total_customers,
                 SUM(CASE WHEN c.active_status = 1 THEN 1 ELSE 0 END) as active_customers,
                 SUM(CASE WHEN c.active_status = 0 THEN 1 ELSE 0 END) as inactive_customers,
-                SUM(fyc.accounts_amount) as total_accounts_amount
+                SUM(fyc.accounts_amount) as total_accounts_amount,
+                SUM(fyc.closing_amount) as total_closing_amount,
+                SUM(fyc.auditing_amount) as total_auditing_amount
             FROM tbl_fiscal_year_customers fyc
             INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
             WHERE fyc.fiscal_id = :fiscal_id AND c.delete_at IS NULL
