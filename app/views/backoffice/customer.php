@@ -449,7 +449,7 @@
         // Clear validation on input
         $('#customer_name').on('input change', function() {
             if ($(this).val().trim()) {
-                $(this).removeClass('is-invalid');
+                $(this).removeClass('is-invalid border border-danger');
             }
         });
         updateAccountsEmptyState();
@@ -563,7 +563,8 @@
 
             // Reset password inputs and icons
             document.getElementById('accountsList').innerHTML = '';
-            addAccountRow();  
+            addAccountRow('กรมพัฒนาธุรกิจการค้า', '', '', true);
+            addAccountRow('กรมสรรพากร', '', '', true);
             updateAccountsEmptyState();
         }
         const modalElement = document.getElementById('addCustomerModal');
@@ -602,15 +603,52 @@
 
         let isValid = true;
 
+        let errorMessages = [];
+
         // Validate customer_name
         if (!customerName) {
-            $('#customer_name').addClass('is-invalid');
+            $('#customer_name').addClass('is-invalid border border-danger');
+            errorMessages.push('ชื่อลูกค้า');
             isValid = false;
         } else {
-            $('#customer_name').removeClass('is-invalid');
+            $('#customer_name').removeClass('is-invalid border border-danger');
         }
 
+        // Validate required accounts
+        $('input[name="account_name[]"]').each(function(index) {
+            let name = $(this).val();
+            if (name === 'กรมพัฒนาธุรกิจการค้า' || name === 'กรมสรรพากร') {
+                let user = $('input[name="account_user_name[]"]').eq(index).val().trim();
+                let pass = $('input[name="account_password[]"]').eq(index).val().trim();
+                
+                if (!user) {
+                    $('input[name="account_user_name[]"]').eq(index).addClass('border border-danger');
+                    errorMessages.push(`Username/ID ของ${name}`);
+                    isValid = false;
+                }
+                
+                if (!pass) {
+                    $('input[name="account_password[]"]').eq(index).addClass('border border-danger');
+                    errorMessages.push(`รหัสผ่าน ของ${name}`);
+                    isValid = false;
+                }
+            }
+        });
+
         if (!isValid) {
+            let htmlMsg = '<div style="text-align: left; padding-left: 2rem;">';
+            errorMessages.forEach(msg => {
+                htmlMsg += `<div class="mb-1 text-danger">- ${msg}</div>`;
+            });
+            htmlMsg += '</div>';
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                html: htmlMsg,
+                confirmButtonColor: '#3b82f6',
+                confirmButtonText: 'ตกลง'
+            });
             return; // หยุดการทำงานถ้ากรอกไม่ครบ
         }
 
@@ -635,45 +673,36 @@
 
                 if (response.result === 1) {
                     $('#addCustomerModal').modal('hide');
-                    if (typeof Swal !== 'undefined') {
-                        sessionStorage.setItem('toast_msg', customerId ? 'แก้ไขข้อมูลลูกค้าสำเร็จ' : 'เพิ่มลูกค้าสำเร็จ');
-                        sessionStorage.setItem('toast_icon', 'success');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: customerId ? 'แก้ไขข้อมูลลูกค้าสำเร็จ' : 'เพิ่มลูกค้าสำเร็จ',
+                        confirmButtonColor: '#3b82f6',
+                        confirmButtonText: 'ตกลง'
+                    }).then(() => {
                         location.reload();
-                    } else {
-                        alert(customerId ? 'แก้ไขข้อมูลลูกค้าสำเร็จ' : 'เพิ่มลูกค้าสำเร็จ');
-                        location.reload();
-                    }
+                    });
                 } else {
-                    if (typeof Swal !== 'undefined') {
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                        Toast.fire({ icon: 'error', title: response.msg || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
-                    } else {
-                        alert(response.msg || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ผิดพลาด',
+                        text: response.msg || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+                        confirmButtonColor: '#3b82f6',
+                        confirmButtonText: 'ตกลง'
+                    });
                 }
             },
             error: function(err) {
                 isSubmittingCustomer = false;
                 submitBtn.prop('disabled', false).text(originalBtnText);
                 console.error("AJAX Error:", err);
-                if (typeof Swal !== 'undefined') {
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
-                    Toast.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์' });
-                } else {
-                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                    confirmButtonColor: '#3b82f6',
+                    confirmButtonText: 'ตกลง'
+                });
             }
         });
     }
@@ -734,16 +763,30 @@
                     $('input[name="line_token"]').val(data.line_group_token);
                     $('input[name="doc_url"]').val(data.doc_folder_url);
 
+                    $('#cpd_name').val(data.cpd_name || '');
+                    $('#cpa_name').val(data.cpa_name || '');
+
                     // Clear and load accounts
                     document.getElementById('accountsList').innerHTML = '';
+                    let hasDBD = false;
+                    let hasRD = false;
                     if (data.accounts && data.accounts.length > 0) {
                         data.accounts.forEach(acc => {
-                            addAccountRow(acc.account_name, acc.account_user_name, acc.account_password);
+                            if (acc.account_name === 'กรมพัฒนาธุรกิจการค้า') hasDBD = true;
+                            if (acc.account_name === 'กรมสรรพากร') hasRD = true;
+                            let isDef = (acc.account_name === 'กรมพัฒนาธุรกิจการค้า' || acc.account_name === 'กรมสรรพากร');
+                            addAccountRow(acc.account_name, acc.account_user_name, acc.account_password, isDef);
                         });
                     } else {
                         // Compatibility with old data if they don't have accounts but have old fields
-                        if (data.rn_user || data.rn_password) addAccountRow('', data.rn_user || '', data.rn_password || '');
+                        if (data.rn_user || data.rn_password) {
+                            addAccountRow('กรมพัฒนาธุรกิจการค้า', data.rn_user || '', data.rn_password || '', true);
+                            hasDBD = true;
+                        }
                     }
+
+                    if (!hasDBD) addAccountRow('กรมพัฒนาธุรกิจการค้า', '', '', true);
+                    if (!hasRD) addAccountRow('กรมสรรพากร', '', '', true);
 
                     // check monthly skip
                     if(data.monthly_skip && data.monthly_skip.length > 0) {
@@ -757,37 +800,31 @@
                     const myModal = new bootstrap.Modal(modalElement);
                     myModal.show();
                 } else {
-                    alert(response.msg || 'ไม่สามารถโหลดข้อมูลได้');
+                    Swal.fire('ผิดพลาด', response.msg || 'ไม่สามารถโหลดข้อมูลได้', 'error');
                 }
             },
             error: function() {
-                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลลูกค้า');
+                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการโหลดข้อมูลลูกค้า', 'error');
             }
         });
     }
 
     function deleteCustomer(customer_id) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'warning',
-                title: 'ลบข้อมูลลูกค้า?',
-                text: 'ข้อมูลลูกค้านี้จะถูกลบออกจากระบบ',
-                showCancelButton: true,
-                confirmButtonColor: '#e3342f',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'ลบข้อมูล',
-                cancelButtonText: 'ยกเลิก',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    processDeleteCustomer(customer_id);
-                }
-            });
-        } else {
-            if (confirm('ต้องการลบข้อมูลลูกค้าหรือไม่?')) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ลบข้อมูลลูกค้า?',
+            text: 'ข้อมูลลูกค้านี้จะถูกลบออกจากระบบ',
+            showCancelButton: true,
+            confirmButtonColor: '#e3342f',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'ลบข้อมูล',
+            cancelButtonText: 'ยกเลิก',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
                 processDeleteCustomer(customer_id);
             }
-        }
+        });
     }
 
     function processDeleteCustomer(customer_id) {
@@ -802,25 +839,13 @@
             dataType: 'json',
             success: function(response) {
                 if (response.result === 1) {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire('สำเร็จ!', response.msg, 'success').then(() => location.reload());
-                    } else {
-                        location.reload();
-                    }
+                    Swal.fire('สำเร็จ!', response.msg, 'success').then(() => location.reload());
                 } else {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire('ผิดพลาด', response.msg || 'ไม่สามารถลบข้อมูลได้', 'error');
-                    } else {
-                        alert(response.msg || 'ไม่สามารถลบข้อมูลได้');
-                    }
+                    Swal.fire('ผิดพลาด', response.msg || 'ไม่สามารถลบข้อมูลได้', 'error');
                 }
             },
             error: function() {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า', 'error');
-                } else {
-                    alert('เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า');
-                }
+                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการลบข้อมูลลูกค้า', 'error');
             }
         });
     }
@@ -833,31 +858,43 @@
         }
     }
 
-    function addAccountRow(name = '', user = '', pass = '') {
+    function addAccountRow(name = '', user = '', pass = '', isDefault = false) {
         const list = document.getElementById('accountsList');
         const card = document.createElement('div');
         card.className = 'gov-account-card';
-        card.innerHTML = `
-            <div class="gov-account-fields">
-                <input type="text" class="form-control modal-form-control" name="account_name[]" value="${name}"
-                   placeholder="เช่น กรมสรรพากร"
-                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                   data-lpignore="true" data-1p-ignore data-form-type="other">
-                <input type="text" class="form-control modal-form-control" name="account_user_name[]" value="${user}"
-                   placeholder="Username/ID"
-                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                   data-lpignore="true" data-1p-ignore data-form-type="other">
-                <div class="modal-input-icon-wrap">
-                    <input type="password" class="form-control modal-form-control modal-input-with-icon" name="account_password[]" value="${pass}"
-                       placeholder="รหัสผ่าน"
-                       autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false"
-                       data-lpignore="true" data-1p-ignore data-form-type="other" readonly onfocus="this.removeAttribute('readonly')">
-                    <i class="ri-eye-off-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
-                </div>
-            </div>
+        
+        const nameAttr = isDefault ? 'readonly style="background-color: #f8f9fa;"' : '';
+        const requiredAsterisk = isDefault ? '<span class="text-danger position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); z-index: 5; pointer-events: none;">*</span>' : '';
+        const requiredAsteriskPwd = isDefault ? '<span class="text-danger position-absolute" style="right: 35px; top: 50%; transform: translateY(-50%); z-index: 5; pointer-events: none;">*</span>' : '';
+        const removeBtn = isDefault ? '' : `
             <button type="button" class="gov-account-remove" onclick="this.closest('.gov-account-card').remove(); updateAccountsEmptyState();" title="ลบข้อมูล">
                 <i class="ri-delete-bin-line"></i>
             </button>
+        `;
+
+        card.innerHTML = `
+            <div class="gov-account-fields">
+                <input type="text" class="form-control modal-form-control" name="account_name[]" value="${name}"
+                   placeholder="เช่น กรมสรรพากร" ${nameAttr}
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                   data-lpignore="true" data-1p-ignore data-form-type="other">
+                <div class="position-relative">
+                    <input type="text" class="form-control modal-form-control w-100" name="account_user_name[]" value="${user}"
+                       placeholder="Username/ID"
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                       data-lpignore="true" data-1p-ignore data-form-type="other" oninput="this.classList.remove('border', 'border-danger')">
+                    ${requiredAsterisk}
+                </div>
+                <div class="modal-input-icon-wrap position-relative">
+                    <input type="password" class="form-control modal-form-control modal-input-with-icon" name="account_password[]" value="${pass}"
+                       placeholder="รหัสผ่าน"
+                       autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false"
+                       data-lpignore="true" data-1p-ignore data-form-type="other" readonly onfocus="this.removeAttribute('readonly')" oninput="this.classList.remove('border', 'border-danger')">
+                    <i class="ri-eye-off-line modal-input-icon modal-input-icon-clickable" onclick="togglePasswordVisibility(this)"></i>
+                    ${requiredAsteriskPwd}
+                </div>
+            </div>
+            ${removeBtn}
         `;
         list.appendChild(card);
         updateAccountsEmptyState();

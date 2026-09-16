@@ -449,11 +449,7 @@ class BackofficeController
         try {
             // เช็คว่า username ซ้ำไหม
             $existingUser = $userModel->getUserByUsername($user_name);
-            if ($existingUser) {
-                echo json_encode(['result' => 0, 'msg' => 'ชื่อผู้ใช้นี้มีในระบบแล้ว กรุณาใช้ชื่ออื่น']);
-                return;
-            }
-
+            
             // จัดการเรื่องทีม
             $team_id = null;
             if ($team_name !== '') {
@@ -465,27 +461,42 @@ class BackofficeController
                 }
             }
 
-            // บันทึก User
-            $userData = [
-                'user_name'      => $user_name,
-                'user_password'  => password_hash($user_password, PASSWORD_DEFAULT),
-                'user_firstname' => $user_firstname,
-
-                'user_lastname'  => $user_lastname,
-                'position'       => $user_position,
-                'team_id'        => $team_id,
-                'fiscal_id'      => $fiscal_id,
-            ];
-            $newUserId = $userModel->insertUser($userData);
-
-            if ($newUserId) {
+            if ($existingUser) {
+                // User มีอยู่แล้วในระบบส่วนกลาง (Centralized)
+                $userId = $existingUser['user_id'];
+                
                 // เชื่อมพนักงานกับบริษัทและปีทำงาน
-                $userModel->linkUserToCompany($newUserId, $company_id);
-                $userModel->linkUserToFiscalYear($newUserId, $fiscal_id);
+                // (ในทางปฏิบัติควรเช็คด้วยว่าเคยเชื่อมหรือยัง เพื่อป้องกัน duplicate keys)
+                try {
+                    $userModel->linkUserToCompany($userId, $company_id);
+                } catch (PDOException $e) { /* Ignore if already linked */ }
+                
+                try {
+                    $userModel->linkUserToFiscalYear($userId, $fiscal_id);
+                } catch (PDOException $e) { /* Ignore if already linked */ }
 
-                echo json_encode(['result' => 1, 'msg' => 'เพิ่มพนักงานเรียบร้อยแล้ว']);
+                echo json_encode(['result' => 1, 'msg' => 'พบผู้ใช้นี้ในระบบ ทำการเพิ่มสิทธิ์การเข้าถึงบริษัทและปีบัญชีนี้ให้เรียบร้อยแล้ว']);
             } else {
-                echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลพนักงานได้']);
+                // บันทึก User ใหม่
+                $userData = [
+                    'user_name'      => $user_name,
+                    'user_password'  => password_hash($user_password, PASSWORD_DEFAULT),
+                    'user_firstname' => $user_firstname,
+                    'user_lastname'  => $user_lastname,
+                    'position'       => $user_position,
+                    'team_id'        => $team_id
+                ];
+                $newUserId = $userModel->insertUser($userData);
+
+                if ($newUserId) {
+                    // เชื่อมพนักงานกับบริษัทและปีทำงาน
+                    $userModel->linkUserToCompany($newUserId, $company_id);
+                    $userModel->linkUserToFiscalYear($newUserId, $fiscal_id);
+
+                    echo json_encode(['result' => 1, 'msg' => 'เพิ่มพนักงานใหม่เรียบร้อยแล้ว']);
+                } else {
+                    echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลพนักงานได้']);
+                }
             }
         } catch (PDOException $e) {
             echo json_encode(['result' => 0, 'msg' => 'เกิดข้อผิดพลาดฐานข้อมูล: ' . $e->getMessage()]);
@@ -665,8 +676,7 @@ class BackofficeController
     }
 
 
-<<<<<<< HEAD
-=======
+
 
     public function customer_dash()
     {
@@ -767,7 +777,6 @@ class BackofficeController
         ], JSON_UNESCAPED_UNICODE);
     }
 
->>>>>>> 82025dc (Dashbord Customer)
     public function customerFilter()
     {
         $this->checkAuth();
@@ -834,7 +843,10 @@ class BackofficeController
 
             if ($customerId) {
                 // 2. Link to Fiscal Year (tbl_fiscal_year_customers)
-                $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
+                $fiscalYearId = $customModal->linkCustomerToFiscalYear($customerId, $fiscal_id, $_POST);
+                
+                // Add accounts
+                $customModal->insertCustomerAccounts($customerId, $fiscalYearId, $_POST['account_name'] ?? [], $_POST['account_user_name'] ?? [], $_POST['account_password'] ?? []);
 
                 // 3 & 4. Generate Work Periods & Tasks
                 $customModal->generateWorkPeriodsAndTasks($customerId, $fiscal_id, $_POST);
@@ -897,6 +909,11 @@ class BackofficeController
         try {
             $success = $customModal->updateCustomer($_POST);
             if ($success) {
+                $fiscalYearId = $customModal->getFiscalYearCustomerId($customer_id, $fiscal_id);
+                if ($fiscalYearId) {
+                    $customModal->deleteCustomerAccounts($customer_id, $fiscalYearId);
+                    $customModal->insertCustomerAccounts($customer_id, $fiscalYearId, $_POST['account_name'] ?? [], $_POST['account_user_name'] ?? [], $_POST['account_password'] ?? []);
+                }
                 echo json_encode(['result' => 1, 'msg' => 'แก้ไขข้อมูลลูกค้าสำเร็จ']);
             } else {
                 echo json_encode(['result' => 0, 'msg' => 'แก้ไขข้อมูลลูกค้าไม่สำเร็จ']);
@@ -2421,8 +2438,13 @@ class BackofficeController
     public function getVapidPublicKey()
     {
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode([
 
+        // โหลด .env ถ้ายังไม่ได้โหลด
+        if (empty($_ENV['VAPID_PUBLIC_KEY']) && class_exists('Dotenv\Dotenv')) {
+            \Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
+        }
+
+        echo json_encode([
             'publicKey' => $_ENV['VAPID_PUBLIC_KEY'] ?? '',
         ]);
     }
@@ -2722,6 +2744,13 @@ class BackofficeController
                             $mailService = new \App\Services\MailService();
                             $emailSent = $mailService->sendTaskAssignmentEmail($toEmail, $toName, $assign_title, $due_date, $assign_detail);
                         }
+
+                        // -- ส่งแจ้งเตือน Web Push & กระดิ่ง --
+                        require_once '../app/models/NotificationModel.php';
+                        $notifModel = new \App\Models\NotificationModel();
+                        $notifMsg = "คุณได้รับมอบหมายงานใหม่: {$assign_title} (กำหนดส่ง: {$due_date})";
+                        $notifModel->addNotification($assignee_id, 'assign_task', $assign_id, $notifMsg);
+                        $this->sendWebPush($assignee_id, 'งานใหม่', $notifMsg, '/assign_task');
 
                         $msg = 'มอบหมายงานสำเร็จ';
                         if (!$emailSent) {

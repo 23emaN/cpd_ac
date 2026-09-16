@@ -42,7 +42,8 @@ $routes = [
         'portal' => ['PortalController', 'index'],
         'portal/drive' => ['PortalController', 'drive'],
         'portal/download' => ['PortalController', 'download'],
-        'portal/logout' => ['PortalController', 'logout']
+        'portal/logout' => ['PortalController', 'logout'],
+        'notification/vapid-public-key' => ['BackofficeController', 'getVapidPublicKey']
     ],
     'POST' => [
         'auth/login'  => ['AuthController', 'processLogin'],
@@ -64,7 +65,6 @@ $routes = [
         'notification/read' => ['BackofficeController', 'readNotification'],
         'notification/subscribe' => ['BackofficeController', 'subscribePush'],
         'notification/unsubscribe' => ['BackofficeController', 'unsubscribePush'],
-        'notification/vapid-public-key' => ['BackofficeController', 'getVapidPublicKey'],
         'post_it/store' => ['BackofficeController', 'storePostIt'],
         'post_it/update' => ['BackofficeController', 'updatePostIt'],
         'post_it/toggle' => ['BackofficeController', 'togglePostItStatus'],

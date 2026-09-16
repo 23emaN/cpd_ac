@@ -36,6 +36,7 @@ class CustomModal extends Model
                   AND u.is_super_admin = 0
                   AND u.delete_at IS NULL
                   AND fyu.fiscal_id = :fiscal_id
+                GROUP BY u.user_id
                 ORDER BY u.user_firstname ASC
             ");
             $stmt->execute(['fiscal_id' => $fiscalId]);
@@ -183,10 +184,10 @@ class CustomModal extends Model
         }
     }
 
-    public function deleteCustomerAccounts($customerId)
+    public function deleteCustomerAccounts($customerId, $fiscalYearId)
     {
-        $stmt = $this->pdo->prepare("DELETE FROM tbl_customer_accounts WHERE customer_id = :customer_id");
-        $stmt->execute(['customer_id' => $customerId]);
+        $stmt = $this->pdo->prepare("DELETE FROM tbl_customer_accounts WHERE customer_id = :customer_id AND fiscal_year_id = :fiscal_year_id");
+        $stmt->execute(['customer_id' => $customerId, 'fiscal_year_id' => $fiscalYearId]);
     }
 
     public function getFiscalYearCustomerId($customerId, $fiscalId)

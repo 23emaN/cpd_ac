@@ -28,9 +28,23 @@ class NotificationModel
     {
         try {
             $stmt = $this->pdo->prepare("
-                INSERT INTO tbl_notifications (user_id, task_type, reference_id, message, is_read, created_at)
-                VALUES (:user_id, :task_type, :reference_id, :message, 0, NOW())
-            ");
+                INSERT INTO tbl_notifications (
+                                    user_id, 
+                                    task_type, 
+                                    reference_id, 
+                                    message, 
+                                    is_read, 
+                                    created_at
+                                    )
+                                    VALUES (
+                                    :user_id, 
+                                    :task_type, 
+                                    :reference_id, 
+                                    :message, 
+                                    0, 
+                                    NOW()
+                                    )
+                                ");
             $stmt->execute([
                 ':user_id' => $user_id,
                 ':task_type' => $task_type,

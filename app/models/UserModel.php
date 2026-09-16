@@ -26,8 +26,7 @@ class UserModel extends Model {
                 create_at,
                 is_super_admin,
                 position, 
-                team_id,
-                fiscal_id
+                team_id
             ) VALUES (
                 :user_name,
                 :user_password,
@@ -37,8 +36,7 @@ class UserModel extends Model {
                 NOW(),
                 '0',
                 :position, 
-                :team_id,
-                :fiscal_id
+                :team_id
             )"
         );
         $stmt->execute([
@@ -47,8 +45,7 @@ class UserModel extends Model {
             'user_firstname' => $data['user_firstname'],
             'user_lastname' => $data['user_lastname'],
             'position' => $data['position'] ?? null,
-            'team_id' => $data['team_id'] ?? null,
-            'fiscal_id' => $data['fiscal_id'] ?? null
+            'team_id' => $data['team_id'] ?? null
         ]);
         return $this->pdo->lastInsertId();
     }
@@ -98,7 +95,7 @@ class UserModel extends Model {
 
     public function getEmployeesByFiscalAndCompany($fiscalId, $companyId) {
         $sql = "
-            SELECT u.*, t.team_name 
+            SELECT DISTINCT u.*, t.team_name 
             FROM tbl_user u
             JOIN tbl_user_companies uc ON u.user_id = uc.user_id
             JOIN tbl_fiscal_year_user fu ON u.user_id = fu.user_id
