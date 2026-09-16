@@ -666,6 +666,51 @@ class BackofficeController
 
 
 
+    public function customerDashFilter()
+    {
+        $this->checkAuth();
+        header('Content-Type: application/json');
+
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+        if (!$fiscal_id) {
+            echo json_encode(['result' => false, 'msg' => 'Unauthorized']);
+            exit();
+        }
+
+        $filterMonth = isset($_GET['month']) && ctype_digit($_GET['month']) ? (int)$_GET['month'] : null;
+        if ($filterMonth < 1 || $filterMonth > 12) {
+            $filterMonth = null;
+        }
+
+        require_once '../app/models/CustomerDashModel.php';
+        $customerDashModel = new CustomerDashModel();
+        
+        $dbMonth = $filterMonth !== null ? str_pad($filterMonth, 2, '0', STR_PAD_LEFT) : null;
+        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id, $dbMonth);
+        
+        $totalTasks = array_sum(array_map(static fn($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
+        $completedTasks = array_sum(array_map(static fn($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
+        $totalAccountsAmount = array_sum(array_map(static fn($customer) => (float) ($customer['accounts_amount'] ?? 0), $customerWork));
+        
+        $data = ['customers' => $customerWork];
+        ob_start();
+        require '../app/views/backoffice/table/customer_dash_table.php';
+        $tableHtml = ob_get_clean();
+
+        echo json_encode([
+            'result' => true,
+            'html' => $tableHtml,
+            'stats' => [
+                'total_customers' => number_format(count($customerWork)),
+                'total_tasks' => number_format($totalTasks),
+                'completed_tasks' => number_format($completedTasks),
+                'unfinished_tasks' => number_format(max(0, $totalTasks - $completedTasks)),
+                'total_accounts_amount' => number_format($totalAccountsAmount, 2),
+            ]
+        ]);
+        exit();
+    }
+
     public function customer_dash()
     {
         $this->checkAuth();
@@ -698,7 +743,13 @@ class BackofficeController
         require_once '../app/models/CustomerDashModel.php';
         $customerModel = new CustomModal();
         $customerDashModel = new CustomerDashModel();
-        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id);
+        
+        $filterMonth = isset($_GET['month']) && ctype_digit($_GET['month']) ? (int)$_GET['month'] : null;
+        if ($filterMonth < 1 || $filterMonth > 12) {
+            $filterMonth = null;
+        }
+        
+        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id, $filterMonth);
         $totalTasks = array_sum(array_map(static fn($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
         $completedTasks = array_sum(array_map(static fn($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
         $totalAccountsAmount = array_sum(array_map(static fn($customer) => (float) ($customer['accounts_amount'] ?? 0), $customerWork));
