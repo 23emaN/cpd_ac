@@ -17,7 +17,7 @@
                 <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 1</th>
                 <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 2</th>
                 <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 3</th>
-                
+
                 <th class="text-center" style="width: 8%;">ยื่นภาษี</th>
                 <th class="text-center" style="width: 9%;">เก็บเงิน</th>
             </tr>
@@ -58,7 +58,7 @@
                                 </div>
                                 <div class="action-btn-group flex-shrink-0">
                                     <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข"
-                                        onclick="Modal_manage(<?php echo (int) $task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><i
+                                        onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><i
                                             class="ri-pencil-line"></i></button>
                                     <button type="button" class="btn-action-message" title="กล่องจดหมาย/ข้อความ"><i
                                             class="ri-mail-line"></i></button>
@@ -74,7 +74,7 @@
                         <!-- <td class="text-center">
                             <?php if (!empty($task['unread_comments']) && $task['unread_comments'] > 0): ?>
                                 <span class="badge bg-danger" style="cursor: pointer;"
-                                    title="มี <?php echo $task['unread_comments']; ?> ความคิดเห็นที่ยังไม่ได้อ่าน" onclick="Modal_manage(<?php echo (int) $task['period_id']; ?>,
+                                    title="มี <?php echo $task['unread_comments']; ?> ความคิดเห็นที่ยังไม่ได้อ่าน" onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>,
                                             '<?php echo htmlspecialchars($subtitle ?? '', ENT_QUOTES); ?>')">
                                     <?php echo $task['unread_comments']; ?>
                                 </span>
@@ -176,27 +176,13 @@
     </table>
 </div>
 
-<!-- Pagination Toolbar -->
-<div class="pagination-toolbar">
-    <div class="d-flex align-items-center gap-2 text-muted">
-        <span>แสดง</span>
-        <select class="per-page-select">
-            <option value="25" selected>25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </select>
-        <span>รายการต่อหน้า</span>
-    </div>
-
-    <div class="text-muted">
-        รายการที่ 1-3 จาก 3
-    </div>
-
-    <div class="d-flex align-items-center gap-1">
-        <button type="button" class="page-btn" title="หน้าแรก"><i class="ri-arrow-left-double-line"></i></button>
-        <button type="button" class="page-btn" title="ก่อนหน้า"><i class="ri-arrow-left-s-line"></i></button>
-        <button type="button" class="page-btn active">1</button>
-        <button type="button" class="page-btn" title="ถัดไป"><i class="ri-arrow-right-s-line"></i></button>
-        <button type="button" class="page-btn" title="หน้าสุดท้าย"><i class="ri-arrow-right-double-line"></i></button>
-    </div>
-</div>
+<?php
+$list = $data['monthly_tasks'] ?? [];
+$total = count($list);
+$page = 1;
+$per_page = $total > 0 ? $total : 25;
+$from = 1;
+?>
+<?php if (!empty($list)): ?>
+    <?php include dirname(__DIR__) . '/_pagination.php'; ?>
+<?php endif; ?>

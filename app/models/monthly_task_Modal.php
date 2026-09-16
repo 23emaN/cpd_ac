@@ -5,23 +5,35 @@ class MonthlyTaskModal extends Model
 {
 
     public function getReviewUsers()
-{
-    $sql = "
-        SELECT
-            user_id,
-            user_firstname,
-            user_lastname
-        FROM tbl_user
-        WHERE delete_at IS NULL
-          AND user_status = '1'
-        ORDER BY user_firstname ASC
-    ";
+    {
+        $sql = "
+            SELECT
+                user_id,
+                user_firstname,
+                user_lastname
+            FROM tbl_user
+            WHERE delete_at IS NULL
+              AND user_status = '1'
+            ORDER BY user_firstname ASC
+        ";
 
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute();
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAvailableMonths($fiscalId)
+    {
+        $sql = "SELECT DISTINCT CAST(period_month AS UNSIGNED) AS month_num 
+                FROM tbl_customer_work_periods 
+                WHERE fiscal_year_id = :fiscal_id 
+                  AND delete_at IS NULL 
+                ORDER BY month_num ASC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['fiscal_id' => $fiscalId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 
     public function getMonthlyTaskCustomers($fiscalId)
     {
@@ -356,18 +368,33 @@ class MonthlyTaskModal extends Model
     }
 }
 
+    public function getPeriodById($periodId)
+    {
+        $sql = "SELECT * FROM tbl_customer_work_periods WHERE period_id = :period_id";
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['period_id' => $periodId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
     public function getCustomerAccountsByPeriodId($periodId)
     {
         $sql = "SELECT
-                    ca.accounts_id,
+                    ca.account_id,
                     ca.account_name,
-                    ca.account_pasword
+                    ca.account_user_name,
+                    ca.account_password
                 FROM tbl_customer_accounts ca
+                INNER JOIN tbl_fiscal_year_customers fyc
+                    ON ca.fiscal_year_id = fyc.fiscal_year_id
                 INNER JOIN tbl_customer_work_periods p
                     ON ca.customer_id = p.customer_id
-                    AND ca.fiscal_year_id = p.fiscal_year_id
+                    AND fyc.fiscal_id = p.fiscal_year_id
                 WHERE p.period_id = :period_id
-                ORDER BY ca.accounts_id ASC";
+                ORDER BY ca.account_id ASC";
 
         try {
             $stmt = $this->pdo->prepare($sql);
@@ -387,18 +414,28 @@ class MonthlyTaskModal extends Model
         ? DateTime::createFromFormat('d/m/Y', $data['doc_date'])->format('Y-m-d')
         : null;
 
-    $completedDate = !empty($data['completed_date'])
-        ? DateTime::createFromFormat('d/m/Y', $data['completed_date'])->format('Y-m-d')
+    $completedDate = !empty($data['completed_date_1'])
+        ? DateTime::createFromFormat('d/m/Y', $data['completed_date_1'])->format('Y-m-d')
         : null;
 
-    $taxDate = !empty($data['tax_date'])
-        ? DateTime::createFromFormat('d/m/Y', $data['tax_date'])->format('Y-m-d')
+    $taxDate = !empty($data['tax_date_1'])
+        ? DateTime::createFromFormat('d/m/Y', $data['tax_date_1'])->format('Y-m-d')
+        : null;
+
+    $completedDate2 = !empty($data['completed_date_2'])
+        ? DateTime::createFromFormat('d/m/Y', $data['completed_date_2'])->format('Y-m-d')
+        : null;
+
+    $taxDate2 = !empty($data['tax_date_2'])
+        ? DateTime::createFromFormat('d/m/Y', $data['tax_date_2'])->format('Y-m-d')
         : null;
 
     $sql = "UPDATE tbl_customer_work_periods SET
                 doc_date = :doc_date,
                 completed_date = :completed_date,
                 tax_date = :tax_date,
+                completed_date2 = :completed_date2,
+                tax2_create_at = :tax_date2,
 
                 review1_status = :r1,
                 review1_user_id = :review1_user_id,
@@ -420,6 +457,8 @@ class MonthlyTaskModal extends Model
         'doc_date' => $docDate,
         'completed_date' => $completedDate,
         'tax_date' => $taxDate,
+        'completed_date2' => $completedDate2,
+        'tax_date2' => $taxDate2,
 
         'r1' => $data['review1_status'] ?? '0',
         'review1_user_id' => !empty($data['review1_user_id'])
