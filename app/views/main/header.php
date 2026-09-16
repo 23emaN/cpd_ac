@@ -795,6 +795,86 @@
             max-width: 800px !important;
         }
 
+        /* --- Mobile Responsive Rules for Header --- */
+        @media (max-width: 768px) {
+            .acc-topbar {
+                padding: 10px 15px;
+                min-height: 60px;
+            }
+            .acc-brand-info {
+                display: none;
+            }
+            .acc-company-container {
+                max-width: calc(100vw - 220px);
+                padding: 4px;
+                scrollbar-width: none;
+            }
+            .acc-company-container::-webkit-scrollbar {
+                display: none;
+            }
+            .acc-workspace-btn {
+                padding: 6px 10px 6px 8px;
+                height: 40px;
+                min-height: 40px;
+            }
+            .acc-workspace-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+            .acc-workspace-name {
+                font-size: 0.8rem;
+                max-width: 90px;
+            }
+            .acc-workspace-year {
+                font-size: 0.65rem;
+            }
+            .acc-workspace-badge {
+                display: none;
+            }
+            .acc-add-workspace-btn {
+                height: 40px;
+                min-height: 40px;
+                padding: 0 10px;
+            }
+            .acc-add-workspace-text {
+                display: none;
+            }
+            .acc-add-workspace-icon {
+                width: 24px;
+                height: 24px;
+            }
+            .acc-user-info {
+                display: none;
+            }
+            .acc-user-profile {
+                padding: 4px;
+                border: none;
+                background: transparent;
+            }
+            .acc-user-avatar {
+                width: 32px;
+                height: 32px;
+            }
+            .acc-logout-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            .acc-notif-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 17px;
+            }
+            .header-burger-menu {
+                width: 38px;
+                height: 38px;
+                margin-left: 8px;
+                margin-right: 4px;
+                font-size: 18px;
+            }
+        }
+
         /* ==================================================
            --- Global Modal Custom Styling (Standard CPD ACC) ---
            ================================================== */
@@ -933,6 +1013,20 @@
             border: 1px solid #e2e8f0 !important;
             color: #94a3b8 !important;
             cursor: not-allowed !important;
+        }
+
+        .modal-form-control.is-invalid,
+        .modal-form-control.border-danger,
+        .modal-body .form-control.is-invalid,
+        .modal-body .form-control.border-danger {
+            border: 1px solid #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10) !important;
+        }
+
+        .company-name-input.is-invalid {
+            background-color: #fffafa !important;
+            border: 1px solid #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10) !important;
         }
 
         /* --- Flatpickr Date Input & Icon Styling --- */
@@ -2346,37 +2440,95 @@
 
         <div class="acc-actions">
             <!-- Notification Bell -->
-            <div class="dropdown acc-notification-dropdown">
-                <button type="button" class="acc-notif-btn" id="notifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                    <i class="ri-notification-3-line"></i>
-                    <span class="acc-notif-badge" id="notifBadge">0</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-end acc-notif-menu" aria-labelledby="notifDropdownBtn">
-                    <div class="acc-notif-header">
-                        <span>แจ้งเตือน</span>
-                    </div>
-                    <div class="acc-notif-list" id="notifListContainer">
-                        <div class="acc-notif-empty">กำลังโหลด...</div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="acc-user-profile" title="ข้อมูลผู้ใช้งาน">
-                <div class="acc-user-avatar">
-                    <i class="ri-user-3-fill"></i>
+            <div class="dropdown">
+                <div class="acc-user-profile" title="ข้อมูลผู้ใช้งาน" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" style="cursor: pointer;" id="profileDropdownBtn">
+                    <div class="acc-user-avatar">
+                        <i class="ri-user-3-fill"></i>
+                    </div>
+                    <div class="acc-user-info d-none d-sm-flex pe-2">
+                        <span class="acc-user-name">
+                            <?php echo htmlspecialchars(trim(($data['firstname'] ?? $_SESSION['user_firstname'] ?? '') . ' ' . ($data['lastname'] ?? $_SESSION['user_lastname'] ?? 'ผู้ใช้งาน'))) ?>
+                        </span>
+                        <span class="acc-user-role">
+                            <?php echo(! empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
+                        </span>
+                    </div>
                 </div>
-                <div class="acc-user-info d-none d-sm-flex">
-                    <span class="acc-user-name">
-                        <?php echo htmlspecialchars(trim(($data['firstname'] ?? $_SESSION['user_firstname'] ?? '') . ' ' . ($data['lastname'] ?? $_SESSION['user_lastname'] ?? 'ผู้ใช้งาน'))) ?>
-                    </span>
-                    <span class="acc-user-role">
-                        <?php echo(! empty($data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? null) && ($data['is_super_admin'] ?? $_SESSION['is_super_admin']) === '1') ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งานระบบ' ?>
-                    </span>
-                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdownBtn" style="border-radius: 14px; min-width: 270px; padding: 10px; border: 1px solid #edf2f7; margin-top: 10px;">
+                    <!-- Web Push Notification Permission Card -->
+                    <li onclick="event.stopPropagation()">
+                        <div id="notifPermCard" style="
+                            margin: 2px 0 6px 0;
+                            border-radius: 10px;
+                            padding: 12px 14px;
+                            background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 100%);
+                            border: 1px solid #bfdbfe;
+                            transition: all 0.2s ease;
+                        ">
+                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div id="notifPermIcon" style="
+                                        width: 36px; height: 36px;
+                                        border-radius: 9px;
+                                        background-color: #dbeafe;
+                                        display: flex; align-items: center; justify-content: center;
+                                        font-size: 18px;
+                                        color: #2563eb;
+                                        flex-shrink: 0;
+                                        transition: all 0.2s;
+                                    ">
+                                        <i class="ri-notification-3-line"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 13px; color: #1e293b; line-height: 1.2;">การแจ้งเตือน Push</div>
+                                        <div id="notifPermStatus" style="font-size: 11px; color: #64748b; margin-top: 2px; font-weight: 500;">กำลังตรวจสอบ...</div>
+                                    </div>
+                                </div>
+                                <!-- Custom Toggle Switch (ไม่ใช้ Bootstrap form-switch) -->
+                                <label for="webPushToggle" style="cursor: pointer; flex-shrink: 0; margin: 0;">
+                                    <input type="checkbox" id="webPushToggle" style="display: none;">
+                                    <span id="webPushTrack" style="
+                                        display: inline-flex;
+                                        align-items: center;
+                                        width: 48px;
+                                        height: 26px;
+                                        border-radius: 13px;
+                                        background-color: #cbd5e1;
+                                        position: relative;
+                                        transition: background-color 0.25s ease;
+                                        box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+                                    ">
+                                        <span id="webPushThumb" style="
+                                            position: absolute;
+                                            left: 3px;
+                                            width: 20px;
+                                            height: 20px;
+                                            border-radius: 50%;
+                                            background-color: #ffffff;
+                                            box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+                                            transition: left 0.25s ease;
+                                        "></span>
+                                    </span>
+                                </label>
+                            </div>
+                            <div id="notifPermHint" style="font-size: 11px; color: #94a3b8; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e2e8f0; display: none;"></div>
+                        </div>
+                    </li>
+                    <li class="d-block d-sm-none">
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li class="d-block d-sm-none">
+                        <a class="dropdown-item d-flex align-items-center px-3 py-2 text-danger" href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/logout" style="font-weight: 500; font-size: 14px; border-radius: 8px;">
+                            <i class="ri-logout-box-r-line me-2" style="font-size: 18px;"></i>
+                            ออกจากระบบ
+                        </a>
+                    </li>
+                </ul>
             </div>
 
             <!-- Logout Button -->
-            <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/logout" class="acc-logout-btn"
+            <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/logout" class="acc-logout-btn d-none d-sm-flex"
                 title="ออกจากระบบ">
                 <i class="ri-logout-box-r-line"></i>
             </a>
@@ -2960,7 +3112,7 @@ function showCompanyNameError(message) {
                                 `;
                             });
                         } else {
-                            listHtml = '<div class="acc-notif-empty">ไม่มีแจ้งเตือนใหม่</div>';
+                            listHtml = '<div class="acc-notif-empty">ไม่มีการแจ้งเตือน</div>';
                         }
                         document.getElementById('notifListContainer').innerHTML = listHtml;
                     }
@@ -2988,10 +3140,236 @@ function showCompanyNameError(message) {
             });
         }
 
+        function urlB64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        async function subscribeUserToPush() {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                try {
+                    const baseUrl = "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>";
+                    const registration = await navigator.serviceWorker.register(baseUrl + '/sw.js');
+                    await navigator.serviceWorker.ready;
+
+                    const response = await fetch(baseUrl + '/notification/vapid-public-key', {
+                        credentials: 'same-origin',
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!response.ok || !(response.headers.get('content-type') || '').includes('application/json')) {
+                        return false;
+                    }
+
+                    const data = await response.json();
+                    
+                    if (!data.publicKey) return false;
+
+                    const applicationServerKey = urlB64ToUint8Array(data.publicKey);
+                    
+                    let permission = Notification.permission;
+                    if (permission === 'default') {
+                        permission = await Notification.requestPermission();
+                    }
+
+                    if (permission === 'granted') {
+                        const subscription = await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: applicationServerKey
+                        });
+
+                        const saveRes = await fetch(baseUrl + '/notification/subscribe', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(subscription)
+                        });
+                        
+                        if (saveRes.ok) {
+                            return true;
+                        } else {
+                            alert('ไม่สามารถบันทึกข้อมูลแจ้งเตือนได้');
+                            return false;
+                        }
+                    } else {
+                        alert('คุณไม่อนุญาตให้แสดงการแจ้งเตือน (Permission Denied) โปรดไปตั้งค่าเบราว์เซอร์เพื่ออนุญาต');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Push Subscription error:', error);
+                    alert('เกิดข้อผิดพลาดในการลงทะเบียนรับการแจ้งเตือน');
+                    return false;
+                }
+            } else {
+                // Not supported, prompt user if they want to enable notifications anyway?
+                // Requesting permission just in case
+                let permission = Notification.permission;
+                if (permission === 'default') {
+                    permission = await Notification.requestPermission();
+                }
+                return false;
+            }
+        }
+
+        async function unsubscribeUserFromPush() {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+                    if (subscription) {
+                        await subscription.unsubscribe();
+                        
+                        const baseUrl = "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>";
+                        await fetch(baseUrl + '/notification/unsubscribe', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ endpoint: subscription.endpoint })
+                        });
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('Push Unsubscription error:', error);
+                    return false;
+                }
+            }
+            return false;
+        }
+
         $(document).ready(function() {
             loadNotifications();
             // Optional: Auto fetch every 1 minute
             setInterval(loadNotifications, 60000);
+
+            // Web Push Toggle Logic
+            function updateNavNotificationToggleState() {
+                const webPushToggle = document.getElementById('webPushToggle');
+                const permIcon     = document.getElementById('notifPermIcon');
+                const permStatus   = document.getElementById('notifPermStatus');
+                const permCard     = document.getElementById('notifPermCard');
+                const permHint     = document.getElementById('notifPermHint');
+                if (!webPushToggle) return;
+
+                const isUserDisabled = localStorage.getItem('web_push_enabled') === 'false';
+                const notifSupported = (typeof Notification !== 'undefined');
+                const permission     = notifSupported ? Notification.permission : 'unsupported';
+                const hasPermission  = permission === 'granted';
+
+                webPushToggle.checked = hasPermission && !isUserDisabled;
+
+                // อัปเดต visual ของ custom toggle (track + thumb)
+                (function(){
+                    var track = document.getElementById('webPushTrack');
+                    var thumb = document.getElementById('webPushThumb');
+                    var isOn  = webPushToggle.checked;
+                    if (track) track.style.backgroundColor = isOn ? '#2563eb' : '#cbd5e1';
+                    if (thumb) thumb.style.left = isOn ? '25px' : '3px';
+                })();
+
+                if (!permIcon || !permStatus || !permCard) return;
+
+                if (permission === 'granted' && !isUserDisabled) {
+                    // Active / Granted - green
+                    permCard.style.background  = 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+                    permCard.style.borderColor = '#86efac';
+                    permIcon.style.backgroundColor = '#bbf7d0';
+                    permIcon.style.color       = '#16a34a';
+                    permIcon.querySelector('i').className = 'ri-notification-3-fill';
+                    permStatus.textContent     = '\u2714 \u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15\u0e41\u0e25\u0e49\u0e27';
+                    permStatus.style.color     = '#16a34a';
+                    webPushToggle.disabled     = false;
+                    if (permHint) permHint.style.display = 'none';
+                } else if (permission === 'denied') {
+                    // Blocked - red, disable toggle
+                    permCard.style.background  = 'linear-gradient(135deg, #fff7f7 0%, #fee2e2 100%)';
+                    permCard.style.borderColor = '#fca5a5';
+                    permIcon.style.backgroundColor = '#fee2e2';
+                    permIcon.style.color       = '#dc2626';
+                    permIcon.querySelector('i').className = 'ri-notification-off-line';
+                    permStatus.textContent     = '\u26d4 \u0e16\u0e39\u0e01\u0e1a\u0e25\u0e47\u0e2d\u0e01\u0e43\u0e19\u0e40\u0e1a\u0e23\u0e32\u0e27\u0e4c\u0e40\u0e0b\u0e2d\u0e23\u0e4c';
+                    permStatus.style.color     = '#dc2626';
+                    webPushToggle.disabled     = true;
+                    if (permHint) {
+                        permHint.style.display = 'block';
+                        permHint.innerHTML     = '\uD83D\uDD12 \u0e44\u0e1b\u0e15\u0e31\u0e49\u0e07\u0e04\u0e48\u0e32\u0e40\u0e1a\u0e23\u0e32\u0e27\u0e4c\u0e40\u0e0b\u0e2d\u0e23\u0e4c \u2192 <b>\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e07\u0e40\u0e15\u0e37\u0e2d\u0e19</b> \u2192 \u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15';
+                    }
+                } else if (hasPermission && isUserDisabled) {
+                    // Granted but user muted
+                    permCard.style.background  = 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)';
+                    permCard.style.borderColor = '#cbd5e1';
+                    permIcon.style.backgroundColor = '#e2e8f0';
+                    permIcon.style.color       = '#94a3b8';
+                    permIcon.querySelector('i').className = 'ri-notification-off-line';
+                    permStatus.textContent     = '\u23f8\ufe0f \u0e1b\u0e34\u0e14\u0e2d\u0e22\u0e39\u0e48\u0e0a\u0e31\u0e48\u0e27\u0e04\u0e23\u0e32\u0e27';
+                    permStatus.style.color     = '#94a3b8';
+                    webPushToggle.disabled     = false;
+                    if (permHint) permHint.style.display = 'none';
+                } else {
+                    // Default - blue (not yet asked)
+                    permCard.style.background  = 'linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 100%)';
+                    permCard.style.borderColor = '#bfdbfe';
+                    permIcon.style.backgroundColor = '#dbeafe';
+                    permIcon.style.color       = '#2563eb';
+                    permIcon.querySelector('i').className = 'ri-notification-3-line';
+                    permStatus.textContent     = '\uD83D\uDD14 \u0e01\u0e14 Toggle \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e02\u0e2d\u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15';
+                    permStatus.style.color     = '#2563eb';
+                    webPushToggle.disabled     = false;
+                    if (permHint) permHint.style.display = 'none';
+                }
+            }
+
+            updateNavNotificationToggleState();
+
+            const profileDropdown = document.getElementById('profileDropdownBtn');
+            if (profileDropdown) {
+                profileDropdown.addEventListener('show.bs.dropdown', function () {
+                    updateNavNotificationToggleState();
+                });
+            }
+
+            const webPushToggle = document.getElementById('webPushToggle');
+            if (webPushToggle) {
+                webPushToggle.addEventListener('change', async function() {
+                    const isChecked = this.checked;
+                    this.disabled = true;
+
+                    if (isChecked) {
+                        localStorage.removeItem('web_push_enabled');
+                        if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
+                            this.checked = false;
+                        } else {
+                            if (typeof subscribeUserToPush === 'function') {
+                                const success = await subscribeUserToPush();
+                                if (success) {
+                                    localStorage.setItem('web_push_enabled', 'true');
+                                } else {
+                                    this.checked = false;
+                                }
+                            } else if (typeof Notification !== 'undefined') {
+                                const perm = await Notification.requestPermission();
+                                if (perm !== 'granted') {
+                                    this.checked = false;
+                                }
+                            }
+                        }
+                    } else {
+                        localStorage.setItem('web_push_enabled', 'false');
+                        if (typeof unsubscribeUserFromPush === 'function') {
+                            await unsubscribeUserFromPush();
+                        }
+                    }
+
+                    if (typeof Notification === 'undefined' || Notification.permission !== 'denied') {
+                        this.disabled = false;
+                    }
+                    updateNavNotificationToggleState();
+                });
+            }
         });
 
     </script>

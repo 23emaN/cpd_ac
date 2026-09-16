@@ -27,16 +27,47 @@ class ClosingModel extends Model
                 cf.pnd50_status,
                 cf.pnd50_date,
                 u.user_firstname,
-                u.user_lastname
+                u.user_lastname,
+                acc_rd.account_user_name as rd_user_name,
+                acc_rd.account_password as rd_password,
+                acc_dbd.account_password as dbd_password
             FROM tbl_fiscal_year_customers fyc
             INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id
             LEFT JOIN tbl_closing_financial cf ON fyc.fiscal_year_id = cf.fiscal_year_id
             LEFT JOIN tbl_user u ON fyc.user_id = u.user_id
+            LEFT JOIN tbl_customer_accounts acc_rd 
+                   ON acc_rd.fiscal_year_id = fyc.fiscal_year_id 
+                  AND acc_rd.customer_id = c.customer_id 
+                  AND acc_rd.account_name = 'กรมสรรพากร'
+            LEFT JOIN tbl_customer_accounts acc_dbd 
+                   ON acc_dbd.fiscal_year_id = fyc.fiscal_year_id 
+                  AND acc_dbd.customer_id = c.customer_id 
+                  AND acc_dbd.account_name = 'กรมพัฒนาธุรกิจการค้า'
             WHERE fyc.fiscal_id = :fiscal_id AND c.delete_at IS NULL
             ORDER BY c.customer_name ASC
         ");
         $stmt->execute(['fiscal_id' => $fiscalId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Fetch all accounts for customers in this fiscal year
+        $stmtAccounts = $this->pdo->prepare("
+            SELECT customer_id, account_name, account_user_name, account_password 
+            FROM tbl_customer_accounts 
+            WHERE fiscal_year_id IN (SELECT fiscal_year_id FROM tbl_fiscal_year_customers WHERE fiscal_id = :fiscal_id)
+        ");
+        $stmtAccounts->execute(['fiscal_id' => $fiscalId]);
+        $accounts = $stmtAccounts->fetchAll(PDO::FETCH_ASSOC);
+        
+        $accountsMap = [];
+        foreach ($accounts as $acc) {
+            $accountsMap[$acc['customer_id']][] = $acc;
+        }
+        
+        foreach ($rows as &$row) {
+            $row['accounts'] = $accountsMap[$row['customer_id']] ?? [];
+        }
+        
+        return $rows;
     }
 
     public function getCaretakersByFiscalId($fiscalId)

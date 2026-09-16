@@ -15,8 +15,11 @@ $paginated_list = $list;
         <thead>
             <tr>
                 <th class="text-center" style="width: 4%;">ลำดับ</th>
-                <th class="text-start" style="width: 22%;">ลูกค้า</th>
+                <th class="text-start" style="width: 20%;">ลูกค้า</th>
                 <th class="text-center" style="width: 9%;">รอบบัญชี</th>
+                <th class="text-center" style="width: 10%;">ผู้ใช้</th>
+                <th class="text-center" style="width: 10%;">รหัสผ่านRD</th>
+                <th class="text-center" style="width: 10%;">รหัสผ่านDBD</th>
                 <th class="text-center" style="width: 9%;">ผู้ดูแล</th>
                 <th class="text-center" style="width: 10%;">สถานะปิดงบ</th>
                 <th class="text-center" style="width: 10%;">สถานะผู้สอบ</th>
@@ -46,13 +49,25 @@ $paginated_list = $list;
                         data-dbd-status="<?php echo htmlspecialchars($row['dbd_efiling_status'] ?? '0', ENT_QUOTES, 'UTF-8'); ?>"
                         data-dbd-date="<?php echo htmlspecialchars($row['dbd_efiling_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                         data-pnd50-status="<?php echo htmlspecialchars($row['pnd50_status'] ?? '0', ENT_QUOTES, 'UTF-8'); ?>"
-                        data-pnd50-date="<?php echo htmlspecialchars($row['pnd50_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        data-pnd50-date="<?php echo htmlspecialchars($row['pnd50_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                        data-rd-user="<?php echo htmlspecialchars($row['rd_user_name'] ?? '-', ENT_QUOTES, 'UTF-8'); ?>"
+                        data-rd-pass="<?php echo htmlspecialchars($row['rd_password'] ?? '-', ENT_QUOTES, 'UTF-8'); ?>"
+                        data-dbd-pass="<?php echo htmlspecialchars($row['dbd_password'] ?? '-', ENT_QUOTES, 'UTF-8'); ?>">
                         <td class="text-center text-secondary"><?php echo $index + 1; ?></td>
                         <td class="text-start">
                             <div class="table-item-title"><?php echo htmlspecialchars($row['customer_name'] ?? ''); ?></div>
                         </td>
                         <td class="text-center">
                             <span class="text-secondary"><?php echo !empty($row['fiscal_closing_date']) ? date('d/m/Y', strtotime($row['fiscal_closing_date'])) : '-'; ?></span>
+                        </td>
+                        <td class="text-center">
+                            <span class="text-secondary"><?php echo htmlspecialchars($row['rd_user_name'] ?? '-'); ?></span>
+                        </td>
+                        <td class="text-center">
+                            <span class="text-secondary"><?php echo htmlspecialchars($row['rd_password'] ?? '-'); ?></span>
+                        </td>
+                        <td class="text-center">
+                            <span class="text-secondary"><?php echo htmlspecialchars($row['dbd_password'] ?? '-'); ?></span>
                         </td>
                         <td class="text-center">
                             <span class="text-secondary"><?php echo htmlspecialchars($row['user_firstname'].' '.$row['user_lastname'] ?? '-'); ?></span>
