@@ -743,16 +743,9 @@
                                     if (!empty($data['is_customer_year_view'])) {
                                         echo '<option value="" selected>ไม่ระบุ</option>';
                                     } else {
-                                        $available = $data['available_months'] ?? [];
-                                        if (empty($available)) {
-                                            echo '<option value="" disabled>ไม่มีข้อมูลเดือน</option>';
-                                        } else {
-                                            foreach ($months as $num => $name) {
-                                                if (in_array($num, $available)) {
-                                                    $isSelected = ($num === $selectedMonth) ? 'selected' : '';
-                                                    echo "<option value=\"$num\" $isSelected>$name</option>";
-                                                }
-                                            }
+                                        foreach ($months as $num => $name) {
+                                            $isSelected = ($num === $selectedMonth) ? 'selected' : '';
+                                            echo "<option value=\"$num\" $isSelected>$name</option>";
                                         }
                                     }
                                 ?>
