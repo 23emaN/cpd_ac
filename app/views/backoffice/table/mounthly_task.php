@@ -9,8 +9,8 @@
                     style="width: 100px; min-width: 100px; max-width: 100px; position: sticky; left: 60px; z-index: 3; background-color: #ffffff; border-right: 2px solid #e2e8f0; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); white-space: nowrap; vertical-align: middle;">
                     ลูกค้า</th> -->
                 <th class="text-center" style="width: 8%;">ลูกค้า</th>
-                <th class="text-center" style="width: 8%;">ผู้ทำบัญชี</th>
-                <th class="text-center" style="width: 8%;">ผู้สอบบัญชี</th>
+                <th class="text-center" style="width: 8%; ">ผู้ทำบัญชี</th>
+                <th class="text-center" style="width: 8%; ">ผู้สอบบัญชี</th>
                 <th class="text-center" style="width: 8%;">ผู้ดูแล</th>
                 <th class="text-center" style="width: 9%;">เอกสาร</th>
                 <th class="text-center" style="width: 10%;">งานประจำเดือน</th>
@@ -66,10 +66,10 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <span class="caretaker-text">ทดสอบ</span>
+                            <span class="caretaker-text"><?php echo htmlspecialchars($task['cpd_name'] ?? '-'); ?></span>
                         </td>
                         <td class="text-center">
-                            <span class="caretaker-text">ทดสอบ</span>
+                            <span class="caretaker-text"><?php echo htmlspecialchars($task['cpa_name'] ?? '-'); ?></span>
                         </td>
                         <!-- <td class="text-center">
                             <?php if (!empty($task['unread_comments']) && $task['unread_comments'] > 0): ?>

@@ -24,6 +24,35 @@ $assinge_pages = ['assign_task'];
 $issues_pages = ['issues', 'outstanding_issues']; // เมนูใหม่: ประเด็นคงค้าง
 $notification_pages = ['notifications', 'notification'];
 
+// Fetch Assign Task & Post-it Count
+$assign_task_count = 0;
+$post_it_count = 0;
+if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
+    try {
+        require_once dirname(__DIR__) . '/../config/Connection.php';
+        $pdo = \App\Config\Connection::getInstance()->getPdo();
+        
+        $current_user_id = $data['user_id'] ?? null;
+        if ($current_user_id) {
+            // Assign Task
+            if (isset($active_company_id) && $active_company_id !== '') {
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tbl_assign_task WHERE company_id = ? AND fiscal_id = ? AND user_id = ? AND assign_status != '3'");
+                $stmt->execute([$active_company_id, $_SESSION['fiscal_year_id'], $current_user_id]);
+            } else {
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tbl_assign_task WHERE fiscal_id = ? AND user_id = ? AND assign_status != '3'");
+                $stmt->execute([$_SESSION['fiscal_year_id'], $current_user_id]);
+            }
+            $assign_task_count = $stmt->fetchColumn();
+
+            // Post-it
+            $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM tbl_post_it WHERE fiscal_year_id = ? AND user_id = ? AND status = '0'");
+            $stmt2->execute([$_SESSION['fiscal_year_id'], $current_user_id]);
+            $post_it_count = $stmt2->fetchColumn();
+        }
+    } catch (Exception $e) {}
+}
+
+
 ?>
 
 <style>
@@ -395,9 +424,14 @@ $notification_pages = ['notifications', 'notification'];
 
             <li class="menu-item <?php echo in_array($now_page, $postit_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/post_it"
-                    class="menu-link <?php echo in_array($now_page, $postit_pages) ? 'active' : '' ?>">
-                    <i class="ri-sticky-note-line menu-icon"></i>
-                    <span class="title">Post-it แจ้งเตือน</span>
+                    class="menu-link <?php echo in_array($now_page, $postit_pages) ? 'active' : '' ?>" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; overflow: hidden;">
+                        <i class="ri-sticky-note-line menu-icon"></i>
+                        <span class="title">Post-it แจ้งเตือน</span>
+                    </div>
+                    <?php if ($post_it_count > 0): ?>
+                        <span class="badge bg-danger rounded-pill" style="font-size: 0.65rem; padding: 3px 6px; margin-left: 5px;"><?php echo $post_it_count; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
 
@@ -416,9 +450,14 @@ $notification_pages = ['notifications', 'notification'];
 
             <li class="menu-item <?php echo in_array($now_page, $assinge_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assign_task"
-                    class="menu-link <?php echo in_array($now_page, $assinge_pages) ? 'active' : '' ?>">
-                    <i class="ri-user-heart-line menu-icon"></i>
-                    <span class="title">การมอบหมายงาน</span>
+                    class="menu-link <?php echo in_array($now_page, $assinge_pages) ? 'active' : '' ?>" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; overflow: hidden;">
+                        <i class="ri-user-heart-line menu-icon"></i>
+                        <span class="title">การมอบหมายงาน</span>
+                    </div>
+                    <?php if ($assign_task_count > 0): ?>
+                        <span class="badge bg-danger rounded-pill" style="font-size: 0.65rem; padding: 3px 6px; margin-left: 5px;"><?php echo $assign_task_count; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
 

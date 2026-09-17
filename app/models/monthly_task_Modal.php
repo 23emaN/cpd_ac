@@ -198,6 +198,8 @@ class MonthlyTaskModal extends Model
             p.review3_status,
             c.customer_id,
             c.customer_name,
+            c.cpd_name,
+            c.cpa_name,
             fyc.accounts_amount,
             t.team_name,
             u.user_firstname as caretaker_firstname,

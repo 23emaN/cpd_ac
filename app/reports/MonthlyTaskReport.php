@@ -9,9 +9,20 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 class MonthlyTaskReport
 {
     private array $headers = [
-        'ลำดับ', 'เดือน', 'ลูกค้า', 'ผู้ทำบัญชี', 'ผู้สอบบัญชี', 'ผู้ดูแล',
-        'ทีม', 'เอกสาร', 'งานประจำเดือน', 'รีวิว 1', 'รีวิว 2', 'รีวิว 3',
-        'ยื่นภาษี', 'เก็บเงิน'
+        'ลำดับ',
+        'เดือน',
+        'ลูกค้า',
+        'ผู้ทำบัญชี',
+        'ผู้สอบบัญชี',
+        'ผู้ดูแล',
+        'ทีม',
+        'เอกสาร',
+        'งานประจำเดือน',
+        'รีวิว 1',
+        'รีวิว 2',
+        'รีวิว 3',
+        'ยื่นภาษี',
+        'เก็บเงิน'
     ];
 
     public function exportMonthly(array $tasks, array $filters, int $month, string $fiscalYear, string $companyName): void
@@ -20,14 +31,23 @@ class MonthlyTaskReport
         $model = new \MonthlyTaskModal();
 
         $monthNames = [
-            1 => 'มกราคม', 2 => 'กุมภาพันธ์', 3 => 'มีนาคม', 4 => 'เมษายน',
-            5 => 'พฤษภาคม', 6 => 'มิถุนายน', 7 => 'กรกฎาคม', 8 => 'สิงหาคม',
-            9 => 'กันยายน', 10 => 'ตุลาคม', 11 => 'พฤศจิกายน', 12 => 'ธันวาคม'
+            1 => 'มกราคม',
+            2 => 'กุมภาพันธ์',
+            3 => 'มีนาคม',
+            4 => 'เมษายน',
+            5 => 'พฤษภาคม',
+            6 => 'มิถุนายน',
+            7 => 'กรกฎาคม',
+            8 => 'สิงหาคม',
+            9 => 'กันยายน',
+            10 => 'ตุลาคม',
+            11 => 'พฤศจิกายน',
+            12 => 'ธันวาคม'
         ];
         $monthName = $monthNames[$month] ?? '-';
 
         $spreadsheet = new Spreadsheet();
-        
+
         if (empty($tasks)) {
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setTitle('ไม่มีข้อมูล');
@@ -43,14 +63,15 @@ class MonthlyTaskReport
                 $customerName = $task['customer_name'] ?? 'ไม่ทราบชื่อ';
                 // Excel sheet names max 31 chars and cannot contain certain characters
                 $sheetTitle = mb_substr(str_replace(['*', ':', '/', '\\', '?', '[', ']'], '', $customerName), 0, 31);
-                if (empty($sheetTitle)) $sheetTitle = 'Customer_' . ($index + 1);
+                if (empty($sheetTitle))
+                    $sheetTitle = 'Customer_' . ($index + 1);
                 $sheet->setTitle($sheetTitle);
                 $sheet->setShowGridLines(true);
 
                 $title = "รายการงานรายเดือน {$monthName} ประจำปี {$fiscalYear} ของบริษัท {$customerName}";
 
                 // Fetch detailed tasks
-                $detailedTasks = $model->getTasksByPeriodId((int)$task['period_id']);
+                $detailedTasks = $model->getTasksByPeriodId((int) $task['period_id']);
 
                 // If no tasks, set a default column
                 if (empty($detailedTasks)) {
@@ -75,7 +96,7 @@ class MonthlyTaskReport
                 $sheet->mergeCells('A2:A3');
                 $sheet->setCellValue('A2', '/');
                 $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
-                
+
                 if (!empty($detailedTasks)) {
                     $sheet->mergeCells('B2:' . $lastColumn . '2');
                     $sheet->setCellValue('B2', 'รายการงาน');
@@ -91,17 +112,18 @@ class MonthlyTaskReport
                 $colIndex = 2; // Col B
                 foreach ($detailedTasks as $dTask) {
                     $col = $this->columnName($colIndex);
-                    
+
                     // Task Name
                     $sheet->setCellValue($col . '3', $dTask['task_name']);
-                    
+
                     // Status
-                    $statusText = ((string)$dTask['status'] === '1') ? 'เสร็จแล้ว' : 'รอดำเนินการ';
+                    $statusText = ((string) $dTask['status'] === '1') ? 'เสร็จแล้ว' : 'รอดำเนินการ';
                     $sheet->setCellValue($col . '4', $statusText);
 
                     // Amount
-                    $amount = (float)($dTask['amount'] ?? 0);
-                    $sheet->setCellValue($col . '5', number_format($amount, 2));
+                    $amount = (float) ($dTask['amount'] ?? 0);
+                    $formattedAmount = ($amount == 0) ? '-' : number_format($amount, 2);
+                    $sheet->setCellValue($col . '5', $formattedAmount);
 
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                     $colIndex++;
@@ -109,13 +131,15 @@ class MonthlyTaskReport
 
                 // Styling
                 $sheet->getColumnDimension('A')->setAutoSize(true);
-                
+
                 // Borders for the table A1 to LastCol5
                 $sheet->getStyle('A1:' . $lastColumn . '5')->applyFromArray([
-                    'borders' => ['allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000'],
-                    ]],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['rgb' => '000000'],
+                        ]
+                    ],
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
                         'vertical' => Alignment::VERTICAL_CENTER,
@@ -125,7 +149,7 @@ class MonthlyTaskReport
         }
 
         $filename = 'monthly_task_' . $month . '_' . date('Ymd_His') . '.xlsx';
-        
+
         if (ob_get_length()) {
             ob_end_clean();
         }
@@ -142,9 +166,18 @@ class MonthlyTaskReport
         $model = new \MonthlyTaskModal();
 
         $monthNames = [
-            1 => 'มกราคม', 2 => 'กุมภาพันธ์', 3 => 'มีนาคม', 4 => 'เมษายน',
-            5 => 'พฤษภาคม', 6 => 'มิถุนายน', 7 => 'กรกฎาคม', 8 => 'สิงหาคม',
-            9 => 'กันยายน', 10 => 'ตุลาคม', 11 => 'พฤศจิกายน', 12 => 'ธันวาคม'
+            1 => 'มกราคม',
+            2 => 'กุมภาพันธ์',
+            3 => 'มีนาคม',
+            4 => 'เมษายน',
+            5 => 'พฤษภาคม',
+            6 => 'มิถุนายน',
+            7 => 'กรกฎาคม',
+            8 => 'สิงหาคม',
+            9 => 'กันยายน',
+            10 => 'ตุลาคม',
+            11 => 'พฤศจิกายน',
+            12 => 'ธันวาคม'
         ];
 
         $tasksByMonth = [];
@@ -156,13 +189,13 @@ class MonthlyTaskReport
 
         $activeMonths = [];
         $allTasks = []; // To store unique task names and their data
-        
+
         // Loop 1 to 12 to maintain chronological order
         for ($month = 1; $month <= 12; $month++) {
             if (isset($tasksByMonth[$month])) {
-                $periodId = (int)$tasksByMonth[$month]['period_id'];
+                $periodId = (int) $tasksByMonth[$month]['period_id'];
                 $detailedTasks = $model->getTasksByPeriodId($periodId);
-                
+
                 if (!empty($detailedTasks)) {
                     $activeMonths[] = $month;
                     foreach ($detailedTasks as $dTask) {
@@ -183,7 +216,8 @@ class MonthlyTaskReport
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheetTitle = mb_substr(str_replace(['*', ':', '/', '\\', '?', '[', ']'], '', $customerName), 0, 31);
-        if (empty($sheetTitle)) $sheetTitle = 'Customer_' . $customerId;
+        if (empty($sheetTitle))
+            $sheetTitle = 'Customer_' . $customerId;
         $sheet->setTitle($sheetTitle);
         $sheet->setShowGridLines(true);
 
@@ -191,13 +225,25 @@ class MonthlyTaskReport
             $sheet->setCellValue('A1', 'ไม่มีข้อมูลงานในปีนี้');
         } else {
             $shortMonthNames = [
-                1 => 'ม.ค.', 2 => 'ก.พ.', 3 => 'มี.ค.', 4 => 'เม.ย.',
-                5 => 'พ.ค.', 6 => 'มิ.ย.', 7 => 'ก.ค.', 8 => 'ส.ค.',
-                9 => 'ก.ย.', 10 => 'ต.ค.', 11 => 'พ.ย.', 12 => 'ธ.ค.'
+                1 => 'ม.ค.',
+                2 => 'ก.พ.',
+                3 => 'มี.ค.',
+                4 => 'เม.ย.',
+                5 => 'พ.ค.',
+                6 => 'มิ.ย.',
+                7 => 'ก.ค.',
+                8 => 'ส.ค.',
+                9 => 'ก.ย.',
+                10 => 'ต.ค.',
+                11 => 'พ.ย.',
+                12 => 'ธ.ค.'
             ];
 
             // 1 column for task name, 2 columns per active month
             $totalCols = 1 + (count($activeMonths) * 2);
+            if (in_array(7, $activeMonths)) {
+                $totalCols++;
+            }
             $lastColumn = $this->columnName($totalCols);
 
             // Row 1: Header
@@ -220,13 +266,21 @@ class MonthlyTaskReport
 
             $colIndex = 2; // Start at B
             foreach ($activeMonths as $month) {
+                if ($month == 7) {
+                    $colExtra = $this->columnName($colIndex);
+                    $sheet->setCellValue($colExtra . '2', 'รายการงาน(ต่อ)');
+                    $sheet->getStyle($colExtra . '2')->getFont()->setBold(true);
+                    $sheet->getStyle($colExtra . '2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+                    $colIndex++;
+                }
+
                 $monthAbbr = $shortMonthNames[$month] ?? '';
                 $colStatus = $this->columnName($colIndex);
                 $colAmount = $this->columnName($colIndex + 1);
 
                 $sheet->setCellValue($colStatus . '2', $monthAbbr);
                 $sheet->setCellValue($colAmount . '2', "จำนวนเงิน ({$monthAbbr})");
-                
+
                 $sheet->getStyle($colStatus . '2:' . $colAmount . '2')->getFont()->setBold(true);
                 $sheet->getStyle($colStatus . '2:' . $colAmount . '2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
 
@@ -240,18 +294,26 @@ class MonthlyTaskReport
             $currentRow = 3;
             foreach ($allTasks as $taskName => $monthData) {
                 $sheet->setCellValue('A' . $currentRow, $taskName);
-                
+
                 $colIndex = 2;
                 foreach ($activeMonths as $month) {
+                    if ($month == 7) {
+                        $colExtra = $this->columnName($colIndex);
+                        $sheet->setCellValue($colExtra . $currentRow, $taskName);
+                        $sheet->getStyle($colExtra . $currentRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER);
+                        $colIndex++;
+                    }
+
                     $colStatus = $this->columnName($colIndex);
                     $colAmount = $this->columnName($colIndex + 1);
 
                     if (isset($monthData[$month])) {
-                        $statusText = ((string)$monthData[$month]['status'] === '1') ? 'เสร็จแล้ว' : 'รอดำเนินการ';
-                        $amount = (float)$monthData[$month]['amount'];
-                        
+                        $statusText = ((string) $monthData[$month]['status'] === '1') ? 'เสร็จแล้ว' : 'รอดำเนินการ';
+                        $amount = (float) $monthData[$month]['amount'];
+                        $formattedAmount = ($amount == 0) ? '-' : number_format($amount, 2);
+
                         $sheet->setCellValue($colStatus . $currentRow, $statusText);
-                        $sheet->setCellValue($colAmount . $currentRow, number_format($amount, 2));
+                        $sheet->setCellValue($colAmount . $currentRow, $formattedAmount);
                     } else {
                         $sheet->setCellValue($colStatus . $currentRow, '-');
                         $sheet->setCellValue($colAmount . $currentRow, '-');
@@ -263,15 +325,33 @@ class MonthlyTaskReport
 
             // Styling Borders
             $sheet->getStyle('A1:' . $lastColumn . ($currentRow - 1))->applyFromArray([
-                'borders' => ['allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => '000000'],
-                ]],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ]
+                ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
                     'vertical' => Alignment::VERTICAL_CENTER,
                 ]
             ]);
+
+            // Override alignments for specific columns
+            $sheet->getStyle('A3:A' . ($currentRow - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            
+            $colIndex = 2;
+            foreach ($activeMonths as $month) {
+                if ($month == 7) {
+                    $colExtra = $this->columnName($colIndex);
+                    $sheet->getStyle($colExtra . '3:' . $colExtra . ($currentRow - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                    $colIndex++;
+                }
+                
+                $colAmount = $this->columnName($colIndex + 1);
+                $sheet->getStyle($colAmount . '3:' . $colAmount . ($currentRow - 1))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                $colIndex += 2;
+            }
 
             // Auto-size columns
             for ($i = 1; $i <= $totalCols; $i++) {
@@ -280,7 +360,188 @@ class MonthlyTaskReport
         }
 
         $filename = 'customer_monthly_task_' . $customerId . '_' . date('Ymd_His') . '.xlsx';
-        
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        (new Xlsx($spreadsheet))->save('php://output');
+        exit();
+    }
+
+    public function exportAllCustomersYearly(array $tasks, string $fiscalYear, string $companyName): void
+    {
+        require_once __DIR__ . '/../models/monthly_task_Modal.php';
+        $model = new \MonthlyTaskModal();
+
+        $spreadsheet = new Spreadsheet();
+
+        if (empty($tasks)) {
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('ไม่มีข้อมูล');
+            $sheet->setCellValue('A1', 'ไม่มีข้อมูลงานในปีนี้');
+        } else {
+            // Group tasks by customer
+            $tasksByCustomer = [];
+            foreach ($tasks as $task) {
+                $customerId = (int) ($task['customer_id'] ?? 0);
+                if (!isset($tasksByCustomer[$customerId])) {
+                    $tasksByCustomer[$customerId] = [];
+                }
+                $tasksByCustomer[$customerId][] = $task;
+            }
+
+            $sheetIndex = 0;
+            foreach ($tasksByCustomer as $customerId => $customerTasks) {
+                if ($sheetIndex === 0) {
+                    $sheet = $spreadsheet->getActiveSheet();
+                } else {
+                    $sheet = $spreadsheet->createSheet();
+                }
+                $sheetIndex++;
+
+                $customerName = $customerTasks[0]['customer_name'] ?? '-';
+                $tasksByMonth = [];
+                foreach ($customerTasks as $task) {
+                    $tasksByMonth[(int) ($task['period_month'] ?? 0)] = $task;
+                }
+
+                $activeMonths = [];
+                $allTasks = []; // To store unique task names and their data
+
+                // Loop 1 to 12 to maintain chronological order
+                for ($month = 1; $month <= 12; $month++) {
+                    if (isset($tasksByMonth[$month])) {
+                        $periodId = (int) $tasksByMonth[$month]['period_id'];
+                        $detailedTasks = $model->getTasksByPeriodId($periodId);
+
+                        if (!empty($detailedTasks)) {
+                            $activeMonths[] = $month;
+                            foreach ($detailedTasks as $dTask) {
+                                $tName = $dTask['task_name'];
+                                if (!isset($allTasks[$tName])) {
+                                    $allTasks[$tName] = [];
+                                }
+                                $allTasks[$tName][$month] = [
+                                    'status' => $dTask['status'],
+                                    'amount' => $dTask['amount'] ?? 0,
+                                    'is_notify_amount' => $dTask['is_notify_amount'] ?? 1
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                $sheetTitle = mb_substr(str_replace(['*', ':', '/', '\\', '?', '[', ']'], '', $customerName), 0, 31);
+                if (empty($sheetTitle))
+                    $sheetTitle = 'Customer_' . $customerId;
+                $sheet->setTitle($sheetTitle);
+                $sheet->setShowGridLines(true);
+
+                if (empty($activeMonths)) {
+                    $sheet->setCellValue('A1', 'ไม่มีข้อมูลงานในปีนี้');
+                } else {
+                    $shortMonthNames = [
+                        1 => 'ม.ค.',
+                        2 => 'ก.พ.',
+                        3 => 'มี.ค.',
+                        4 => 'เม.ย.',
+                        5 => 'พ.ค.',
+                        6 => 'มิ.ย.',
+                        7 => 'ก.ค.',
+                        8 => 'ส.ค.',
+                        9 => 'ก.ย.',
+                        10 => 'ต.ค.',
+                        11 => 'พ.ย.',
+                        12 => 'ธ.ค.'
+                    ];
+
+                    $totalCols = 1 + (count($activeMonths) * 2);
+                    $lastColumn = $this->columnName($totalCols);
+
+                    $title = "รายการงานรายเดือน ประจำปี {$fiscalYear} ของบริษัท {$customerName}";
+                    $sheet->mergeCells('A1:' . $lastColumn . '1');
+                    $sheet->setCellValue('A1', $title);
+                    $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 14],
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_CENTER,
+                            'vertical' => Alignment::VERTICAL_CENTER,
+                        ]
+                    ]);
+                    $sheet->getRowDimension(1)->setRowHeight(30);
+
+                    $sheet->setCellValue('A2', 'รายการงาน');
+                    $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+                    $sheet->getStyle('A2')->getFont()->setBold(true);
+
+                    $colIndex = 2; // Start at B
+                    foreach ($activeMonths as $month) {
+                        $monthAbbr = $shortMonthNames[$month] ?? '';
+                        $colStatus = $this->columnName($colIndex);
+                        $colAmount = $this->columnName($colIndex + 1);
+
+                        $sheet->setCellValue($colStatus . '2', $monthAbbr);
+                        $sheet->setCellValue($colAmount . '2', "จำนวนเงิน ({$monthAbbr})");
+
+                        $sheet->getStyle($colStatus . '2:' . $colAmount . '2')->getFont()->setBold(true);
+                        $sheet->getStyle($colStatus . '2:' . $colAmount . '2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+
+                        $colIndex += 2;
+                    }
+
+                    $sheet->setAutoFilter('A2:' . $lastColumn . '2');
+
+                    $currentRow = 3;
+                    foreach ($allTasks as $taskName => $monthData) {
+                        $sheet->setCellValue('A' . $currentRow, $taskName);
+
+                        $colIndex = 2;
+                        foreach ($activeMonths as $month) {
+                            $colStatus = $this->columnName($colIndex);
+                            $colAmount = $this->columnName($colIndex + 1);
+
+                            if (isset($monthData[$month])) {
+                                $statusText = ((string) $monthData[$month]['status'] === '1') ? 'เสร็จแล้ว' : 'รอดำเนินการ';
+                                $sheet->setCellValue($colStatus . $currentRow, $statusText);
+
+                                if ((string) $monthData[$month]['status'] === '1') {
+                                    $sheet->getStyle($colStatus . $currentRow)->getFont()->getColor()->setRGB('10b981');
+                                } else {
+                                    $sheet->getStyle($colStatus . $currentRow)->getFont()->getColor()->setRGB('f59e0b');
+                                }
+
+                                $amountText = ((string) $monthData[$month]['is_notify_amount'] === '1') ? number_format((float) $monthData[$month]['amount'], 2) : '-';
+                                $sheet->setCellValue($colAmount . $currentRow, $amountText);
+                            } else {
+                                $sheet->setCellValue($colStatus . $currentRow, '-');
+                                $sheet->setCellValue($colAmount . $currentRow, '-');
+                            }
+
+                            $sheet->getStyle($colStatus . $currentRow . ':' . $colAmount . $currentRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+                            $colIndex += 2;
+                        }
+                        $currentRow++;
+                    }
+
+                    $sheet->getStyle('A1:' . $lastColumn . ($currentRow - 1))
+                        ->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+                    $sheet->getColumnDimension('A')->setAutoSize(true);
+                    $colIndex = 2;
+                    foreach ($activeMonths as $month) {
+                        $sheet->getColumnDimension($this->columnName($colIndex))->setAutoSize(true);
+                        $sheet->getColumnDimension($this->columnName($colIndex + 1))->setAutoSize(true);
+                        $colIndex += 2;
+                    }
+                }
+            }
+        }
+
+        $filename = 'customer_dash_yearly_' . date('Ymd_His') . '.xlsx';
+
         if (ob_get_length()) {
             ob_end_clean();
         }
@@ -318,10 +579,12 @@ class MonthlyTaskReport
                 'vertical' => Alignment::VERTICAL_CENTER,
             ],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '107C41']],
-            'borders' => ['allBorders' => [
-                'borderStyle' => Border::BORDER_THIN,
-                'color' => ['rgb' => 'D0D7DE'],
-            ]],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'D0D7DE'],
+                ]
+            ],
         ];
 
         foreach ($this->headers as $index => $header) {
@@ -332,9 +595,18 @@ class MonthlyTaskReport
         $sheet->getRowDimension(2)->setRowHeight(28);
 
         $monthNames = [
-            1 => 'มกราคม', 2 => 'กุมภาพันธ์', 3 => 'มีนาคม', 4 => 'เมษายน',
-            5 => 'พฤษภาคม', 6 => 'มิถุนายน', 7 => 'กรกฎาคม', 8 => 'สิงหาคม',
-            9 => 'กันยายน', 10 => 'ตุลาคม', 11 => 'พฤศจิกายน', 12 => 'ธันวาคม'
+            1 => 'มกราคม',
+            2 => 'กุมภาพันธ์',
+            3 => 'มีนาคม',
+            4 => 'เมษายน',
+            5 => 'พฤษภาคม',
+            6 => 'มิถุนายน',
+            7 => 'กรกฎาคม',
+            8 => 'สิงหาคม',
+            9 => 'กันยายน',
+            10 => 'ตุลาคม',
+            11 => 'พฤศจิกายน',
+            12 => 'ธันวาคม'
         ];
 
         $row = 3;
@@ -342,7 +614,7 @@ class MonthlyTaskReport
             $monthNumber = (int) ($task['period_month'] ?? 0);
             $total = (int) ($task['total_tasks'] ?? 0);
             $completed = (int) ($task['completed_tasks'] ?? 0);
-            $review = static fn ($value) => ($value ?? '0') === '1' ? 'รีวิวแล้ว' : 'รอรีวิว';
+            $review = static fn($value) => ($value ?? '0') === '1' ? 'รีวิวแล้ว' : 'รอรีวิว';
 
             $values = [
                 $index + 1,

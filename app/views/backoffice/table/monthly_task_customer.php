@@ -79,8 +79,12 @@ foreach ($data['monthly_tasks'] ?? [] as $task) {
                             <?php endif; ?>
                         </div>
                     </td>
-                    <td class="text-center"><span class="caretaker-text">ทดสอบ</span></td>
-                    <td class="text-center"><span class="caretaker-text">ทดสอบ</span></td>
+                    <td class="text-center">
+                        <span class="caretaker-text"><?php echo htmlspecialchars($task['cpd_name'] ?? '-'); ?></span>
+                    </td>
+                    <td class="text-center">
+                        <span class="caretaker-text"><?php echo htmlspecialchars($task['cpa_name'] ?? '-'); ?></span>
+                    </td>
                     <!-- <td class="text-center">
                         <?php if (!empty($task['unread_comments'])): ?>
                             <span class="badge bg-danger" style="cursor: pointer;" title="มีความคิดเห็นที่ยังไม่ได้อ่าน" onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><?php echo (int) $task['unread_comments']; ?></span>
