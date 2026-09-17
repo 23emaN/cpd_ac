@@ -1171,11 +1171,11 @@
         /* --- Master Page Layout & Card Wrapper --- */
         @media only screen and (min-width: 1200px) {
             body:not([sidebar-data-theme="sidebar-hide"]) .sidebar-area {
-                width: 250px !important;
+                width: 220px !important;
             }
 
             body:not([sidebar-data-theme="sidebar-hide"]) .main-content {
-                padding-left: 250px !important;
+                padding-left: 220px !important;
                 padding-right: 0 !important;
                 padding-top: 0 !important;
             }
