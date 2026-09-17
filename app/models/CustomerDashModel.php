@@ -3,8 +3,15 @@ require_once '../app/models/Model.php';
 
 class CustomerDashModel extends Model
 {
-    public function getCustomerWorkDashboard($fiscalId)
+    public function getCustomerWorkDashboard($fiscalId, $month = null)
     {
+        $params = ['fiscal_id' => $fiscalId];
+        $monthCondition = '';
+        if ($month !== null) {
+            $monthCondition = ' AND p.period_month = :month ';
+            $params['month'] = str_pad($month, 2, '0', STR_PAD_LEFT);
+        }
+
         $sql = "SELECT
                     c.customer_id,
                     c.customer_name,
@@ -12,6 +19,8 @@ class CustomerDashModel extends Model
                     u.user_lastname AS caretaker_lastname,
                     t.team_name,
                     COALESCE(MAX(fyc.accounts_amount), 0) AS accounts_amount,
+                    COALESCE(MAX(fyc.closing_amount), 0) AS closing_amount,
+                    COALESCE(MAX(fyc.auditing_amount), 0) AS auditing_amount,
                     COUNT(DISTINCT p.period_id) AS work_months,
                     SUM((
                         SELECT COUNT(*)
@@ -45,13 +54,14 @@ class CustomerDashModel extends Model
                 LEFT JOIN tbl_user u ON fyc.user_id = u.user_id
                 LEFT JOIN tbl_team t ON fyc.team_id = t.team_id
                 WHERE p.fiscal_year_id = :fiscal_id
+                  $monthCondition
                   AND p.delete_at IS NULL
                   AND c.delete_at IS NULL
                 GROUP BY c.customer_id, c.customer_name, u.user_firstname, u.user_lastname, t.team_name
                 ORDER BY c.customer_name ASC";
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['fiscal_id' => $fiscalId]);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

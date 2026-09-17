@@ -13,26 +13,26 @@ class CustomerDashReport
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('แดชบอร์ดลูกค้า');
-        $headers = ['ลำดับ', 'ลูกค้า', 'ผู้ดูแล', 'ทีม', 'เดือนที่มีงาน', 'งานทั้งหมด', 'งานเสร็จแล้ว', 'ยอดทำบัญชี / เดือน', 'สถานะ'];
+        $headers = ['ลำดับ', 'ลูกค้า', 'ผู้ดูแล', 'ทีม', 'เดือนที่มีงาน', 'งานทั้งหมด', 'งานเสร็จแล้ว', 'ยอดทำบัญชี / เดือน', 'ค่าปิดบัญชี', 'ค่าสอบบัญชี', 'สถานะ'];
         $lastColumn = $this->columnName(count($headers));
         $title = 'ภาพรวมงานของลูกค้า ประจำปี ' . $fiscalYear . ' ของบริษัท ' . $companyName;
 
         $sheet->mergeCells('A1:' . $lastColumn . '1');
         $sheet->setCellValue('A1', $title);
         $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray([
-            'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => 'FFFFFF']],
+            'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => '000000']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '107C41']],
         ]);
 
         foreach ($headers as $index => $header) {
             $sheet->setCellValue($this->columnName($index + 1) . '2', $header);
         }
         $sheet->getStyle('A2:' . $lastColumn . '2')->applyFromArray([
-            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'font' => ['bold' => true, 'color' => ['rgb' => '000000']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '107C41']],
         ]);
+
+        $sheet->setAutoFilter('A2:' . $lastColumn . '2');
 
         $row = 3;
         foreach ($customers as $index => $customer) {
@@ -47,17 +47,22 @@ class CustomerDashReport
                 $totalTasks,
                 $completedTasks,
                 (float) ($customer['accounts_amount'] ?? 0),
+                is_null($customer['closing_amount']) ? 'NULL' : (float) $customer['closing_amount'],
+                is_null($customer['auditing_amount']) ? 'NULL' : (float) $customer['auditing_amount'],
                 $totalTasks > 0 && $totalTasks === $completedTasks ? 'เสร็จครบแล้ว' : 'ยังดำเนินงาน',
             ];
             foreach ($values as $valueIndex => $value) {
+                if ($value === 0 || $value === 0.0 || $value === '0') {
+                    $value = '-';
+                }
                 $sheet->setCellValue($this->columnName($valueIndex + 1) . $row, $value);
             }
             $row++;
         }
 
-        $sheet->getStyle('A2:' . $lastColumn . max(2, $row - 1))
+        $sheet->getStyle('A1:' . $lastColumn . max(2, $row - 1))
             ->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)
-            ->getColor()->setRGB('D0D7DE');
+            ->getColor()->setRGB('000000');
         foreach (range('A', $lastColumn) as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
