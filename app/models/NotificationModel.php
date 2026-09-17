@@ -112,6 +112,28 @@ class NotificationModel
     }
 
     /**
+     * Mark all notifications as read for a user
+     * 
+     * @param string|int $user_id
+     * @return bool
+     */
+    public function markAllAsRead($user_id)
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE tbl_notifications 
+                SET is_read = 1 
+                WHERE user_id = :user_id AND is_read = 0
+            ");
+            $stmt->execute([':user_id' => $user_id]);
+            return true;
+        } catch (PDOException $e) {
+            error_log("Mark All Notifications Read Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Get count of unread notifications
      * 
      * @param string|int $user_id
@@ -129,6 +151,57 @@ class NotificationModel
             return $row ? (int)$row['cnt'] : 0;
         } catch (PDOException $e) {
             error_log("Get Unread Count Error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get all notifications for a user with pagination
+     * 
+     * @param string|int $user_id
+     * @param int $page
+     * @param int $per_page
+     * @return array
+     */
+    public function getAllNotifications($user_id, $page = 1, $per_page = 20)
+    {
+        try {
+            $offset = ($page - 1) * $per_page;
+            $stmt = $this->pdo->prepare("
+                SELECT * FROM tbl_notifications 
+                WHERE user_id = :user_id 
+                ORDER BY created_at DESC 
+                LIMIT :limit OFFSET :offset
+            ");
+            $stmt->bindValue(':user_id', $user_id);
+            $stmt->bindValue(':limit', $per_page, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Get All Notifications Error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get total count of all notifications for a user
+     * 
+     * @param string|int $user_id
+     * @return int
+     */
+    public function getTotalCount($user_id)
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT COUNT(*) as cnt FROM tbl_notifications 
+                WHERE user_id = :user_id
+            ");
+            $stmt->execute([':user_id' => $user_id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ? (int)$row['cnt'] : 0;
+        } catch (PDOException $e) {
+            error_log("Get Total Count Error: " . $e->getMessage());
             return 0;
         }
     }

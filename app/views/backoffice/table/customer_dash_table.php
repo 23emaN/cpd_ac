@@ -11,14 +11,17 @@ $customerList = $data['customers'] ?? [];
             <th class="text-center">ความคืบหน้า</th>
             <th class="text-center">จำนวนงาน</th>
             <th class="text-center">งานที่เสร็จ</th>
-            <th class="text-center">ยอดทำบัญชี / เดือน</th>
+            <th class="text-center">ค่าทำบัญชี<br></th>
+            <th class="text-center">ค่าปิดบัญชี<br></th>
+            <th class="text-center">ค่าสอบบัญชี<br></th>
             <th class="text-center">จัดการ</th>
         </tr>
     </thead>
     <tbody>
         <?php if (empty($customerList)): ?>
+            <?php $timeLabel = isset($_GET['month']) && ctype_digit($_GET['month']) ? 'ในเดือนนี้' : 'ในปีนี้'; ?>
             <tr>
-                <td colspan="8" class="text-center text-muted py-4">ยังไม่มีข้อมูลลูกค้าที่มีงานในปีนี้</td>
+                <td colspan="10" class="text-center text-muted py-4">ยังไม่มีข้อมูลลูกค้าที่มีงาน<?php echo $timeLabel; ?></td>
             </tr>
         <?php else: ?>
             <?php foreach ($customerList as $index => $customer): ?>
@@ -53,6 +56,8 @@ $customerList = $data['customers'] ?? [];
                     <td class="text-center"><?php echo number_format($totalCustomerTasks); ?></td>
                     <td class="text-center"><?php echo number_format($completedCustomerTasks); ?></td>
                     <td class="text-center"><?php echo number_format((float) ($customer['accounts_amount'] ?? 0)); ?></td>
+                    <td class="text-center"><?php echo is_null($customer['closing_amount']) ? 'NULL' : number_format((float)$customer['closing_amount']); ?></td>
+                    <td class="text-center"><?php echo is_null($customer['auditing_amount']) ? 'NULL' : number_format((float)$customer['auditing_amount']); ?></td>
                     <td class="text-center">
                         <button type="button" class="btn-action-edit manage-customer-btn"
                             onclick="openCustomerTaskDetail(<?php echo $customerId; ?>, '<?php echo htmlspecialchars($customerName, ENT_QUOTES); ?>')"

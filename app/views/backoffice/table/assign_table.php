@@ -61,7 +61,7 @@
                         <td class="<?php echo $dateClass; ?>"><?php echo $dateText; ?></td>
                         <td class="text-center" ><span class="status-badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span></td>
                         <td class="text-center">
-                            <button type="button" class="btn-action-edit" title="แก้ไข" onclick="modal_edit_assign(<?php echo $task['assign_id']; ?>)">
+                            <button type="button" class="btn-action-edit" title="แก้ไข" onclick="modal_edit_assign(<?php echo htmlspecialchars(json_encode($task), ENT_QUOTES, 'UTF-8'); ?>)">
                                     <i class="ri-pencil-line"></i>
                             </button>
                         </td>

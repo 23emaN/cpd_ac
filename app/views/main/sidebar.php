@@ -22,6 +22,7 @@ $system_setting_pages = ['settings', 'setting', 'system_setting'];
 $manual_pages = ['manual', 'tutorial', 'videos'];
 $assinge_pages = ['assign_task'];
 $issues_pages = ['issues', 'outstanding_issues']; // เมนูใหม่: ประเด็นคงค้าง
+$notification_pages = ['notifications', 'notification'];
 
 ?>
 
@@ -400,6 +401,14 @@ $issues_pages = ['issues', 'outstanding_issues']; // เมนูใหม่: �
                 </a>
             </li>
 
+            <li class="menu-item <?php echo in_array($now_page, $notification_pages) ? 'open active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/notifications"
+                    class="menu-link <?php echo in_array($now_page, $notification_pages) ? 'active' : '' ?>">
+                    <i class="ri-sticky-note-line menu-icon"></i>
+                    <span class="title">การแจ้งเตือนทั้งหมด</span>
+                </a>
+            </li>
+
             <!-- หมวดหมู่: ตั้งค่าระบบ -->
             <li class="menu-title small">
                 <span class="menu-title-text">การมอบหมายงาน</span>
@@ -419,7 +428,7 @@ $issues_pages = ['issues', 'outstanding_issues']; // เมนูใหม่: �
             </li> 
 
             <li class="menu-item <?php echo in_array($now_page, $system_setting_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/system_setting"
                     class="menu-link <?php echo in_array($now_page, $system_setting_pages) ? 'active' : '' ?>">
                     <i class="ri-settings-4-line menu-icon"></i>
                     <span class="title">ตั้งค่าระบบ</span>

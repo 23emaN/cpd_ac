@@ -156,6 +156,7 @@
             </div>
             <div class="modal-body">
                 <form id="assignTaskForm">
+                    <input type="hidden" name="assign_id" id="assign_id">
 
                     <div class="mb-3">
                         <label class="form-label">ชื่องาน<span class="text-danger">*</span></label>
@@ -168,12 +169,26 @@
                     </div>
 
                     <div class="mb-3">
-  <label class="form-label">กำหนดส่ง (Due Date) <span class="text-danger">*</span></label>
-  <div class="position-relative">
-    <input type="text" class="form-control pe-5" name="due_date" id="due_date" required placeholder="วว/ดด/ปปปป">
-    <i class="ri-calendar-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted" style="pointer-events: none;"></i>
-  </div>
-</div>
+                        <label class="form-label">กำหนดส่ง (Due Date) <span class="text-danger">*</span></label>
+                            <div class="position-relative">
+                                <input type="text" class="form-control pe-5" name="due_date" id="due_date" required placeholder="วว/ดด/ปปปป">
+                                <i class="ri-calendar-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted" style="pointer-events: none;"></i>
+                            </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">ลูกค้าที่เกี่ยวข้อง (ถ้ามี)</label>
+                        <select class="form-select" name="customer_id" id="customer_id">
+                            <option value="">-- ไม่ระบุลูกค้า --</option>
+                            <?php if (!empty($data['customers'])): ?>
+                                <?php foreach ($data['customers'] as $cust): ?>
+                                    <option value="<?php echo htmlspecialchars($cust['customer_id']); ?>">
+                                        <?php echo htmlspecialchars($cust['customer_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label">ผู้รับผิดชอบ <span class="text-danger">*</span></label>
@@ -201,6 +216,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         if (typeof flatpickr !== 'undefined') {
@@ -222,8 +238,31 @@
         assignModal.show();
     }
     
-    function modal_edit_assign(taskId) {
-        // สามารถดึงข้อมูลเดิมมาแสดงใน Modal ได้
+    function modal_edit_assign(task) {
+        // เคลียร์ฟอร์มก่อน
+        document.getElementById('assignTaskForm').reset();
+        
+        // ใส่ข้อมูลเดิมลงในฟอร์ม
+        $('#assign_id').val(task.assign_id);
+        $('#assign_title').val(task.assign_title);
+        $('#assign_detail').val(task.assign_detail);
+        
+        // จัดการ DatePicker (Flatpickr)
+        if (typeof flatpickr !== 'undefined') {
+            const fp = document.getElementById("due_date")._flatpickr;
+            if (fp) {
+                fp.setDate(task.due_date);
+            } else {
+                $('#due_date').val(task.due_date);
+            }
+        } else {
+            $('#due_date').val(task.due_date);
+        }
+        
+        $('#user_id').val(task.assignee_id);
+        $('#customer_id').val(task.customer_id || '');
+        
+        // แสดง Modal
         var assignModal = new bootstrap.Modal(document.getElementById('assignTaskModal'));
         assignModal.show();
     }
