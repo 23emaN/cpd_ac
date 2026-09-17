@@ -460,6 +460,10 @@ class BackofficeController
                     $team_id = $teamModel->addTeam($team_name);
                 }
             }
+
+            if ($existingUser) {
+                $userId = $existingUser['user_id'];
+                
                 // เชื่อมพนักงานกับบริษัทและปีทำงาน
                 // (ในทางปฏิบัติควรเช็คด้วยว่าเคยเชื่อมหรือยัง เพื่อป้องกัน duplicate keys)
                 try {
@@ -2665,21 +2669,6 @@ class BackofficeController
             exit();
         }
 
-
-        // 3. เตรียมข้อมูล
-        $data = [
-            'title' => 'การมอบหมายงาน',
-            'user' => $this->userPayload,
-            'user_id' => $this->userPayload['user_id'] ?? '',
-            'firstname' => $this->userPayload['user_firstname'] ?? '',
-            'lastname' => $this->userPayload['user_lastname'] ?? '',
-            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
-            'fiscal_id' => $fiscal_id,
-        ];
-
-        // 4. ดึงหน้า View มาแสดงผล
-        require_once '../app/views/backoffice/assign_task.php';
-    }
 
             require_once '../app/models/CompanyModel.php';
             $companyModel = new CompanyModel();
