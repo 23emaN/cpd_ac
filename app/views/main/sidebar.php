@@ -23,9 +23,10 @@ $manual_pages = ['manual', 'tutorial', 'videos'];
 $assinge_pages = ['assign_task'];
 $issues_pages = ['issues', 'outstanding_issues']; // เมนูใหม่: ประเด็นคงค้าง
 
-// Fetch Assign Task & Post-it Count
+// Fetch Assign Task, Post-it & Issues Count
 $assign_task_count = 0;
 $post_it_count = 0;
+$issues_count = 0;
 if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
     try {
         require_once dirname(__DIR__) . '/../config/Connection.php';
@@ -47,6 +48,11 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
             $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM tbl_post_it WHERE fiscal_year_id = ? AND user_id = ? AND status = '0'");
             $stmt2->execute([$_SESSION['fiscal_year_id'], $current_user_id]);
             $post_it_count = $stmt2->fetchColumn();
+
+            // Issues
+            $stmt3 = $pdo->prepare("SELECT COUNT(*) FROM tbl_comment_tasks WHERE is_reply = '0'");
+            $stmt3->execute();
+            $issues_count = $stmt3->fetchColumn();
         }
     } catch (Exception $e) {}
 }
@@ -356,9 +362,14 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
 
             <li class="menu-item <?php echo in_array($now_page, $issues_pages) ? 'open active' : '' ?>">
                 <a href="javascript:void(0);"
-                    class="menu-link <?php echo in_array($now_page, $issues_pages) ? 'active' : '' ?>">
-                    <i class="ri-history-line menu-icon"></i>
-                    <span class="title">ประเด็นคงค้าง</span>
+                    class="menu-link <?php echo in_array($now_page, $issues_pages) ? 'active' : '' ?>" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; overflow: hidden;">
+                        <i class="ri-history-line menu-icon"></i>
+                        <span class="title">ประเด็นคงค้าง</span>
+                    </div>
+                    <?php if ($issues_count > 0): ?>
+                        <span class="badge bg-danger rounded-pill" style="font-size: 0.65rem; padding: 3px 6px; margin-left: 5px;"><?php echo $issues_count; ?></span>
+                    <?php endif; ?>
                 </a>
             </li> 
 

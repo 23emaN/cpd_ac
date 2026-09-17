@@ -11,6 +11,23 @@ class BackofficeController
         $user = \App\models\AuthModel::checkWebAuth();
 
         if (!$user) {
+            // Check if it's an AJAX request (either via header or if it's hitting specific API endpoints)
+            $isAjax = false;
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                $isAjax = true;
+            } elseif (!empty($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+                $isAjax = true;
+            } elseif (isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], 'notification/') !== false || strpos($_SERVER['REQUEST_URI'], '/get') !== false)) {
+                $isAjax = true;
+            }
+
+            if ($isAjax) {
+                http_response_code(401);
+                header('Content-Type: application/json');
+                echo json_encode(['result' => 0, 'msg' => 'Session expired']);
+                exit();
+            }
+
             header("Location: " . BASE_URL . "/login");
             exit();
         }
@@ -460,6 +477,10 @@ class BackofficeController
                     $team_id = $teamModel->addTeam($team_name);
                 }
             }
+
+            if ($existingUser) {
+                $userId = $existingUser['user_id'];
+                
                 // เชื่อมพนักงานกับบริษัทและปีทำงาน
                 // (ในทางปฏิบัติควรเช็คด้วยว่าเคยเชื่อมหรือยัง เพื่อป้องกัน duplicate keys)
                 try {
@@ -672,51 +693,6 @@ class BackofficeController
 
 
 
-    public function customerDashFilter()
-    {
-        $this->checkAuth();
-        header('Content-Type: application/json');
-
-        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
-        if (!$fiscal_id) {
-            echo json_encode(['result' => false, 'msg' => 'Unauthorized']);
-            exit();
-        }
-
-        $filterMonth = isset($_GET['month']) && ctype_digit($_GET['month']) ? (int)$_GET['month'] : null;
-        if ($filterMonth < 1 || $filterMonth > 12) {
-            $filterMonth = null;
-        }
-
-        require_once '../app/models/CustomerDashModel.php';
-        $customerDashModel = new CustomerDashModel();
-        
-        $dbMonth = $filterMonth !== null ? str_pad($filterMonth, 2, '0', STR_PAD_LEFT) : null;
-        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id, $dbMonth);
-        
-        $totalTasks = array_sum(array_map(static fn($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
-        $completedTasks = array_sum(array_map(static fn($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
-        $totalAccountsAmount = array_sum(array_map(static fn($customer) => (float) ($customer['accounts_amount'] ?? 0), $customerWork));
-        
-        $data = ['customers' => $customerWork];
-        ob_start();
-        require '../app/views/backoffice/table/customer_dash_table.php';
-        $tableHtml = ob_get_clean();
-
-        echo json_encode([
-            'result' => true,
-            'html' => $tableHtml,
-            'stats' => [
-                'total_customers' => number_format(count($customerWork)),
-                'total_tasks' => number_format($totalTasks),
-                'completed_tasks' => number_format($completedTasks),
-                'unfinished_tasks' => number_format(max(0, $totalTasks - $completedTasks)),
-                'total_accounts_amount' => number_format($totalAccountsAmount, 2),
-            ]
-        ]);
-        exit();
-    }
-
     public function customer_dash()
     {
         $this->checkAuth();
@@ -749,12 +725,7 @@ class BackofficeController
         require_once '../app/models/CustomerDashModel.php';
         $customerModel = new CustomModal();
         $customerDashModel = new CustomerDashModel();
-        $filterMonth = isset($_GET['month']) && ctype_digit($_GET['month']) ? (int)$_GET['month'] : null;
-        if ($filterMonth < 1 || $filterMonth > 12) {
-            $filterMonth = null;
-        }
-        
-        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id, $filterMonth);
+        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id);
 
         $totalTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
         $completedTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
@@ -1244,7 +1215,8 @@ class BackofficeController
                     // We must ensure the class is called correctly if namespace is used
 
                     $notifModel = new \App\Models\NotificationModel();
-                    $notifMessage = "มีงาน Post-it ใหม่มอบหมายถึงคุณ: " . $title;
+                    $creatorName = trim(($this->userPayload['user_firstname'] ?? '') . ' ' . ($this->userPayload['user_lastname'] ?? ''));
+                    $notifMessage = "มีงาน Post-it ใหม่มอบหมายถึงคุณ: " . $creatorName . " เรื่อง " . $title;
                     $notifModel->addNotification($userId, 'post_it', $postId, $notifMessage);
 
                     // Trigger Web Push
@@ -2454,29 +2426,76 @@ class BackofficeController
     }
 
 
-    public function getNotifications()
-    {
-        header('Content-Type: application/json; charset=utf-8');
-        $this->checkAuth();
-        $userId = $this->userPayload['user_id'] ?? null;
-        if (!$userId) {
-            echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
-            return;
-        }
-
-        require_once '../app/models/NotificationModel.php';
-        $notifModel = new \App\Models\NotificationModel();
-
-        $notifications = $notifModel->getUnreadNotifications($userId, 20);
-        $count = $notifModel->getUnreadCount($userId);
-
-        echo json_encode([
-            'result' => 1,
-            'count' => $count,
-            'data' => $notifications,
-        ]);
+public function notifications()
+{
+    $this->checkAuth();
+    $userId = $this->userPayload['user_id'] ?? null;
+    if (!$userId) {
+        header("Location: " . BASE_URL . "/login");
+        exit();
     }
 
+    require_once '../app/models/NotificationModel.php';
+    $notifModel = new \App\Models\NotificationModel();
+
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    if ($page < 1) $page = 1;
+    $perPage = 20;
+
+    $notifications = $notifModel->getAllNotifications($userId, $page, $perPage);
+    $totalCount = $notifModel->getTotalCount($userId);
+    $totalPages = ceil($totalCount / $perPage);
+
+    $data = [
+        'firstname' => $this->userPayload['user_firstname'] ?? '',
+        'lastname' => $this->userPayload['user_lastname'] ?? '',
+        'user_id' => $userId,
+        'notifications' => $notifications,
+        'pagination' => [
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+            'total_items' => $totalCount
+        ]
+    ];
+
+    $this->render('backoffice/notifications', $data);
+}
+
+public function getNotifications()
+{
+    header('Content-Type: application/json; charset=utf-8');
+    
+    // Use manual auth check to guarantee JSON response instead of relying on checkAuth() 
+    // which might redirect to login if headers are stripped.
+    require_once '../app/models/AuthModel.php';
+    $user = \App\models\AuthModel::checkWebAuth();
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(['result' => 0, 'msg' => 'Session expired']);
+        exit();
+    }
+    $this->userPayload = $user;
+
+    $userId = $this->userPayload['user_id'] ?? null;
+    if (!$userId) {
+        echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
+        return;
+    }
+
+    require_once '../app/models/NotificationModel.php';
+    $notifModel = new \App\Models\NotificationModel();
+
+
+
+    $notifications = $notifModel->getUnreadNotifications($userId, 20);
+    $count = $notifModel->getUnreadCount($userId);
+
+    echo json_encode([
+        'result' => 1,
+        'count' => $count,
+        'data' => $notifications,
+    ]);
+}
 
 
     public function readNotification()
@@ -2502,6 +2521,36 @@ class BackofficeController
         } else {
             echo json_encode(['result' => 0, 'msg' => 'Failed to mark as read']);
         }
+    }
+
+    public function readAllNotifications()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        require_once '../app/models/AuthModel.php';
+        $user = \App\models\AuthModel::checkWebAuth();
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(['result' => 0, 'msg' => 'Session expired']);
+            exit();
+        }
+        $this->userPayload = $user;
+
+        $userId = $this->userPayload['user_id'] ?? null;
+        if (!$userId) {
+            echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
+            return;
+        }
+
+        require_once '../app/models/NotificationModel.php';
+        $notifModel = new \App\Models\NotificationModel();
+        
+        $success = $notifModel->markAllAsRead($userId);
+
+        echo json_encode([
+            'result' => $success ? 1 : 0,
+            'msg' => $success ? 'Success' : 'Failed'
+        ]);
     }
 
     public function getVapidPublicKey()
@@ -2666,21 +2715,6 @@ class BackofficeController
         }
 
 
-        // 3. เตรียมข้อมูล
-        $data = [
-            'title' => 'การมอบหมายงาน',
-            'user' => $this->userPayload,
-            'user_id' => $this->userPayload['user_id'] ?? '',
-            'firstname' => $this->userPayload['user_firstname'] ?? '',
-            'lastname' => $this->userPayload['user_lastname'] ?? '',
-            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
-            'fiscal_id' => $fiscal_id,
-        ];
-
-        // 4. ดึงหน้า View มาแสดงผล
-        require_once '../app/views/backoffice/assign_task.php';
-    }
-
             require_once '../app/models/CompanyModel.php';
             $companyModel = new CompanyModel();
             $userId       = $this->userPayload['user_id'] ?? null;
@@ -2708,6 +2742,10 @@ class BackofficeController
 
             require_once '../app/models/AssignTaskModel.php';
             $assignTaskModel = new AssignTaskModel();
+
+            require_once '../app/models/CustomerModal.php';
+            $customerModel = new CustomModal();
+            $customers = $customerModel->getCustomersByFiscalId($fiscal_id);
 
             // Pagination setup
             $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -2738,6 +2776,7 @@ class BackofficeController
                 'active_company_id'  => $active_company_id,
                 'active_fiscal_year' => $active_fiscal_year,
                 'employees'          => $employees,
+                'customers'          => $customers,
                 'tasks'              => $tasks,
                 'stats'              => $stats,
                 'pagination'         => [
@@ -2791,6 +2830,12 @@ class BackofficeController
                 $assign_detail = $_POST['assign_detail'] ?? '';
                 $assignee_id   = $_POST['user_id'] ?? ''; // จาก Select
                 $due_date      = $_POST['due_date'] ?? '';
+                $customer_id   = $_POST['customer_id'] ?? null;
+                $assign_id     = $_POST['assign_id'] ?? null; // ถ้ามีคือแก้ไข
+
+                if (empty($customer_id)) {
+                    $customer_id = null;
+                }
 
                 if (empty($assign_title) || empty($assignee_id) || empty($due_date)) {
                     echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน']);
@@ -2804,6 +2849,7 @@ class BackofficeController
                     'company_id'     => $active_company_id,
                     'user_id'        => $assignee_id,
                     'fiscal_id'      => $fiscal_id,
+                    'customer_id'    => $customer_id,
                     'assign_title'   => $assign_title,
                     'assign_detail'  => $assign_detail,
                     'due_date'       => $due_date,
@@ -2811,6 +2857,16 @@ class BackofficeController
                 ];
                 
                 try {
+                    if (!empty($assign_id)) {
+                        // อัปเดตข้อมูล
+                        $data['assign_id'] = $assign_id;
+                        $result = $assignTaskModel->updateAssignTask($data);
+                        $msg = 'อัปเดตข้อมูลมอบหมายงานสำเร็จ';
+                        
+                        echo json_encode(['result' => 1, 'msg' => $msg]);
+                        exit;
+                    }
+                    
                     $assign_id = $assignTaskModel->createAssignTask($data);
                     if ($assign_id) {
                         
@@ -2850,4 +2906,22 @@ class BackofficeController
                 }
             }
         }
+
+    public function system_setting()
+    {
+        $this->checkAuth();
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        if (!$fiscal_id) {
+            header("Location: " . BASE_URL . "/main");
+            exit();
+        }
+
+        $data = [
+            'title' => 'ตั้งค่าระบบ',
+            'user' => $this->userPayload,
+        ];
+
+        require_once '../app/views/backoffice/system_setting.php';
+    }
 }
