@@ -1,14 +1,14 @@
 <?php
-// app/views/backoffice/customer.php
-$selected_year = $_GET['year'] ?? '2569';
-$company_name  = $_GET['company'] ?? 'TEST ACCOUNTING';
-$show_company_workspace = false;
+    // app/views/backoffice/customer.php
+    $selected_year          = $_GET['year'] ?? '2569';
+    $company_name           = $_GET['company'] ?? 'TEST ACCOUNTING';
+    $show_company_workspace = false;
 
-// 1. นำ Header เข้ามา
-require_once dirname(__DIR__) . '/main/header.php';
+    // 1. นำ Header เข้ามา
+    require_once dirname(__DIR__) . '/main/header.php';
 
-// 2. นำ Sidebar เข้ามา
-require_once dirname(__DIR__) . '/main/sidebar.php';
+    // 2. นำ Sidebar เข้ามา
+    require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
@@ -80,118 +80,43 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         <div class="content-wrapper">
             <div class="main-page-wrapper">
                 <div class="main-card-wrapper">
-                    
+
                     <div class="notif-page-card">
-                        <!-- Header -->
-                        <div class="page-header-box d-flex justify-content-between align-items-center">
-                            <h3 class="mb-0 fw-bold" style="color: #333;">ประวัติการแจ้งเตือนทั้งหมด</h3>
-                            <button type="button" class="btn-mark-all-read" onclick="readAllPageNotifications()">ทำเครื่องหมายว่าอ่านแล้วทั้งหมด</button>
+                        <!-- Header with Integrated Filter -->
+                        <div class="page-header-box d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-3 border-bottom">
+                            <div>
+                                <h3 class="mb-1 fw-bold" style="color: #333;">ประวัติการแจ้งเตือนทั้งหมด</h3>
+                                <p class="text-muted small mb-0">
+                                    <i class="bi bi-info-circle me-1"></i> แสดงเฉพาะการแจ้งเตือนจากเมนู Post-it และรายการงานที่ได้รับมอบหมาย
+                                </p>
+                            </div>
+
+                            <!-- Filter Section -->
+                            <div class="d-flex align-items-center">
+                                <form method="GET" action="" id="notifFilterForm" class="m-0">
+                                    <div class="input-group input-group-sm shadow-sm" style="width: auto;">
+                                        <select class="form-select border-start-0 ps-1" 
+                                                id="read_status" 
+                                                name="read_status" 
+                                                style="width: 160px; cursor: pointer;"
+                                                onchange="document.getElementById('notifFilterForm').submit();">
+                                            <option value="">ทั้งหมด</option>
+                                            <option value="0" <?php echo (isset($_GET['read_status']) && $_GET['read_status'] === '0') ? 'selected' : ''; ?>>
+                                                ยังไม่ได้รับทราบ
+                                            </option>
+                                            <option value="1" <?php echo (isset($_GET['read_status']) && $_GET['read_status'] === '1') ? 'selected' : ''; ?>>
+                                                รับทราบแล้ว
+                                            </option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
                         <!-- Main Table -->
-                        <div class="table-container">
-                            <table class="table notif-table">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center" width="5%">ลำดับ</th>
-                                        <th width="15%">หัวข้อ</th>
-                                        <th width="45%">รายละเอียด</th>
-                                        <th class="text-center" width="10%">ประเภท</th>
-                                        <th class="text-center" width="15%">เวลา</th>
-                                        <th class="text-center" width="10%">สถานะ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (!empty($data['notifications'])): ?>
-                                        <?php 
-                                            $page = $data['pagination']['current_page'] ?? 1;
-                                            $perPage = 20;
-                                            $startNo = (($page - 1) * $perPage) + 1;
-                                            
-                                            // Calculate display range for footer
-                                            $totalItems = $data['pagination']['total_items'] ?? 0;
-                                            $endNo = min($startNo + count($data['notifications']) - 1, $totalItems);
-                                        ?>
-                                        <?php foreach ($data['notifications'] as $index => $notif): ?>
-                                            <?php 
-                                                $isUnread = ($notif['is_read'] == 0);
-                                                $type = $notif['task_type'];
-                                                
-                                                if ($type === 'post_it') {
-                                                    $title = 'แจ้งเตือนงานใหม่';
-                                                    $typeText = 'มอบหมายงาน';
-                                                } else {
-                                                    $title = 'แจ้งเตือนระบบ';
-                                                    $typeText = 'ทั่วไป';
-                                                }
-                                            ?>
-                                            <tr class="<?php echo $isUnread ? 'unread' : ''; ?>" id="page-notif-item-<?php echo $notif['notif_id']; ?>">
-                                                <td class="text-center"><?php echo $startNo + $index; ?></td>
-                                                <td><?php echo $title; ?></td>
-                                                <td><?php echo htmlspecialchars($notif['message']); ?></td>
-                                                <td class="text-center fw-bold"><?php echo $typeText; ?></td>
-                                                <td class="text-center"><?php echo date('d/m/Y H:i', strtotime($notif['created_at'])); ?></td>
-                                                <td class="text-center notif-status-cell">
-                                                    <?php if ($isUnread): ?>
-                                                        <a href="javascript:void(0)" onclick="markPageNotificationRead(<?php echo $notif['notif_id']; ?>)" class="text-primary text-decoration-none">คลิกเพื่ออ่าน</a>
-                                                    <?php else: ?>
-                                                        -
-                                                    <?php endif; ?>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="6" class="text-center py-5 text-muted">ไม่มีการแจ้งเตือนในขณะนี้</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                        <div id="notificationTableContainer">
+                            <?php require_once 'table/notification_table.php'; ?>
                         </div>
-
-                        <!-- Pagination -->
-                        <?php if (!empty($data['notifications'])): ?>
-                            <div class="pagination-container">
-                                <div class="text-muted">
-                                    แสดง <?php echo $startNo; ?>-<?php echo $endNo; ?> จาก <?php echo $totalItems; ?> รายการ
-                                </div>
-                                
-                                <?php if (isset($data['pagination']) && $data['pagination']['total_pages'] > 1): ?>
-                                    <nav>
-                                        <ul class="pagination mb-0">
-                                            <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                                                <a class="page-link" href="?page=1">หน้าแรก</a>
-                                            </li>
-                                            <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                                                <a class="page-link" href="?page=<?php echo max(1, $page - 1); ?>">ก่อนหน้า</a>
-                                            </li>
-                                            
-                                            <!-- Show a few pages around current -->
-                                            <?php 
-                                                $totalPages = $data['pagination']['total_pages'];
-                                                $startPage = max(1, $page - 2);
-                                                $endPage = min($totalPages, $startPage + 4);
-                                                if ($endPage - $startPage < 4) {
-                                                    $startPage = max(1, $endPage - 4);
-                                                }
-                                                for ($i = $startPage; $i <= $endPage; $i++): 
-                                            ?>
-                                                <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
-                                                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
-                                                </li>
-                                            <?php endfor; ?>
-
-                                            <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
-                                                <a class="page-link" href="?page=<?php echo min($totalPages, $page + 1); ?>">ถัดไป</a>
-                                            </li>
-                                            <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
-                                                <a class="page-link" href="?page=<?php echo $totalPages; ?>">หน้าสุดท้าย</a>
-                                            </li>
-                                        </ul>
-                                    </nav>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
 
                     </div>
 
@@ -215,14 +140,14 @@ function markPageNotificationRead(notifId) {
                 let row = document.getElementById('page-notif-item-' + notifId);
                 if (row) {
                     row.classList.remove('unread');
-                    
+
                     // Replace link with "-"
                     let statusCell = row.querySelector('.notif-status-cell');
                     if (statusCell) {
                         statusCell.innerHTML = '-';
                     }
                 }
-                
+
                 // Update the notification bell badge in header
                 if (typeof loadNotifications === 'function') {
                     loadNotifications();

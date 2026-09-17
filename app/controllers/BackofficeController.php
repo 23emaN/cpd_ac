@@ -1266,7 +1266,8 @@ class BackofficeController
 
                     $notifModel = new \App\Models\NotificationModel();
                     $notifMessage = "มีงาน Post-it ใหม่มอบหมายถึงคุณ: " . $title;
-                    $notifModel->addNotification($userId, 'post_it', $postId, $notifMessage);
+                    $urlLink = "/post_it?post_id=" . $postId; 
+                    $notifModel->addNotification($userId, 'post_it', $postId, $notifMessage, $urlLink, $fiscal_id);
 
                     // Trigger Web Push
                     $this->sendWebPush($userId, "มอบหมายงาน Post-it ใหม่", $title, ($_ENV['APP_URL'] ?? '') . "/post_it");
@@ -2513,6 +2514,25 @@ class BackofficeController
             }
         }
 
+        // Fetch Notifications
+        require_once '../app/models/NotificationModel.php';
+        $notifModel = new \App\Models\NotificationModel();
+        
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($page < 1) $page = 1;
+        $perPage = 20;
+        
+        $notifications = $notifModel->getAllNotifications($userId, $page, $perPage, $fiscal_id);
+        $totalItems = $notifModel->getTotalCount($userId, $fiscal_id);
+        $totalPages = ceil($totalItems / $perPage);
+        
+        $pagination = [
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total_items' => $totalItems,
+            'total_pages' => $totalPages
+        ];
+
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $data = [
             'title' => 'ระบบ Backoffice',
@@ -2525,6 +2545,8 @@ class BackofficeController
             'companies' => $companies,
             'active_company_id' => $active_company_id,
             'active_fiscal_year' => $active_fiscal_year,
+            'notifications' => $notifications,
+            'pagination' => $pagination,
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
@@ -2556,9 +2578,9 @@ public function getNotifications()
     $notifModel = new \App\Models\NotificationModel();
 
 
-
-    $notifications = $notifModel->getUnreadNotifications($userId, 20);
-    $count = $notifModel->getUnreadCount($userId);
+    $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+    $notifications = $notifModel->getUnreadNotifications($userId, 20, $fiscal_id);
+    $count = $notifModel->getUnreadCount($userId, $fiscal_id);
 
     echo json_encode([
         'result' => 1,
@@ -2902,6 +2924,7 @@ public function getNotifications()
                 $due_date      = $_POST['due_date'] ?? '';
                 $customer_id   = $_POST['customer_id'] ?? null;
                 $assign_id     = $_POST['assign_id'] ?? null; // ถ้ามีคือแก้ไข
+                $assign_status = $_POST['assign_status'] ?? '0'; // สถานะงาน
 
                 if (empty($customer_id)) {
                     $customer_id = null;
@@ -2923,6 +2946,7 @@ public function getNotifications()
                     'assign_title'   => $assign_title,
                     'assign_detail'  => $assign_detail,
                     'due_date'       => $due_date,
+                    'assign_status'  => $assign_status,
                     'create_user_id' => $user_id
                 ];
                 
@@ -2959,7 +2983,8 @@ public function getNotifications()
                         require_once '../app/models/NotificationModel.php';
                         $notifModel = new \App\Models\NotificationModel();
                         $notifMsg = "คุณได้รับมอบหมายงานใหม่: {$assign_title} (กำหนดส่ง: {$due_date})";
-                        $notifModel->addNotification($assignee_id, 'assign_task', $assign_id, $notifMsg);
+                        $urlLink = "/assign_task?assign_id=" . $assign_id;
+                        $notifModel->addNotification($assignee_id, 'assign_task', $assign_id, $notifMsg, $urlLink, $fiscal_id);
                         $this->sendWebPush($assignee_id, 'งานใหม่', $notifMsg, '/assign_task');
 
                         $msg = 'มอบหมายงานสำเร็จ';

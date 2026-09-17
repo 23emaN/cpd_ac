@@ -51,7 +51,8 @@ class AssignTaskModel extends Model {
                 customer_id = :customer_id,
                 assign_title = :assign_title, 
                 assign_detail = :assign_detail, 
-                due_date = :due_date
+                due_date = :due_date,
+                assign_status = :assign_status
             WHERE assign_id = :assign_id"
         );
         
@@ -61,7 +62,8 @@ class AssignTaskModel extends Model {
             'customer_id'    => $data['customer_id'] ?? null,
             'assign_title'   => $data['assign_title'],
             'assign_detail'  => $data['assign_detail'] ?? null,
-            'due_date'       => $data['due_date']
+            'due_date'       => $data['due_date'],
+            'assign_status'  => $data['assign_status'] ?? '0'
         ]);
     }
 
@@ -159,5 +161,17 @@ class AssignTaskModel extends Model {
             'overdue' => $result['overdue'] ?? 0,
             'completed' => $result['completed'] ?? 0
         ];
+    }
+
+    public function getAssignTaskById($assign_id)
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT t.*, u.user_firstname, u.user_lastname
+            FROM tbl_assign_task t
+            LEFT JOIN tbl_user u ON t.user_id = u.user_id
+            WHERE t.assign_id = :assign_id
+        ");
+        $stmt->execute(['assign_id' => $assign_id]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 }
