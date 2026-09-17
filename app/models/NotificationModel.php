@@ -196,7 +196,7 @@ class NotificationModel
      * @param int $per_page
      * @return array
      */
-    public function getAllNotifications($user_id, $page = 1, $per_page = 20, $fiscal_id = null)
+    public function getAllNotifications($user_id, $page = 1, $per_page = 20, $fiscal_id = null, $read_status = null)
     {
         try {
             $offset = ($page - 1) * $per_page;
@@ -211,6 +211,11 @@ class NotificationModel
                 FROM tbl_notifications n
                 WHERE n.user_id = :user_id
             ";
+            
+            if ($read_status !== null && $read_status !== '') {
+                $sql .= " AND n.is_read = :read_status";
+            }
+
             
             if ($fiscal_id) {
                 $sql .= " AND (
@@ -228,6 +233,9 @@ class NotificationModel
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':user_id', $user_id);
+            if ($read_status !== null && $read_status !== '') {
+                $stmt->bindValue(':read_status', $read_status, PDO::PARAM_INT);
+            }
             if ($fiscal_id) {
                 $stmt->bindValue(':fiscal_id1', $fiscal_id);
                 $stmt->bindValue(':fiscal_id2', $fiscal_id);
@@ -255,10 +263,13 @@ class NotificationModel
      * @param string|int $user_id
      * @return int
      */
-    public function getTotalCount($user_id, $fiscal_id = null)
+    public function getTotalCount($user_id, $fiscal_id = null, $read_status = null)
     {
         try {
             $sql = "SELECT COUNT(*) as cnt FROM tbl_notifications n WHERE n.user_id = :user_id";
+            if ($read_status !== null && $read_status !== '') {
+                $sql .= " AND n.is_read = :read_status";
+            }
             if ($fiscal_id) {
                 $sql .= " AND (
                     (n.task_type = 'assign_task' AND EXISTS (SELECT 1 FROM tbl_assign_task a WHERE a.assign_id = n.reference_id AND a.fiscal_id = :fiscal_id1))
@@ -271,6 +282,9 @@ class NotificationModel
             $stmt = $this->pdo->prepare($sql);
             
             $stmt->bindValue(':user_id', $user_id);
+            if ($read_status !== null && $read_status !== '') {
+                $stmt->bindValue(':read_status', $read_status, PDO::PARAM_INT);
+            }
             if ($fiscal_id) {
                 $stmt->bindValue(':fiscal_id1', $fiscal_id);
                 $stmt->bindValue(':fiscal_id2', $fiscal_id);

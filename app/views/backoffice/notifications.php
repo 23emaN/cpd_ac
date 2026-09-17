@@ -94,7 +94,7 @@
                             <!-- Filter Section -->
                             <div class="d-flex align-items-center">
                                 <form method="GET" action="" id="notifFilterForm" class="m-0">
-                                    <div class="input-group input-group-sm shadow-sm" style="width: auto;">
+                                    <div class="input-group input-group-sm shadow-sm" style="width: 200px;">
                                         <select class="form-select border-start-0 ps-1" 
                                                 id="read_status" 
                                                 name="read_status" 

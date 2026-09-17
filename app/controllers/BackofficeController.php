@@ -2522,8 +2522,10 @@ class BackofficeController
         if ($page < 1) $page = 1;
         $perPage = 20;
         
-        $notifications = $notifModel->getAllNotifications($userId, $page, $perPage, $fiscal_id);
-        $totalItems = $notifModel->getTotalCount($userId, $fiscal_id);
+        $read_status = isset($_GET['read_status']) ? $_GET['read_status'] : null;
+        
+        $notifications = $notifModel->getAllNotifications($userId, $page, $perPage, $fiscal_id, $read_status);
+        $totalItems = $notifModel->getTotalCount($userId, $fiscal_id, $read_status);
         $totalPages = ceil($totalItems / $perPage);
         
         $pagination = [
