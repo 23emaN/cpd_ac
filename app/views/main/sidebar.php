@@ -21,6 +21,35 @@ $postit_pages = ['post_it', 'postit', 'notes', 'reminders'];
 $system_setting_pages = ['settings', 'setting', 'system_setting'];
 $manual_pages = ['manual', 'tutorial', 'videos'];
 $assinge_pages = ['assign_task'];
+$issues_pages = ['issues', 'outstanding_issues']; // เมนูใหม่: ประเด็นคงค้าง
+
+// Fetch Assign Task & Post-it Count
+$assign_task_count = 0;
+$post_it_count = 0;
+if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
+    try {
+        require_once dirname(__DIR__) . '/../config/Connection.php';
+        $pdo = \App\Config\Connection::getInstance()->getPdo();
+        
+        $current_user_id = $data['user_id'] ?? null;
+        if ($current_user_id) {
+            // Assign Task
+            if (isset($active_company_id) && $active_company_id !== '') {
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tbl_assign_task WHERE company_id = ? AND fiscal_id = ? AND user_id = ? AND assign_status != '3'");
+                $stmt->execute([$active_company_id, $_SESSION['fiscal_year_id'], $current_user_id]);
+            } else {
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tbl_assign_task WHERE fiscal_id = ? AND user_id = ? AND assign_status != '3'");
+                $stmt->execute([$_SESSION['fiscal_year_id'], $current_user_id]);
+            }
+            $assign_task_count = $stmt->fetchColumn();
+
+            // Post-it
+            $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM tbl_post_it WHERE fiscal_year_id = ? AND user_id = ? AND status = '0'");
+            $stmt2->execute([$_SESSION['fiscal_year_id'], $current_user_id]);
+            $post_it_count = $stmt2->fetchColumn();
+        }
+    } catch (Exception $e) {}
+}
 
 ?>
 
@@ -31,7 +60,7 @@ $assinge_pages = ['assign_task'];
 
         font-family: 'Kanit', 'Segoe UI', Tahoma, sans-serif;
 
-        width: 250px;
+        width: 220px; /* ลดความกว้างของแถบด้านข้างลง */
 
         /* ขยายจาก 240px เป็น 260px เพื่อไม่ให้ข้อความตกขอบ */
         padding-top: 80px;
@@ -53,7 +82,7 @@ $assinge_pages = ['assign_task'];
         padding: 10px 14px;
         color: #64748b;
         font-weight: 600;
-        font-size: 0.90rem;
+        font-size: 9px; /* ลดขนาดตัวอักษรลง */
         text-decoration: none;
         transition: all 0.2s ease;
     }
@@ -73,7 +102,7 @@ $assinge_pages = ['assign_task'];
     }
 
     .overview-pill-btn i {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         color: inherit;
     }
 
@@ -91,7 +120,7 @@ $assinge_pages = ['assign_task'];
     }
 
     .sidebar-area .menu-title .menu-title-text {
-        font-size: 0.78rem !important;
+        font-size: 0.72rem !important; /* ลดขนาดตัวอักษรลง */
         font-weight: 700 !important;
         color: #1e293b !important;
         letter-spacing: 0.02em !important;
@@ -105,7 +134,7 @@ $assinge_pages = ['assign_task'];
     }
 
     .sidebar-area .menu-item .menu-link {
-        margin: 2px 10px !important;
+        margin: -7px 10px !important;
         padding: 7px 12px !important;
         border-radius: 8px !important;
         min-height: unset !important;
@@ -113,7 +142,7 @@ $assinge_pages = ['assign_task'];
         display: flex !important;
         align-items: center !important;
         color: #1e293b !important;
-        font-size: 0.88rem !important;
+        font-size: 0.8rem !important; /* ลดขนาดตัวอักษรลง */
         font-weight: 600 !important;
         transition: all 0.15s ease !important;
         text-decoration: none !important;
@@ -133,7 +162,7 @@ $assinge_pages = ['assign_task'];
 
     /* ไอคอนข้างหน้าเมนู */
     .sidebar-area .menu-item .menu-link .menu-icon {
-        font-size: 1.15rem !important;
+        font-size: 16px !important;
         margin-right: 10px !important;
         color: #94a3b8 !important;
         display: inline-flex;
@@ -148,8 +177,8 @@ $assinge_pages = ['assign_task'];
     }
 
     .sidebar-area .menu-item .menu-link .title {
-        font-size: 0.86rem !important;
-        line-height: 1.3 !important;
+        font-size: 10px !important; /* ลดขนาดตัวอักษรลง */
+        line-height: 1 !important;
         overflow: hidden;
         text-overflow: ellipsis;
         flex-grow: 1;
@@ -325,6 +354,14 @@ $assinge_pages = ['assign_task'];
                 </a>
             </li>
 
+            <li class="menu-item <?php echo in_array($now_page, $issues_pages) ? 'open active' : '' ?>">
+                <a href="javascript:void(0);"
+                    class="menu-link <?php echo in_array($now_page, $issues_pages) ? 'active' : '' ?>">
+                    <i class="ri-history-line menu-icon"></i>
+                    <span class="title">ประเด็นคงค้าง</span>
+                </a>
+            </li> 
+
             <li class="menu-item <?php echo in_array($now_page, $closing_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/closing"
                     class="menu-link <?php echo in_array($now_page, $closing_pages) ? 'active' : '' ?>">
@@ -385,9 +422,14 @@ $assinge_pages = ['assign_task'];
 
             <li class="menu-item <?php echo in_array($now_page, $postit_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/post_it"
-                    class="menu-link <?php echo in_array($now_page, $postit_pages) ? 'active' : '' ?>">
-                    <i class="ri-sticky-note-line menu-icon"></i>
-                    <span class="title">Post-it แจ้งเตือน</span>
+                    class="menu-link <?php echo in_array($now_page, $postit_pages) ? 'active' : '' ?>" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; overflow: hidden;">
+                        <i class="ri-sticky-note-line menu-icon"></i>
+                        <span class="title">Post-it แจ้งเตือน</span>
+                    </div>
+                    <?php if ($post_it_count > 0): ?>
+                        <span class="badge bg-danger rounded-pill" style="font-size: 0.65rem; padding: 3px 6px; margin-left: 5px;"><?php echo $post_it_count; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
 
@@ -398,37 +440,37 @@ $assinge_pages = ['assign_task'];
 
             <li class="menu-item <?php echo in_array($now_page, $assinge_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/assign_task"
-                    class="menu-link <?php echo in_array($now_page, $assinge_pages) ? 'active' : '' ?>">
-                    <i class="ri-user-heart-line menu-icon"></i>
-                    <span class="title">การมอบหมายงาน</span>
+                    class="menu-link <?php echo in_array($now_page, $assinge_pages) ? 'active' : '' ?>" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; overflow: hidden;">
+                        <i class="ri-user-heart-line menu-icon"></i>
+                        <span class="title">การมอบหมายงาน</span>
+                    </div>
+                    <?php if ($assign_task_count > 0): ?>
+                        <span class="badge bg-danger rounded-pill" style="font-size: 0.65rem; padding: 3px 6px; margin-left: 5px;"><?php echo $assign_task_count; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
 
             <!-- หมวดหมู่: ตั้งค่าระบบ -->
-            <!-- <li class="menu-title small">
+           <li class="menu-title small">
                 <span class="menu-title-text">ตั้งค่าระบบ</span>
-            </li>
+            </li> 
 
             <li class="menu-item <?php echo in_array($now_page, $system_setting_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/system_setting"
                     class="menu-link <?php echo in_array($now_page, $system_setting_pages) ? 'active' : '' ?>">
                     <i class="ri-settings-4-line menu-icon"></i>
                     <span class="title">ตั้งค่าระบบ</span>
                 </a>
-            </li> -->
-
-            <!-- หมวดหมู่: คู่มือ -->
-            <!-- <li class="menu-title small">
-                <span class="menu-title-text">คู่มือ</span>
-            </li>
+            </li> 
 
             <li class="menu-item <?php echo in_array($now_page, $manual_pages) ? 'open active' : '' ?>">
                 <a href="javascript:void(0);"
                     class="menu-link <?php echo in_array($now_page, $manual_pages) ? 'active' : '' ?>">
                     <i class="ri-play-circle-line menu-icon"></i>
-                    <span class="title">วิดีโอสอนการใช้งาน</span>
+                    <span class="title">คู่มือ</span>
                 </a>
-            </li> -->
+            </li> 
 
         </ul>
     </aside>
