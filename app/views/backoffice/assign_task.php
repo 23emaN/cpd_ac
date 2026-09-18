@@ -22,6 +22,7 @@
     .status-warning { background-color: #fef3c7; color: #f59e0b; } /* ส้ม/เหลือง */
     .status-normal { background-color: #e0f2fe; color: #0284c7; } /* ฟ้า */
     .status-success { background-color: #dcfce3; color: #22c55e; } /* เขียว */
+    .status-info { background-color: #e0e7ff; color: #4f46e5; } /* ม่วงคราม (รอตรวจ) */
 
     .due-date-critical { color: #ef4444; font-weight: bold; }
     .due-date-warning { color: #f59e0b; font-weight: bold; }
@@ -105,9 +106,9 @@
                     </div>
 
                     <!-- Filter / Search -->
-                    <div class="d-flex justify-content-between mb-3 align-items-center">
+                    <div class="d-flex justify-content-between mb-6 align-items-center">
                         <form method="GET" action="" id="filterForm" class="d-flex gap-2">
-                            <select class="form-select" style="width: 200px;" name="assignee_id" onchange="document.getElementById('filterForm').submit();">
+                            <select class="form-select" style="width: 300px;" name="assignee_id" onchange="document.getElementById('filterForm').submit();">
                                 <option value="">ผู้รับผิดชอบทั้งหมด</option>
                                 <?php if (!empty($data['employees'])): ?>
                                     <?php foreach ($data['employees'] as $emp): ?>
@@ -117,8 +118,8 @@
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
-                            <select class="form-select" style="width: 150px;" name="status" onchange="document.getElementById('filterForm').submit();">
-                                <option value="">สถานะทั้งหมด</option>
+                            <select class="form-select" style="width: 200px;" name="status" onchange="document.getElementById('filterForm').submit();">
+                                <option value="">สถานะงานทั้งหมด</option>
                                 <option value="critical" <?php echo ($data['filters']['status'] == 'critical') ? 'selected' : ''; ?>>ใกล้ถึงกำหนด</option>
                                 <option value="overdue" <?php echo ($data['filters']['status'] == 'overdue') ? 'selected' : ''; ?>>เลยกำหนด</option>
                                 <option value="0" <?php echo ($data['filters']['status'] == '0') ? 'selected' : ''; ?>>รอดำเนินการ</option>
@@ -156,6 +157,7 @@
             </div>
             <div class="modal-body">
                 <form id="assignTaskForm">
+                    <input type="hidden" name="assign_id" id="assign_id">
 
                     <div class="mb-3">
                         <label class="form-label">ชื่องาน<span class="text-danger">*</span></label>
@@ -168,12 +170,26 @@
                     </div>
 
                     <div class="mb-3">
-  <label class="form-label">กำหนดส่ง (Due Date) <span class="text-danger">*</span></label>
-  <div class="position-relative">
-    <input type="text" class="form-control pe-5" name="due_date" id="due_date" required placeholder="วว/ดด/ปปปป">
-    <i class="ri-calendar-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted" style="pointer-events: none;"></i>
-  </div>
-</div>
+                        <label class="form-label">กำหนดส่ง (Due Date) <span class="text-danger">*</span></label>
+                            <div class="position-relative">
+                                <input type="text" class="form-control pe-5" name="due_date" id="due_date" required placeholder="วว/ดด/ปปปป">
+                                <i class="ri-calendar-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted" style="pointer-events: none;"></i>
+                            </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">ลูกค้า</label>
+                        <select class="form-select" name="customer_id" id="customer_id">
+                            <option value="">-- ไม่ระบุลูกค้า --</option>
+                            <?php if (!empty($data['customers'])): ?>
+                                <?php foreach ($data['customers'] as $cust): ?>
+                                    <option value="<?php echo htmlspecialchars($cust['customer_id']); ?>">
+                                        <?php echo htmlspecialchars($cust['customer_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label">ผู้รับผิดชอบ <span class="text-danger">*</span></label>
@@ -189,6 +205,15 @@
                         </select>
                     </div>
 
+                    <div class="mb-3" id="status_container" style="display: none;">
+                        <label class="form-label">สถานะงาน</label>
+                        <select class="form-select" name="assign_status" id="assign_status">
+                            <option value="0">ดำเนินการ</option>
+                            <option value="1">รอตรวจ</option>
+                            <option value="3">ปิดงาน</option>
+                        </select>
+                    </div>
+
                 </form>
             </div>
             <div class="modal-footer">      
@@ -201,6 +226,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         if (typeof flatpickr !== 'undefined') {
@@ -217,13 +243,42 @@
 
     function modal_assign_task() {
         document.getElementById('assignTaskForm').reset();
+        document.getElementById('status_container').style.display = 'none';
+        $('#assign_status').val('0');
         
         var assignModal = new bootstrap.Modal(document.getElementById('assignTaskModal'));
         assignModal.show();
     }
     
-    function modal_edit_assign(taskId) {
-        // สามารถดึงข้อมูลเดิมมาแสดงใน Modal ได้
+    function modal_edit_assign(task) {
+        // เคลียร์ฟอร์มก่อน
+        document.getElementById('assignTaskForm').reset();
+        
+        // ใส่ข้อมูลเดิมลงในฟอร์ม
+        $('#assign_id').val(task.assign_id);
+        $('#assign_title').val(task.assign_title);
+        $('#assign_detail').val(task.assign_detail);
+        
+        // จัดการ DatePicker (Flatpickr)
+        if (typeof flatpickr !== 'undefined') {
+            const fp = document.getElementById("due_date")._flatpickr;
+            if (fp) {
+                fp.setDate(task.due_date);
+            } else {
+                $('#due_date').val(task.due_date);
+            }
+        } else {
+            $('#due_date').val(task.due_date);
+        }
+        
+        $('#user_id').val(task.user_id || task.assignee_id);
+        $('#customer_id').val(task.customer_id || '');
+        
+        // สถานะงาน
+        document.getElementById('status_container').style.display = 'block';
+        $('#assign_status').val(task.assign_status !== undefined ? task.assign_status : '0');
+        
+        // แสดง Modal
         var assignModal = new bootstrap.Modal(document.getElementById('assignTaskModal'));
         assignModal.show();
     }
@@ -292,5 +347,37 @@
         });
     }
 </script>
+
+<?php if (isset($_GET['assign_id']) && !empty($_GET['assign_id'])): ?>
+    <?php
+        $autoOpenTask = null;
+        if (!empty($data['tasks'])) {
+            foreach ($data['tasks'] as $task) {
+                if ($task['assign_id'] == $_GET['assign_id']) {
+                    $autoOpenTask = $task;
+                    break;
+                }
+            }
+        }
+        
+        if (!$autoOpenTask) {
+            require_once dirname(__DIR__, 2) . '/models/AssignTaskModel.php';
+            $assignTaskModel = new \AssignTaskModel();
+            $autoOpenTask = $assignTaskModel->getAssignTaskById($_GET['assign_id']);
+        }
+    ?>
+    <?php if ($autoOpenTask): ?>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var taskData = <?php echo json_encode($autoOpenTask, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+                setTimeout(function() {
+                    if (typeof modal_edit_assign === 'function') {
+                        modal_edit_assign(taskData);
+                    }
+                }, 500);
+            });
+        </script>
+    <?php endif; ?>
+<?php endif; ?>
 
 <?php require_once dirname(__DIR__) . '/main/footer.php'; ?>

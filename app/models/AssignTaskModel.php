@@ -8,6 +8,7 @@ class AssignTaskModel extends Model {
             "INSERT INTO tbl_assign_task (
                 company_id, 
                 user_id, 
+                customer_id,
                 fiscal_id, 
                 assign_title, 
                 assign_detail, 
@@ -18,6 +19,7 @@ class AssignTaskModel extends Model {
             ) VALUES (
                 :company_id, 
                 :user_id, 
+                :customer_id,
                 :fiscal_id, 
                 :assign_title, 
                 :assign_detail, 
@@ -31,6 +33,7 @@ class AssignTaskModel extends Model {
         $stmt->execute([
             'company_id'     => $data['company_id'],
             'user_id'        => $data['user_id'],
+            'customer_id'    => $data['customer_id'] ?? null,
             'fiscal_id'      => $data['fiscal_id'],
             'assign_title'   => $data['assign_title'],
             'assign_detail'  => $data['assign_detail'] ?? null,
@@ -39,6 +42,29 @@ class AssignTaskModel extends Model {
         ]);
         
         return $this->pdo->lastInsertId();
+    }
+
+    public function updateAssignTask($data) {
+        $stmt = $this->pdo->prepare(
+            "UPDATE tbl_assign_task SET
+                user_id = :user_id, 
+                customer_id = :customer_id,
+                assign_title = :assign_title, 
+                assign_detail = :assign_detail, 
+                due_date = :due_date,
+                assign_status = :assign_status
+            WHERE assign_id = :assign_id"
+        );
+        
+        return $stmt->execute([
+            'assign_id'      => $data['assign_id'],
+            'user_id'        => $data['user_id'],
+            'customer_id'    => $data['customer_id'] ?? null,
+            'assign_title'   => $data['assign_title'],
+            'assign_detail'  => $data['assign_detail'] ?? null,
+            'due_date'       => $data['due_date'],
+            'assign_status'  => $data['assign_status'] ?? '0'
+        ]);
     }
 
     public function getAssignTasks($companyId, $fiscalId, $filters = [], $limit = 10, $offset = 0) {
@@ -135,5 +161,17 @@ class AssignTaskModel extends Model {
             'overdue' => $result['overdue'] ?? 0,
             'completed' => $result['completed'] ?? 0
         ];
+    }
+
+    public function getAssignTaskById($assign_id)
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT t.*, u.user_firstname, u.user_lastname
+            FROM tbl_assign_task t
+            LEFT JOIN tbl_user u ON t.user_id = u.user_id
+            WHERE t.assign_id = :assign_id
+        ");
+        $stmt->execute(['assign_id' => $assign_id]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 }

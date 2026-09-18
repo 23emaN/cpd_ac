@@ -253,56 +253,74 @@ class AuthModel
     }
 
     public static function checkWebAuth()
-    {
-        $jwt = self::bearerToken();
-        if ($jwt === '') return null;
+{
+    $logFile = dirname(__DIR__, 2) . '/debug_auth.log';
+    $uri = $_SERVER['REQUEST_URI'] ?? '';
 
-        static $envLoaded = false;
-        if (! $envLoaded) {
-            Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
-            $envLoaded = true;
-        }
-
-        $secretKey = $_ENV['JWT_SECRET'] ?? '';
-        if ($secretKey === '') return null;
-
-        try {
-            $token = JWT::decode($jwt, new Key($secretKey, 'HS256'));
-        } catch (Throwable $exception) {
-            return null;
-        }
-
-        if (($token->exp ?? 0) < time()) {
-            return null;
-        }
-
-        // Validate with DB
-        if (empty($token->jti)) return null;
-
-        $db = Connection::getInstance()->getPdo();
-        $sql = "SELECT u.user_id, u.user_name, u.user_firstname, u.user_lastname, u.is_super_admin
-                FROM tbl_login_token lt
-                JOIN tbl_user u ON lt.user_id = u.user_id
-                WHERE lt.token_code = :token_code AND u.user_status = '1' AND lt.end_datetime IS NULL AND lt.expire_datetime > NOW()
-                LIMIT 1";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([':token_code' => $token->jti]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (! $row) return null;
-
-        $fullname = trim(($row['user_firstname'] ?? '') . ' ' . ($row['user_lastname'] ?? ''));
-        if ($fullname === '') $fullname = $row['user_name'] ?? 'Admin';
-
-        return [
-            'user_id' => $row['user_id'],
-            'user_name' => $fullname,
-            'user_firstname' => $row['user_firstname'],
-            'user_lastname' => $row['user_lastname'],
-            'is_super_admin' => $row['is_super_admin'],
-            'token_code' => $token->jti
-        ];
+    $jwt = self::bearerToken();
+    if ($jwt === '') {
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] checkWebAuth FAIL (no jwt) on $uri\n", FILE_APPEND);
+        return null;
     }
+
+    static $envLoaded = false;
+    if (! $envLoaded) {
+        Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
+        $envLoaded = true;
+    }
+
+    $secretKey = $_ENV['JWT_SECRET'] ?? '';
+    if ($secretKey === '') {
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] checkWebAuth FAIL (no secret) on $uri\n", FILE_APPEND);
+        return null;
+    }
+
+    try {
+        $token = JWT::decode($jwt, new Key($secretKey, 'HS256'));
+    } catch (Throwable $exception) {
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] checkWebAuth FAIL (decode: {$exception->getMessage()}) on $uri | jwt=$jwt\n", FILE_APPEND);
+        return null;
+    }
+
+    if (($token->exp ?? 0) < time()) {
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] checkWebAuth FAIL (expired, exp={$token->exp}) on $uri\n", FILE_APPEND);
+        return null;
+    }
+
+    if (empty($token->jti)) {
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] checkWebAuth FAIL (no jti) on $uri\n", FILE_APPEND);
+        return null;
+    }
+
+    $db = Connection::getInstance()->getPdo();
+    $sql = "SELECT u.user_id, u.user_name, u.user_firstname, u.user_lastname, u.is_super_admin
+            FROM tbl_login_token lt
+            JOIN tbl_user u ON lt.user_id = u.user_id
+            WHERE lt.token_code = :token_code AND u.user_status = '1' AND lt.end_datetime IS NULL AND lt.expire_datetime > NOW()
+            LIMIT 1";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([':token_code' => $token->jti]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (! $row) {
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] checkWebAuth FAIL (db row not found, jti={$token->jti}) on $uri\n", FILE_APPEND);
+        return null;
+    }
+
+    file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] checkWebAuth OK (user_id={$row['user_id']}) on $uri\n", FILE_APPEND);
+
+    $fullname = trim(($row['user_firstname'] ?? '') . ' ' . ($row['user_lastname'] ?? ''));
+    if ($fullname === '') $fullname = $row['user_name'] ?? 'Admin';
+
+    return [
+        'user_id' => $row['user_id'],
+        'user_name' => $fullname,
+        'user_firstname' => $row['user_firstname'],
+        'user_lastname' => $row['user_lastname'],
+        'is_super_admin' => $row['is_super_admin'],
+        'token_code' => $token->jti
+    ];
+}
 }
 
 

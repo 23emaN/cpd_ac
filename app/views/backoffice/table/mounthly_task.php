@@ -11,6 +11,7 @@
                 <th class="text-center" style="width: 8%;">ลูกค้า</th>
                 <th class="text-center" style="width: 8%; ">ผู้ทำบัญชี</th>
                 <th class="text-center" style="width: 8%; ">ผู้สอบบัญชี</th>
+                <th class="text-center" style="width: 6%; ">ประเด็น</th>
                 <th class="text-center" style="width: 8%;">ผู้ดูแล</th>
                 <th class="text-center" style="width: 9%;">เอกสาร</th>
                 <th class="text-center" style="width: 10%;">งานประจำเดือน</th>
@@ -71,19 +72,19 @@
                         <td class="text-center">
                             <span class="caretaker-text"><?php echo htmlspecialchars($task['cpa_name'] ?? '-'); ?></span>
                         </td>
-                        <!-- <td class="text-center">
-                            <?php if (!empty($task['unread_comments']) && $task['unread_comments'] > 0): ?>
-                                <span class="badge bg-danger" style="cursor: pointer;"
-                                    title="มี <?php echo $task['unread_comments']; ?> ความคิดเห็นที่ยังไม่ได้อ่าน" onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>,
+                        <td class="text-center">
+                            <?php if (!empty($task['unresolved_issues_count']) && $task['unresolved_issues_count'] > 0): ?>
+                                <span class="badge bg-danger" style="cursor: pointer; padding: 4px 8px; font-size: 0.75rem; border-radius: 6px;"
+                                    title="มี <?php echo $task['unresolved_issues_count']; ?> ประเด็นที่ยังไม่ได้ตอบ" onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>,
                                             '<?php echo htmlspecialchars($subtitle ?? '', ENT_QUOTES); ?>')">
-                                    <?php echo $task['unread_comments']; ?>
+                                    <?php echo $task['unresolved_issues_count']; ?>
                                 </span>
                             <?php else: ?>
-                                <span>
-                                    ยังไม่มีความคิดเห็น
+                                <span class="text-muted" style="font-size: 0.8rem;">
+                                    -
                                 </span>
                             <?php endif; ?>
-                        </td> -->
+                        </td>
                         <td class="text-center">
                             <span
                                 class="caretaker-text"><?php echo htmlspecialchars($task['caretaker_firstname'] ?? '-'); ?></span>

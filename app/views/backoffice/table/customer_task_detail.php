@@ -37,16 +37,15 @@ ksort($detailsByMonth);
 
     .customer-task-detail-row {
         display: none;
-        background-color: #f8fbff;
     }
 
     .customer-task-detail-row.is-open {
         display: table-row;
     }
 
-    .customer-task-detail-panel {
+    /* .customer-task-detail-panel {
         padding: 14px 20px;
-    }
+    } */
 
     .customer-task-detail-panel .detail-task-list {
         margin: 0;
@@ -58,7 +57,6 @@ ksort($detailsByMonth);
         justify-content: space-between;
         gap: 16px;
         padding: 8px 0;
-        border-bottom: 1px dashed #e2e8f0;
     }
 
     .customer-task-detail-panel .detail-task-list li:last-child {
@@ -94,7 +92,7 @@ ksort($detailsByMonth);
                 <tr>
                     <th style="width: 16%;">เดือน</th>
                     <th class="text-center" style="width: 18%;">งานที่เสร็จ / ทั้งหมด</th>
-                    <th>รายละเอียดงาน</th>
+                    <!-- <th>รายละเอียดงาน</th> -->
                     <th class="text-center" style="width: 22%;">สถานะ</th>
                     <!-- <th class="text-center" style="width: 10%;">จัดการ</th> -->
                 </tr>
@@ -118,7 +116,7 @@ ksort($detailsByMonth);
                         <td class="text-center fw-semibold">
                             <?php echo $completedMonthTasks . '/' . $totalMonthTasks; ?>
                         </td>
-                        <td><?php echo htmlspecialchars($firstDetail['tasks_name'] ?? 'ไม่ระบุชื่องาน'); ?></td>
+                        <!-- <td><?php echo htmlspecialchars($firstDetail['tasks_name'] ?? 'ไม่ระบุชื่องาน'); ?></td> -->
                         <td class="text-center">
                             <?php if ($monthIsComplete): ?>
                                 <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">เสร็จแล้ว</span>
@@ -140,7 +138,7 @@ ksort($detailsByMonth);
                     </tr>
                     <?php if ($totalMonthTasks > 1): ?>
                         <tr class="customer-task-detail-row" id="customer-month-tasks-<?php echo $monthKey; ?>">
-                            <td colspan="5">
+                            <td colspan="1">
                                 <div class="customer-task-detail-panel">
                                     <ul class="list-unstyled detail-task-list">
                                         <?php foreach ($monthDetails as $detail): ?>

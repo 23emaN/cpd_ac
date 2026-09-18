@@ -35,7 +35,7 @@ foreach ($data['monthly_tasks'] ?? [] as $task) {
                 <th class="text-start"></th>
                 <th class="text-center">ผู้ทำบัญชี</th>
                 <th class="text-center">ผู้สอบบัญชี</th>
-
+                <th class="text-center">ประเด็น</th>
                 <th class="text-center">ผู้ดูแล</th>
                 <th class="text-center">เอกสาร</th>
                 <th class="text-center">งานประจำเดือน</th>
@@ -85,13 +85,13 @@ foreach ($data['monthly_tasks'] ?? [] as $task) {
                     <td class="text-center">
                         <span class="caretaker-text"><?php echo htmlspecialchars($task['cpa_name'] ?? '-'); ?></span>
                     </td>
-                    <!-- <td class="text-center">
-                        <?php if (!empty($task['unread_comments'])): ?>
-                            <span class="badge bg-danger" style="cursor: pointer;" title="มีความคิดเห็นที่ยังไม่ได้อ่าน" onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><?php echo (int) $task['unread_comments']; ?></span>
+                    <td class="text-center">
+                        <?php if (!empty($task['unresolved_issues_count']) && $task['unresolved_issues_count'] > 0): ?>
+                            <span class="badge bg-danger" style="cursor: pointer; padding: 4px 8px; font-size: 0.75rem; border-radius: 6px;" title="มี <?php echo $task['unresolved_issues_count']; ?> ประเด็นที่ยังไม่ได้ตอบ" onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>, '<?php echo htmlspecialchars($subtitle, ENT_QUOTES); ?>')"><?php echo (int) $task['unresolved_issues_count']; ?></span>
                         <?php else: ?>
-                            <span class="text-muted">ไม่ระบุ</span>
+                            <span class="text-muted" style="font-size: 0.8rem;">-</span>
                         <?php endif; ?>
-                    </td> -->
+                    </td>
                     <td class="text-center"><span
                             class="caretaker-text"><?php echo htmlspecialchars($caretakerName); ?></span></td>
                     <td class="text-center">

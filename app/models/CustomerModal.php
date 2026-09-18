@@ -233,6 +233,8 @@ class CustomModal extends Model
             'user_id'            => ! empty($data['user_id']) ? $data['user_id'] : null,
             'team_id'            => ! empty($data['team_id']) ? $data['team_id'] : null,
             'accounts_amount'    => $data['accounts_amount'] ?? 0,
+            'closing_amount'     => $data['closing_amount'] ?? 0,
+            'auditing_amount'    => $data['auditing_amount'] ?? 0,
         ]);
 
         $fiscalYearId = $this->pdo->lastInsertId();

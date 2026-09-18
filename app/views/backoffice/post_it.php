@@ -1109,3 +1109,72 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         });
     }
 </script>
+
+<?php if (isset($_GET['post_id']) && !empty($_GET['post_id'])): ?>
+    <?php
+        $autoOpenTask = null;
+        if (!empty($data['post_it_list'])) {
+            foreach ($data['post_it_list'] as $task) {
+                if ($task['post_id'] == $_GET['post_id']) {
+                    $autoOpenTask = $task;
+                    break;
+                }
+            }
+        }
+        
+        if (!$autoOpenTask) {
+            require_once dirname(__DIR__, 2) . '/models/PostItModel.php';
+            $tempModel = new PostItModel();
+            $autoOpenTask = $tempModel->findById($_GET['post_id']);
+        }
+    ?>
+    <?php if ($autoOpenTask): ?>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var taskData = <?php echo json_encode($autoOpenTask, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+                setTimeout(function() {
+                    document.getElementById('postitId').value = taskData.post_id || taskData.id || '';
+                    document.getElementById('createPostItModalLabel').textContent = 'แก้ไข Post-it';
+                    var titleInput = document.getElementById('postitTitle');
+                    if (titleInput) titleInput.value = taskData.title || '';
+                    var contentInput = document.getElementById('postitContent');
+                    if (contentInput) contentInput.value = taskData.content || '';
+
+                    var color = taskData.color_code || 'yellow';
+                    var colorRadio = document.querySelector('input[name="color_code"][value="' + color + '"]');
+                    if (colorRadio) colorRadio.checked = true;
+
+                    if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 === 'function') {
+                        $('#postitAssignee').val(taskData.user_id).trigger('change.select2');
+                        $('#postitStatus').val(taskData.status).trigger('change.select2');
+                    } else {
+                        var assigneeEl = document.getElementById('postitAssignee');
+                        if (assigneeEl) assigneeEl.value = taskData.user_id;
+                        var statusEl = document.getElementById('postitStatus');
+                        if (statusEl) statusEl.value = taskData.status || '0';
+                    }
+
+                    var dueDate = taskData.due_date;
+                    if (typeof postitPicker !== 'undefined' && postitPicker) {
+                        if (dueDate) {
+                            postitPicker.setDate(dueDate, true);
+                            if (typeof togglePostItClear === 'function') togglePostItClear(true);
+                        } else {
+                            postitPicker.clear();
+                            if (typeof togglePostItClear === 'function') togglePostItClear(false);
+                        }
+                    } else {
+                        var dateInput = document.getElementById('postitDueDate');
+                        if (dateInput) dateInput.value = dueDate || '';
+                    }
+
+                    const modalElement = document.getElementById('createPostItModal');
+                    if (modalElement && typeof bootstrap !== 'undefined') {
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+                        modalInstance.show();
+                    }
+                }, 500);
+            });
+        </script>
+    <?php endif; ?>
+<?php endif; ?>

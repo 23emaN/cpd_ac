@@ -1095,13 +1095,17 @@ class BackofficeController
         // 4 = กำลังไปยื่น, 5 = งานเสร็จเรียบร้อยแล้ว, 6 = เก็บเงินเรียบร้อยแล้ว
         require_once '../app/models/RegistrationModel.php';
         $registrationModel = new RegistrationModel();
-        $registrationTasks = $registrationModel->getTasksByFiscalId($fiscal_id);
+        
+        $userId = (int)($this->userPayload['user_id'] ?? 0);
+        $isSuperAdmin = (int)($this->userPayload['is_super_admin'] ?? 0);
+        
+        $registrationTasks = $registrationModel->getTasksByFiscalId($fiscal_id, $userId, $isSuperAdmin);
 
-        $data['stat_open'] = $registrationModel->countOpen($fiscal_id);
-        $data['stat_not_overdue'] = $registrationModel->countNotOverdue($fiscal_id);
-        $data['stat_overdue'] = $registrationModel->countOverdue($fiscal_id);
-        $data['stat_closed_this_month'] = $registrationModel->countClosedThisMonth($fiscal_id);
-        $data['stat_closed_last_month'] = $registrationModel->countClosedLastMonth($fiscal_id);
+        $data['stat_open'] = $registrationModel->countOpen($fiscal_id, $userId, $isSuperAdmin);
+        $data['stat_not_overdue'] = $registrationModel->countNotOverdue($fiscal_id, $userId, $isSuperAdmin);
+        $data['stat_overdue'] = $registrationModel->countOverdue($fiscal_id, $userId, $isSuperAdmin);
+        $data['stat_closed_this_month'] = $registrationModel->countClosedThisMonth($fiscal_id, $userId, $isSuperAdmin);
+        $data['stat_closed_last_month'] = $registrationModel->countClosedLastMonth($fiscal_id, $userId, $isSuperAdmin);
         // countClosedThisMonth/countClosedLastMonth คืน ['total' => ..., 'total_amount' => ...]
 
         $data['tasks_by_status'] = array_fill_keys(['0', '1', '2', '3', '4', '5', '6'], []);
@@ -1282,6 +1286,7 @@ class BackofficeController
                     $notifMessage = "มีงาน Post-it ใหม่มอบหมายถึงคุณ: " . $creatorName . " เรื่อง " . $title;
                     $notifModel->addNotification($userId, 'post_it', $postId, $notifMessage);
 
+
                     // Trigger Web Push
                     $this->sendWebPush($userId, "มอบหมายงาน Post-it ใหม่", $title, ($_ENV['APP_URL'] ?? '') . "/post_it");
                 }
@@ -1433,6 +1438,7 @@ class BackofficeController
         $input = json_decode(file_get_contents('php://input'), true);
         $customer_tasks_id = $input['customer_tasks_id'] ?? '';
         $comment_text = trim($input['comment_text'] ?? '');
+        $is_reply = isset($input['is_reply']) ? (int) $input['is_reply'] : 1;
         $user_id = $this->userPayload['user_id'] ?? null;
 
         if (!$customer_tasks_id || $comment_text === '' || !$user_id) {
@@ -1444,7 +1450,7 @@ class BackofficeController
         $model = new MonthlyTaskModal();
 
         try {
-            $success = $model->addComment((int) $customer_tasks_id, (int) $user_id, $comment_text);
+            $success = $model->addComment((int) $customer_tasks_id, (int) $user_id, $comment_text, $is_reply);
             if ($success) {
                 echo json_encode(['result' => 1, 'msg' => 'บันทึกความคิดเห็นสำเร็จ']);
             } else {
@@ -1636,18 +1642,24 @@ class BackofficeController
         $customerId = isset($_GET['customer_id']) && ctype_digit((string) $_GET['customer_id'])
             ? (int) $_GET['customer_id']
             : null;
+        $userId = $this->userPayload['user_id'] ?? null;
+        $isSuperAdmin = (int)($this->userPayload['is_super_admin'] ?? 0);
+        $caretakerId = !$isSuperAdmin ? $userId : null;
+
         require_once '../app/models/monthly_task_Modal.php';
         $monthlyTaskModel = new MonthlyTaskModal();
         $monthly_tasks = $monthlyTaskModel->getMonthlyTasks(
             $fiscal_id,
             $customerId ? null : $month,
             $userId,
-            $customerId
+            $customerId,
+            $caretakerId
         );
         $monthly_task_stats = $monthlyTaskModel->getMonthlyTaskStats(
             $fiscal_id,
             $customerId ? null : $month,
-            $customerId
+            $customerId,
+            $caretakerId
         );
         $monthly_task_customers = $monthlyTaskModel->getMonthlyTaskCustomers($fiscal_id);
         $monthly_task_caretakers = $monthlyTaskModel->getCaretakersByFiscalId($fiscal_id);
@@ -1707,6 +1719,11 @@ class BackofficeController
         require_once '../app/models/monthly_task_Modal.php';
         $model = new MonthlyTaskModal();
         $userId = $this->userPayload['user_id'] ?? null;
+        $isSuperAdmin = (int)($this->userPayload['is_super_admin'] ?? 0);
+        
+        if (!$isSuperAdmin && $userId) {
+            $caretakerId = $userId;
+        }
         $monthlyTasks = $model->getMonthlyTasks(
             $fiscalId,
             $customerId ? null : $month,
@@ -2239,6 +2256,9 @@ class BackofficeController
 
         require_once '../app/models/RegistrationModel.php';
         $model = new RegistrationModel();
+        
+        $userId = (int)($this->userPayload['user_id'] ?? 0);
+        $isSuperAdmin = (int)($this->userPayload['is_super_admin'] ?? 0);
         $ok = $model->insert($fiscal_id, $data);
 
         echo json_encode($ok
@@ -2373,8 +2393,10 @@ class BackofficeController
 
         require_once '../app/models/RegistrationModel.php';
         $model = new RegistrationModel();
-        $summary = $model->countClosedTasks($fiscal_id, $keyword);
-        $rows = $model->getClosedTasks($fiscal_id, $keyword, $perPage, $offset);
+        $userId = $this->userPayload['user_id'] ?? null;
+        $isSuperAdmin = $this->userPayload['is_super_admin'] ?? 0;
+        $summary = $model->countClosedTasks($fiscal_id, $keyword, $userId, $isSuperAdmin);
+        $rows = $model->getClosedTasks($fiscal_id, $keyword, $perPage, $offset, $userId, $isSuperAdmin);
 
         echo json_encode([
             'result' => 1,
@@ -2488,6 +2510,9 @@ class BackofficeController
             : ['result' => 0, 'msg' => 'ไม่สามารถบันทึกข้อมูลได้']);
     }
 
+    /////////////////////////////////////// notifications ///////////////////////////////////////////////
+
+
 
 public function notifications()
 {
@@ -2539,6 +2564,99 @@ public function getNotifications()
     }
     $this->userPayload = $user;
 
+
+ public function notifications()
+    {
+        // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
+        $this->checkAuth();
+
+        // 2. รับค่า fiscal_id จาก Session (ตั้งค่ามาจากหน้าหลักผ่าน AJAX)
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        if (!$fiscal_id) {
+            // ถ้าไม่มีรหัสปี ให้เด้งกลับไปหน้าหลัก
+            header("Location: " . BASE_URL . "/main");
+            exit();
+        }
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $companies = $companyModel->getAllCompanies($userId);
+
+        // หา company_id และปีของ fiscal_id ที่กำลังใช้งานอยู่
+        $active_company_id = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        // Fetch Notifications
+        require_once '../app/models/NotificationModel.php';
+        $notifModel = new \App\Models\NotificationModel();
+        
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($page < 1) $page = 1;
+        $perPage = 20;
+        $read_status = isset($_GET['read_status']) ? $_GET['read_status'] : '0';
+        $notifications = $notifModel->getAllNotifications($userId, $page, $perPage, $fiscal_id, $read_status);
+        $totalItems = $notifModel->getTotalCount($userId, $fiscal_id, $read_status);
+        $totalPages = ceil($totalItems / $perPage);
+        
+        $pagination = [
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total_items' => $totalItems,
+            'total_pages' => $totalPages
+        ];
+
+        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
+        $data = [
+            'title' => 'ระบบ Backoffice',
+            'user' => $this->userPayload,
+            'user_id' => $this->userPayload['user_id'] ?? '',
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
+            'fiscal_id' => $fiscal_id,
+            'companies' => $companies,
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'notifications' => $notifications,
+            'pagination' => $pagination,
+        ];
+
+        // 4. ดึงหน้า View มาแสดงผล
+        require_once '../app/views/backoffice/notifications.php';
+    }
+
+   
+
+public function getNotifications()
+{
+    header('Content-Type: application/json; charset=utf-8');
+    
+    // Use manual auth check to guarantee JSON response instead of relying on checkAuth() 
+    // which might redirect to login if headers are stripped.
+    require_once '../app/models/AuthModel.php';
+    $user = \App\models\AuthModel::checkWebAuth();
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(['result' => 0, 'msg' => 'Session expired']);
+        exit();
+    }
+    $this->userPayload = $user;
+
+
     $userId = $this->userPayload['user_id'] ?? null;
     if (!$userId) {
         echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
@@ -2550,8 +2668,9 @@ public function getNotifications()
 
 
 
-    $notifications = $notifModel->getUnreadNotifications($userId, 20);
-    $count = $notifModel->getUnreadCount($userId);
+    $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+    $notifications = $notifModel->getUnreadNotifications($userId, 20, $fiscal_id);
+    $count = $notifModel->getUnreadCount($userId, $fiscal_id);
 
     echo json_encode([
         'result' => 1,
@@ -2896,6 +3015,7 @@ public function getNotifications()
                 $customer_id   = $_POST['customer_id'] ?? null;
                 $assign_id     = $_POST['assign_id'] ?? null; // ถ้ามีคือแก้ไข
 
+
                 if (empty($customer_id)) {
                     $customer_id = null;
                 }
@@ -2916,6 +3036,7 @@ public function getNotifications()
                     'assign_title'   => $assign_title,
                     'assign_detail'  => $assign_detail,
                     'due_date'       => $due_date,
+                    'assign_status'  => $assign_status,
                     'create_user_id' => $user_id
                 ];
                 
@@ -2952,7 +3073,8 @@ public function getNotifications()
                         require_once '../app/models/NotificationModel.php';
                         $notifModel = new \App\Models\NotificationModel();
                         $notifMsg = "คุณได้รับมอบหมายงานใหม่: {$assign_title} (กำหนดส่ง: {$due_date})";
-                        $notifModel->addNotification($assignee_id, 'assign_task', $assign_id, $notifMsg);
+                        $urlLink = "/assign_task?assign_id=" . $assign_id;
+                        $notifModel->addNotification($assignee_id, 'assign_task', $assign_id, $notifMsg, $urlLink, $fiscal_id);
                         $this->sendWebPush($assignee_id, 'งานใหม่', $notifMsg, '/assign_task');
 
                         $msg = 'มอบหมายงานสำเร็จ';
@@ -2970,7 +3092,9 @@ public function getNotifications()
             }
         }
 
-    public function system_setting()
+         /////////////////////////////////////// system_setting ///////////////////////////////////////////////
+
+     public function system_setting()
     {
         $this->checkAuth();
         $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
@@ -2983,8 +3107,98 @@ public function getNotifications()
         $data = [
             'title' => 'ตั้งค่าระบบ',
             'user' => $this->userPayload,
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $companies = $companyModel->getAllCompanies($userId);
+
+        $active_company_id = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        $data = [
+            'title' => 'ระบบ Backoffice - ตั้งค่าระบบ',
+            'user' => $this->userPayload,
+            'user_id' => $this->userPayload['user_id'] ?? '',
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
+            'fiscal_id' => $fiscal_id,
+            'companies' => $companies,
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
         ];
 
         require_once '../app/views/backoffice/system_setting.php';
     }
+
+
+    
+    /////////////////////////////////////// issues ///////////////////////////////////////////////
+    public function issues()
+    {
+        $this->checkAuth();
+
+        // 1. ดึงปีบัญชีและบริษัทที่เลือกใน Session (ใช้หลักการเดียวกับหน้าอื่น)
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+        
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $companies = $companyModel->getAllCompanies($userId);
+
+        // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+        $active_company_id = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        // 2. ดึงข้อมูลจาก Model (ถ้ามี)
+        require_once '../app/models/IssuesModel.php';
+        $issuesModel = new IssuesModel();
+        
+        $current_user_id = (int)($this->userPayload['user_id'] ?? 0);
+        $is_super_admin = (int)($this->userPayload['is_super_admin'] ?? 0);
+        $issues = $issuesModel->getAllIssues($fiscal_id, $current_user_id, $is_super_admin);
+
+        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
+        $data = [
+            'title' => 'ระบบ Backoffice',
+            'user' => $this->userPayload,
+            'user_id' => $this->userPayload['user_id'] ?? '',
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
+            'companies' => $companies,
+            'fiscal_id' => $fiscal_id,
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'issues' => $issues
+        ];
+
+        // 4. เรียก View (เดี๋ยวเราต้องไปสร้างไฟล์ app/views/backoffice/issues.php)
+         require_once '../app/views/backoffice/issues.php';
+    }
+
 }

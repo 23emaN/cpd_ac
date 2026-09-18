@@ -2439,6 +2439,28 @@
         </div>
 
         <div class="acc-actions">
+
+            <div class="dropdown">
+                <button type="button" class="acc-notif-btn" id="notifDropdownBtn"
+                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                title="การแจ้งเตือน">
+                    <i class="ri-notification-3-line"></i>
+                    <span class="acc-notif-badge" id="notifBadge">0</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end acc-notif-menu" aria-labelledby="notifDropdownBtn">
+                    <div class="acc-notif-header d-flex justify-content-between align-items-center">
+                        <span>การแจ้งเตือน</span>
+                        <a href="javascript:void(0)" onclick="readAllNotificationsOnly()" class="text-primary text-decoration-none" style="font-size: 0.85rem;" title="ทำเครื่องหมายว่าอ่านแล้วทั้งหมด">อ่านทั้งหมด</a>
+                    </div>
+                <div class="acc-notif-list" id="notifListContainer">
+                    <div class="acc-notif-empty">กำลังโหลด...</div>
+                </div>
+                <!-- View All Notifications Button -->
+                <div class="acc-notif-footer text-center border-top">
+                    <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/notifications" class="text-primary text-decoration-none d-block py-2">ดูการแจ้งเตือนทั้งหมด</a>
+                </div>
+            </div>
+        </div>
             <!-- Notification Bell -->
 
             <div class="dropdown">
@@ -3081,40 +3103,69 @@ function showCompanyNameError(message) {
 
         // --- Notification Logic ---
         function loadNotifications() {
+    $.ajax({
+        url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/notification/get",
+        method: "POST",
+        dataType: "json",
+        success: function(res) {
+            console.log('notification response:', res); // เอาไว้ดูค่าจริงใน Console ก่อน แล้วค่อยลบทิ้ง
+
+            if (res && (res.result === 1 || res.result === '1')) { // แก้ตรงนี้ ป้องกันปัญหา string vs int
+                let count = res.count || 0;
+                let badge = document.getElementById('notifBadge');
+                if (count > 0) {
+                    badge.style.display = 'block';
+                    badge.innerText = count > 99 ? '99+' : count;
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                let listHtml = '';
+                if (res.data && res.data.length > 0) {
+                    res.data.forEach(function(item) {
+                        let timeStr = new Date(item.created_at).toLocaleString('th-TH');
+                        listHtml += `
+                            <div class="acc-notif-item unread" id="notif-item-${item.notif_id}">
+                                <div class="acc-notif-title">${item.task_type === 'post_it' ? 'งานใหม่' : 'แจ้งเตือน'}</div>
+                                <div class="acc-notif-text">${item.message}</div>
+                                <div class="acc-notif-time">${timeStr}</div>
+                                <div class="acc-notif-action">
+                                    <button class="acc-notif-ack-btn" onclick="markNotificationRead(${item.notif_id})">รับทราบ</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    listHtml = '<div class="acc-notif-empty">ไม่มีการแจ้งเตือน</div>';
+                }
+                document.getElementById('notifListContainer').innerHTML = listHtml;
+            } else {
+                document.getElementById('notifListContainer').innerHTML =
+                    '<div class="acc-notif-empty">ไม่สามารถโหลดข้อมูลได้</div>';
+            }
+        },
+        error: function(xhr, status, err) {
+            if (xhr.status === 401) {
+                window.location.href = "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/login";
+                return;
+            }
+            // ตรงนี้สำคัญมาก — เดิมไม่มีเลย ทำให้ error เงียบหายไป
+            console.error('notification/get failed:', status, err, xhr.responseText);
+            document.getElementById('notifListContainer').innerHTML =
+                '<div class="acc-notif-empty">เกิดข้อผิดพลาดในการโหลด</div>';
+        }
+    });
+}
+
+        function readAllNotificationsOnly() {
+            const baseUrl = "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>";
             $.ajax({
-                url: "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/notification/get",
-                method: "GET",
+                url: baseUrl + "/notification/read-all",
+                method: "POST",
                 dataType: "json",
                 success: function(res) {
                     if (res && res.result === 1) {
-                        let count = res.count || 0;
-                        let badge = document.getElementById('notifBadge');
-                        if (count > 0) {
-                            badge.style.display = 'block';
-                            badge.innerText = count > 99 ? '99+' : count;
-                        } else {
-                            badge.style.display = 'none';
-                        }
-
-                        let listHtml = '';
-                        if (res.data && res.data.length > 0) {
-                            res.data.forEach(function(item) {
-                                let timeStr = new Date(item.created_at).toLocaleString('th-TH');
-                                listHtml += `
-                                    <div class="acc-notif-item unread" id="notif-item-${item.notif_id}">
-                                        <div class="acc-notif-title">${item.task_type === 'post_it' ? 'งานใหม่' : 'แจ้งเตือน'}</div>
-                                        <div class="acc-notif-text">${item.message}</div>
-                                        <div class="acc-notif-time">${timeStr}</div>
-                                        <div class="acc-notif-action">
-                                            <button class="acc-notif-ack-btn" onclick="markNotificationRead(${item.notif_id})">รับทราบ</button>
-                                        </div>
-                                    </div>
-                                `;
-                            });
-                        } else {
-                            listHtml = '<div class="acc-notif-empty">ไม่มีการแจ้งเตือน</div>';
-                        }
-                        document.getElementById('notifListContainer').innerHTML = listHtml;
+                        loadNotifications(); // โหลดใหม่ใน dropdown
                     }
                 }
             });
@@ -3168,11 +3219,11 @@ function showCompanyNameError(message) {
                     }
 
                     const data = await response.json();
-                    
+
                     if (!data.publicKey) return false;
 
                     const applicationServerKey = urlB64ToUint8Array(data.publicKey);
-                    
+
                     let permission = Notification.permission;
                     if (permission === 'default') {
                         permission = await Notification.requestPermission();
@@ -3190,7 +3241,7 @@ function showCompanyNameError(message) {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(subscription)
                         });
-                        
+
                         if (saveRes.ok) {
                             return true;
                         } else {
@@ -3224,7 +3275,7 @@ function showCompanyNameError(message) {
                     const subscription = await registration.pushManager.getSubscription();
                     if (subscription) {
                         await subscription.unsubscribe();
-                        
+
                         const baseUrl = "<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>";
                         await fetch(baseUrl + '/notification/unsubscribe', {
                             method: 'POST',
