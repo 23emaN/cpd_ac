@@ -357,7 +357,7 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $issues_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/issues"
                     class="menu-link <?php echo in_array($now_page, $issues_pages) ? 'active' : '' ?>">
                     <i class="ri-history-line menu-icon"></i>
                     <span class="title">ประเด็นคงค้าง</span>

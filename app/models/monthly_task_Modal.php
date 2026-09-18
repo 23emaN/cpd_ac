@@ -520,17 +520,18 @@ class MonthlyTaskModal extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function addComment(int $customerTasksId, int $userId, string $commentText)
+    public function addComment(int $customerTasksId, int $userId, string $commentText, int $isReply = 1)
     {
         $sql = "
-            INSERT INTO tbl_comment_tasks (customer_tasks_id, comment_user_id, comment_detail, create_at, is_read)
-            VALUES (:task_id, :user_id, :comment_text, NOW(), 0)
+            INSERT INTO tbl_comment_tasks (customer_tasks_id, comment_user_id, comment_detail, create_at, is_read, is_reply)
+            VALUES (:task_id, :user_id, :comment_text, NOW(), 0, :is_reply)
         ";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([
             'task_id'      => $customerTasksId,
             'user_id'      => $userId,
             'comment_text' => $commentText,
+            'is_reply'     => $isReply
         ]);
     }
 

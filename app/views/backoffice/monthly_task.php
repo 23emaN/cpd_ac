@@ -1522,7 +1522,11 @@ function postComment(customerTasksId, text) {
     return fetch('<?php echo BASE_URL; ?>/monthly_task/comments/store', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customer_tasks_id: customerTasksId, comment_text: text })
+        body: JSON.stringify({ 
+            customer_tasks_id: customerTasksId, 
+            comment_text: text,
+            is_reply: 1 
+        })
     }).then(res => res.json());
 }
 

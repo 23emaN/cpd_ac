@@ -1420,6 +1420,7 @@ class BackofficeController
         $input = json_decode(file_get_contents('php://input'), true);
         $customer_tasks_id = $input['customer_tasks_id'] ?? '';
         $comment_text = trim($input['comment_text'] ?? '');
+        $is_reply = isset($input['is_reply']) ? (int) $input['is_reply'] : 1;
         $user_id = $this->userPayload['user_id'] ?? null;
 
         if (!$customer_tasks_id || $comment_text === '' || !$user_id) {
@@ -1431,7 +1432,7 @@ class BackofficeController
         $model = new MonthlyTaskModal();
 
         try {
-            $success = $model->addComment((int) $customer_tasks_id, (int) $user_id, $comment_text);
+            $success = $model->addComment((int) $customer_tasks_id, (int) $user_id, $comment_text, $is_reply);
             if ($success) {
                 echo json_encode(['result' => 1, 'msg' => 'บันทึกความคิดเห็นสำเร็จ']);
             } else {
@@ -3021,4 +3022,60 @@ public function getNotifications()
 
         require_once '../app/views/backoffice/system_setting.php';
     }
+
+    
+    /////////////////////////////////////// issues ///////////////////////////////////////////////
+    public function issues()
+    {
+        $this->checkAuth();
+
+        // 1. ดึงปีบัญชีและบริษัทที่เลือกใน Session (ใช้หลักการเดียวกับหน้าอื่น)
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+        
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $companies = $companyModel->getAllCompanies($userId);
+
+        // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+        $active_company_id = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        // 2. ดึงข้อมูลจาก Model (ถ้ามี)
+        require_once '../app/models/IssuesModel.php';
+        $issuesModel = new IssuesModel();
+        
+        $current_user_id = (int)($this->userPayload['user_id'] ?? 0);
+        $is_super_admin = (int)($this->userPayload['is_super_admin'] ?? 0);
+        $issues = $issuesModel->getAllIssues($fiscal_id, $current_user_id, $is_super_admin);
+
+        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
+        $data = [
+            'title' => 'ระบบ Backoffice',
+            'user' => $this->userPayload,
+            'user_id' => $this->userPayload['user_id'] ?? '',
+            'companies' => $companies,
+            'fiscal_id' => $fiscal_id,
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'issues' => $issues
+        ];
+
+        // 4. เรียก View (เดี๋ยวเราต้องไปสร้างไฟล์ app/views/backoffice/issues.php)
+         require_once '../app/views/backoffice/issues.php';
+    }
+
 }
+

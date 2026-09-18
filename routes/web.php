@@ -18,6 +18,7 @@ $routes = [
         'post_it' => ['BackofficeController', 'postIt'],
         'postit' => ['BackofficeController', 'postIt'],
         'closing' => ['BackofficeController', 'closing'],
+        'issues' => ['BackofficeController', 'issues'],
         'yearly_dash' => ['BackofficeController', 'yearly_dash'],
         'monthly_dash' => ['BackofficeController', 'monthly_dash'],
         'customer_dash' => ['BackofficeController', 'customer_dash'],

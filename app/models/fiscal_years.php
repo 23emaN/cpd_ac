@@ -304,21 +304,27 @@ class FiscalYearsModel extends Model {
         if ($isSuperAdmin === 1 || !$userId) {
             $query = "SELECT 
                         tbl_fiscal_years.*,
-                        COUNT(tbl_fiscal_year_customers.customer_id) AS customer_count,
-                        COALESCE(SUM(tbl_fiscal_year_customers.accounts_amount), 0) AS monthly_fee
+                        COUNT(DISTINCT tbl_customers.customer_id) AS customer_count,
+                        COALESCE(SUM(CASE WHEN tbl_customers.customer_id IS NOT NULL THEN tbl_fiscal_year_customers.accounts_amount ELSE 0 END), 0) AS monthly_fee
                     FROM tbl_fiscal_years
                     LEFT JOIN tbl_fiscal_year_customers ON tbl_fiscal_years.fiscal_id = tbl_fiscal_year_customers.fiscal_id
+                    LEFT JOIN tbl_customers ON tbl_fiscal_year_customers.customer_id = tbl_customers.customer_id AND tbl_customers.delete_at IS NULL
                     WHERE tbl_fiscal_years.company_id = :company_id";
             $params = ['company_id' => $companyId];
         } else {
             $query = "SELECT 
                         tbl_fiscal_years.*,
-                        COUNT(tbl_fiscal_year_customers.customer_id) AS customer_count,
-                        COALESCE(SUM(tbl_fiscal_year_customers.accounts_amount), 0) AS monthly_fee
+                        COUNT(DISTINCT tbl_customers.customer_id) AS customer_count,
+                        COALESCE(SUM(CASE WHEN tbl_customers.customer_id IS NOT NULL THEN tbl_fiscal_year_customers.accounts_amount ELSE 0 END), 0) AS monthly_fee
                     FROM tbl_fiscal_years
-                    JOIN tbl_fiscal_year_user fu ON tbl_fiscal_years.fiscal_id = fu.fiscal_id
                     LEFT JOIN tbl_fiscal_year_customers ON tbl_fiscal_years.fiscal_id = tbl_fiscal_year_customers.fiscal_id
-                    WHERE tbl_fiscal_years.company_id = :company_id AND fu.user_id = :user_id";
+                    LEFT JOIN tbl_customers ON tbl_fiscal_year_customers.customer_id = tbl_customers.customer_id AND tbl_customers.delete_at IS NULL
+                    WHERE tbl_fiscal_years.company_id = :company_id 
+                    AND EXISTS (
+                        SELECT 1 FROM tbl_fiscal_year_user fu 
+                        WHERE fu.fiscal_id = tbl_fiscal_years.fiscal_id 
+                        AND fu.user_id = :user_id
+                    )";
             $params = ['company_id' => $companyId, 'user_id' => $userId];
         }
 
