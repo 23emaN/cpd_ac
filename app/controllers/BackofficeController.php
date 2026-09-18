@@ -2542,9 +2542,7 @@ class BackofficeController
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         if ($page < 1) $page = 1;
         $perPage = 20;
-        
-        $read_status = isset($_GET['read_status']) ? $_GET['read_status'] : null;
-        
+        $read_status = isset($_GET['read_status']) ? $_GET['read_status'] : '0';
         $notifications = $notifModel->getAllNotifications($userId, $page, $perPage, $fiscal_id, $read_status);
         $totalItems = $notifModel->getTotalCount($userId, $fiscal_id, $read_status);
         $totalPages = ceil($totalItems / $perPage);
@@ -2575,6 +2573,8 @@ class BackofficeController
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/notifications.php';
     }
+
+   
 
 public function getNotifications()
 {
@@ -3025,7 +3025,9 @@ public function getNotifications()
             }
         }
 
-    public function system_setting()
+         /////////////////////////////////////// system_setting ///////////////////////////////////////////////
+
+     public function system_setting()
     {
         $this->checkAuth();
         $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
@@ -3035,9 +3037,37 @@ public function getNotifications()
             exit();
         }
 
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $companies = $companyModel->getAllCompanies($userId);
+
+        $active_company_id = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
         $data = [
-            'title' => 'ตั้งค่าระบบ',
+            'title' => 'ระบบ Backoffice - ตั้งค่าระบบ',
             'user' => $this->userPayload,
+            'user_id' => $this->userPayload['user_id'] ?? '',
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
+            'fiscal_id' => $fiscal_id,
+            'companies' => $companies,
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
         ];
 
         require_once '../app/views/backoffice/system_setting.php';

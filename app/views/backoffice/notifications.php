@@ -100,8 +100,8 @@
                                                 name="read_status" 
                                                 style="width: 160px; cursor: pointer;"
                                                 onchange="document.getElementById('notifFilterForm').submit();">
-                                            <option value="">ทั้งหมด</option>
-                                            <option value="0" <?php echo (isset($_GET['read_status']) && $_GET['read_status'] === '0') ? 'selected' : ''; ?>>
+                                            <option value="" <?php echo (isset($_GET['read_status']) && $_GET['read_status'] === '') ? 'selected' : ''; ?>>ทั้งหมด</option>
+                                            <option value="0" <?php echo (!isset($_GET['read_status']) || $_GET['read_status'] === '0') ? 'selected' : ''; ?>>
                                                 ยังไม่ได้รับทราบ
                                             </option>
                                             <option value="1" <?php echo (isset($_GET['read_status']) && $_GET['read_status'] === '1') ? 'selected' : ''; ?>>

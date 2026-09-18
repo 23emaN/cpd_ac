@@ -89,7 +89,7 @@
                                     <?php else: ?>
                                         <tr>
                                             <td colspan="5" class="text-center py-5 text-muted">ไม่มีการแจ้งเตือนในขณะนี้</td>
-                                    1    </tr>
+                                        </tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>

@@ -47,7 +47,8 @@ $routes = [
         'portal/download' => ['PortalController', 'download'],
         'portal/logout' => ['PortalController', 'logout'],
         'notification/vapid-public-key' => ['BackofficeController', 'getVapidPublicKey'],
-        'notifications' => ['BackofficeController', 'notifications']
+        'notifications' => ['BackofficeController', 'notifications'],
+        'system_setting' => ['BackofficeController', 'system_setting']
     ],
     'POST' => [
         'auth/login'  => ['AuthController', 'processLogin'],
