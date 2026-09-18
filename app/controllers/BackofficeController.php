@@ -163,6 +163,69 @@ class BackofficeController
         require_once '../app/views/backoffice/index.php';
     }
 
+    /////////////////////////////////////// dashboard_workspace ///////////////////////////////////////////////
+    public function dashboard_workspace()
+    {
+        $this->checkAuth();
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        if (!$fiscal_id) {
+            header("Location: " . BASE_URL . "/main");
+            exit();
+        }
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $companies = $companyModel->getAllCompanies($userId);
+
+        $active_company_id = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        $isSuperAdmin = $this->userPayload['is_super_admin'] ?? '0';
+
+        require_once '../app/models/WorkspaceDashboardModel.php';
+        $workspaceModel = new WorkspaceDashboardModel();
+        
+        $customerCountData = $workspaceModel->getCustomerCountByCompany($userId, $isSuperAdmin);
+        $accountingFeesData = $workspaceModel->getAccountingFeesByCompany($userId, $isSuperAdmin);
+        $annualClosingData = $workspaceModel->getAnnualClosingByCompany($userId, $isSuperAdmin);
+        $registrationData = $workspaceModel->getRegistrationManagementByCompany($userId, $isSuperAdmin);
+        $totalJobsData = $workspaceModel->getTotalJobsByCompany($userId, $isSuperAdmin);
+
+        $data = [
+            'title' => 'Dashboard Workspace',
+            'user' => $this->userPayload,
+            'user_id' => $userId,
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $isSuperAdmin,
+            'fiscal_id' => $fiscal_id,
+            'companies' => $companies,
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'ws_customer_data' => $customerCountData,
+            'ws_accounting_fees' => $accountingFeesData,
+            'ws_annual_closing' => $annualClosingData,
+            'ws_registration' => $registrationData,
+            'ws_total_jobs' => $totalJobsData
+        ];
+
+        require_once '../app/views/backoffice/dashboard_workspace.php';
+    }
+
     /////////////////////////////////////// tasks ///////////////////////////////////////////////
 
 

@@ -7,6 +7,7 @@ $routes = [
         'login'  => ['AuthController', 'showLogin'],
         'main'   => ['MainController', 'index'],
         'backoffice' => ['BackofficeController', 'index'],
+        'dashboard_workspace' => ['BackofficeController', 'dashboard_workspace'],
         'tasks' => ['BackofficeController', 'tasks'],
         'customer' => ['BackofficeController', 'customer'],
         'employee' => ['BackofficeController', 'employee'],

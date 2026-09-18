@@ -6,6 +6,7 @@
 $current_url = $_GET['url'] ?? 'backoffice';
 $now_page = trim(strtok($current_url, '/'));
 
+$dashboard_workspace_pages = ['dashboard_workspace'];
 $overview_pages = ['backoffice'];
 $monthly_dash_pages = ['monthly_dash'];
 $customer_dash_pages = ['customer_dash'];
@@ -316,6 +317,13 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
         <ul class="menu-inner">
             <!-- หมวดหมู่: งานประจำปี -->
 
+            <li class="menu-item <?php echo in_array($now_page, $dashboard_workspace_pages) ? 'open active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/dashboard_workspace"
+                    class="menu-link <?php echo in_array($now_page, $dashboard_workspace_pages) ? 'active' : '' ?>">
+                    <i class="ri-dashboard-line menu-icon"></i>
+                    <span class="title">Dashboard Workspace</span>
+                </a>
+            </li>
 
             <li class="menu-item <?php echo in_array($now_page, $overview_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/backoffice"
