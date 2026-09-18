@@ -6,6 +6,7 @@
 $current_url = $_GET['url'] ?? 'backoffice';
 $now_page = trim(strtok($current_url, '/'));
 
+$dashboard_workspace_pages = ['dashboard_workspace'];
 $overview_pages = ['backoffice'];
 $monthly_dash_pages = ['monthly_dash'];
 $customer_dash_pages = ['customer_dash'];
@@ -24,7 +25,7 @@ $assinge_pages = ['assign_task'];
 $issues_pages = ['issues', 'outstanding_issues']; // เมนูใหม่: ประเด็นคงค้าง
 $notification_pages = ['notifications', 'notification'];
 
-// Fetch Assign Task & Post-it Count & Issues Count
+
 $assign_task_count = 0;
 $post_it_count = 0;
 $issues_count = 0;
@@ -51,6 +52,9 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
             $post_it_count = $stmt2->fetchColumn();
 
             // Issues
+            $stmt3 = $pdo->prepare("SELECT COUNT(*) FROM tbl_comment_tasks WHERE is_reply = '0'");
+            $stmt3->execute();
+            $issues_count = $stmt3->fetchColumn();
             if (!class_exists('IssuesModel')) {
                 require_once dirname(__DIR__) . '/../models/IssuesModel.php';
             }
@@ -321,6 +325,13 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
         <ul class="menu-inner">
             <!-- หมวดหมู่: งานประจำปี -->
 
+            <li class="menu-item <?php echo in_array($now_page, $dashboard_workspace_pages) ? 'open active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/dashboard_workspace"
+                    class="menu-link <?php echo in_array($now_page, $dashboard_workspace_pages) ? 'active' : '' ?>">
+                    <i class="ri-dashboard-line menu-icon"></i>
+                    <span class="title">Dashboard Workspace</span>
+                </a>
+            </li>
 
             <li class="menu-item <?php echo in_array($now_page, $overview_pages) ? 'open active' : '' ?>">
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/backoffice"
@@ -367,6 +378,7 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
             </li>
 
             <li class="menu-item <?php echo in_array($now_page, $issues_pages) ? 'open active' : '' ?>">
+
                 <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/issues"
                     class="menu-link <?php echo in_array($now_page, $issues_pages) ? 'active' : '' ?>" style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center; overflow: hidden;">

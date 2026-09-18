@@ -163,6 +163,69 @@ class BackofficeController
         require_once '../app/views/backoffice/index.php';
     }
 
+    /////////////////////////////////////// dashboard_workspace ///////////////////////////////////////////////
+    public function dashboard_workspace()
+    {
+        $this->checkAuth();
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        if (!$fiscal_id) {
+            header("Location: " . BASE_URL . "/main");
+            exit();
+        }
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId = $this->userPayload['user_id'] ?? null;
+        $companies = $companyModel->getAllCompanies($userId);
+
+        $active_company_id = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        $isSuperAdmin = $this->userPayload['is_super_admin'] ?? '0';
+
+        require_once '../app/models/WorkspaceDashboardModel.php';
+        $workspaceModel = new WorkspaceDashboardModel();
+        
+        $customerCountData = $workspaceModel->getCustomerCountByCompany($userId, $isSuperAdmin);
+        $accountingFeesData = $workspaceModel->getAccountingFeesByCompany($userId, $isSuperAdmin);
+        $annualClosingData = $workspaceModel->getAnnualClosingByCompany($userId, $isSuperAdmin);
+        $registrationData = $workspaceModel->getRegistrationManagementByCompany($userId, $isSuperAdmin);
+        $totalJobsData = $workspaceModel->getTotalJobsByCompany($userId, $isSuperAdmin);
+
+        $data = [
+            'title' => 'Dashboard Workspace',
+            'user' => $this->userPayload,
+            'user_id' => $userId,
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $isSuperAdmin,
+            'fiscal_id' => $fiscal_id,
+            'companies' => $companies,
+            'active_company_id' => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'ws_customer_data' => $customerCountData,
+            'ws_accounting_fees' => $accountingFeesData,
+            'ws_annual_closing' => $annualClosingData,
+            'ws_registration' => $registrationData,
+            'ws_total_jobs' => $totalJobsData
+        ];
+
+        require_once '../app/views/backoffice/dashboard_workspace.php';
+    }
+
     /////////////////////////////////////// tasks ///////////////////////////////////////////////
 
 
@@ -693,51 +756,6 @@ class BackofficeController
 
 
 
-    public function customerDashFilter()
-    {
-        $this->checkAuth();
-        header('Content-Type: application/json');
-
-        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
-        if (!$fiscal_id) {
-            echo json_encode(['result' => false, 'msg' => 'Unauthorized']);
-            exit();
-        }
-
-        $filterMonth = isset($_GET['month']) && ctype_digit($_GET['month']) ? (int)$_GET['month'] : null;
-        if ($filterMonth < 1 || $filterMonth > 12) {
-            $filterMonth = null;
-        }
-
-        require_once '../app/models/CustomerDashModel.php';
-        $customerDashModel = new CustomerDashModel();
-        
-        $dbMonth = $filterMonth !== null ? str_pad($filterMonth, 2, '0', STR_PAD_LEFT) : null;
-        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id, $dbMonth);
-        
-        $totalTasks = array_sum(array_map(static fn($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
-        $completedTasks = array_sum(array_map(static fn($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
-        $totalAccountsAmount = array_sum(array_map(static fn($customer) => (float) ($customer['accounts_amount'] ?? 0), $customerWork));
-        
-        $data = ['customers' => $customerWork];
-        ob_start();
-        require '../app/views/backoffice/table/customer_dash_table.php';
-        $tableHtml = ob_get_clean();
-
-        echo json_encode([
-            'result' => true,
-            'html' => $tableHtml,
-            'stats' => [
-                'total_customers' => number_format(count($customerWork)),
-                'total_tasks' => number_format($totalTasks),
-                'completed_tasks' => number_format($completedTasks),
-                'unfinished_tasks' => number_format(max(0, $totalTasks - $completedTasks)),
-                'total_accounts_amount' => number_format($totalAccountsAmount, 2),
-            ]
-        ]);
-        exit();
-    }
-
     public function customer_dash()
     {
         $this->checkAuth();
@@ -770,12 +788,7 @@ class BackofficeController
         require_once '../app/models/CustomerDashModel.php';
         $customerModel = new CustomModal();
         $customerDashModel = new CustomerDashModel();
-        $filterMonth = isset($_GET['month']) && ctype_digit($_GET['month']) ? (int)$_GET['month'] : null;
-        if ($filterMonth < 1 || $filterMonth > 12) {
-            $filterMonth = null;
-        }
-        
-        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id, $filterMonth);
+        $customerWork = $customerDashModel->getCustomerWorkDashboard($fiscal_id);
 
         $totalTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['total_tasks'] ?? 0), $customerWork));
         $completedTasks = array_sum(array_map(static fn ($customer) => (int) ($customer['completed_tasks'] ?? 0), $customerWork));
@@ -1269,9 +1282,10 @@ class BackofficeController
                     // We must ensure the class is called correctly if namespace is used
 
                     $notifModel = new \App\Models\NotificationModel();
-                    $notifMessage = "มีงาน Post-it ใหม่มอบหมายถึงคุณ: " . $title;
-                    $urlLink = "/post_it?post_id=" . $postId; 
-                    $notifModel->addNotification($userId, 'post_it', $postId, $notifMessage, $urlLink, $fiscal_id);
+                    $creatorName = trim(($this->userPayload['user_firstname'] ?? '') . ' ' . ($this->userPayload['user_lastname'] ?? ''));
+                    $notifMessage = "มีงาน Post-it ใหม่มอบหมายถึงคุณ: " . $creatorName . " เรื่อง " . $title;
+                    $notifModel->addNotification($userId, 'post_it', $postId, $notifMessage);
+
 
                     // Trigger Web Push
                     $this->sendWebPush($userId, "มอบหมายงาน Post-it ใหม่", $title, ($_ENV['APP_URL'] ?? '') . "/post_it");
@@ -2500,6 +2514,57 @@ class BackofficeController
 
 
 
+public function notifications()
+{
+    $this->checkAuth();
+    $userId = $this->userPayload['user_id'] ?? null;
+    if (!$userId) {
+        header("Location: " . BASE_URL . "/login");
+        exit();
+    }
+
+    require_once '../app/models/NotificationModel.php';
+    $notifModel = new \App\Models\NotificationModel();
+
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    if ($page < 1) $page = 1;
+    $perPage = 20;
+
+    $notifications = $notifModel->getAllNotifications($userId, $page, $perPage);
+    $totalCount = $notifModel->getTotalCount($userId);
+    $totalPages = ceil($totalCount / $perPage);
+
+    $data = [
+        'firstname' => $this->userPayload['user_firstname'] ?? '',
+        'lastname' => $this->userPayload['user_lastname'] ?? '',
+        'user_id' => $userId,
+        'notifications' => $notifications,
+        'pagination' => [
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+            'total_items' => $totalCount
+        ]
+    ];
+
+    $this->render('backoffice/notifications', $data);
+}
+
+public function getNotifications()
+{
+    header('Content-Type: application/json; charset=utf-8');
+    
+    // Use manual auth check to guarantee JSON response instead of relying on checkAuth() 
+    // which might redirect to login if headers are stripped.
+    require_once '../app/models/AuthModel.php';
+    $user = \App\models\AuthModel::checkWebAuth();
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(['result' => 0, 'msg' => 'Session expired']);
+        exit();
+    }
+    $this->userPayload = $user;
+
+
  public function notifications()
     {
         // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
@@ -2591,6 +2656,7 @@ public function getNotifications()
     }
     $this->userPayload = $user;
 
+
     $userId = $this->userPayload['user_id'] ?? null;
     if (!$userId) {
         echo json_encode(['result' => 0, 'msg' => 'Unauthorized']);
@@ -2599,6 +2665,7 @@ public function getNotifications()
 
     require_once '../app/models/NotificationModel.php';
     $notifModel = new \App\Models\NotificationModel();
+
 
 
     $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
@@ -2947,7 +3014,7 @@ public function getNotifications()
                 $due_date      = $_POST['due_date'] ?? '';
                 $customer_id   = $_POST['customer_id'] ?? null;
                 $assign_id     = $_POST['assign_id'] ?? null; // ถ้ามีคือแก้ไข
-                $assign_status = $_POST['assign_status'] ?? '0'; // สถานะงาน
+
 
                 if (empty($customer_id)) {
                     $customer_id = null;
@@ -3037,6 +3104,9 @@ public function getNotifications()
             exit();
         }
 
+        $data = [
+            'title' => 'ตั้งค่าระบบ',
+            'user' => $this->userPayload,
         require_once '../app/models/CompanyModel.php';
         $companyModel = new CompanyModel();
         $userId = $this->userPayload['user_id'] ?? null;
@@ -3072,6 +3142,7 @@ public function getNotifications()
 
         require_once '../app/views/backoffice/system_setting.php';
     }
+
 
     
     /////////////////////////////////////// issues ///////////////////////////////////////////////
@@ -3131,4 +3202,3 @@ public function getNotifications()
     }
 
 }
-
