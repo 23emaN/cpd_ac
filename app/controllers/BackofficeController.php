@@ -1082,13 +1082,17 @@ class BackofficeController
         // 4 = กำลังไปยื่น, 5 = งานเสร็จเรียบร้อยแล้ว, 6 = เก็บเงินเรียบร้อยแล้ว
         require_once '../app/models/RegistrationModel.php';
         $registrationModel = new RegistrationModel();
-        $registrationTasks = $registrationModel->getTasksByFiscalId($fiscal_id);
+        
+        $userId = (int)($this->userPayload['user_id'] ?? 0);
+        $isSuperAdmin = (int)($this->userPayload['is_super_admin'] ?? 0);
+        
+        $registrationTasks = $registrationModel->getTasksByFiscalId($fiscal_id, $userId, $isSuperAdmin);
 
-        $data['stat_open'] = $registrationModel->countOpen($fiscal_id);
-        $data['stat_not_overdue'] = $registrationModel->countNotOverdue($fiscal_id);
-        $data['stat_overdue'] = $registrationModel->countOverdue($fiscal_id);
-        $data['stat_closed_this_month'] = $registrationModel->countClosedThisMonth($fiscal_id);
-        $data['stat_closed_last_month'] = $registrationModel->countClosedLastMonth($fiscal_id);
+        $data['stat_open'] = $registrationModel->countOpen($fiscal_id, $userId, $isSuperAdmin);
+        $data['stat_not_overdue'] = $registrationModel->countNotOverdue($fiscal_id, $userId, $isSuperAdmin);
+        $data['stat_overdue'] = $registrationModel->countOverdue($fiscal_id, $userId, $isSuperAdmin);
+        $data['stat_closed_this_month'] = $registrationModel->countClosedThisMonth($fiscal_id, $userId, $isSuperAdmin);
+        $data['stat_closed_last_month'] = $registrationModel->countClosedLastMonth($fiscal_id, $userId, $isSuperAdmin);
         // countClosedThisMonth/countClosedLastMonth คืน ['total' => ..., 'total_amount' => ...]
 
         $data['tasks_by_status'] = array_fill_keys(['0', '1', '2', '3', '4', '5', '6'], []);
@@ -1624,18 +1628,24 @@ class BackofficeController
         $customerId = isset($_GET['customer_id']) && ctype_digit((string) $_GET['customer_id'])
             ? (int) $_GET['customer_id']
             : null;
+        $userId = $this->userPayload['user_id'] ?? null;
+        $isSuperAdmin = (int)($this->userPayload['is_super_admin'] ?? 0);
+        $caretakerId = !$isSuperAdmin ? $userId : null;
+
         require_once '../app/models/monthly_task_Modal.php';
         $monthlyTaskModel = new MonthlyTaskModal();
         $monthly_tasks = $monthlyTaskModel->getMonthlyTasks(
             $fiscal_id,
             $customerId ? null : $month,
             $userId,
-            $customerId
+            $customerId,
+            $caretakerId
         );
         $monthly_task_stats = $monthlyTaskModel->getMonthlyTaskStats(
             $fiscal_id,
             $customerId ? null : $month,
-            $customerId
+            $customerId,
+            $caretakerId
         );
         $monthly_task_customers = $monthlyTaskModel->getMonthlyTaskCustomers($fiscal_id);
         $monthly_task_caretakers = $monthlyTaskModel->getCaretakersByFiscalId($fiscal_id);
@@ -1695,6 +1705,11 @@ class BackofficeController
         require_once '../app/models/monthly_task_Modal.php';
         $model = new MonthlyTaskModal();
         $userId = $this->userPayload['user_id'] ?? null;
+        $isSuperAdmin = (int)($this->userPayload['is_super_admin'] ?? 0);
+        
+        if (!$isSuperAdmin && $userId) {
+            $caretakerId = $userId;
+        }
         $monthlyTasks = $model->getMonthlyTasks(
             $fiscalId,
             $customerId ? null : $month,
@@ -2227,6 +2242,9 @@ class BackofficeController
 
         require_once '../app/models/RegistrationModel.php';
         $model = new RegistrationModel();
+        
+        $userId = (int)($this->userPayload['user_id'] ?? 0);
+        $isSuperAdmin = (int)($this->userPayload['is_super_admin'] ?? 0);
         $ok = $model->insert($fiscal_id, $data);
 
         echo json_encode($ok
@@ -2361,8 +2379,10 @@ class BackofficeController
 
         require_once '../app/models/RegistrationModel.php';
         $model = new RegistrationModel();
-        $summary = $model->countClosedTasks($fiscal_id, $keyword);
-        $rows = $model->getClosedTasks($fiscal_id, $keyword, $perPage, $offset);
+        $userId = $this->userPayload['user_id'] ?? null;
+        $isSuperAdmin = $this->userPayload['is_super_admin'] ?? 0;
+        $summary = $model->countClosedTasks($fiscal_id, $keyword, $userId, $isSuperAdmin);
+        $rows = $model->getClosedTasks($fiscal_id, $keyword, $perPage, $offset, $userId, $isSuperAdmin);
 
         echo json_encode([
             'result' => 1,
@@ -3066,6 +3086,9 @@ public function getNotifications()
             'title' => 'ระบบ Backoffice',
             'user' => $this->userPayload,
             'user_id' => $this->userPayload['user_id'] ?? '',
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $this->userPayload['is_super_admin'] ?? '0',
             'companies' => $companies,
             'fiscal_id' => $fiscal_id,
             'active_company_id' => $active_company_id,

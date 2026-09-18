@@ -220,15 +220,22 @@ class MonthlyTaskModal extends Model
             ) as completed_tasks,
 
             (
-                SELECT COUNT(*)
+                SELECT COUNT(DISTINCT cmt.customer_tasks_id)
                 FROM tbl_comment_tasks cmt
                 INNER JOIN tbl_customer_tasks ct2
                     ON cmt.customer_tasks_id = ct2.customer_tasks_id
                 WHERE ct2.period_id = p.period_id
                   AND ct2.delete_at IS NULL
-                  AND cmt.is_read = 0
-                  AND cmt.comment_user_id != :user_id
-            ) as unread_comments
+                  AND (ct2.status IS NULL OR ct2.status != '1')
+                  AND cmt.is_reply = 0
+                  AND (
+                      SELECT c2.comment_user_id 
+                      FROM tbl_comment_tasks c2
+                      WHERE c2.customer_tasks_id = cmt.customer_tasks_id
+                      ORDER BY c2.create_at DESC
+                      LIMIT 1
+                  ) != :user_id
+            ) as unresolved_issues_count
 
         FROM tbl_customer_work_periods p
 
@@ -333,11 +340,18 @@ class MonthlyTaskModal extends Model
             t.is_notify_amount,
 
             (
-                SELECT COUNT(*)
+                SELECT COUNT(DISTINCT c.customer_tasks_id)
                 FROM tbl_comment_tasks c
                 WHERE c.customer_tasks_id = ct.customer_tasks_id
-                  AND c.is_read = 0
-                  AND c.comment_user_id != :user_id
+                  AND (ct.status IS NULL OR ct.status != '1')
+                  AND c.is_reply = 0
+                  AND (
+                      SELECT c2.comment_user_id 
+                      FROM tbl_comment_tasks c2
+                      WHERE c2.customer_tasks_id = c.customer_tasks_id
+                      ORDER BY c2.create_at DESC
+                      LIMIT 1
+                  ) != :user_id
             ) as unread_comments
 
         FROM tbl_customer_tasks ct

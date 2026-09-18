@@ -347,7 +347,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </div>
 
                     <!-- Filter Toolbar -->
-                    <div class="filter-container">
+                    <!-- <div class="filter-container">
                         <div class="search-box-wrap">
                             <i class="ri-search-line"></i>
                             <input type="text" class="search-input" placeholder="ค้นหาประเด็นคงค้าง...">
@@ -366,7 +366,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <option value="medium">ปานกลาง</option>
                             <option value="low">ทั่วไป</option>
                         </select>
-                    </div>
+                    </div> -->
 
                     <!-- Forum List -->
                     <div class="forum-list">
@@ -388,13 +388,16 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 $opacityStyle = $isCompleted ? 'style="opacity: 0.7;"' : '';
                                 $titleStyle = $isCompleted ? 'text-decoration-line-through text-muted' : '';
                                 
-                                // รูปแบบวันที่
-                                $createAt = !empty($issue['create_at']) ? date('d/m/Y', strtotime($issue['create_at'])) : '-';
+                                // รูปแบบวันที่ (ใช้วันที่ของข้อความล่าสุด)
+                                $createAt = !empty($issue['latest_create_at']) ? date('d/m/Y H:i', strtotime($issue['latest_create_at'])) : (!empty($issue['create_at']) ? date('d/m/Y H:i', strtotime($issue['create_at'])) : '-');
                                 
-                                // Avatar Name (First 2 chars)
-                                $userName = $issue['user_name'] ?: 'ไม่ระบุ';
+                                // Avatar Name (ใช้ชื่อคนตอบล่าสุด)
+                                $userName = $issue['latest_user_name'] ?: ($issue['user_name'] ?: 'ไม่ระบุ');
                                 $avatarStr = mb_substr($userName, 0, 2, 'UTF-8');
                                 $avatarColor = $isCompleted ? 'bg-info' : 'bg-primary'; // สุ่มสีได้ถ้าต้องการ
+                                
+                                // ข้อความ (ใช้ข้อความล่าสุด)
+                                $commentText = $issue['latest_comment_text'] ?: $issue['comment_text'];
                             ?>
                             <div class="forum-item" <?php echo $opacityStyle; ?>>
                                 <div class="forum-icon <?php echo $iconClass; ?>">
@@ -405,39 +408,35 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                         <!-- <span class="forum-badge bg-primary-soft">ปานกลาง</span> -->
                                         <span class="forum-badge <?php echo $badgeClass; ?>"><?php echo $badgeText; ?></span>
                                     </div>
-                                    <h5 class="forum-title <?php echo $titleStyle; ?>"><?php echo htmlspecialchars($issue['tasks_name'] ?? 'ไม่มีชื่อประเด็น'); ?></h5>
+                                    <h5 class="forum-title <?php echo $titleStyle; ?>">
+                                        <?php echo htmlspecialchars($issue['tasks_name'] ?? 'ไม่มีชื่องาน'); ?> 
+                                        <span class="text-muted" style="font-weight: 400; font-size: 0.95rem;">(<?php echo htmlspecialchars($issue['customer_name'] ?? 'ไม่มีชื่อลูกค้า'); ?>)</span>
+                                    </h5>
                                     <p class="forum-desc">
-                                        <?php echo nl2br(htmlspecialchars($issue['comment_text'] ?? '-')); ?>
+                                        : <?php echo nl2br(htmlspecialchars($commentText ?? '-')); ?>
                                     </p>
                                     <div class="forum-meta">
                                         <div class="forum-author">
                                             <div class="author-avatar <?php echo $avatarColor; ?> text-white"><?php echo htmlspecialchars($avatarStr); ?></div>
                                             <span><?php echo htmlspecialchars($userName); ?></span>
                                         </div>
-                                        <div class="d-flex align-items-center gap-1">
-                                            <i class="ri-time-line"></i> <?php echo $createAt; ?>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-1">
-                                            <i class="ri-building-4-line"></i> <?php echo htmlspecialchars($issue['customer_name'] ?? '-'); ?>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="forum-actions">
                                     <div class="forum-meta text-end d-flex flex-column align-items-end justify-content-center">
-                                        <span class="forum-date mb-2"><?php echo $createAt; ?></span>
+                                        <span class="forum-date mb-2" style="font-size: 0.8rem;"><?php echo date('d/m/Y', strtotime($issue['latest_create_at'] ?? $issue['create_at'])); ?></span>
                                         <div class="d-flex gap-2">
                                             <button class="btn btn-sm btn-issue-comment" data-customer-tasks-id="<?php echo $issue['customer_tasks_id']; ?>" style="background-color: #EBF4FF; color: #007aff; border-radius: 8px; border: none; padding: 4px 12px; font-weight: 500; font-size: 0.8rem;">
                                                 <i class="ri-chat-3-line me-1"></i>ตอบกลับ
                                             </button>
-                                            <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/backoffice/monthly_task" class="btn btn-sm btn-go-task" style="background-color: #f1f5f9; color: #475569; border-radius: 8px; padding: 4px 12px; font-weight: 500; font-size: 0.8rem; text-decoration: none;">
+                                            <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/monthly_task?open_period_id=<?php echo $issue['period_id']; ?>" class="btn btn-sm btn-go-task" style="background-color: #f1f5f9; color: #475569; border-radius: 8px; padding: 4px 12px; font-weight: 500; font-size: 0.8rem; text-decoration: none;">
                                                 <i class="ri-external-link-line me-1"></i>ไปที่งาน
                                             </a>
                                         </div>
                                     </div>
-                                    <div class="d-flex gap-2">
-                                        <!-- <button class="btn-icon" title="แก้ไข"><i class="ri-edit-2-line"></i></button> -->
+                                    <!-- <div class="d-flex gap-2">
                                         <button class="btn-icon" title="ดูรายละเอียด"><i class="ri-arrow-right-line"></i></button>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                             <?php endforeach; ?>
@@ -524,6 +523,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const panelHtml = `
             <div class="comment-thread-panel mt-2 mb-3" style="opacity: 0; transform: translateY(-10px); transition: all 0.2s ease;">
+                <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
+                    <h6 class="mb-0" style="font-size: 0.9rem; color: #475569;"><i class="ri-chat-3-line me-1"></i> ข้อความตอบกลับ</h6>
+                    <button type="button" class="btn btn-sm btn-close-thread" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; line-height: 1; padding: 0;" title="ปิดช่องแชท"><i class="ri-close-line"></i></button>
+                </div>
                 <div class="comment-list-container">
                     <div class="text-center text-muted py-3" style="font-size:0.8rem;"><i class="ri-loader-4-line"></i> กำลังโหลด...</div>
                 </div>
@@ -544,6 +547,13 @@ document.addEventListener('DOMContentLoaded', function() {
             panel.style.opacity = '1';
             panel.style.transform = 'translateY(0)';
         }, 10);
+
+        // Bind close button
+        panel.querySelector('.btn-close-thread').addEventListener('click', function() {
+            panel.style.opacity = '0';
+            panel.style.transform = 'translateY(-10px)';
+            setTimeout(() => panel.remove(), 200);
+        });
 
         const listEl = panel.querySelector('.comment-list-container');
         const inputEl = panel.querySelector('.comment-thread-input');

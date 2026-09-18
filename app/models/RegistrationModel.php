@@ -4,10 +4,9 @@ require_once '../app/models/Model.php';
 class RegistrationModel extends Model
 {
     // ดึงงานทะเบียนทั้งหมดของปีนี้ พร้อม join ชื่อประเภทงาน/สี-ป้ายความเร่งด่วน/ชื่อผู้รับผิดชอบ
-    public function getTasksByFiscalId($fiscalId)
+    public function getTasksByFiscalId($fiscalId, $userId = null, $isSuperAdmin = 0)
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT r.*,
+        $sql = "SELECT r.*,
                     rt.registration_type_name,
                     ul.label AS urgency_label, ul.color AS urgency_color,
                     u.user_firstname AS assignee_firstname, u.user_lastname AS assignee_lastname
@@ -15,10 +14,20 @@ class RegistrationModel extends Model
              LEFT JOIN tbl_registration_type rt ON rt.registration_type_id = r.registration_type_id
              LEFT JOIN tbl_urgency_level ul ON ul.fiscal_id = r.fiscal_id AND ul.urgency_level COLLATE utf8mb4_general_ci = r.urgency_level
              LEFT JOIN tbl_user u ON u.user_id = r.assignee_user_id
-             WHERE r.fiscal_id = :fiscal_id AND r.delete_at IS NULL AND r.closed_at IS NULL
-             ORDER BY r.due_date ASC, r.registration ASC"
-        );
-        $stmt->execute(['fiscal_id' => $fiscalId]);
+             WHERE r.fiscal_id = :fiscal_id AND r.delete_at IS NULL AND r.closed_at IS NULL";
+
+        $params = ['fiscal_id' => $fiscalId];
+        
+        if (!$isSuperAdmin && $userId) {
+            $sql .= " AND (r.assignee_user_id = :user_id1 OR r.review_user_id = :user_id2)";
+            $params['user_id1'] = $userId;
+            $params['user_id2'] = $userId;
+        }
+             
+        $sql .= " ORDER BY r.due_date ASC, r.registration ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -155,7 +164,7 @@ class RegistrationModel extends Model
     }
 
     // นับจำนวนงานที่ปิดแล้วของปีนี้ (ใช้ทำ pagination + ยอดรวมในหน้าประวัติ)
-    public function countClosedTasks($fiscalId, $keyword = '')
+    public function countClosedTasks($fiscalId, $keyword = '', $userId = null, $isSuperAdmin = 0)
     {
         $sql = "SELECT COUNT(*) AS total_count, COALESCE(SUM(r.service_amount), 0) AS total_amount
                 FROM tbl_registration r
@@ -163,6 +172,13 @@ class RegistrationModel extends Model
                 LEFT JOIN tbl_user u ON u.user_id = r.assignee_user_id
                 WHERE r.fiscal_id = :fiscal_id AND r.delete_at IS NULL AND r.closed_at IS NOT NULL";
         $params = ['fiscal_id' => $fiscalId];
+        
+        if (!$isSuperAdmin && $userId) {
+            $sql .= " AND (r.assignee_user_id = :user_id1 OR r.review_user_id = :user_id2)";
+            $params['user_id1'] = $userId;
+            $params['user_id2'] = $userId;
+        }
+
         if ($keyword !== '') {
             $sql .= " AND (r.customer_name LIKE :kw1 OR r.registration_name LIKE :kw2
                            OR r.registration_no LIKE :kw3 OR r.customer_phone LIKE :kw4 OR r.contact_person LIKE :kw5
@@ -183,7 +199,7 @@ class RegistrationModel extends Model
     }
 
     // ดึงประวัติงานที่ปิดแล้วของปีนี้ (เรียงจากที่ปิดล่าสุด) แบบแบ่งหน้า
-    public function getClosedTasks($fiscalId, $keyword = '', $limit = 25, $offset = 0)
+    public function getClosedTasks($fiscalId, $keyword = '', $limit = 25, $offset = 0, $userId = null, $isSuperAdmin = 0)
     {
         $sql = "SELECT r.registration,
                        DATE_FORMAT(r.closed_at, '%d/%m/%Y %H:%i') AS closed_at,
@@ -197,6 +213,13 @@ class RegistrationModel extends Model
                 LEFT JOIN tbl_user u ON u.user_id = r.assignee_user_id
                 WHERE r.fiscal_id = :fiscal_id AND r.delete_at IS NULL AND r.closed_at IS NOT NULL";
         $params = ['fiscal_id' => $fiscalId];
+
+        if (!$isSuperAdmin && $userId) {
+            $sql .= " AND (r.assignee_user_id = :user_id1 OR r.review_user_id = :user_id2)";
+            $params['user_id1'] = $userId;
+            $params['user_id2'] = $userId;
+        }
+
         if ($keyword !== '') {
             $sql .= " AND (r.customer_name LIKE :kw1 OR r.registration_name LIKE :kw2
                            OR r.registration_no LIKE :kw3 OR r.customer_phone LIKE :kw4 OR r.contact_person LIKE :kw5
@@ -226,51 +249,79 @@ class RegistrationModel extends Model
 
 
     //การ์ด 1 งานทะเบียนที่เปิดอยู่
-    public function countOpen($fiscalId)
+    public function countOpen($fiscalId, $userId = null, $isSuperAdmin = 0)
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT COUNT(*) AS total_open
+        $sql = "SELECT COUNT(*) AS total_open
          FROM tbl_registration
-         WHERE fiscal_id = :fiscal_id AND delete_at IS NULL AND closed_at IS NULL"
-        );
-        $stmt->execute(['fiscal_id' => $fiscalId]);
+         WHERE fiscal_id = :fiscal_id AND delete_at IS NULL AND closed_at IS NULL";
+         
+        $params = ['fiscal_id' => $fiscalId];
+        if (!$isSuperAdmin && $userId) {
+            $sql .= " AND (assignee_user_id = :user_id1 OR review_user_id = :user_id2)";
+            $params['user_id1'] = $userId;
+            $params['user_id2'] = $userId;
+        }
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['total_open'] ?? 0);
     }
 
     //การ์ด 2 ยังไม่เลยกำหนด
-    public function countNotOverdue($fiscalId)
+    public function countNotOverdue($fiscalId, $userId = null, $isSuperAdmin = 0)
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT COUNT(*) AS total FROM tbl_registration
+        $sql = "SELECT COUNT(*) AS total FROM tbl_registration
          WHERE fiscal_id = :fiscal_id AND delete_at IS NULL AND closed_at IS NULL
-           AND (due_date IS NULL OR due_date >= CURDATE())"
-        );
-        $stmt->execute(['fiscal_id' => $fiscalId]);
+           AND (due_date IS NULL OR due_date >= CURDATE())";
+           
+        $params = ['fiscal_id' => $fiscalId];
+        if (!$isSuperAdmin && $userId) {
+            $sql .= " AND (assignee_user_id = :user_id1 OR review_user_id = :user_id2)";
+            $params['user_id1'] = $userId;
+            $params['user_id2'] = $userId;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
     }
 
     //การ์ด 3 เลยกำหนดส่งงาน
-    public function countOverdue($fiscalId)
+    public function countOverdue($fiscalId, $userId = null, $isSuperAdmin = 0)
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT COUNT(*) AS total_overdue
+        $sql = "SELECT COUNT(*) AS total_overdue
          FROM tbl_registration
          WHERE fiscal_id = :fiscal_id AND delete_at IS NULL AND closed_at IS NULL
-           AND due_date IS NOT NULL AND due_date < CURDATE()"
-        );
-        $stmt->execute(['fiscal_id' => $fiscalId]);
+           AND due_date IS NOT NULL AND due_date < CURDATE()";
+           
+        $params = ['fiscal_id' => $fiscalId];
+        if (!$isSuperAdmin && $userId) {
+            $sql .= " AND (assignee_user_id = :user_id1 OR review_user_id = :user_id2)";
+            $params['user_id1'] = $userId;
+            $params['user_id2'] = $userId;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['total_overdue'] ?? 0);
     }
 
     //การ์ด 4 ปิดงานเดือนนี้ (จำนวน + ยอดค่าบริการรวม)
-    public function countClosedThisMonth($fiscalId)
+    public function countClosedThisMonth($fiscalId, $userId = null, $isSuperAdmin = 0)
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT COUNT(*) AS total_closed_this_month, COALESCE(SUM(service_amount), 0) AS total_amount
+        $sql = "SELECT COUNT(*) AS total_closed_this_month, COALESCE(SUM(service_amount), 0) AS total_amount
          FROM tbl_registration
-         WHERE fiscal_id = :fiscal_id AND delete_at IS NULL AND closed_at IS NOT NULL AND YEAR(closed_at) = YEAR(CURDATE()) AND MONTH(closed_at) = MONTH(CURDATE())"
-        );
-        $stmt->execute(['fiscal_id' => $fiscalId]);
+         WHERE fiscal_id = :fiscal_id AND delete_at IS NULL AND closed_at IS NOT NULL AND YEAR(closed_at) = YEAR(CURDATE()) AND MONTH(closed_at) = MONTH(CURDATE())";
+         
+        $params = ['fiscal_id' => $fiscalId];
+        if (!$isSuperAdmin && $userId) {
+            $sql .= " AND (assignee_user_id = :user_id1 OR review_user_id = :user_id2)";
+            $params['user_id1'] = $userId;
+            $params['user_id2'] = $userId;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return [
             'total' => (int) ($row['total_closed_this_month'] ?? 0),
@@ -279,14 +330,21 @@ class RegistrationModel extends Model
     }
 
     //การ์ด 5 ปิดงานเดือนก่อน (จำนวน + ยอดค่าบริการรวม)
-    public function countClosedLastMonth($fiscalId)
+    public function countClosedLastMonth($fiscalId, $userId = null, $isSuperAdmin = 0)
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT COUNT(*) AS total_closed_last_month, COALESCE(SUM(service_amount), 0) AS total_amount
+        $sql = "SELECT COUNT(*) AS total_closed_last_month, COALESCE(SUM(service_amount), 0) AS total_amount
          FROM tbl_registration
-         WHERE fiscal_id = :fiscal_id AND delete_at IS NULL AND closed_at IS NOT NULL AND YEAR(closed_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(closed_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))"
-        );
-        $stmt->execute(['fiscal_id' => $fiscalId]);
+         WHERE fiscal_id = :fiscal_id AND delete_at IS NULL AND closed_at IS NOT NULL AND YEAR(closed_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(closed_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
+         
+        $params = ['fiscal_id' => $fiscalId];
+        if (!$isSuperAdmin && $userId) {
+            $sql .= " AND (assignee_user_id = :user_id1 OR review_user_id = :user_id2)";
+            $params['user_id1'] = $userId;
+            $params['user_id2'] = $userId;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return [
             'total' => (int) ($row['total_closed_last_month'] ?? 0),

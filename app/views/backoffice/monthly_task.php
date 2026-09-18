@@ -1015,6 +1015,15 @@
                 });
             }
 
+            const urlParams = new URLSearchParams(window.location.search);
+            const openPeriodId = urlParams.get('open_period_id');
+            if (openPeriodId) {
+                setTimeout(() => {
+                    showTaskDetail(openPeriodId, 'เปิดจากหน้าประเด็นคงค้าง');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }, 300); // small delay to let UI render first
+            }
+
             $('#monthSelect').select2();
 
             $('#customerSelect').select2({
@@ -1068,8 +1077,9 @@
                     doc_status: $('#selDocument').val() || '',
                     task_status: $('#selTask').val() || '',
                     tax_status: $('#selTax').val() || '',
-                    payment_status: $('#selPayment').val() || ''
-                    ,keyword: $('#monthlyTaskSearch').val().trim()
+                    payment_status: $('#selPayment').val() || '',
+                    keyword: $('#monthlyTaskSearch').val().trim(),
+                    _t: Date.now()
                 });
 
                 $('#monthlyTaskTable').html(`
