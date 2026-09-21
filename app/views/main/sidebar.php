@@ -488,6 +488,10 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
                 </a>
             </li>
 
+            <?php 
+            $is_super_admin = $data['is_super_admin'] ?? $_SESSION['is_super_admin'] ?? 0;
+            if ($is_super_admin == 1): 
+            ?>
             <!-- หมวดหมู่: ตั้งค่าระบบ -->
            <li class="menu-title small">
                 <span class="menu-title-text">ตั้งค่าระบบ</span>
@@ -500,6 +504,7 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
                     <span class="title">ตั้งค่าระบบ</span>
                 </a>
             </li> 
+            <?php endif; ?>
 
             <li class="menu-item <?php echo in_array($now_page, $manual_pages) ? 'open active' : '' ?>">
                 <a href="javascript:void(0);"
