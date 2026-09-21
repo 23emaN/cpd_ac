@@ -15,37 +15,46 @@
                 <th class="text-center" style="width: 8%;">ผู้ดูแล</th>
                 <th class="text-center" style="width: 9%;">เอกสาร</th>
                 <th class="text-center" style="width: 10%;">งานประจำเดือน</th>
-                <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 1</th>
-                <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 2</th>
-                <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 3</th>
+                <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 1
+                    <br>
+                    <small>WHT</small>
+                </th>
+                <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 2
+                    <br>
+                    <small>VAT</small>
+                </th>
+                <th class="text-center" style="width: 8%; background-color: #f8fafc;">ผู้รีวิว 3
+                    <br>
+                    <small>หัวหน้างาน</small>
+                </th>
 
                 <th class="text-center" style="width: 8%;">ยื่นภาษี</th>
                 <th class="text-center" style="width: 9%;">เก็บเงิน</th>
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($data['monthly_tasks'])): ?>
+            <?php if (! empty($data['monthly_tasks'])): ?>
                 <?php foreach ($data['monthly_tasks'] as $index => $task): ?>
                     <tr>
                         <?php
-                        $m = (int) ($task['period_month'] ?? 0);
-                        $monthNames = [
-                            1 => 'มกราคม',
-                            2 => 'กุมภาพันธ์',
-                            3 => 'มีนาคม',
-                            4 => 'เมษายน',
-                            5 => 'พฤษภาคม',
-                            6 => 'มิถุนายน',
-                            7 => 'กรกฎาคม',
-                            8 => 'สิงหาคม',
-                            9 => 'กันยายน',
-                            10 => 'ตุลาคม',
-                            11 => 'พฤศจิกายน',
-                            12 => 'ธันวาคม'
-                        ];
-                        $mName = $monthNames[$m] ?? '';
-                        $yName = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : '';
-                        $subtitle = $task['customer_name'] . ' · ' . $mName . ' ปี ' . $yName;
+                            $m          = (int) ($task['period_month'] ?? 0);
+                            $monthNames = [
+                                1  => 'มกราคม',
+                                2  => 'กุมภาพันธ์',
+                                3  => 'มีนาคม',
+                                4  => 'เมษายน',
+                                5  => 'พฤษภาคม',
+                                6  => 'มิถุนายน',
+                                7  => 'กรกฎาคม',
+                                8  => 'สิงหาคม',
+                                9  => 'กันยายน',
+                                10 => 'ตุลาคม',
+                                11 => 'พฤศจิกายน',
+                                12 => 'ธันวาคม',
+                            ];
+                            $mName    = $monthNames[$m] ?? '';
+                            $yName    = ! empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : '';
+                            $subtitle = $task['customer_name'] . ' · ' . $mName . ' ปี ' . $yName;
                         ?>
                         <td class="text-center fw-semibold text-secondary"
                             style="width: 60px; min-width: 60px; max-width: 60px; position: sticky; left: 0; z-index: 2; background-color: #ffffff; border-right: 1px solid #e2e8f0; white-space: nowrap; vertical-align: middle;">
@@ -73,7 +82,7 @@
                             <span class="caretaker-text"><?php echo htmlspecialchars($task['cpa_name'] ?? '-'); ?></span>
                         </td>
                         <td class="text-center">
-                            <?php if (!empty($task['unresolved_issues_count']) && $task['unresolved_issues_count'] > 0): ?>
+                            <?php if (! empty($task['unresolved_issues_count']) && $task['unresolved_issues_count'] > 0): ?>
                                 <span class="badge bg-danger" style="cursor: pointer; padding: 4px 8px; font-size: 0.75rem; border-radius: 6px;"
                                     title="มี <?php echo $task['unresolved_issues_count']; ?> ประเด็นที่ยังไม่ได้ตอบ" onclick="showTaskDetail(<?php echo (int) $task['period_id']; ?>,
                                             '<?php echo htmlspecialchars($subtitle ?? '', ENT_QUOTES); ?>')">
@@ -104,9 +113,9 @@
                         <!-- สถานะงานย่อย -->
                         <td class="text-center">
                             <?php
-                            $total = $task['total_tasks'];
-                            $completed = $task['completed_tasks'];
-                            $isAllDone = ($total > 0 && $total == $completed);
+                                $total     = $task['total_tasks'];
+                                $completed = $task['completed_tasks'];
+                                $isAllDone = ($total > 0 && $total == $completed);
                             ?>
                             <?php if ($isAllDone): ?>
                                 <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">เสร็จสิ้น</span>
@@ -178,12 +187,12 @@
 </div>
 
 <?php
-$list = $data['monthly_tasks'] ?? [];
-$total = count($list);
-$page = 1;
-$per_page = $total > 0 ? $total : 25;
-$from = 1;
+    $list     = $data['monthly_tasks'] ?? [];
+    $total    = count($list);
+    $page     = 1;
+    $per_page = $total > 0 ? $total : 25;
+    $from     = 1;
 ?>
-<?php if (!empty($list)): ?>
+<?php if (! empty($list)): ?>
     <?php include dirname(__DIR__) . '/_pagination.php'; ?>
 <?php endif; ?>

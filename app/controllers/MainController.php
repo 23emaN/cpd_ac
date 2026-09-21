@@ -67,6 +67,11 @@ class MainController
         require_once '../app/models/CompanyModel.php';
         $companyModel = new CompanyModel();
 
+        if ($companyModel->isCompanyNameExists($companyName)) {
+            echo json_encode(['result' => 0, 'msg' => 'ชื่อบริษัทนี้มีอยู่ในระบบแล้ว กรุณาใช้ชื่ออื่น']);
+            return;
+        }
+
         try {
             $userId = $this->userPayload['user_id'] ?? null;
             $success = $companyModel->insertCompany($companyName, $userId);
@@ -100,6 +105,11 @@ class MainController
 
         require_once '../app/models/CompanyModel.php';
         $companyModel = new CompanyModel();
+
+        if ($companyModel->isCompanyNameExistsExcept($companyName, $companyId)) {
+            echo json_encode(['result' => 0, 'msg' => 'ชื่อบริษัทนี้มีอยู่ในระบบแล้ว กรุณาใช้ชื่ออื่น']);
+            return;
+        }
 
         try {
             $userId = $this->userPayload['user_id'] ?? null;

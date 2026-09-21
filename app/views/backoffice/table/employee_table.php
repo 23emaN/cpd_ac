@@ -35,7 +35,7 @@
                         data-name="<?php echo htmlspecialchars(mb_strtolower($emp['user_firstname'] . ' ' . $emp['user_lastname'])); ?>"
                         data-position="<?php echo htmlspecialchars(mb_strtolower($emp['position'] ?? '')); ?>"
                         data-team="<?php echo htmlspecialchars($emp['team_name'] ?? ''); ?>"
-                        data-status="<?php echo htmlspecialchars($emp['user_status'] ?? '1'); ?>"
+                        data-status="<?php echo htmlspecialchars($emp['user_status'] ?? ''); ?>"
                     >
                         <td class="text-center fw-semibold text-secondary">
                             <?php echo $n++; ?>

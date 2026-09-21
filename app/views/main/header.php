@@ -50,6 +50,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
+
     <link rel="stylesheet"
         href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/template/assets/css/custom.css?ver=<?php echo @filemtime(dirname(__DIR__, 2) . '/public/template/assets/css/custom.css') ?: time(); ?>">
     <link rel="stylesheet"
@@ -1845,10 +1846,10 @@
             box-shadow: none !important;
         }
 
-        .swal2-styled.swal2-confirm {
-            background-color: #e11d48 !important;
+        /* .swal2-styled.swal2-confirm {
+            background-color: #000000ff !important;
             color: #ffffff !important;
-        }
+        } */
 
         .swal2-styled.swal2-cancel {
             background-color: #64748b !important;
@@ -2096,10 +2097,10 @@
         }
         /* ===== Add Company Form ===== */
 
-.company-form-group {
-    padding: 20px 24px 4px 24px;
-    margin: 0;
-    width: 100%;
+        .company-form-group {
+            padding: 20px 24px 4px 24px;
+            margin: 0;
+            width: 100%;
     box-sizing: border-box;
 }
 
@@ -2429,12 +2430,14 @@
                 <?php endif; ?>
 
                 <!-- ปุ่มเพิ่มบริษัท -->
+                <?php if (isset($data['is_super_admin']) && $data['is_super_admin'] == 1): ?>
                 <button type="button" class="acc-add-workspace-btn" onclick="Getmodal_add()" title="เพิ่มบริษัท">
                     <div class="acc-add-workspace-icon">
                         <i class="ri-add-line"></i>
                     </div>
                     <span class="acc-add-workspace-text">เพิ่มบริษัท</span>
                 </button>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -2945,7 +2948,8 @@ function showCompanyNameError(message) {
                                 icon: 'success',
                                 title: response.msg || 'บันทึกสำเร็จ',
                                 showConfirmButton: true,
-                                confirmButtonText: 'ตกลง'
+                                confirmButtonText: 'ตกลง',
+                                confirmButtonColor: '#0066fe',
                             }).then(() => {
                                 location.reload();
                             });
@@ -2966,7 +2970,8 @@ function showCompanyNameError(message) {
                             icon: 'error',
                             title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
                             showConfirmButton: true,
-                            confirmButtonText: 'ตกลง'
+                            confirmButtonText: 'ตกลง',
+                            confirmButtonColor: '#0066fe',
                         });
                     } else {
                         alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
@@ -3047,7 +3052,8 @@ function showCompanyNameError(message) {
                         icon: 'success',
                         title: response.msg || 'บันทึกสำเร็จ',
                         showConfirmButton: true,
-                        confirmButtonText: 'ตกลง'
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#0066fe',
                     }).then(() => {
                         location.reload();
                     });
@@ -3066,7 +3072,8 @@ function showCompanyNameError(message) {
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
                     showConfirmButton: true,
-                    confirmButtonText: 'ตกลง'
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#0066fe',
                 });
             }
         }
@@ -3153,6 +3160,16 @@ function showCompanyNameError(message) {
             console.error('notification/get failed:', status, err, xhr.responseText);
             document.getElementById('notifListContainer').innerHTML =
                 '<div class="acc-notif-empty">เกิดข้อผิดพลาดในการโหลด</div>';
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาดในการโหลดข้อมูลการแจ้งเตือน',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#0066fe',
+                    showConfirmButton: true
+                });
+            }
         }
     });
 }

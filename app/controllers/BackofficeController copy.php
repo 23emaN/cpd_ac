@@ -138,30 +138,25 @@ class BackofficeController
         require_once '../app/models/CustomerModal.php';
         $customerModal = new CustomModal();
         $customerStats = $customerModal->getCustomersgid($fiscal_id);
-        $caretakers = $customerModal->getCaretakers();
-        
-        $isSuperAdmin = $this->userPayload['is_super_admin'] ?? '0';
-        $attentionStats = $customerModal->getAttentionStats($fiscal_id, $userId, $isSuperAdmin);
+        $caretakers    = $customerModal->getCaretakers();
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $data = [
-            'title' => 'ระบบ Backoffice',
-            'user' => $this->userPayload,
-            'user_id' => $this->userPayload['user_id'] ?? '',
-            'firstname' => $this->userPayload['user_firstname'] ?? '',
-            'lastname' => $this->userPayload['user_lastname'] ?? '',
-            'is_super_admin' => $isSuperAdmin,
-            'fiscal_id' => $fiscal_id,
-            'companies' => $companies,
-            'active_company_id' => $active_company_id,
+            'title'              => 'ระบบ Backoffice',
+            'user'               => $this->userPayload,
+            'user_id'            => $this->userPayload['user_id'] ?? '',
+            'firstname'          => $this->userPayload['user_firstname'] ?? '',
+            'lastname'           => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin'     => $this->userPayload['is_super_admin'] ?? '0',
+            'fiscal_id'          => $fiscal_id,
+            'companies'          => $companies,
+            'active_company_id'  => $active_company_id,
             'active_fiscal_year' => $active_fiscal_year,
-            'selected_month' => $monthStr,
-            'monthly_stats' => $monthlyStats,
-            'yearly_stats' => $yearlyStats,
-            'customer_stats' => $customerStats,
-            'caretakers_count' => count($caretakers),
-            'attention_stats' => $attentionStats,
-
+            'selected_month'     => $monthStr,
+            'monthly_stats'      => $monthlyStats,
+            'yearly_stats'       => $yearlyStats,
+            'customer_stats'     => $customerStats,
+            'caretakers_count'   => count($caretakers),
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
@@ -489,13 +484,10 @@ class BackofficeController
         $teamModel     = new TeamModel();
         $data['teams'] = $teamModel->getAllTeams();
 
-        // ดึงข้อมูลพนักงาน (เฉพาะในบริษัทและปีนี้)
+        // ดึงข้อมูลพนักงาน
         require_once '../app/models/UserModel.php';
         $userModel         = new UserModel();
         $data['employees'] = $userModel->getEmployeesByFiscalAndCompany($fiscal_id, $active_company_id);
-
-        // ดึงข้อมูลผู้ใช้ทั้งหมดในระบบ (สำหรับ autocomplete พนักงานเก่า)
-        $data['all_users'] = $userModel->getAllUsersWithTeams();
 
         // 4. ดึงหน้า View มาแสดงผล
         require_once '../app/views/backoffice/employee.php';
@@ -515,9 +507,9 @@ class BackofficeController
         $user_position  = trim($_POST['user_position'] ?? '');
         $team_name      = trim($_POST['team_name'] ?? '');
 
-        // 2. ดักตรวจสอบ (Validation เบื้องต้น)
-        if ($user_name === '') {
-            echo json_encode(['result' => 0, 'msg' => 'กรุณาระบุชื่อผู้ใช้']);
+        // 2. ดักตรวจสอบ (Validation)
+        if ($user_name === '' || $user_password === '' || $user_firstname === '' || $user_lastname === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน']);
             return;
         }
 
@@ -534,14 +526,6 @@ class BackofficeController
         try {
             // เช็คว่า username ซ้ำไหม
             $existingUser = $userModel->getUserByUsername($user_name);
-
-            // ถ้าไม่มีผู้ใช้นี้ในระบบ ต้องบังคับกรอกรหัสผ่าน ชื่อ และนามสกุล
-            if (! $existingUser) {
-                if ($user_password === '' || $user_firstname === '' || $user_lastname === '') {
-                    echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลรหัสผ่าน ชื่อ และนามสกุล สำหรับพนักงานใหม่']);
-                    return;
-                }
-            }
 
             // จัดการเรื่องทีม
             $team_id = null;
@@ -1445,6 +1429,7 @@ class BackofficeController
         $input             = json_decode(file_get_contents('php://input'), true);
         $customer_tasks_id = $input['customer_tasks_id'] ?? '';
         $comment_text      = trim($input['comment_text'] ?? '');
+        $is_reply          = isset($input['is_reply']) ? (int) $input['is_reply'] : 1;
         $user_id           = $this->userPayload['user_id'] ?? null;
 
         if (! $customer_tasks_id || $comment_text === '' || ! $user_id) {
@@ -1454,12 +1439,6 @@ class BackofficeController
 
         require_once '../app/models/monthly_task_Modal.php';
         $model = new MonthlyTaskModal();
-
-        // ตรวจสอบว่ามีคอมเมนต์ใน Task นี้แล้วหรือยัง ถ้ายังไม่มีให้ถือเป็นประเด็นหลัก (0) ถ้ามีแล้วถือเป็นการตอบกลับ (1)
-        $existingComments = $model->getCommentsByTaskId((int) $customer_tasks_id);
-        $count = count($existingComments);
-        $is_reply = $count > 0 ? 1 : 0;
-        error_log("storeMonthlyTaskComment: customer_tasks_id=$customer_tasks_id, count=$count, is_reply=$is_reply");
 
         try {
             $success = $model->addComment((int) $customer_tasks_id, (int) $user_id, $comment_text, $is_reply);

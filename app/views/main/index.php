@@ -568,13 +568,13 @@ require_once __DIR__ . '/header.php';
                     <div id="copyFromYearWrapper" style="<?php echo (isset($data['fiscal_years']) && !empty($data['fiscal_years'])) ? 'display: block;' : 'display: none;'; ?>">
                         <div class="mb-4">
                             <label class="form-label" style="font-weight: 700; font-size: 0.9rem; color: #334155;">คัดลอกข้อมูลจากปี</label>
-                            <select class="form-select" name="copy_from_year" onchange="document.getElementById('copyOptionsBox').style.display = this.value ? 'block' : 'none';" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px; padding: 12px 16px; font-weight: 600; color: #475569; cursor: pointer; box-shadow: none;">
+                            <select class="form-select select2" name="copy_from_year" onchange="document.getElementById('copyOptionsBox').style.display = this.value ? 'block' : 'none';" style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px; padding: 12px 16px; font-weight: 600; color: #475569; cursor: pointer; box-shadow: none;">
                                 <?php if (isset($data['fiscal_years']) && !empty($data['fiscal_years'])): ?>
                                     <?php foreach ($data['fiscal_years'] as $fy): ?>
                                         <option value="<?php echo htmlspecialchars($fy['fiscal_id'] ?? $fy['year_id'] ?? $fy['year'] ?? ''); ?>">ปี <?php echo htmlspecialchars($fy['fiscal_years'] ?? $fy['year'] ?? ''); ?></option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
-                                <option value="">ไม่คัดลอก</option>
+                                <option value="" selected>ไม่คัดลอก</option>
 
                             </select>
                         </div>
@@ -655,6 +655,19 @@ require_once __DIR__ . '/header.php';
 </div>
 
 <script>
+    $(document).ready(function() {
+        if ($.fn.select2) {
+            $('select[name="copy_from_year"]').select2({
+                placeholder: "ไม่คัดลอก",
+                dropdownParent: $('#addYearModal'),
+                width: '100%'
+            }).on('change', function() {
+                // Update visibility of the checkbox options based on Select2 change event
+                document.getElementById('copyOptionsBox').style.display = this.value ? 'block' : 'none';
+            });
+        }
+    });
+    
     function EditYear(companyId, year, fiscalId) {
         const form = document.getElementById('editYearForm');
         if(form) form.reset();
@@ -928,135 +941,142 @@ require_once __DIR__ . '/header.php';
         });
     }
     function loadFiscalYears(companyId) {
-        // อัปเดต input ซ่อนในฟอร์มเพิ่มปี
-        $('input[name="company_id"]').val(companyId);
-        
-        // เคลียร์การ์ดเก่าออก ยกเว้นการ์ดปุ่ม "เพิ่มปี"
-        $('.year-card-grid .fiscal-year-card').remove();
-        
-        const savedFiscalId = localStorage.getItem('bo_selected_fiscal_id');
-        const savedYear = localStorage.getItem('bo_selected_year');
+    // อัปเดต input ซ่อนในฟอร์มเพิ่มปี
+    $('input[name="company_id"]').val(companyId);
 
-        // ยกเลิก AJAX request เก่าที่ยังค้างอยู่
-        if (window.currentFiscalRequest) {
-            window.currentFiscalRequest.abort();
-        }
+    // เคลียร์การ์ดเก่าออก ยกเว้นการ์ดปุ่ม "เพิ่มปี"
+    $('.year-card-grid .fiscal-year-card').remove();
 
-        window.currentFiscalRequest = $.ajax({
-            url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/fiscal_years/get?company_id=' + companyId,
-            method: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                $('.year-card-grid .spinner-border').remove();
-                // เคลียร์การ์ดอีกครั้งก่อนแทรกใหม่ เพื่อป้องกันการเบิ้ลซ้ำ
-                $('.year-card-grid .fiscal-year-card').remove();
+    const savedFiscalId = localStorage.getItem('bo_selected_fiscal_id');
+    const savedYear = localStorage.getItem('bo_selected_year');
 
-                if (response.result === 1 && response.data && response.data.length > 0) {
-                    let html = '';
-                    let optionsHtml = '';
-                    let hasActiveCard = false;
+    // ยกเลิก AJAX request เก่าที่ยังค้างอยู่
+    if (window.currentFiscalRequest) {
+        window.currentFiscalRequest.abort();
+    }
 
-                    response.data.forEach(function(fy) {
-                        const year = fy.fiscal_years;
-                        const fiscalId = fy.fiscal_id;
-                        const isActive = (fy.active_status === '1');
+    window.currentFiscalRequest = $.ajax({
+        url: '<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/fiscal_years/get?company_id=' + companyId,
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            $('.year-card-grid .spinner-border').remove();
+            // เคลียร์การ์ดอีกครั้งก่อนแทรกใหม่ เพื่อป้องกันการเบิ้ลซ้ำ
+            $('.year-card-grid .fiscal-year-card').remove();
 
-                        // เริ่มต้นยังไม่ได้เลือกปีใดๆ จนกว่าผู้ใช้จะคลิกเลือกเอง
-                        const isSelected = false;
+            if (response.result === 1 && response.data && response.data.length > 0) {
+                let html = '';
+                let optionsHtml = '';
 
-                        html += `
-                            <div class="fiscal-year-card" style="cursor: pointer;" onclick="selectFiscalYearCard(this, '${companyId}', '${year}', '${fiscalId}')">
-                                <div>
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div class="fy-card-icon-box">
-                                            <i class="ri-calendar-2-line"></i>
-                                        </div>
-                                        ${isActive ? '<span class="fy-badge-active">กำลังใช้งาน</span>' : ''}
+                response.data.forEach(function(fy) {
+                    const year = fy.fiscal_years;
+                    const fiscalId = fy.fiscal_id;
+                    const isActive = (fy.active_status === '1');
+
+                    html += `
+                        <div class="fiscal-year-card" style="cursor: pointer;" onclick="selectFiscalYearCard(this, '${companyId}', '${year}', '${fiscalId}')">
+                            <div>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="fy-card-icon-box">
+                                        <i class="ri-calendar-2-line"></i>
                                     </div>
-                                    <div class="fy-label-sub">ปฏิบัติงานในปี</div>
-                                    <h3 class="fy-val-title">${year}</h3>
+                                    ${isActive ? '<span class="fy-badge-active">กำลังใช้งาน</span>' : ''}
+                                </div>
+                                <div class="fy-label-sub">ปฏิบัติงานในปี</div>
+                                <h3 class="fy-val-title">${year}</h3>
+                            </div>
+
+                            <div>
+                                <div class="fy-divider-dashed"></div>
+
+                                <div class="fy-stat-row">
+                                    <span class="fy-stat-label">จำนวนลูกค้า</span>
+                                    <span class="fy-stat-val">${fy.customer_count ?? 0} ราย</span>
                                 </div>
 
-                                <div>
-                                    <div class="fy-divider-dashed"></div>
+                                <div class="fy-stat-row mb-0">
+                                    <span class="fy-stat-label">ค่าบริการบัญชีต่อเดือน</span>
+                                    <span class="fy-stat-val">${Number(fy.monthly_fee || 0).toLocaleString()} บาท</span>
+                                </div>
 
-                                    <div class="fy-stat-row">
-                                        <span class="fy-stat-label">จำนวนลูกค้า</span>
-                                        <span class="fy-stat-val">${fy.customer_count ?? 0} ราย</span>
-                                    </div>
-
-                                    <div class="fy-stat-row mb-0">
-                                        <span class="fy-stat-label">ค่าบริการบัญชีต่อเดือน</span>
-                                        <span class="fy-stat-val">${Number(fy.monthly_fee || 0).toLocaleString()} บาท</span>
-                                    </div>
-
-                                    <div class="fy-actions-row">
-                                        <button type="button" class="btn-fy-select" onclick="event.stopPropagation(); goToBackoffice('${companyId}', '${year}', '${fiscalId}')">
-                                            เลือกปีนี้
-                                        </button>
-                                        <button type="button" class="btn-fy-edit" title="แก้ไข" onclick="event.stopPropagation(); EditYear('${companyId}', '${year}', '${fiscalId}')">
-                                            <i class="ri-pencil-line"></i>
-                                        </button>
-                                    </div>
+                                <div class="fy-actions-row">
+                                    <button type="button" class="btn-fy-select" onclick="event.stopPropagation(); goToBackoffice('${companyId}', '${year}', '${fiscalId}')">
+                                        เลือกปีนี้
+                                    </button>
+                                    <button type="button" class="btn-fy-edit" title="แก้ไข" onclick="event.stopPropagation(); EditYear('${companyId}', '${year}', '${fiscalId}')">
+                                        <i class="ri-pencil-line"></i>
+                                    </button>
                                 </div>
                             </div>
-                        `;
+                        </div>
+                    `;
 
-                        optionsHtml += `<option value="${fiscalId}">ปี ${year}</option>`;
-                    });
+                    optionsHtml += `<option value="${fiscalId}">ปี ${year}</option>`;
+                });
 
-                    // แทรกการ์ดทั้งหมดก่อนปุ่ม "เพิ่มปี"
-                    $('.year-add-card').before(html);
-                    
-                    // อัปเดต Select คัดลอกข้อมูล
-                    $('select[name="copy_from_year"]').html(optionsHtml + '<option value="">ไม่คัดลอก</option>');
-                    $('#copyFromYearWrapper').show();
-                    $('#copyOptionsBox').show();
+                // แทรกการ์ดทั้งหมดก่อนปุ่ม "เพิ่มปี"
+                $('.year-add-card').before(html);
 
-                    // อัปเดตรายการปีใน Header Dropdown Menu ของบริษัทนี้
-                    let headerDropdownHtml = '';
-                    response.data.forEach(function(fy) {
-                        const yVal = fy.fiscal_years;
-                        const fId = fy.fiscal_id;
-                        const cCount = fy.customer_count ?? 0;
-                        headerDropdownHtml += `
-                            <a href="javascript:void(0);" class="acc-other-year-item" data-year="${yVal}"
-                                onclick="selectFiscalYear('${companyId}', '${yVal}', '${fId}')">
-                                <div class="acc-other-year-icon">
-                                    <i class="ri-calendar-line"></i>
-                                </div>
-                                <div class="acc-other-year-info">
-                                    <span class="acc-other-year-val">ปี ${yVal}</span>
-                                    <span class="acc-other-year-sub">${cCount > 0 ? cCount + ' ลูกค้า' : 'ปีทำงาน'}</span>
-                                </div>
-                            </a>
-                        `;
-                    });
-                    $('#otherYearsList_' + companyId).html(headerDropdownHtml);
+                // อัปเดต Select คัดลอกข้อมูล — ให้ "ไม่คัดลอก" เป็นตัวแรกและถูกเลือกไว้
+                var $copySelect = $('select[name="copy_from_year"]');
+                $copySelect.html('<option value="">ไม่คัดลอก</option>' + optionsHtml).val('');
+                if ($.fn.select2 && $copySelect.hasClass('select2-hidden-accessible')) {
+                    $copySelect.trigger('change');
+                }
 
-                    // ถ้ามีการ์ดที่ active ให้อัปเดตข้อความปีที่เลือก
-                    const activeCard = $('.fiscal-year-card.active').first();
-                    if (activeCard.length > 0) {
-                        const activeYearText = activeCard.find('.fy-val-title').text().trim();
-                        if (activeYearText) {
-                            $('.notice-selected-value').text('ปี ' + activeYearText);
-                        }
-                    } else {
-                        $('.notice-selected-value').text('ยังไม่ได้เลือก');
+                $('#copyFromYearWrapper').show();
+                $('#copyOptionsBox').hide();
+
+                // อัปเดตรายการปีใน Header Dropdown Menu ของบริษัทนี้
+                let headerDropdownHtml = '';
+                response.data.forEach(function(fy) {
+                    const yVal = fy.fiscal_years;
+                    const fId = fy.fiscal_id;
+                    const cCount = fy.customer_count ?? 0;
+                    headerDropdownHtml += `
+                        <a href="javascript:void(0);" class="acc-other-year-item" data-year="${yVal}"
+                            onclick="selectFiscalYear('${companyId}', '${yVal}', '${fId}')">
+                            <div class="acc-other-year-icon">
+                                <i class="ri-calendar-line"></i>
+                            </div>
+                            <div class="acc-other-year-info">
+                                <span class="acc-other-year-val">ปี ${yVal}</span>
+                                <span class="acc-other-year-sub">${cCount > 0 ? cCount + ' ลูกค้า' : 'ปีทำงาน'}</span>
+                            </div>
+                        </a>
+                    `;
+                });
+                $('#otherYearsList_' + companyId).html(headerDropdownHtml);
+
+                // ถ้ามีการ์ดที่ active ให้อัปเดตข้อความปีที่เลือก
+                const activeCard = $('.fiscal-year-card.active').first();
+                if (activeCard.length > 0) {
+                    const activeYearText = activeCard.find('.fy-val-title').text().trim();
+                    if (activeYearText) {
+                        $('.notice-selected-value').text('ปี ' + activeYearText);
                     }
                 } else {
-                    $('select[name="copy_from_year"]').html('<option value="">ไม่คัดลอก</option>');
-                    $('#copyFromYearWrapper').hide();
-                    $('#otherYearsList_' + companyId).html('<div class="acc-no-years-sub text-muted px-2 py-1" style="font-size: 0.78rem;">ไม่มีปีอื่นให้เลือก</div>');
+                    $('.notice-selected-value').text('ยังไม่ได้เลือก');
                 }
-            },
-            error: function(xhr, status) {
-                if (status !== 'abort') {
-                    $('.year-card-grid .spinner-border').remove();
+            } else {
+                var $emptySelect = $('select[name="copy_from_year"]');
+                $emptySelect.html('<option value="">ไม่คัดลอก</option>').val('');
+                if ($.fn.select2 && $emptySelect.hasClass('select2-hidden-accessible')) {
+                    $emptySelect.trigger('change');
                 }
+                
+                $('#copyFromYearWrapper').hide();
+                $('#copyOptionsBox').hide();
+                $('#otherYearsList_' + companyId).html('<div class="acc-no-years-sub text-muted px-2 py-1" style="font-size: 0.78rem;">ไม่มีปีอื่นให้เลือก</div>');
             }
-        });
-    }
+        },
+        error: function(xhr, status) {
+            if (status !== 'abort') {
+                $('.year-card-grid .spinner-border').remove();
+            }
+        }
+    });
+}
 
     // ฟังก์ชันเมื่อคลิกที่การ์ดปี (Active ค้างไว้และจำค่า ยังไม่ไป Backoffice)
     function selectFiscalYearCard(cardEl, companyId, year, fiscalId) {

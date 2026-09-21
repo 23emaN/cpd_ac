@@ -1,14 +1,14 @@
 <?php
-// app/views/backoffice/customer.php
-$selected_year = $_GET['year'] ?? '2569';
-$company_name  = $_GET['company'] ?? 'TEST ACCOUNTING';
-$show_company_workspace = true;
+    // app/views/backoffice/customer.php
+    $selected_year          = $_GET['year'] ?? '2569';
+    $company_name           = $_GET['company'] ?? 'TEST ACCOUNTING';
+    $show_company_workspace = true;
 
-// 1. นำ Header เข้ามา
-require_once dirname(__DIR__) . '/main/header.php';
+    // 1. นำ Header เข้ามา
+    require_once dirname(__DIR__) . '/main/header.php';
 
-// 2. นำ Sidebar เข้ามา
-require_once dirname(__DIR__) . '/main/sidebar.php';
+    // 2. นำ Sidebar เข้ามา
+    require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
@@ -30,7 +30,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         content: "•";
         color: #94a3b8;
         font-weight: bold;
-        display: inline-block; 
+        display: inline-block;
         width: 1em;
         margin-right: 8px;
     }
@@ -47,14 +47,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     <div class="main-content d-flex flex-column">
         <div class="content-wrapper">
             <div class="main-page-wrapper">
-                
+
                 <div class="main-card-wrapper">
-                    
+
                     <!-- Page Header Section -->
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">พนักงาน</h2>
-                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <?php $fy_display = ! empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
                             <p class="page-subtitle">ภาพรวมระบบ - พนักงาน - ปี <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
                         <div class="d-flex align-items-end">
@@ -67,18 +67,18 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                     <!-- Stats Grid (4 กล่องสถิติ) -->
                     <?php
-                        $employees = $data['employees'] ?? [];
-                        $totalEmployees = count($employees);
-                        $activeEmployees = 0;
+                        $employees         = $data['employees'] ?? [];
+                        $totalEmployees    = count($employees);
+                        $activeEmployees   = 0;
                         $inactiveEmployees = 0;
-                        $uniqueTeams = [];
+                        $uniqueTeams       = [];
                         foreach ($employees as $emp) {
                             if ($emp['user_status'] == '1') {
                                 $activeEmployees++;
                             } else {
                                 $inactiveEmployees++;
                             }
-                            if (!empty($emp['team_name'])) {
+                            if (! empty($emp['team_name'])) {
                                 $uniqueTeams[$emp['team_name']] = true;
                             }
                         }
@@ -134,9 +134,16 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
 
                         <div class="filter-group">
+                            <select id="employeePerPage" class="filter-select">
+                                <option value="25">25 รายการ</option>
+                                <option value="50">50 รายการ</option>
+                                <option value="75">75 รายการ</option>
+                                <option value="100">100 รายการ</option>
+                            </select>
+                            
                             <select id="employeeStatusFilter" class="filter-select">
                                 <option value="">ทุกสถานะ</option>
-                                <option value="1">ใช้งานอยู่</option>
+                                <option value="1" selected>ยังทำงานอยู่</option>
                                 <option value="0">เลิกจ้าง</option>
                             </select>
 
@@ -161,7 +168,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" style="max-width: 640px;">
         <div class="modal-content modal-content-custom">
-            
+
             <!-- Header (Fixed) -->
             <div class="modal-header modal-header-custom">
                 <h5 class="modal-title modal-title-custom" id="addEmployeeModalLabel">เพิ่มพนักงานใหม่</h5>
@@ -182,8 +189,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <label class="modal-form-label" for="user_name">
                                ชื่อผู้ใช้ <span style="color: #ef4444;">*</span>
                             </label>
-                            <input type="text" class="form-control modal-form-control" name="user_name" id="user_name" placeholder="ระบุชื่อผู้ใช้">
+                            <div class="position-relative dropdown-autocomplete">
+                                <input type="text" class="form-control modal-form-control autocomplete-input" name="user_name" id="user_name" placeholder="ระบุชื่อผู้ใช้ (ค้นหาจากพนักงานเดิมได้)" autocomplete="off">
+                                <ul class="dropdown-menu autocomplete-list user-autocomplete-list w-100 shadow-sm" style="max-height: 200px; overflow-y: auto; padding: 0; margin-top: 4px; border: 1px solid #e2e8f0; border-radius: 8px; position: absolute; z-index: 1050; display: none;">
+                                </ul>
+                            </div>
                             <div class="invalid-feedback" style="font-size: 0.85rem; font-weight: 500; margin-top: 6px;">กรุณาระบุชื่อผู้ใช้</div>
+                            <small class="text-muted" id="user_name_hint" style="display:none; font-size: 0.8rem; margin-top:4px;">* ผู้ใช้เดิมในระบบ จะถูกเพิ่มเข้าบริษัทนี้โดยไม่ต้องกำหนดรหัสผ่านใหม่</small>
                         </div>
                         <div class="mb-3">
                             <label class="modal-form-label" for="user_password">
@@ -243,7 +255,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" style="max-width: 640px;">
         <div class="modal-content modal-content-custom">
-            
+
             <!-- Header (Fixed) -->
             <div class="modal-header modal-header-custom">
                 <h5 class="modal-title modal-title-custom" id="editEmployeeModalLabel">แก้ไขข้อมูลพนักงาน</h5>
@@ -254,7 +266,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             <div class="modal-body modal-body-custom">
                 <form id="editEmployeeForm">
                     <input type="hidden" name="user_id" id="edit_user_id">
-                    
+
                     <div class="mb-4">
                         <div class="mb-3">
                             <label class="modal-form-label" for="edit_user_name">
@@ -301,7 +313,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                สถานะ <span style="color: #ef4444;">*</span>
                             </label>
                             <select class="form-select modal-form-control" name="user_status" id="edit_user_status">
-                                <option value="1">ใช้งานอยู่</option>
+                                <option value="1">ยังทำงานอยู่</option>
                                 <option value="0">เลิกจ้าง</option>
                             </select>
                         </div>
@@ -319,20 +331,29 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 </div>
 
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
     const employeesData = <?php echo json_encode($data['employees'] ?? []); ?>;
     const teamsData = <?php echo json_encode($data['teams'] ?? []); ?>;
+    const allUsersData = <?php echo json_encode($data['all_users'] ?? []); ?>;
     let isSubmittingTask = false;
 
     $(document).ready(function() {
+        $('#edit_user_status').select2({
+        dropdownParent: $('#editEmployeeModal'),
+        width: '100%',
+        minimumResultsForSearch: Infinity
+        });
         // Setup Autocomplete
         function renderAutocomplete(inputElem, listElem, query) {
             listElem.empty();
             let matches = teamsData.filter(t => t.team_name.toLowerCase().includes(query.toLowerCase()));
-            
+
             // Limit to 5 items
             matches = matches.slice(0, 5);
-            
+
             if (matches.length > 0) {
                 matches.forEach(match => {
                     listElem.append(`<li>${match.team_name}</li>`);
@@ -349,12 +370,84 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             renderAutocomplete(input, list, input.val());
         });
 
-        // Click item
-        $(document).on('click', '.autocomplete-list li', function() {
+        // Click item (Team)
+        $(document).on('click', '.autocomplete-list li:not(.user-autocomplete-item)', function() {
             let list = $(this).closest('.autocomplete-list');
             let input = list.siblings('.autocomplete-input');
             input.val($(this).text());
             list.hide();
+        });
+
+        // Setup User Autocomplete (For Add Employee Modal)
+        function renderUserAutocomplete(inputElem, listElem, query) {
+            listElem.empty();
+            let matches = allUsersData.filter(u => u.user_name.toLowerCase().includes(query.toLowerCase()));
+            matches = matches.slice(0, 5);
+
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    listElem.append(`
+                        <li class="user-autocomplete-item"
+                            data-fname="${match.user_firstname}"
+                            data-lname="${match.user_lastname}"
+                            data-pos="${match.position || ''}"
+                            data-team="${match.team_name || ''}">
+                            <div class="fw-semibold text-dark">${match.user_name}</div>
+                            <div class="text-muted" style="font-size:0.8rem;">${match.user_firstname} ${match.user_lastname}</div>
+                        </li>
+                    `);
+                });
+                listElem.show();
+            } else {
+                listElem.hide();
+            }
+        }
+
+        $('#user_name').on('keyup focus', function() {
+            const listElem = $(this).siblings('.user-autocomplete-list');
+            if ($(this).val().trim() !== '') {
+                renderUserAutocomplete($(this), listElem, $(this).val().trim());
+            } else {
+                listElem.hide();
+                resetAddUserFormState();
+            }
+        });
+
+        // Handle selection of User Autocomplete
+        $(document).on('click', '.user-autocomplete-item', function() {
+            const userName = $(this).find('.text-dark').text();
+            const fname = $(this).data('fname');
+            const lname = $(this).data('lname');
+            const pos = $(this).data('pos');
+            const team = $(this).data('team');
+
+            const inputElem = $(this).closest('.dropdown-autocomplete').find('.autocomplete-input');
+            inputElem.val(userName);
+            $(this).closest('.autocomplete-list').hide();
+
+            // Autofill the form
+            $('#user_firstname').val(fname).prop('readonly', true).css('background-color', '#e2e8f0');
+            $('#user_lastname').val(lname).prop('readonly', true).css('background-color', '#e2e8f0');
+            $('#user_position').val(pos).prop('readonly', true).css('background-color', '#e2e8f0');
+            $('#team_name').val(team).prop('readonly', true).css('background-color', '#e2e8f0');
+
+            // Hide password requirement
+            $('#user_password').val('').prop('disabled', true).closest('.mb-3').hide();
+            $('#user_name_hint').show();
+        });
+
+        function resetAddUserFormState() {
+            $('#user_firstname').prop('readonly', false).css('background-color', '');
+            $('#user_lastname').prop('readonly', false).css('background-color', '');
+            $('#user_position').prop('readonly', false).css('background-color', '');
+            $('#team_name').prop('readonly', false).css('background-color', '');
+            $('#user_password').prop('disabled', false).closest('.mb-3').show();
+            $('#user_name_hint').hide();
+        }
+
+        // When Add modal hides, reset everything
+        $('#addEmployeeModal').on('hidden.bs.modal', function () {
+            resetAddUserFormState();
         });
 
         // Hide when clicking outside
@@ -364,49 +457,164 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             }
         });
 
-        // --- filter
-        function filterEmployeeTable() {
-            const searchText   = $('#employeeSearchInput').val().trim().toLowerCase();
-            const statusFilter = $('#employeeStatusFilter').val();
-            const teamFilter   = $('#employeeTeamFilter').val();
+        let filterTimeout;
+        let currentPage = 1;
 
-            $('.table-wrap table tbody tr[data-name]').each(function() {
-                const row = $(this);
-                const name     = row.data('name') || '';
-                const position = row.data('position') || '';
-                const team     = (row.data('team') || '').toString();
-                const status   = (row.data('status') || '').toString();
+        // Global function for pagination click
+        window.GetData = function(page) {
+            currentPage = page;
+            filterEmployeeTable();
+        };
 
-                const matchSearch = searchText === '' 
-                    || name.includes(searchText) 
-                    || position.includes(searchText)
-                    || team.toLowerCase().includes(searchText);
-
-                const matchStatus = statusFilter === '' || status === statusFilter;
-                const matchTeam   = teamFilter === '' || team === teamFilter;
-
-                if (matchSearch && matchStatus && matchTeam) {
-                row.show();
-            } else {
-                row.hide();
-            }
+        $('#employeePerPage').on('change', function() {
+            currentPage = 1; // Reset to first page when changing per page
+            filterEmployeeTable();
         });
 
-        checkEmptyResult();
-    }
+        function filterEmployeeTable() {
+            const tbody = $('.table-wrap table tbody');
+            const perPage = parseInt($('#employeePerPage').val()) || 25;
+            
+            // Show loading row and hide others
+            tbody.find('tr').hide();
+            tbody.find('.loading-row, .no-result-row').remove();
+            
+            tbody.append(`
+                <tr class="loading-row">
+                    <td colspan="6" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
+            `);
 
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                const searchText   = $('#employeeSearchInput').val().trim().toLowerCase();
+                const statusFilter = $('#employeeStatusFilter').val();
+                const teamFilter   = $('#employeeTeamFilter').val();
+
+                tbody.find('.loading-row').remove();
+
+                let matchedRows = [];
+
+                $('.table-wrap table tbody tr[data-name]').each(function() {
+                    const row = $(this);
+                    const name     = row.data('name') || '';
+                    const position = row.data('position') || '';
+                    const team     = (row.data('team') || '').toString();
+                    const statusData = row.data('status');
+                    const status   = (statusData !== null && statusData !== undefined && statusData !== '') ? statusData.toString() : '';
+
+                    const matchSearch = searchText === ''
+                        || name.includes(searchText)
+                        || position.includes(searchText)
+                        || team.toLowerCase().includes(searchText);
+
+                    const matchStatus = statusFilter === '' || status === statusFilter;
+                    const matchTeam   = teamFilter === '' || team === teamFilter;
+
+                    if (matchSearch && matchStatus && matchTeam) {
+                        matchedRows.push(row);
+                    }
+                });
+
+                const totalRows = matchedRows.length;
+                const totalPages = Math.ceil(totalRows / perPage) || 1;
+                
+                if (currentPage > totalPages) {
+                    currentPage = totalPages;
+                }
+
+                const startIndex = (currentPage - 1) * perPage;
+                const endIndex = startIndex + perPage;
+
+                // Show only the current page's rows
+                matchedRows.forEach((row, index) => {
+                    if (index >= startIndex && index < endIndex) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+
+                renderClientPagination(totalRows, totalPages, currentPage, startIndex, Math.min(endIndex, totalRows));
+                checkEmptyResult(totalRows);
+            }, 300);
+        }
+
+        function renderClientPagination(totalRows, totalPages, currentPage, startIndex, endIndex) {
+            const paginationContainer = $('.d-flex.justify-content-between.align-items-center.px-1.py-3');
+            if (paginationContainer.length === 0) return;
+
+            if (totalRows === 0) {
+                paginationContainer.hide();
+                return;
+            } else {
+                paginationContainer.show();
+            }
+
+            // Update text
+            const textSpan = paginationContainer.find('.text-secondary');
+            if (textSpan.length) {
+                textSpan.text(`แสดง ${totalRows > 0 ? startIndex + 1 : 0}-${endIndex} จาก ${totalRows} รายการ`);
+            }
+
+            // Update pagination buttons
+            const ul = paginationContainer.find('.pagination');
+            if (ul.length === 0) return;
+
+            let html = '';
+            
+            // First & Prev
+            html += `<li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0);" onclick="GetData(1)">หน้าแรก</a>
+                     </li>`;
+            html += `<li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0);" onclick="GetData(${currentPage - 1})">ก่อนหน้า</a>
+                     </li>`;
+
+            let wStart = Math.max(1, currentPage - 2);
+            let wEnd = Math.min(totalPages, currentPage + 2);
+
+            if (wStart > 1) {
+                html += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="GetData(1)">1</a></li>`;
+                if (wStart > 2) html += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
+            }
+
+            for (let i = wStart; i <= wEnd; i++) {
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="javascript:void(0);" onclick="GetData(${i})">${i}</a>
+                         </li>`;
+            }
+
+            if (wEnd < totalPages) {
+                if (wEnd < totalPages - 1) html += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
+                html += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="GetData(${totalPages})">${totalPages}</a></li>`;
+            }
+
+            // Next & Last
+            html += `<li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0);" onclick="GetData(${currentPage + 1})">ถัดไป</a>
+                     </li>`;
+            html += `<li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0);" onclick="GetData(${totalPages})">หน้าสุดท้าย</a>
+                     </li>`;
+
+            ul.html(html);
+        }
+    
     // แสดงข้อความ "ไม่พบข้อมูล" ถ้ากรองแล้วไม่เจอเลย
-    function checkEmptyResult() {
+    function checkEmptyResult(visibleRows) {
         const tbody = $('.table-wrap table tbody');
-        const visibleRows = tbody.find('tr[data-name]:visible').length;
-        
         tbody.find('.no-result-row').remove();
 
         if (visibleRows === 0) {
             tbody.append(`
                 <tr class="no-result-row">
                     <td colspan="6" class="text-center py-5 text-muted fw-medium">
-                        ไม่พบข้อมูลที่ตรงกับเงื่อนไขที่ค้นหา
+                        ไม่พบข้อมูล
                     </td>
                 </tr>
             `);
@@ -417,6 +625,9 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     $('#employeeSearchInput').on('keyup', filterEmployeeTable);
     $('#employeeStatusFilter').on('change', filterEmployeeTable);
     $('#employeeTeamFilter').on('change', filterEmployeeTable);
+
+    // Apply default filters on page load
+    filterEmployeeTable();
     });
 
 
@@ -431,7 +642,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         const modalElement = document.getElementById('addEmployeeModal');
         const myModal = new bootstrap.Modal(modalElement);
         myModal.show();
-    }   
+    }
 
     let isSubmittingEmployee = false;
     function submit_addemployee() {
@@ -453,12 +664,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             $('#user_name').removeClass('is-invalid');
         }
 
-        // Validate user_password
-        if (!userPassword) {
-            $('#user_password').addClass('is-invalid');
-            isValid = false;
-        } else {
-            $('#user_password').removeClass('is-invalid');
+        // Validate user_password (only if not disabled)
+        if (!$('#user_password').prop('disabled')) {
+            if (!userPassword) {
+                $('#user_password').addClass('is-invalid');
+                isValid = false;
+            } else {
+                $('#user_password').removeClass('is-invalid');
+            }
         }
 
         // Validate user_firstname
@@ -509,14 +722,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     }
                 } else {
                     if (typeof Swal !== 'undefined') {
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
+                        Swal.fire({
+                            icon: 'error',
+                            title: response.msg,
+                            confirmButtonText: 'ตกลง',
+                            confirmButtonColor: '#0066fe',
+                            showConfirmButton: true
                         });
-                        Toast.fire({ icon: 'error', title: response.msg });
                     } else {
                         alert(response.msg);
                     }
@@ -527,14 +739,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 submitBtn.prop('disabled', false).text(originalBtnText);
                 console.error("AJAX Error:", err);
                 if (typeof Swal !== 'undefined') {
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#0066fe',
+                        showConfirmButton: true
                     });
-                    Toast.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์' });
                 } else {
                     alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
                 }
@@ -553,7 +764,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             $('#edit_user_position').val(emp.position);
             $('#edit_team_name').val(emp.team_name);
             $('#edit_user_status').val(emp.user_status);
-            
+
             const modalElement = document.getElementById('editEmployeeModal');
             const myModal = new bootstrap.Modal(modalElement);
             myModal.show();
@@ -597,7 +808,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         $.ajax({
             url: '<?php echo BASE_URL ?? "/cpd_ac/public"; ?>/employee/edit',
             type: 'POST',
-            data: { 
+            data: {
                 user_id: userId,
                 user_firstname: userFirstname,
                 user_lastname: userLastname,
@@ -613,21 +824,20 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     if(typeof Swal !== 'undefined') {
                         sessionStorage.setItem('toast_msg', 'อัปเดตข้อมูลพนักงานสำเร็จ');
                         sessionStorage.setItem('toast_icon', 'success');
-                        location.reload(); 
+                        location.reload();
                     } else {
                         alert('อัปเดตข้อมูลพนักงานสำเร็จ');
                         location.reload();
                     }
                 } else {
                     if(typeof Swal !== 'undefined') {
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
+                        Swal.fire({
+                            icon: 'error',
+                            title: response.msg,
+                            confirmButtonText: 'ตกลง',
+                            confirmButtonColor: '#0066fe',
+                            showConfirmButton: true
                         });
-                        Toast.fire({ icon: 'error', title: response.msg });
                     } else {
                         alert(response.msg);
                     }
@@ -637,14 +847,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 submitBtn.prop('disabled', false).text(originalBtnText);
                 console.error(err);
                 if(typeof Swal !== 'undefined') {
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#0066fe',
+                        showConfirmButton: true
                     });
-                    Toast.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์' });
                 } else {
                     alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
                 }
@@ -663,7 +872,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'ลบข้อมูล',
                 cancelButtonText: 'ยกเลิก',
-                reverseButtons: true
+                reverseButtons: true,
+                allowEnterKey: false
             }).then((result) => {
                 if (result.isConfirmed) {
                     execute_delete(userId);
@@ -687,7 +897,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     if(typeof Swal !== 'undefined') {
                         sessionStorage.setItem('toast_msg', 'ลบพนักงานสำเร็จ');
                         sessionStorage.setItem('toast_icon', 'success');
-                        location.reload(); 
+                        location.reload();
                     } else {
                         alert('ลบพนักงานสำเร็จ');
                         location.reload();
@@ -721,7 +931,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
 </script>
 
-<?php 
-// 3. นำ Footer เข้ามา
-require_once dirname(__DIR__) . '/main/footer.php'; 
+<?php
+    // 3. นำ Footer เข้ามา
+    require_once dirname(__DIR__) . '/main/footer.php';
 ?>

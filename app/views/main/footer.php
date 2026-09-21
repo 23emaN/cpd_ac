@@ -25,6 +25,7 @@
 <script src="<?php echo $baseUrl; ?>/template/assets/js/custom/custom.js"></script>
 
 
+
 <script>
 // ฟังก์ชันกลางสำหรับจัดการเมื่อเปลี่ยนปีทำงานใน Header (ใช้งานร่วมกันทุกหน้า)
 function onYearChanged(companyId, year, fiscalId) {
@@ -56,14 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let tMsg = sessionStorage.getItem('toast_msg');
     let tIcon = sessionStorage.getItem('toast_icon');
     if (tMsg && typeof Swal !== 'undefined') {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true
+        Swal.fire({
+            icon: tIcon || 'success',
+            title: tMsg,
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: '#0066fe',
+            showConfirmButton: true
         });
-        Toast.fire({ icon: tIcon || 'success', title: tMsg });
         sessionStorage.removeItem('toast_msg');
         sessionStorage.removeItem('toast_icon');
     }

@@ -3,6 +3,21 @@ require_once '../app/models/Model.php';
 
 class CompanyModel extends Model {
 
+    public function isCompanyNameExists($companyName) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM tbl_companies WHERE company_name = :name");
+        $stmt->execute(['name' => $companyName]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    public function isCompanyNameExistsExcept($companyName, $excludeCompanyId) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM tbl_companies WHERE company_name = :name AND company_id != :exclude_id");
+        $stmt->execute([
+            'name' => $companyName,
+            'exclude_id' => $excludeCompanyId
+        ]);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function insertCompany($companyName, $userId) {
         $stmt = $this->pdo->prepare(
             "INSERT INTO tbl_companies (

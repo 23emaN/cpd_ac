@@ -15,6 +15,17 @@ class UserModel extends Model {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getAllUsersWithTeams() {
+        $stmt = $this->pdo->prepare("
+            SELECT u.user_id, u.user_name, u.user_firstname, u.user_lastname, u.position, u.team_id, t.team_name 
+            FROM tbl_user u
+            LEFT JOIN tbl_team t ON u.team_id = t.team_id
+            WHERE u.is_super_admin = '0'
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function insertUser($data) {
         $stmt = $this->pdo->prepare(
             "INSERT INTO tbl_user (
@@ -71,16 +82,9 @@ class UserModel extends Model {
     }
 
     public function deleteUserSoft($userId) {
-        // ลบข้อมูลที่ผูกอยู่ก่อน (Foreign Key constraints)
-        $stmt1 = $this->pdo->prepare("DELETE FROM tbl_user_companies WHERE user_id = :user_id");
-        $stmt1->execute(['user_id' => $userId]);
-
-        $stmt2 = $this->pdo->prepare("DELETE FROM tbl_fiscal_year_user WHERE user_id = :user_id");
-        $stmt2->execute(['user_id' => $userId]);
-
-        // ลบข้อมูลพนักงานหลัก
-        $stmt3 = $this->pdo->prepare("DELETE FROM tbl_user WHERE user_id = :user_id");
-        return $stmt3->execute(['user_id' => $userId]);
+        // อัปเดตเวลาลบ (Soft Delete) และเปลี่ยนสถานะเป็นระงับ (0) แทนการลบข้อมูลจริง
+        $stmt = $this->pdo->prepare("UPDATE tbl_user SET delete_at = NOW(), user_status = '0' WHERE user_id = :user_id");
+        return $stmt->execute(['user_id' => $userId]);
     }
 
     public function linkUserToCompany($userId, $companyId) {

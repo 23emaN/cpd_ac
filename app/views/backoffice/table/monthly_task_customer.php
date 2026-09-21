@@ -39,9 +39,9 @@ foreach ($data['monthly_tasks'] ?? [] as $task) {
                 <th class="text-center">ผู้ดูแล</th>
                 <th class="text-center">เอกสาร</th>
                 <th class="text-center">งานประจำเดือน</th>
-                <th class="text-center" style="background-color: #f8fafc;">ผู้รีวิว 1</th>
-                <th class="text-center" style="background-color: #f8fafc;">ผู้รีวิว 2</th>
-                <th class="text-center" style="background-color: #f8fafc;">ผู้รีวิว 3</th>
+                <th class="text-center" style="background-color: #f8fafc;">WHT</th>
+                <th class="text-center" style="background-color: #f8fafc;">VAT</th>
+                <th class="text-center" style="background-color: #f8fafc;">หัวหน้างาน</th>
                 <th class="text-center">ยื่นภาษี</th>
                 <th class="text-center">เก็บเงิน</th>
             </tr>
