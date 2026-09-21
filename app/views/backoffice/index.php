@@ -644,10 +644,10 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                     <div class="dashboard-header-row">
                         <div>
                             <h2 class="dashboard-title">ภาพรวมสำนักงาน</h2>
-                            <p class="dashboard-sub">ภาพรวมระบบ - ปี <?php echo htmlspecialchars($selected_year); ?></p>
+                            <p class="dashboard-sub">ภาพรวมระบบ - ปี <?php echo htmlspecialchars($active_fiscal_year); ?></p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <a href="javascript:void(0);" class="btn-change-year">
+                            <a href="<?php echo BASE_URL; ?>/main" class="btn-change-year">
                                 <i class="ri-calendar-line"></i> เปลี่ยนปีทำงาน
                             </a>
                             <a href="<?php echo $baseUrl; ?>/monthly_task" class="btn-manage-month">
@@ -837,6 +837,7 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                             </div>
 
                             <div class="attention-list">
+                                <?php $att = $data['attention_stats'] ?? []; ?>
                                 <!-- Item 1 -->
                                 <div class="attention-item">
                                     <div class="attention-item-left">
@@ -845,10 +846,14 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                         </div>
                                         <div>
                                             <h4 class="attention-title">ลูกค้ายังไม่มีผู้ดูแล</h4>
-                                            <p class="attention-sub">ไม่มีรายการค้าง</p>
+                                            <?php if (($att['no_caretaker']['count'] ?? 0) > 0): ?>
+                                                <p class="attention-sub"><?php echo htmlspecialchars(implode(', ', $att['no_caretaker']['names']) . (($att['no_caretaker']['count'] > 3) ? '...' : '')); ?></p>
+                                            <?php else: ?>
+                                                <p class="attention-sub">ไม่มีรายการค้าง</p>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
-                                    <span class="count-badge-pill count-badge-green">0</span>
+                                    <span class="count-badge-pill <?php echo (($att['no_caretaker']['count'] ?? 0) > 0) ? 'count-badge-yellow' : 'count-badge-green'; ?>"><?php echo $att['no_caretaker']['count'] ?? 0; ?></span>
                                 </div>
 
                                 <!-- Item 2 -->
@@ -859,10 +864,14 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                         </div>
                                         <div>
                                             <h4 class="attention-title">ลูกค้ายังไม่ได้ตั้งวันสิ้นรอบบัญชี</h4>
-                                            <p class="attention-sub">AMLAW, FOLK</p>
+                                            <?php if (($att['no_accounting_end']['count'] ?? 0) > 0): ?>
+                                                <p class="attention-sub"><?php echo htmlspecialchars(implode(', ', $att['no_accounting_end']['names']) . (($att['no_accounting_end']['count'] > 3) ? '...' : '')); ?></p>
+                                            <?php else: ?>
+                                                <p class="attention-sub">ไม่มีรายการค้าง</p>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
-                                    <span class="count-badge-pill count-badge-blue">2</span>
+                                    <span class="count-badge-pill <?php echo (($att['no_accounting_end']['count'] ?? 0) > 0) ? 'count-badge-blue' : 'count-badge-green'; ?>"><?php echo $att['no_accounting_end']['count'] ?? 0; ?></span>
                                 </div>
 
                                 <!-- Item 3 -->
@@ -873,10 +882,14 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                         </div>
                                         <div>
                                             <h4 class="attention-title">ลูกค้ายังไม่มีช่องทางติดต่อ</h4>
-                                            <p class="attention-sub">AMLAW, FOLK</p>
+                                            <?php if (($att['no_contact']['count'] ?? 0) > 0): ?>
+                                                <p class="attention-sub"><?php echo htmlspecialchars(implode(', ', $att['no_contact']['names']) . (($att['no_contact']['count'] > 3) ? '...' : '')); ?></p>
+                                            <?php else: ?>
+                                                <p class="attention-sub">ไม่มีรายการค้าง</p>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
-                                    <span class="count-badge-pill count-badge-purple">2</span>
+                                    <span class="count-badge-pill <?php echo (($att['no_contact']['count'] ?? 0) > 0) ? 'count-badge-purple' : 'count-badge-green'; ?>"><?php echo $att['no_contact']['count'] ?? 0; ?></span>
                                 </div>
 
                                 <!-- Item 4 -->
@@ -887,10 +900,10 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                         </div>
                                         <div>
                                             <h4 class="attention-title">Post-it ที่ยังไม่ได้ดำเนินการ</h4>
-                                            <p class="attention-sub">เบิกทดลอง</p>
+                                            <p class="attention-sub"><?php echo (($att['unresolved_postit'] ?? 0) > 0) ? 'มีรายการแจ้งเตือน' : 'ไม่มีรายการค้าง'; ?></p>
                                         </div>
                                     </div>
-                                    <span class="count-badge-pill count-badge-red">1</span>
+                                    <span class="count-badge-pill <?php echo (($att['unresolved_postit'] ?? 0) > 0) ? 'count-badge-red' : 'count-badge-green'; ?>"><?php echo $att['unresolved_postit'] ?? 0; ?></span>
                                 </div>
                             </div>
                         </div>
@@ -911,7 +924,7 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                         <h4 class="status-item-title">ปีทำงาน</h4>
                                         <p class="status-item-sub">ข้อมูลลูกค้าหน้าอ้างอิงปีนี้</p>
                                     </div>
-                                    <span class="status-pill status-pill-blue">ปี <?php echo htmlspecialchars($selected_year); ?></span>
+                                    <span class="status-pill status-pill-blue">ปี <?php echo htmlspecialchars($active_fiscal_year); ?></span>
                                 </div>
 
                                 <!-- Status Item 2 -->
@@ -929,16 +942,16 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
                                         <h4 class="status-item-title">งานรายเดือน</h4>
                                         <p class="status-item-sub">รายการ master ของงานที่ทำงาน</p>
                                     </div>
-                                    <span class="status-pill status-pill-purple">14 งาน</span>
+                                    <span class="status-pill status-pill-purple"><?php echo number_format($att['monthly_tasks'] ?? 0); ?> งาน</span>
                                 </div>
 
                                 <!-- Status Item 4 -->
                                 <div class="system-status-item">
                                     <div>
                                         <h4 class="status-item-title">Post-it ค้าง</h4>
-                                        <p class="status-item-sub">เกินกำหนด 0 รายการ</p>
+                                        <p class="status-item-sub">เกินกำหนด <?php echo number_format($att['overdue_postit'] ?? 0); ?> รายการ</p>
                                     </div>
-                                    <span class="status-pill status-pill-red">1 ค้าง</span>
+                                    <span class="status-pill <?php echo (($att['overdue_postit'] ?? 0) > 0) ? 'status-pill-red' : 'status-pill-green'; ?>"><?php echo (($att['overdue_postit'] ?? 0) > 0) ? number_format($att['overdue_postit']) . ' ค้าง' : '0 ค้าง'; ?></span>
                                 </div>
                             </div>
                         </div>

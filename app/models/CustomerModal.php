@@ -955,4 +955,94 @@ class CustomModal extends Model
 
         return $success;
     }
+
+    public function getAttentionStats($fiscalId, $userId, $isSuperAdmin)
+    {
+        $userCondition = "";
+        $params = [':fiscal_id' => $fiscalId];
+        
+        if (!$isSuperAdmin && $userId) {
+            $userCondition = " INNER JOIN tbl_user_companies uc ON c.company_id = uc.company_id AND uc.user_id = :user_id ";
+            $params[':user_id'] = $userId;
+        }
+
+        // Base Query for Customers
+        $baseCustomerSql = "
+            FROM tbl_companies c
+            $userCondition
+            INNER JOIN tbl_fiscal_years fy ON c.company_id = fy.company_id
+            INNER JOIN tbl_fiscal_year_customers fyc ON fy.fiscal_id = fyc.fiscal_id
+            INNER JOIN tbl_customers cust ON fyc.customer_id = cust.customer_id AND cust.delete_at IS NULL
+            WHERE fy.fiscal_id = :fiscal_id
+        ";
+
+        // 1. ลูกค้ายังไม่มีผู้ดูแล
+        $sql1 = "SELECT cust.customer_name " . $baseCustomerSql . " AND (fyc.user_id IS NULL OR fyc.user_id = 0 OR fyc.user_id = '')";
+        $stmt1 = $this->pdo->prepare($sql1);
+        $stmt1->execute($params);
+        $noCaretakers = $stmt1->fetchAll(PDO::FETCH_COLUMN);
+
+        // 2. ลูกค้ายังไม่ได้ตั้งวันสิ้นรอบบัญชี
+        $sql2 = "SELECT cust.customer_name " . $baseCustomerSql . " AND (cust.fiscal_closing_date IS NULL OR cust.fiscal_closing_date = '0000-00-00' OR cust.fiscal_closing_date = '')";
+        $stmt2 = $this->pdo->prepare($sql2);
+        $stmt2->execute($params);
+        $noAccountingEnd = $stmt2->fetchAll(PDO::FETCH_COLUMN);
+
+        // 3. ลูกค้ายังไม่มีช่องทางติดต่อ
+        $sql3 = "SELECT cust.customer_name " . $baseCustomerSql . " AND (cust.customer_phone = '' OR cust.customer_phone IS NULL) AND (cust.line_id = '' OR cust.line_id IS NULL) AND (cust.customer_email = '' OR cust.customer_email IS NULL)";
+        $stmt3 = $this->pdo->prepare($sql3);
+        $stmt3->execute($params);
+        $noContact = $stmt3->fetchAll(PDO::FETCH_COLUMN);
+
+        // 4. Post-it ที่ยังไม่ได้ดำเนินการ
+        $basePostItSql = "
+            FROM tbl_companies c
+            $userCondition
+            INNER JOIN tbl_fiscal_years fy ON c.company_id = fy.company_id
+            INNER JOIN tbl_post_it p ON fy.fiscal_id = p.fiscal_year_id
+            WHERE fy.fiscal_id = :fiscal_id
+        ";
+
+        $sql4 = "SELECT COUNT(p.post_id) " . $basePostItSql . " AND p.status = '0'";
+        $stmt4 = $this->pdo->prepare($sql4);
+        $stmt4->execute($params);
+        $unresolvedPostit = $stmt4->fetchColumn();
+
+        // 5. งานรายเดือน (Master tasks count)
+        $baseTaskSql = "
+            FROM tbl_companies c
+            $userCondition
+            INNER JOIN tbl_fiscal_years fy ON c.company_id = fy.company_id
+            INNER JOIN tbl_tasks t ON fy.fiscal_id = t.fiscal_id AND t.delete_at IS NULL
+            WHERE fy.fiscal_id = :fiscal_id
+        ";
+        $sql5 = "SELECT COUNT(t.tasks_id) " . $baseTaskSql;
+        $stmt5 = $this->pdo->prepare($sql5);
+        $stmt5->execute($params);
+        $monthlyTasksCount = $stmt5->fetchColumn();
+
+        // 6. Post-it ค้าง (Overdue)
+        $sql6 = "SELECT COUNT(p.post_id) " . $basePostItSql . " AND p.status = '0' AND p.due_date < CURDATE() AND p.due_date IS NOT NULL AND p.due_date != '0000-00-00'";
+        $stmt6 = $this->pdo->prepare($sql6);
+        $stmt6->execute($params);
+        $overduePostit = $stmt6->fetchColumn();
+
+        return [
+            'no_caretaker' => [
+                'count' => count($noCaretakers),
+                'names' => array_slice($noCaretakers, 0, 3)
+            ],
+            'no_accounting_end' => [
+                'count' => count($noAccountingEnd),
+                'names' => array_slice($noAccountingEnd, 0, 3)
+            ],
+            'no_contact' => [
+                'count' => count($noContact),
+                'names' => array_slice($noContact, 0, 3)
+            ],
+            'unresolved_postit' => (int) $unresolvedPostit,
+            'overdue_postit' => (int) $overduePostit,
+            'monthly_tasks' => (int) $monthlyTasksCount
+        ];
+    }
 }

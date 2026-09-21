@@ -138,25 +138,30 @@ class BackofficeController
         require_once '../app/models/CustomerModal.php';
         $customerModal = new CustomModal();
         $customerStats = $customerModal->getCustomersgid($fiscal_id);
-        $caretakers    = $customerModal->getCaretakers();
+        $caretakers = $customerModal->getCaretakers();
+        
+        $isSuperAdmin = $this->userPayload['is_super_admin'] ?? '0';
+        $attentionStats = $customerModal->getAttentionStats($fiscal_id, $userId, $isSuperAdmin);
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $data = [
-            'title'              => 'ระบบ Backoffice',
-            'user'               => $this->userPayload,
-            'user_id'            => $this->userPayload['user_id'] ?? '',
-            'firstname'          => $this->userPayload['user_firstname'] ?? '',
-            'lastname'           => $this->userPayload['user_lastname'] ?? '',
-            'is_super_admin'     => $this->userPayload['is_super_admin'] ?? '0',
-            'fiscal_id'          => $fiscal_id,
-            'companies'          => $companies,
-            'active_company_id'  => $active_company_id,
+            'title' => 'ระบบ Backoffice',
+            'user' => $this->userPayload,
+            'user_id' => $this->userPayload['user_id'] ?? '',
+            'firstname' => $this->userPayload['user_firstname'] ?? '',
+            'lastname' => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin' => $isSuperAdmin,
+            'fiscal_id' => $fiscal_id,
+            'companies' => $companies,
+            'active_company_id' => $active_company_id,
             'active_fiscal_year' => $active_fiscal_year,
-            'selected_month'     => $monthStr,
-            'monthly_stats'      => $monthlyStats,
-            'yearly_stats'       => $yearlyStats,
-            'customer_stats'     => $customerStats,
-            'caretakers_count'   => count($caretakers),
+            'selected_month' => $monthStr,
+            'monthly_stats' => $monthlyStats,
+            'yearly_stats' => $yearlyStats,
+            'customer_stats' => $customerStats,
+            'caretakers_count' => count($caretakers),
+            'attention_stats' => $attentionStats,
+
         ];
 
         // 4. ดึงหน้า View มาแสดงผล
