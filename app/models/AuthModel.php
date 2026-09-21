@@ -293,7 +293,7 @@ class AuthModel
     }
 
     $db = Connection::getInstance()->getPdo();
-    $sql = "SELECT u.user_id, u.user_name, u.user_firstname, u.user_lastname, u.is_super_admin
+    $sql = "SELECT u.user_id, u.user_name, u.user_firstname, u.user_lastname, u.user_email, u.is_super_admin
             FROM tbl_login_token lt
             JOIN tbl_user u ON lt.user_id = u.user_id
             WHERE lt.token_code = :token_code AND u.user_status = '1' AND lt.end_datetime IS NULL AND lt.expire_datetime > NOW()
@@ -313,12 +313,13 @@ class AuthModel
     if ($fullname === '') $fullname = $row['user_name'] ?? 'Admin';
 
     return [
-        'user_id' => $row['user_id'],
-        'user_name' => $fullname,
+        'user_id'        => $row['user_id'],
+        'user_name'      => $fullname,
         'user_firstname' => $row['user_firstname'],
-        'user_lastname' => $row['user_lastname'],
+        'user_lastname'  => $row['user_lastname'],
+        'user_email'     => $row['user_email'] ?? '',
         'is_super_admin' => $row['is_super_admin'],
-        'token_code' => $token->jti
+        'token_code'     => $token->jti
     ];
 }
 }

@@ -116,6 +116,10 @@ $routes = [
         'portal/upload' => ['PortalController', 'upload'],
         'portal/upload_chunk' => ['PortalController', 'uploadChunk'],
         'closing/update' => ['BackofficeController', 'updateClosing'],
+        'backoffice/saveTaxOption' => ['BackofficeController', 'saveTaxOption'],
+        'backoffice/deleteTaxOption' => ['BackofficeController', 'deleteTaxOption'],
+        'backoffice/updateProfile' => ['BackofficeController', 'updateProfile'],
+        'backoffice/changePassword' => ['BackofficeController', 'changePassword'],
     ]
 ];
 
