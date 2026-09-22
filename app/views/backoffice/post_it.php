@@ -9,6 +9,11 @@ $filters = $data['filters'] ?? [];
 $isDraft = !empty($data['is_draft']);
 $base = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
 
+if (isset($_GET['ajax_table']) && $_GET['ajax_table'] == '1') {
+    require __DIR__ . '/table/postit_table.php';
+    exit;
+}
+
 $colorMap = [
     'yellow' => ['bg' => '#FFFBEB', 'border' => '#FDE68A', 'text' => '#A16207'],
     'pink' => ['bg' => '#FCE7F3', 'border' => '#F9A8D4', 'text' => '#BE185D'],
@@ -552,7 +557,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <div class="postit-date-wrap" id="postitDateWrap">
                             <input type="text" class="modal-form-control flatpickr-date" id="postitDueDate"
                                 name="due_date" value="" placeholder="วว/ดด/ปป">
-                            <button type="button" class="postit-date-clear" id="postitDueDateClear">ล้าง</button>
+                            <!-- <button type="button" class="postit-date-clear" id="postitDueDateClear">ล้าง</button> -->
                         </div>
                     </div>
                 </div>
@@ -614,27 +619,21 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
 <script>
-    // Display saved toast after immediate reload
-    (function () {
-        const savedToast = sessionStorage.getItem('postit_toast');
-        if (savedToast) {
-            sessionStorage.removeItem('postit_toast');
-            try {
-                const tData = JSON.parse(savedToast);
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: tData.icon || 'success',
-                        title: tData.title || 'ทำรายการสำเร็จ',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-                }
-            } catch (err) { }
+        function showPostItAlert(icon, title, callback) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: icon,
+                    title: title,
+                    showConfirmButton: true,
+                    confirmButtonText: 'ตกลง'
+                }).then(function () {
+                    if (typeof callback === 'function') callback();
+                });
+            } else {
+                alert(title);
+                if (typeof callback === 'function') callback();
+            }
         }
-    })();
 
     function loadPostItTable() {
         const form = document.getElementById('postitFilterForm');
@@ -869,12 +868,11 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 .then(function (res) { return res.json(); })
                 .then(function (response) {
                     if (response.result === 1) {
-                        sessionStorage.setItem('postit_toast', JSON.stringify({ icon: 'success', title: response.msg || 'อัปเดตสถานะสำเร็จ' }));
-                        location.reload();
+                        showPostItAlert('success', response.msg || 'อัปเดตสถานะสำเร็จ', function () {
+                            location.reload();
+                        });
                     } else {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: response.msg || 'เกิดข้อผิดพลาด', showConfirmButton: false, timer: 2000 });
-                        }
+                        showPostItAlert('error', response.msg || 'เกิดข้อผิดพลาด');
                     }
                 });
         });
@@ -898,14 +896,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                     .then(function (res) { return res.json(); })
-                    .then(function (response) {
+                   .then(function (response) {
                         if (response.result === 1) {
-                            sessionStorage.setItem('postit_toast', JSON.stringify({ icon: 'success', title: response.msg || 'ลบ Post-it สำเร็จ' }));
-                            location.reload();
+                            showPostItAlert('success', response.msg || 'ลบ Post-it สำเร็จ', function () {
+                                location.reload();
+                            });
                         } else {
-                            if (typeof Swal !== 'undefined') {
-                                Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: response.msg || 'เกิดข้อผิดพลาด', showConfirmButton: false, timer: 2000 });
-                            }
+                            showPostItAlert('error', response.msg || 'เกิดข้อผิดพลาด');
                         }
                     });
             };
@@ -963,102 +960,67 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
         })
             .then(function (res) { return res.json(); })
             .then(function (response) {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'บันทึกข้อมูล';
-                }
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'บันทึกข้อมูล';
+        }
 
-                if (response.result === 1) {
-                    const modalElement = document.getElementById('createPostItModal');
-                    if (modalElement && typeof bootstrap !== 'undefined') {
-                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                        if (modalInstance) modalInstance.hide();
-                    }
+        if (response.result === 1) {
+            const modalElement = document.getElementById('createPostItModal');
+        if (modalElement && typeof bootstrap !== 'undefined') {
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) modalInstance.hide();
+        }
 
-                    form.reset();
-                    document.getElementById('postitId').value = '';
-                    document.querySelector('input[name="color_code"][value="yellow"]')?.click();
-                    if (postitPicker) postitPicker.clear();
-                    document.getElementById('postitDateWrap')?.classList.remove('has-date');
+        form.reset();
+            document.getElementById('postitId').value = '';
+            document.querySelector('input[name="color_code"][value="yellow"]')?.click();
+            if (postitPicker) postitPicker.clear();
+            document.getElementById('postitDateWrap')?.classList.remove('has-date');
 
-                    sessionStorage.setItem('postit_toast', JSON.stringify({ icon: 'success', title: response.msg || 'บันทึกสำเร็จ' }));
-                    location.reload();
-                } else {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'error',
-                            title: response.msg || 'บันทึกไม่สำเร็จ',
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
-                    } else {
-                        alert(response.msg || 'บันทึกไม่สำเร็จ');
-                    }
-                }
-            })
-            .catch(function () {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'บันทึกข้อมูล';
-                }
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ',
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                } else {
-                    alert('เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ');
-                }
+            showPostItAlert('success', response.msg || 'บันทึกสำเร็จ', function () {
+                location.reload();
             });
+        } else {
+            showPostItAlert('error', response.msg || 'บันทึกไม่สำเร็จ');
+        }
+    })
+    .catch(function () {
+        if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'บันทึกข้อมูล';
+    }
+    showPostItAlert('error', 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ');
+});
     });
 
-    function changeStatusPostIt(id) {
-        const formData = new FormData();
-        formData.append('post_id', id);
+   function changeStatusPostIt(id) {
+    const formData = new FormData();
+    formData.append('post_id', id);
 
-        fetch('<?php echo BASE_URL; ?>/post_it/toggle', {
-            method: 'POST',
-            body: formData
+    fetch('<?php echo BASE_URL; ?>/post_it/toggle', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(response => {
+            if (response.result === 1) {
+                showPostItAlert('success',
+                                 response.msg || 'เปลี่ยนสถานะสำเร็จ', 
+                                 function () {
+                                    location.reload();
+                                });
+            } else {
+                showPostItAlert('error', response.msg || 'เกิดข้อผิดพลาด');
+            }
         })
-            .then(res => res.json())
-            .then(response => {
-                if (response.result === 1) {
-                    sessionStorage.setItem('postit_toast', JSON.stringify({ icon: 'success', title: response.msg || 'เปลี่ยนสถานะสำเร็จ' }));
-                    location.reload();
-                } else {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: response.msg || 'เกิดข้อผิดพลาด',
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                }
-            })
-            .catch(() => {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            });
+        .catch(() => showPostItAlert('error', 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ'));
     }
 
     function delete_portit(id, name = '') {
         Swal.fire({
             icon: 'warning',
             title: 'ลบข้อมูล Post-it?',
-            html: name ? `<b>${name}</b> จะถูกลบออกจากระบบ` : 'รายการนี้จะถูกลบออกจากระบบ',
+            // html: name
+            //     ? `<b>${name}</b> จะถูกลบออกจากระบบ`
+            //     : 'รายการนี้จะถูกลบออกจากระบบ',
             showCancelButton: true,
             confirmButtonText: 'ลบข้อมูล',
             cancelButtonText: 'ยกเลิก',
@@ -1076,36 +1038,22 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             const formData = new FormData();
             formData.append('post_id', id);
 
-            fetch('<?php echo BASE_URL; ?>/post_it/delete', {
-                method: 'POST',
-                body: formData
+            fetch('<?php echo BASE_URL; ?>/post_it/delete',
+             { 
+                method: 'POST', 
+                body: formData 
             })
-                .then(res => res.json())
-                .then(response => {
-                    if (response.result === 1) {
-                        sessionStorage.setItem('postit_toast', JSON.stringify({ icon: 'success', title: response.msg || 'ลบข้อมูลสำเร็จ' }));
+            .then(res => res.json())
+            .then(response => {
+                if (response.result === 1) {
+                    showPostItAlert('success', response.msg || 'ลบข้อมูลสำเร็จ', function () {
                         location.reload();
-                    } else {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'error',
-                            title: response.msg || 'เกิดข้อผิดพลาด',
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
-                    }
-                })
-                .catch(() => {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ',
-                        showConfirmButton: false,
-                        timer: 3000
                     });
-                });
+                } else {
+                    showPostItAlert('error', response.msg || 'เกิดข้อผิดพลาด');
+                }
+            })
+            .catch(() => showPostItAlert('error', 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ'));
         });
     }
 </script>

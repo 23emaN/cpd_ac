@@ -519,6 +519,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             const searchVal = $(this).val();
             renderYearlyDashCustomerList(currentFilterYearly, searchVal);
         });
+
+        // Excel Export
+        $('.btn-excel-action').on('click', function() {
+            let baseUrl = '<?php echo BASE_URL; ?>';
+            let url = baseUrl + '/yearly_dash/export';
+            window.open(url, '_blank');
+        });
     });
 </script>
 

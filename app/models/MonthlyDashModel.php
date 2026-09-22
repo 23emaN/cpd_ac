@@ -34,6 +34,7 @@ class MonthlyDashModel extends Model {
                 c.customer_id,
                 c.customer_name,
                 fyc.accounts_amount,
+                fyc.user_id,
                 t.team_name,
                 u.user_firstname AS caretaker_firstname,
                 (SELECT COUNT(*) FROM tbl_customer_tasks WHERE period_id = wp.period_id) AS total_tasks,

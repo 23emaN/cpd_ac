@@ -49,9 +49,12 @@ window.CustomerDrive = (function () {
     }
 
     function ok(message) {
-        if (window.toastr) {
-            toastr.success(message);
-        }
+        Swal.fire({
+            icon: 'success',
+            title: message,
+            showConfirmButton: true,
+            confirmButtonText: 'ตกลง'
+        });
     }
 
     /**

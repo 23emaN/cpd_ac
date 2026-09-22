@@ -16,6 +16,7 @@ $paginated_list = $list;
             <tr>
                 <th class="text-center" style="width: 4%;">ลำดับ</th>
                 <th class="text-start" style="width: 20%;">ลูกค้า</th>
+                <th class="text-center" style="width: 5%;">จัดการ</th>
                 <th class="text-center" style="width: 9%;">รอบบัญชี</th>
                 <th class="text-center" style="width: 10%;">ผู้ใช้</th>
                 <th class="text-center" style="width: 10%;">รหัสผ่านRD</th>
@@ -26,7 +27,6 @@ $paginated_list = $list;
                 <th class="text-center" style="width: 9%;">บอจ. 5</th>
                 <th class="text-center" style="width: 11%;">DBD E-Filing</th>
                 <th class="text-center" style="width: 9%;">ภ.ง.ด.50</th>
-                <th class="text-center" style="width: 7%;">จัดการ</th>
             </tr>
         </thead>
         <tbody>
@@ -56,6 +56,13 @@ $paginated_list = $list;
                         <td class="text-center text-secondary"><?php echo $index + 1; ?></td>
                         <td class="text-start">
                             <div class="table-item-title"><?php echo htmlspecialchars($row['customer_name'] ?? ''); ?></div>
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข" 
+                                    data-closing="<?php echo htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8'); ?>"
+                                    onclick="openClosingModal(this)">
+                                <i class="ri-pencil-line"></i>
+                            </button>
                         </td>
                         <td class="text-center">
                             <span class="text-secondary"><?php echo !empty($row['fiscal_closing_date']) ? date('d/m/Y', strtotime($row['fiscal_closing_date'])) : '-'; ?></span>
@@ -144,18 +151,10 @@ $paginated_list = $list;
                                 <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">ยังไม่ยื่น</span>
                             <?php endif; ?>
                         </td>
-
-                        <td class="text-center">
-                            <button type="button" class="btn-action-edit" title="ดูรายละเอียด/แก้ไข" 
-                                    data-closing="<?php echo htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8'); ?>"
-                                    onclick="openClosingModal(this)">
-                                <i class="ri-pencil-line"></i>
-                            </button>
-                        </td>
                     </tr>
                 <?php endforeach; ?>
-                <tr id="noClosingDataRow" style="display: none;">
-                    <td colspan="10" class="text-center py-4 text-muted">ไม่พบข้อมูล</td>
+                <tr id="noClosingDataRow" class="d-none">
+                    <td colspan="13" class="text-center py-4 text-muted">ไม่พบข้อมูล</td>
                 </tr>
             <?php else: ?>
                 <tr>
@@ -167,5 +166,11 @@ $paginated_list = $list;
 </div>
 
 <?php if (!empty($paginated_list)): ?>
-    <?php include dirname(__DIR__) . '/_pagination.php'; ?>
+    <div class="d-flex justify-content-between align-items-center px-1 py-3 flex-wrap gap-2" id="clientPaginationContainer" style="display: none;">
+        <span class="text-secondary" id="clientPaginationInfo">แสดง 0-0 จาก 0 รายการ</span>
+        <nav aria-label="pagination">
+            <ul class="pagination mb-0" id="clientPaginationUl">
+            </ul>
+        </nav>
+    </div>
 <?php endif; ?>

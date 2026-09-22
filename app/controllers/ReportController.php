@@ -177,4 +177,216 @@ class ReportController
 
         $report->exportMonthly($tasks, $filters, $month, $fiscalYear, $companyName);
     }
+
+    public function closingExcel()
+    {
+        $this->checkAuth();
+
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+        if (!$fiscal_id) {
+            header("Location: " . BASE_URL . "/main");
+            exit();
+        }
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId       = $this->userPayload['user_id'] ?? null;
+        $companies    = $companyModel->getAllCompanies($userId);
+        
+        $active_company_id = '';
+        $active_company_name = '';
+        $active_fiscal_year = '';
+
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_company_name = $company['company_name'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        require_once '../app/models/closing_Model.php';
+        $closingModel = new ClosingModel();
+        $closingData  = $closingModel->getClosingByFiscalId($fiscal_id);
+
+        $is_super_admin = $this->userPayload['is_super_admin'] ?? '0';
+        $user_id = $this->userPayload['user_id'] ?? '';
+        if ($is_super_admin !== '1') {
+            $filteredData = [];
+            foreach ($closingData as $r) {
+                if (($r['user_id'] ?? '') == $user_id) {
+                    $filteredData[] = $r;
+                }
+            }
+            $closingData = $filteredData;
+        }
+
+        try {
+            $reportPath = '../app/reports/ClosingTaskReport.php';
+            if (!file_exists($reportPath)) {
+                die("Error: File not found - " . $reportPath);
+            }
+            require_once $reportPath;
+            $report = new ClosingTaskReport();
+            $report->exportClosing($closingData, $active_fiscal_year, $active_company_name);
+        } catch (\Throwable $e) {
+            file_put_contents('error_log_export.txt', $e->getMessage() . "\n" . $e->getTraceAsString());
+            echo "Error occurred. Check error_log_export.txt";
+            exit();
+        }
+    }
+
+    public function monthlyDashExcel()
+    {
+        $this->checkAuth();
+
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        if (!$fiscal_id) {
+            header("Location: " . BASE_URL . "/main");
+            exit();
+        }
+
+        $monthStr = $_GET['month'] ?? date('m');
+        $monthStr = str_pad($monthStr, 2, '0', STR_PAD_LEFT);
+        $searchQuery = $_GET['q'] ?? '';
+        $filterUser = $_GET['user'] ?? '';
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId       = $this->userPayload['user_id'] ?? null;
+        $companies    = $companyModel->getAllCompanies($userId);
+
+        $active_company_name = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_name = $company['company_name'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        require_once '../app/models/MonthlyDashModel.php';
+        $monthlyDashModel = new MonthlyDashModel();
+        $dashboardData    = $monthlyDashModel->getDashboardStats($fiscal_id, $monthStr);
+
+        $tasksList = $dashboardData['tasks_list'] ?? [];
+
+        // Apply admin filtering
+        $is_super_admin = $this->userPayload['is_super_admin'] ?? '0';
+        $current_user_id = $this->userPayload['user_id'] ?? '';
+        
+        $filteredData = [];
+        foreach ($tasksList as $r) {
+            // Admin can see everything or filter by user, normal user can only see their own
+            $record_user_id = $r['user_id'] ?? '';
+            
+            if ($is_super_admin !== '1') {
+                if ($record_user_id != $current_user_id) continue;
+            } else {
+                if ($filterUser !== '' && $record_user_id != $filterUser) continue;
+            }
+            
+            $filteredData[] = $r;
+        }
+        $tasksList = $filteredData;
+
+        $month_names = [
+            '01' => 'มกราคม', '02' => 'กุมภาพันธ์', '03' => 'มีนาคม', '04' => 'เมษายน',
+            '05' => 'พฤษภาคม', '06' => 'มิถุนายน', '07' => 'กรกฎาคม', '08' => 'สิงหาคม',
+            '09' => 'กันยายน', '10' => 'ตุลาคม', '11' => 'พฤศจิกายน', '12' => 'ธันวาคม',
+        ];
+        $monthName = $month_names[$monthStr] ?? $monthStr;
+
+        try {
+            $reportPath = '../app/reports/MonthlyDashReport.php';
+            if (!file_exists($reportPath)) {
+                die("Error: File not found - " . $reportPath);
+            }
+            require_once $reportPath;
+            $report = new MonthlyDashReport();
+            $report->exportMonthlyDash($tasksList, $monthName, $active_fiscal_year, $active_company_name, $searchQuery);
+        } catch (\Throwable $e) {
+            file_put_contents('error_log_export.txt', $e->getMessage() . "\n" . $e->getTraceAsString());
+            echo "Error occurred. Check error_log_export.txt";
+            exit();
+        }
+    }
+
+    public function yearlyDashExcel()
+    {
+        $this->checkAuth();
+
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        if (!$fiscal_id) {
+            header("Location: " . BASE_URL . "/main");
+            exit();
+        }
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId       = $this->userPayload['user_id'] ?? null;
+        $companies    = $companyModel->getAllCompanies($userId);
+
+        $active_company_name = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_name = $company['company_name'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        require_once '../app/models/closing_Model.php';
+        $closingModel = new ClosingModel();
+        $closingData  = $closingModel->getClosingByFiscalId($fiscal_id);
+
+        $is_super_admin = $this->userPayload['is_super_admin'] ?? '0';
+        $user_id = $this->userPayload['user_id'] ?? '';
+        
+        $filteredData = [];
+        foreach ($closingData as $r) {
+            if ($is_super_admin !== '1') {
+                if (($r['user_id'] ?? '') == $user_id) {
+                    $filteredData[] = $r;
+                }
+            } else {
+                $filteredData[] = $r;
+            }
+        }
+        $closingData = $filteredData;
+
+        try {
+            $reportPath = '../app/reports/YearlyDashReport.php';
+            if (!file_exists($reportPath)) {
+                die("Error: File not found - " . $reportPath);
+            }
+            require_once $reportPath;
+            $report = new YearlyDashReport();
+            $report->exportYearlyDash($closingData, $active_fiscal_year, $active_company_name, $is_super_admin === '1');
+        } catch (\Throwable $e) {
+            file_put_contents('error_log_export.txt', $e->getMessage() . "\n" . $e->getTraceAsString());
+            echo "Error occurred. Check error_log_export.txt";
+            exit();
+        }
+    }
 }

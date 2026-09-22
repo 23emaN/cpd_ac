@@ -113,7 +113,14 @@
                             <input type="text" class="search-input" id="search_input" onkeyup="triggerFilterDebounced()" placeholder="ค้นหาชื่อลูกค้า ผู้ดูแล ทีม">
                         </div>
 
-                        <div class="filter-group" style="display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;">
+                        <div class="filter-group" style="display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; min-width: 500px;">
+                            <select id="customerPerPage" class="filter-select" onchange="triggerFilterDebounced()">
+                                <option value="25">25 รายการ</option>
+                                <option value="50">50 รายการ</option>
+                                <option value="75">75 รายการ</option>
+                                <option value="100">100 รายการ</option>
+                            </select>
+                            
                             <select class="filter-select" id="filter_status" onchange="triggerFilterDebounced()">
                                 <option value="">ทุกสถานะ</option>
                                 <option value="1">ใช้บริการอยู่</option>
@@ -234,7 +241,7 @@
                                             <option value="<?php echo htmlspecialchars($caretaker['user_id'] ?? ''); ?>"
                                                     data-team-id="<?php echo htmlspecialchars($caretaker['team_id'] ?? ''); ?>"
                                                     data-team-name="<?php echo htmlspecialchars($caretaker['team_name'] ?? ''); ?>">
-                                                <?php echo htmlspecialchars(($caretaker['user_firstname'] ?? '') . ' ' . ($caretaker['lastname'] ?? '')); ?>
+                                                <?php echo htmlspecialchars(($caretaker['user_firstname'] ?? '') . ' ' . ($caretaker['user_lastname'] ?? '')); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
@@ -462,6 +469,43 @@
 <script>
 
     $(document).ready(function() {
+        const thaiMonths = [
+            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+        ];
+
+        $('#service_start_date').on('change', function() {
+            var startMonth = parseInt($(this).val()) || 1;
+            var currentEndMonth = parseInt($('#service_start_end').val());
+            
+            // ล้างตัวเลือกเดิมออกให้หมด
+            $('#service_start_end').empty();
+            
+            // สร้างตัวเลือก 'ยังให้บริการอยู่' เสมอ
+            $('#service_start_end').append($('<option>', {
+                value: 0,
+                text: 'ยังให้บริการอยู่'
+            }));
+            
+            // สร้างตัวเลือกเฉพาะเดือนที่ >= เดือนที่เริ่ม
+            for (var i = startMonth; i <= 12; i++) {
+                $('#service_start_end').append($('<option>', {
+                    value: i,
+                    text: thaiMonths[i - 1]
+                }));
+            }
+            
+            // คืนค่าที่เคยเลือกไว้ ถ้าน้อยกว่าเดือนเริ่มต้นให้ปรับเป็น 0
+            if (currentEndMonth === 0 || currentEndMonth >= startMonth) {
+                $('#service_start_end').val(currentEndMonth);
+            } else {
+                $('#service_start_end').val(0);
+            }
+        });
+        
+        // Trigger on load to set initial state
+        $('#service_start_date').trigger('change');
+
         if (typeof flatpickr !== 'undefined') {
             flatpickr("#fiscal_closing_date", {
                 dateFormat: "d/m/Y",
@@ -519,7 +563,9 @@
             keyword: $('#search_input').val().trim(),
             status: $('#filter_status').val(),
             user_id: $('#user_id_filter').val(),
-            page: page || 1
+            page: page || 1,
+            per_page: parseInt($('#customerPerPage').val()) || 25,
+            fiscal_year: '<?php echo isset($data['active_fiscal_year']) ? $data['active_fiscal_year'] : ''; ?>'
         };
 
         $('#customerTableContainer').html(`

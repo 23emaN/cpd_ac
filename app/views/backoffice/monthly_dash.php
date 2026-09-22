@@ -780,6 +780,15 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             const searchVal = $(this).val();
             renderDashCustomerList(currentFilter, searchVal);
         });
+
+        // Excel Export
+        $('.btn-excel-action').on('click', function() {
+            let month = $('#monthSelect').val();
+            let q = $('#dashCustomerSearch').val() || '';
+            let baseUrl = '<?php echo BASE_URL; ?>';
+            let url = baseUrl + '/monthly_dash/export?month=' + encodeURIComponent(month) + '&q=' + encodeURIComponent(q);
+            window.open(url, '_blank');
+        });
     });
 </script>
 

@@ -1,14 +1,14 @@
 <?php
-// app/views/backoffice/registration_board.php
-$selected_year = $_GET['year'] ?? '2569';
-$company_name = $_GET['company'] ?? 'TEST ACCOUNTING';
-$show_company_workspace = true;
+    // app/views/backoffice/registration_board.php
+    $selected_year          = $_GET['year'] ?? '2569';
+    $company_name           = $_GET['company'] ?? 'TEST ACCOUNTING';
+    $show_company_workspace = true;
 
-// 1. นำ Header เข้ามา
-require_once dirname(__DIR__) . '/main/header.php';
+    // 1. นำ Header เข้ามา
+    require_once dirname(__DIR__) . '/main/header.php';
 
-// 2. นำ Sidebar เข้ามา
-require_once dirname(__DIR__) . '/main/sidebar.php';
+    // 2. นำ Sidebar เข้ามา
+    require_once dirname(__DIR__) . '/main/sidebar.php';
 ?>
 
 <style>
@@ -21,13 +21,13 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
     .filter-toolbar .select2-container.filter-select-status,
     .filter-toolbar .filter-group .select2-container:nth-of-type(1) {
-        width: 150px !important;
+        width: 200px !important;
         flex: 0 0 150px !important;
     }
 
     .filter-toolbar .select2-container.filter-select-sort,
     .filter-toolbar .filter-group .select2-container:nth-of-type(2) {
-        width: 185px !important;
+        width: 200px !important;
         flex: 0 0 185px !important;
     }
 
@@ -612,7 +612,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <div class="page-header-box">
                         <div>
                             <h2 class="page-title">จัดการงานทะเบียน</h2>
-                            <?php $fy_display = !empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
+                            <?php $fy_display = ! empty($data['active_fiscal_year']) ? $data['active_fiscal_year'] : 'ไม่ได้เลือกปี'; ?>
                             <p class="page-subtitle">ภาพรวมระบบ - จัดการงานทะเบียน - ปี
                                 <?php echo htmlspecialchars($fy_display); ?></p>
                         </div>
@@ -704,7 +704,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 
                         <div class="filter-wrapper">
                             <div class="filter-group">
-                                <select class="filter-select select2" id="boardFilterUrgency">
+                                <select class="filter-select select2" id="boardFilterUrgency" style="width: 400px;">
                                     <option value="">ทุกระดับความเร่งด่วน</option>
                                     <option value="1">ปกติ</option>
                                     <option value="2">ด่วน</option>
@@ -722,16 +722,16 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     </div>
 
                     <?php
-                    // ป้ายชื่อคอลัมน์ตาม status ตรงกับ comment ในตาราง tbl_registration เป๊ะๆ
-                    $registrationStatusLabels = [
-                        '0' => 'รับงานทะเบียน',
-                        '1' => 'กำลังทำ',
-                        '2' => 'รอตรวจสอบ',
-                        '3' => 'ตรวจสอบแล้ว',
-                        '4' => 'กำลังไปยื่น',
-                        '5' => 'งานเสร็จเรียบร้อยแล้ว',
-                        '6' => 'เก็บเงินเรียบร้อยแล้ว',
-                    ];
+                        // ป้ายชื่อคอลัมน์ตาม status ตรงกับ comment ในตาราง tbl_registration เป๊ะๆ
+                        $registrationStatusLabels = [
+                            '0' => 'รับงานทะเบียน',
+                            '1' => 'กำลังทำ',
+                            '2' => 'รอตรวจสอบ',
+                            '3' => 'ตรวจสอบแล้ว',
+                            '4' => 'กำลังไปยื่น',
+                            '5' => 'งานเสร็จเรียบร้อยแล้ว',
+                            '6' => 'เก็บเงินเรียบร้อยแล้ว',
+                        ];
                     ?>
 
                     <!-- Board Swimlanes Wrapper -->
@@ -804,7 +804,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         <div class="history-search-wrap">
                             <i class="ri-search-line"></i>
                             <input type="text" id="historySearchInput" class="form-control modal-form-control history-search-input"
-                                placeholder="ค้นหาลูกค้า งาน ผู้รับผิดชอบ">
+                                style="padding-left: 40px !important;" placeholder="ค้นหาลูกค้า งาน ผู้รับผิดชอบ">
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -1340,8 +1340,8 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
 </div>
 
 <?php
-// 3. นำ Footer เข้ามา (เพื่อโหลด jQuery, Select2, Bootstrap ฯลฯ ก่อนรัน Script ของหน้า)
-require_once dirname(__DIR__) . '/main/footer.php';
+    // 3. นำ Footer เข้ามา (เพื่อโหลด jQuery, Select2, Bootstrap ฯลฯ ก่อนรัน Script ของหน้า)
+    require_once dirname(__DIR__) . '/main/footer.php';
 ?>
 
 <!-- HTML5Sortable — ใช้ทำลากการ์ดข้ามคอลัมน์สถานะบนบอร์ด -->

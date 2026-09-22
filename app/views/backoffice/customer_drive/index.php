@@ -48,7 +48,7 @@ require_once dirname(__DIR__, 2) . '/main/sidebar.php';
 <?php require_once dirname(__DIR__, 2) . '/main/footer.php'; ?>
 
 <script src="<?php echo $baseUrl; ?>/template/assets/js/toastr.min.js"></script>
-<script src="<?php echo $baseUrl; ?>/template/assets/js/customer_drive.js?v=<?php echo filemtime(__DIR__ . '/../../../../public/template/assets/js/customer_drive.js'); ?>"></script>
+<script src="<?php echo $baseUrl; ?>/template/assets/js/customer_drive_v2.js?v=<?php echo filemtime(__DIR__ . '/../../../../public/template/assets/js/customer_drive_v2.js') . '_' . time(); ?>"></script>
 <script>
     // เปลือกหน้าคลังไฟล์ลูกค้า — ตรรกะทั้งหมดอยู่ใน customer_drive.js (window.CustomerDrive)
     // ไฟล์นี้ทำแค่สองอย่าง: อ่าน id จาก URL แล้วสั่งวาดหน้าครั้งแรก

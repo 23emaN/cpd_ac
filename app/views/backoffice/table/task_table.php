@@ -17,7 +17,7 @@ $esc  = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
 ?>
 <div class="table-header-wrap">
     <h3 class="table-title">รายการงานประจำเดือน</h3>
-    <p class="table-subtitle">ทั้งหมด <?php echo number_format($total); ?> รายการ</p>
+    <p class="table-subtitle">ทั้งหมด <span id="tasksTotalCount"><?php echo number_format($total); ?></span> รายการ</p>
 </div>
 
 <table class="table">
@@ -32,7 +32,7 @@ $esc  = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
     </thead>
     <tbody>
         <?php if (!empty($list)): ?>
-            <?php $n = $from; foreach ($list as $task): ?>
+            <?php $n = 1; foreach ($list as $task): ?>
             <tr>
                 <td class="text-center fw-semibold text-secondary"><?php echo $n++ ?></td>
                 <td class="text-start">
@@ -47,8 +47,8 @@ $esc  = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
                 </td>
                 <td class="text-center">
                     <div class="action-btn-group">
-                        <button type="button" class="btn-action-edit" title="เลื่อนขึ้น" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'up')"><i class="ri-arrow-up-s-line"></i></button>
-                        <button type="button" class="btn-action-edit" title="เลื่อนลง" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'down')"><i class="ri-arrow-down-s-line"></i></button>
+                        <button type="button" class="btn-action-edit" title="เลื่อนขึ้น" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'up', this)"><i class="ri-arrow-up-s-line"></i></button>
+                        <button type="button" class="btn-action-edit" title="เลื่อนลง" onclick="moveTask(<?php echo $task['tasks_id'] ?>, 'down', this)"><i class="ri-arrow-down-s-line"></i></button>
                     </div>
                 </td>
                 <td class="text-center">
@@ -73,5 +73,5 @@ $esc  = fn($v) => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
 </table>
 
 <?php if (!empty($list)): ?>
-    <?php include dirname(__DIR__) . '/_pagination.php'; ?>
+    <div id="tasksPaginationContainer" class="d-flex justify-content-between align-items-center px-1 py-3 flex-wrap gap-2"></div>
 <?php endif; ?>

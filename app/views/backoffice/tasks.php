@@ -66,6 +66,23 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
                     </div>
 
+                    <!-- Filter Toolbar -->
+                    <div class="filter-toolbar">
+                        <div class="search-box-wrap">
+                            <i class="ri-search-line"></i>
+                            <input type="text" id="tasksSearchInput" class="search-input" placeholder="ค้นหางาน...">
+                        </div>
+
+                        <div class="filter-group">
+                            <select id="tasksPerPage" class="filter-select">
+                                <option value="25">25 รายการ</option>
+                                <option value="50">50 รายการ</option>
+                                <option value="75">75 รายการ</option>
+                                <option value="100">100 รายการ</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- Main Table -->
                     <div class="table-container-card">
                         <?php include 'table/task_table.php'; ?>
@@ -166,7 +183,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
     </div>
 </div>
 <script>
-    function moveTask(taskId, direction) {
+    function moveTask(taskId, direction, btn) {
         const fiscalId = $('input[name="fiscal_id"]').val();
         if (!fiscalId || !taskId) return;
 
@@ -181,7 +198,37 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             dataType: 'json',
             success: function (response) {
                 if (response.result === 1) {
-                    location.reload(); // รีเฟรชหน้าเว็บเพื่อดูการเรียงลำดับใหม่
+                    // แอนิเมชั่นสลับแถวและโชว์ Swal โทสต์
+                    if (btn) {
+                        const tr = $(btn).closest('tr');
+                        if (direction === 'up') {
+                            const prevTr = tr.prev('tr');
+                            if (prevTr.length) {
+                                const tempSeq = tr.find('td:first').text();
+                                tr.find('td:first').text(prevTr.find('td:first').text());
+                                prevTr.find('td:first').text(tempSeq);
+                                tr.insertBefore(prevTr);
+                            }
+                        } else if (direction === 'down') {
+                            const nextTr = tr.next('tr');
+                            if (nextTr.length) {
+                                const tempSeq = tr.find('td:first').text();
+                                tr.find('td:first').text(nextTr.find('td:first').text());
+                                nextTr.find('td:first').text(tempSeq);
+                                tr.insertAfter(nextTr);
+                            }
+                        }
+                    }
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'เลื่อนลำดับงานสำเร็จ',
+                            showConfirmButton: true,
+                            confirmButtonColor: '#0066fe',
+                            confirmButtonText: 'ตกลง'
+                        });
+                    }
                 } else {
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({ icon: 'error', title: response.msg });
@@ -298,7 +345,14 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'ลบข้อมูล',
                 cancelButtonText: 'ยกเลิก',
-                reverseButtons: true
+                reverseButtons: true,
+                focusConfirm: false,
+                focusCancel: false,
+                allowEnterKey: false,
+                didOpen: () => {
+                    if (Swal.getConfirmButton()) Swal.getConfirmButton().blur();
+                    if (Swal.getCancelButton()) Swal.getCancelButton().blur();
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     processDeleteTask(taskId);
@@ -440,6 +494,144 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 }
             }
         });
+    }
+    // Pagination & Search Logic
+    let currentTasksPage = 1;
+    let filterTasksTimeout = null;
+
+    $(document).ready(function() {
+        filterTasksTable();
+
+        $('#tasksPerPage').on('change', function() {
+            currentTasksPage = 1;
+            filterTasksTable();
+        });
+
+        $('#tasksSearchInput').on('keyup', function() {
+            currentTasksPage = 1;
+            clearTimeout(filterTasksTimeout);
+            filterTasksTimeout = setTimeout(filterTasksTable, 300);
+        });
+    });
+
+    window.GetData = function(page) {
+        currentTasksPage = page;
+        filterTasksTable();
+    };
+
+    function filterTasksTable() {
+        const tbody = $('.table-container-card table tbody');
+        const perPage = parseInt($('#tasksPerPage').val()) || 25;
+        const searchText = ($('#tasksSearchInput').val() || '').trim().toLowerCase();
+        
+        const allRows = tbody.find('tr').not(':has(td[colspan="5"])');
+        
+        if (allRows.length === 0) return;
+
+        let matchedRows = [];
+
+        allRows.each(function() {
+            const rowText = $(this).text().toLowerCase();
+            if (searchText === '' || rowText.includes(searchText)) {
+                matchedRows.push($(this));
+            } else {
+                $(this).hide();
+            }
+        });
+
+        const totalRows = matchedRows.length;
+        const totalPages = Math.ceil(totalRows / perPage) || 1;
+
+        if (currentTasksPage > totalPages) {
+            currentTasksPage = totalPages;
+        }
+
+        const startIndex = (currentTasksPage - 1) * perPage;
+        const endIndex = startIndex + perPage;
+
+        matchedRows.forEach(function(row, index) {
+            if (index >= startIndex && index < endIndex) {
+                row.show();
+                // Update sequence number visually based on filtered index
+                row.find('td:first').text(index + 1);
+            } else {
+                row.hide();
+            }
+        });
+
+        $('#tasksTotalCount').text(totalRows.toLocaleString());
+
+        // Manage Empty State
+        tbody.find('.no-result-row').remove();
+        if (totalRows === 0) {
+            tbody.append(`
+                <tr class="no-result-row">
+                    <td colspan="5" class="text-center py-5 text-muted fw-medium">
+                        <div class="list-empty-icon mb-2">
+                            <span class="material-symbols-outlined" aria-hidden="true" style="font-size: 48px; color: #ccc;">search_off</span>
+                        </div>
+                        <div class="list-empty-title text-muted" style="font-weight: 500;">ไม่พบข้อมูลงานที่ค้นหา</div>
+                    </td>
+                </tr>
+            `);
+        }
+
+        renderTasksPagination(totalRows, totalPages, currentTasksPage, startIndex, Math.min(endIndex, totalRows));
+    }
+
+    function renderTasksPagination(totalRows, totalPages, currentPage, startIndex, endIndex) {
+        const container = $('#tasksPaginationContainer');
+        if (container.length === 0) return;
+
+        let html = `
+            <span class="text-secondary">แสดง ${startIndex + 1}-${endIndex} จาก ${totalRows} รายการ</span>
+            <nav aria-label="pagination">
+                <ul class="pagination mb-0">
+                    <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0);" onclick="window.GetData(1)">หน้าแรก</a>
+                    </li>
+                    <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0);" onclick="window.GetData(${currentPage - 1})">ก่อนหน้า</a>
+                    </li>
+        `;
+
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        if (startPage > 1) {
+            html += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="window.GetData(1)">1</a></li>`;
+            if (startPage > 2) {
+                html += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            html += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="javascript:void(0);" onclick="window.GetData(${i})">${i}</a>
+                </li>
+            `;
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
+            }
+            html += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="window.GetData(${totalPages})">${totalPages}</a></li>`;
+        }
+
+        html += `
+                    <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0);" onclick="window.GetData(${currentPage + 1})">ถัดไป</a>
+                    </li>
+                    <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0);" onclick="window.GetData(${totalPages})">หน้าสุดท้าย</a>
+                    </li>
+                </ul>
+            </nav>
+        `;
+
+        container.html(html);
     }
 </script>
 

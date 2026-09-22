@@ -365,7 +365,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 </p>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn-excel-action">
+                            <button type="button" class="btn-excel-action" onclick="window.open('<?php echo BASE_URL; ?>/closing/export', '_blank')">
                                 <i class="ri-upload-2-line"></i>
                                 <span>ส่งออก Excel</span>
                             </button>
@@ -375,6 +375,20 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                     <!-- Stats Grid (4 กล่องสถิติการปิดงบ) -->
                     <?php
                     $closingRows = $data['closing_data'] ?? [];
+                    $user_id = $data['user_id'] ?? '';
+                    $is_super_admin = $data['is_super_admin'] ?? '0';
+
+                    if ($is_super_admin !== '1') {
+                        $filteredRows = [];
+                        foreach ($closingRows as $r) {
+                            if (($r['user_id'] ?? '') == $user_id) {
+                                $filteredRows[] = $r;
+                            }
+                        }
+                        $closingRows = $filteredRows;
+                        $data['closing_data'] = $closingRows; // Update for the table view
+                    }
+
                     $cntDocReceived = 0; // ลูกค้าปิดงบ (ได้รับเอกสารแล้ว)
                     $cntClosingDone = 0; // ปิดงบเสร็จ
                     $cntBudgetRefund = 0; // รับงบคืนแล้ว
@@ -441,16 +455,18 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                         </div>
 
                         <div class="filter-group">
-                            <select class="filter-select select2" id="selUserClosing">
-                                <option value="">ทุกผู้ดูแล</option>
-                                <?php if (!empty($data['caretakers'])): ?>
-                                    <?php foreach ($data['caretakers'] as $c): ?>
-                                        <option value="<?php echo htmlspecialchars($c['user_id'] ?? ''); ?>">
-                                            <?php echo htmlspecialchars(trim(($c['user_firstname'] ?? '') . ' ' . ($c['user_lastname'] ?? ''))); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
+                            <?php if ($is_super_admin === '1'): ?>
+                                <select class="filter-select select2" id="selUserClosing">
+                                    <option value="">ทุกผู้ดูแล</option>
+                                    <?php if (!empty($data['caretakers'])): ?>
+                                        <?php foreach ($data['caretakers'] as $c): ?>
+                                            <option value="<?php echo htmlspecialchars($c['user_id'] ?? ''); ?>">
+                                                <?php echo htmlspecialchars(trim(($c['user_firstname'] ?? '') . ' ' . ($c['user_lastname'] ?? ''))); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            <?php endif; ?>
 
                             <select class="filter-select select2" id="selClosing">
                                 <option selected value="">ปิดงบ : ทั้งหมด</option>
@@ -481,7 +497,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                             <select class="filter-select select2" id="selPnd50">
                                 <option selected value="">ภ.ง.ด 50 : ทั้งหมด</option>
                                 <option value="1">รอเอกสาร</option>
-                                <option value="2">ยังไม่ได้ยื่น</option>
+                                <!-- <option value="2">ยังไม่ได้ยื่น</option> -->
                                 <option value="3">นำส่งแล้ว</option>
                             </select>
                         </div>
@@ -744,8 +760,20 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             });
         }
 
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        window.changePage = function(page) {
+            currentPage = page;
+            applyClosingFilters(false);
+        };
+
         // --- Active Search and Filter Logic ---
-        function applyClosingFilters() {
+        function applyClosingFilters(resetPage) {
+            if (resetPage !== false) {
+                currentPage = 1;
+            }
+
             const q = ($('.search-input').val() || '').trim().toLowerCase();
             const selUser = String($('#selUserClosing').val() || '').trim();
             const selClosing = String($('#selClosing').val() || '').trim();
@@ -754,7 +782,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
             const selBdb = String($('#selBdb').val() || '').trim();
             const selPnd50 = String($('#selPnd50').val() || '').trim();
 
-            let visibleCount = 0;
+            let filteredRows = [];
             $('.table tbody tr.closing-row').each(function () {
                 const $tr = $(this);
 
@@ -841,18 +869,102 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                 }
 
                 if (matchSearch && matchUser && matchClosing && matchAuditor && matchBoj5 && matchBdb && matchPnd50) {
-                    $tr.show();
-                    visibleCount++;
+                    filteredRows.push($tr);
                 } else {
                     $tr.hide();
                 }
             });
 
-            $('#noClosingDataRow').toggle(visibleCount === 0);
+            let visibleCount = filteredRows.length;
+            if (visibleCount === 0) {
+                $('#noClosingDataRow').removeClass('d-none');
+            } else {
+                $('#noClosingDataRow').addClass('d-none');
+            }
+
+            // Pagination Logic
+            if (visibleCount > 0) {
+                const totalPages = Math.ceil(visibleCount / rowsPerPage) || 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+
+                const from = ((currentPage - 1) * rowsPerPage) + 1;
+                const to = Math.min(currentPage * rowsPerPage, visibleCount);
+
+                $('#clientPaginationInfo').text(`แสดง ${from}-${to} จาก ${visibleCount} รายการ`);
+
+                let ul = $('#clientPaginationUl');
+                ul.empty();
+
+                ul.append(`<li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0);" onclick="changePage(1)">หน้าแรก</a>
+                </li>`);
+                ul.append(`<li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0);" onclick="changePage(${currentPage - 1})">ก่อนหน้า</a>
+                </li>`);
+
+                for (let i = 1; i <= totalPages; i++) {
+                    ul.append(`<li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="javascript:void(0);" onclick="changePage(${i})">${i}</a>
+                    </li>`);
+                }
+
+                ul.append(`<li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0);" onclick="changePage(${currentPage + 1})">ถัดไป</a>
+                </li>`);
+                ul.append(`<li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0);" onclick="changePage(${totalPages})">หน้าสุดท้าย</a>
+                </li>`);
+
+                $('#clientPaginationContainer').show();
+
+                let startIdx = (currentPage - 1) * rowsPerPage;
+                let endIdx = startIdx + rowsPerPage;
+
+                filteredRows.forEach(function($tr, index) {
+                    if (index >= startIdx && index < endIdx) {
+                        $tr.show();
+                    } else {
+                        $tr.hide();
+                    }
+                });
+            } else {
+                $('#clientPaginationContainer').hide();
+            }
         }
 
-        $('.search-input').on('keyup input', applyClosingFilters);
-        $('.select2').on('change', applyClosingFilters);
+        let closingFilterTimer = null;
+        function triggerClosingFilter() {
+            const tbody = $('.table tbody');
+            
+            // ซ่อนข้อมูลเก่าและแสดง Loading
+            tbody.find('tr.closing-row').hide();
+            $('#noClosingDataRow').addClass('d-none');
+            $('#clientPaginationContainer').hide();
+            tbody.find('.loading-row').remove();
+            tbody.append(`
+                <tr class="loading-row">
+                    <td colspan="13" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-2 text-muted" style="font-size: 0.9rem; font-weight: 500;">กำลังโหลดข้อมูล...</div>
+                    </td>
+                </tr>
+            `);
+
+            clearTimeout(closingFilterTimer);
+            closingFilterTimer = setTimeout(function() {
+                tbody.find('.loading-row').remove();
+                applyClosingFilters();
+            }, 500); // เพิ่มเป็น 500ms เพื่อให้เห็น Loading ชัดเจนขึ้น
+        }
+
+        // ใช้ Event Delegation เผื่อ Select2 ดัก Event
+        $(document).on('keyup input search', '.search-input', triggerClosingFilter);
+        $(document).on('change change.select2', '.filter-group .select2', triggerClosingFilter);
+
+        // Initialize pagination on page load
+        applyClosingFilters();
     });
 
 

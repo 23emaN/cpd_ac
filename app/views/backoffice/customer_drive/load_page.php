@@ -1,15 +1,14 @@
 <?php
-// app/views/backoffice/customer_drive/load_page.php
-// Ported from _export_customer_drive/files/main/ajax/customer_drive/load_page.php
-// $customer_id/$userId/$folder_id are set by CustomerDriveController::loadPage().
-// No permission system in this project — every logged-in user sees everything,
-// so the "ลิงก์แชร์" (share link) toolbar button is dropped entirely (phase 2).
-
 function cd_head(string $title): void
 {
 ?>
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-        <h3 class="mb-0"><?php echo cd_e($title); ?></h3>
+        <div class="d-flex align-items-center gap-3">
+            <a href="<?php echo BASE_URL; ?>/customer" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+                <i class="ri-arrow-left-line"></i> ย้อนกลับ
+            </a>
+            <h3 class="mb-0"><?php echo cd_e($title); ?></h3>
+        </div>
 
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb align-items-center mb-0 lh-1">
@@ -60,19 +59,9 @@ $fiscalYear = (int) date('Y') + 543;
         </div>
     </div>
 
-    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb align-items-center mb-0 lh-1">
-            <li class="breadcrumb-item">
-                <a href="<?php echo BASE_URL; ?>/customer" class="d-flex align-items-center text-decoration-none">
-                    <i class="cd-ic menu-icon ri-group-line"></i>
-                    <span class="fw-medium">ลูกค้า</span>
-                </a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-                <span class="fw-medium">คลังไฟล์</span>
-            </li>
-        </ol>
-    </nav>
+    <a href="<?php echo BASE_URL; ?>/customer" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+        <i class="ri-arrow-left-line"></i> ย้อนกลับ
+    </a>
 </div>
 
 <?php if ($storageError !== ''): ?>

@@ -277,6 +277,13 @@ $folders = cd_flatten($customer_id);
     <?php endif; ?>
 </div>
 
-<div class="modal-footer modal-footer-custom">
-    <button type="button" class="btn modal-btn-cancel" data-bs-dismiss="modal">ยกเลิก</button>
+<div class="modal-footer modal-footer-custom d-flex justify-content-end gap-2">
+    <!-- ปุ่มสำหรับหน้ารายการลิงก์ -->
+    <button type="button" class="btn modal-btn-cancel cd-linkhead" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+
+    <!-- ปุ่มสำหรับหน้าสร้างลิงก์ -->
+    <button type="button" class="btn btn-light cd-linkform d-none" data-cd="lk-cancel" style="background-color: #f8fafc !important; color: #334155 !important; border: none !important; font-weight: 600; border-radius: 10px;">ย้อนกลับ</button>
+    <button type="button" class="btn btn-primary cd-linkform d-none" data-cd="lk-save" style="background-color: #0066fe !important; color: #ffffff !important; border: none !important; font-weight: 600; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,102,254,0.25) !important;">
+        <i class="ri-link-m me-1"></i> สร้างลิงก์
+    </button>
 </div>

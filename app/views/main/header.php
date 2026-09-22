@@ -989,6 +989,7 @@
             border: 1px solid #e2e8f0 !important;
             border-radius: 12px !important;
             padding: 12px 16px !important;
+            height: 50px !important;
             outline: none !important;
             box-shadow: none !important;
             width: 100%;
@@ -1581,8 +1582,8 @@
         }
 
         .badge-inactive {
-            background-color: #f1f5f9;
-            color: #64748b;
+            background-color: #fae7e7ff;
+            color: #d43333ff;
             font-size: 0.72rem;
             font-weight: 700;
             padding: 4px 10px;
@@ -2011,8 +2012,8 @@
         .select2-container--default .select2-selection--single {
             background-color: #f8fafc !important;
             border: 1px solid #f1f5f9 !important;
-            border-radius: 14px !important;
-            height: 42px !important;
+            border-radius: 12px !important;
+            height: 50px !important;
             display: flex !important;
             align-items: center !important;
             transition: all 0.2s ease !important;
@@ -2032,11 +2033,11 @@
             font-weight: 500 !important;
             padding-left: 16px !important;
             padding-right: 36px !important;
-            line-height: 40px !important;
+            line-height: 48px !important;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 40px !important;
+            height: 48px !important;
             width: 30px !important;
             right: 10px !important;
             display: flex !important;

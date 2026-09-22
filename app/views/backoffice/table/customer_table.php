@@ -55,7 +55,7 @@ $per_page = max(1, (int) ($_POST['per_page'] ?? 25));
                         </td>
                         <td class="text-center">
                             <?php if (!empty($customer['caretaker_firstname']) && empty($customer['caretaker_delete_at'])): ?>
-                                <span class="caretaker-text"><?php echo htmlspecialchars($customer['caretaker_firstname']); ?></span>
+                                <span class="caretaker-text"><?php echo htmlspecialchars($customer['caretaker_firstname']) . ' ' . htmlspecialchars($customer['caretaker_lastname']); ?> </span>
                             <?php else: ?>
                                 <span>ไม่ระบุ</span>
                             <?php endif; ?>
@@ -85,7 +85,7 @@ $per_page = max(1, (int) ($_POST['per_page'] ?? 25));
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">ยังไม่มีข้อมูลลูกค้า</td>
+                    <td colspan="7" class="text-center text-muted py-4">ไม่พบข้อมูล</td>
                 </tr>
             <?php endif; ?>
         </tbody>
