@@ -354,9 +354,11 @@ class CustomerDriveController
         }
 
         $path = $version > 0 ? cd_version_path($node, $version) : cd_current_path($node);
+        require_once dirname(__DIR__) . '/services/AwsS3.php';
+        $s3Url = \App\Services\AwsS3::getFileUrl($path);
 
-        if (!is_file($path)) {
-            $stop(404, 'ไม่พบไฟล์บนเซิร์ฟเวอร์ — อาจถูกลบไปแล้วหรือยังอัปโหลดไม่สำเร็จ');
+        if (!$s3Url) {
+            $stop(404, 'ไม่พบไฟล์บนระบบจัดเก็บข้อมูล — อาจถูกลบไปแล้วหรือยังอัปโหลดไม่สำเร็จ');
         }
 
         $name = (string) $node['name'];
@@ -384,7 +386,7 @@ class CustomerDriveController
             header("Content-Security-Policy: sandbox; default-src 'none'; object-src 'self'; plugin-types application/pdf;");
         }
 
-        readfile($path);
+        readfile($s3Url);
         exit;
     }
 
@@ -438,9 +440,11 @@ class CustomerDriveController
 
             if ($node['kind'] === 'file') {
                 $path = cd_current_path($node);
+                require_once dirname(__DIR__) . '/services/AwsS3.php';
+                $s3Url = \App\Services\AwsS3::getFileUrl($path);
 
-                if (is_file($path)) {
-                    $out[] = ['path' => $prefix . $name, 'file' => $path];
+                if ($s3Url) {
+                    $out[] = ['path' => $prefix . $name, 's3_url' => $s3Url];
                 }
 
                 return $out;
@@ -490,9 +494,10 @@ class CustomerDriveController
         }
 
         $used = [];
+        $tmpFiles = [];
 
         foreach ($entries as $entry) {
-            if ($entry['file'] === '') {
+            if (!isset($entry['s3_url'])) {
                 $zip->addEmptyDir(rtrim($entry['path'], '/'));
                 continue;
             }
@@ -507,10 +512,18 @@ class CustomerDriveController
             }
 
             $used[$path] = true;
-            $zip->addFile($entry['file'], $path);
+            $tmpFile = tempnam(sys_get_temp_dir(), 'cd_s3_');
+            if (@copy($entry['s3_url'], $tmpFile)) {
+                $zip->addFile($tmpFile, $path);
+                $tmpFiles[] = $tmpFile;
+            }
         }
 
         $zip->close();
+        
+        foreach ($tmpFiles as $f) {
+            @unlink($f);
+        }
 
         $label = count($node_ids) === 1 && isset($byId[$node_ids[0]])
             ? (string) $byId[$node_ids[0]]['name']

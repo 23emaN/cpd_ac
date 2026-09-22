@@ -6,7 +6,8 @@
         "vlucas/phpdotenv": "^5.7",
         "firebase/php-jwt": "^7.1",
         "minishlink/web-push": "^8.0",
-        "phpmailer/phpmailer": "^7.1"
+        "phpmailer/phpmailer": "^7.1",
+        "aws/aws-sdk-php": "^3.337"
     },
     "autoload": {
         "psr-4": {

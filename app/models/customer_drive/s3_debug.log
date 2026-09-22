@@ -1,0 +1,16 @@
+2026-09-22 11:27:11 START upload
+  bucket: cpdth-account
+  vKey: customer-files/62/17/v1.xlsx
+  cKey: customer-files/62/17/current.xlsx
+  source exists: YES
+  region: ap-southeast-2
+  AWS ERROR: S3 Upload Error [customer-files/62/17/v1.xlsx]: HTTP  | Code:  | 
+  upload v: FAIL
+2026-09-22 11:27:41 START upload
+  bucket: cpdth-account
+  vKey: customer-files/62/18/v1.xlsx
+  cKey: customer-files/62/18/current.xlsx
+  source exists: YES
+  region: ap-southeast-2
+  AWS ERROR: S3 Upload Error [customer-files/62/18/v1.xlsx]: Aws\S3\Exception\PermanentRedirectException | HTTP  | Encountered a permanent redirect while requesting https://cpdth-account.s3.ap-southeast-2.amazonaws.com/customer-files/62/18/v1.xlsx. Are you sure you are using the correct region for this bucket?
+  upload v: FAIL

@@ -1,0 +1,6 @@
+2026-09-22 11:13:32 - Failed opening required '/home/admin/domains/account.cpathai.com/public_html/app/models/services/AwsS3.php' (include_path='.:/usr/local/php82/lib/php')
+#0 /home/admin/domains/account.cpathai.com/public_html/app/models/customer_drive/cd_functions.php(1629): cd_commit_version(Array, '/tmp/phpj7OpqZ', 'guest_upload', NULL, '\xE0\xB9\x80\xE0\xB8\xAD\xE0\xB8\x81\xE0\xB8\xAA\xE0\xB8\xB2...')
+#1 /home/admin/domains/account.cpathai.com/public_html/app/controllers/PortalController.php(435): cd_guest_accept(Array, Array, '/tmp/phpj7OpqZ', 'Expenses_Report...')
+#2 /home/admin/domains/account.cpathai.com/public_html/routes/web.php(135): PortalController->upload()
+#3 /home/admin/domains/account.cpathai.com/public_html/public/index.php(25): require_once('/home/admin/dom...')
+#4 {main}

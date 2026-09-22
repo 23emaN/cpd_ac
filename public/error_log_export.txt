@@ -1,0 +1,5 @@
+Class "PhpOffice\PhpSpreadsheet\Spreadsheet" not found
+#0 /home/admin/domains/account.cpathai.com/public_html/app/controllers/ReportController.php(287): ClosingTaskReport->exportClosing(Array, '', 'Accounting')
+#1 /home/admin/domains/account.cpathai.com/public_html/routes/web.php(135): ReportController->closingExcel()
+#2 /home/admin/domains/account.cpathai.com/public_html/public/index.php(25): require_once('/home/admin/dom...')
+#3 {main}

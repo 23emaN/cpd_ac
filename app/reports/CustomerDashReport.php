@@ -8,14 +8,18 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class CustomerDashReport
 {
-    public function export(array $customers, string $fiscalYear, string $companyName): void
+    public function export(array $customers, string $fiscalYear, string $companyName, string $monthName = ''): void
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('แดชบอร์ดลูกค้า');
         $headers = ['ลำดับ', 'ลูกค้า', 'ผู้ดูแล', 'ทีม', 'เดือนที่มีงาน', 'งานทั้งหมด', 'งานเสร็จแล้ว', 'ยอดทำบัญชี / เดือน', 'ค่าปิดบัญชี', 'ค่าสอบบัญชี', 'สถานะ'];
         $lastColumn = $this->columnName(count($headers));
+        
         $title = 'ภาพรวมงานของลูกค้า ประจำปี ' . $fiscalYear . ' ของบริษัท ' . $companyName;
+        if ($monthName !== '') {
+            $title .= ' (เดือน ' . $monthName . ')';
+        }
 
         $sheet->mergeCells('A1:' . $lastColumn . '1');
         $sheet->setCellValue('A1', $title);

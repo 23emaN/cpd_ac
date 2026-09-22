@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/cd_s3.php';
+
 // app/models/customer_drive/cd_functions.php
 //
 // Customer Drive (phase 1: staff drive + phase 2: share-link guest portal)
@@ -757,31 +759,20 @@ function cd_node_dir(int $customer_id, int $node_id, bool $create = true): strin
 
 function cd_current_path(array $node): string
 {
-    return cd_node_dir((int) $node['customer_id'], (int) $node['node_id'])
+    return 'customer-files/' . (int) $node['customer_id'] . '/' . (int) $node['node_id']
         . '/current.' . ($node['ext'] ?: 'bin');
 }
 
 function cd_version_path(array $node, int $version): string
 {
-    return cd_node_dir((int) $node['customer_id'], (int) $node['node_id'])
+    return 'customer-files/' . (int) $node['customer_id'] . '/' . (int) $node['node_id']
         . '/v' . $version . '.' . ($node['ext'] ?: 'bin');
 }
 
 function cd_forget_files(int $customer_id, int $node_id): void
 {
-    $dir = cd_root() . '/' . $customer_id . '/' . $node_id;
-
-    if (!is_dir($dir)) {
-        return;
-    }
-
-    foreach (glob($dir . '/*') ?: [] as $file) {
-        if (is_file($file)) {
-            @unlink($file);
-        }
-    }
-
-    @rmdir($dir);
+    $prefix = 'customer-files/' . $customer_id . '/' . $node_id . '/';
+    cd_s3_delete_prefix($prefix);
 }
 
 function cd_atomic_copy(string $from, string $to): bool
@@ -959,12 +950,40 @@ function cd_commit_version(array $node, string $source, string $via, ?int $user_
 
         $node['ext'] = $locked['ext'];
 
-        if (!cd_atomic_copy($source, cd_version_path($node, $next))) {
-            throw new Exception('บันทึกไฟล์เวอร์ชันใหม่ไม่สำเร็จ');
-        }
+        $folder = 'customer-files/' . $customer_id . '/' . $node_id;
+        $vKey = $folder . '/v' . $next . '.' . ($locked['ext'] ?: 'bin');
+        $cKey = $folder . '/current.' . ($locked['ext'] ?: 'bin');
 
-        if (!cd_atomic_copy($source, cd_current_path($node))) {
-            throw new Exception('บันทึกไฟล์ล่าสุดไม่สำเร็จ');
+        try {
+            // ตรวจสอบว่า S3 config ครบไหม
+            $debugLog = __DIR__ . '/s3_debug.log';
+            file_put_contents($debugLog, date('Y-m-d H:i:s') . " START upload\n", FILE_APPEND);
+            file_put_contents($debugLog, "  bucket: " . cd_s3_bucket() . "\n", FILE_APPEND);
+            file_put_contents($debugLog, "  vKey: $vKey\n", FILE_APPEND);
+            file_put_contents($debugLog, "  cKey: $cKey\n", FILE_APPEND);
+            file_put_contents($debugLog, "  source exists: " . (is_file($source) ? 'YES' : 'NO') . "\n", FILE_APPEND);
+            file_put_contents($debugLog, "  region: " . ($_ENV['AWS_DEFAULT_REGION'] ?? 'NOT SET') . "\n", FILE_APPEND);
+
+            // Upload version file
+            $okV = cd_s3_upload($source, $vKey);
+            file_put_contents($debugLog, "  upload v: " . ($okV ? 'OK' : 'FAIL') . "\n", FILE_APPEND);
+
+            if (!$okV) {
+                throw new Exception('อัปโหลดไฟล์เวอร์ชัน (v' . $next . ') ลง S3 ไม่สำเร็จ — ดู s3_debug.log');
+            }
+
+            // Upload current file
+            $okC = cd_s3_upload($source, $cKey);
+            file_put_contents($debugLog, "  upload current: " . ($okC ? 'OK' : 'FAIL') . "\n", FILE_APPEND);
+
+            if (!$okC) {
+                throw new Exception('อัปโหลดไฟล์ปัจจุบัน (current) ลง S3 ไม่สำเร็จ — ดู s3_debug.log');
+            }
+
+            file_put_contents($debugLog, "  DONE\n", FILE_APPEND);
+        } catch (Throwable $e) {
+            error_log('cd_commit_version S3 error: ' . $e->getMessage());
+            throw new Exception('บันทึกไฟล์ลง S3 ไม่สำเร็จ: ' . $e->getMessage());
         }
 
         cd_query(
