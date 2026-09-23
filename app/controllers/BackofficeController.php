@@ -35,6 +35,7 @@ class BackofficeController
         $this->userPayload = $user;
     }
 
+
     /////////////////////////////////////// index ///////////////////////////////////////////////
     public function index()
     {
@@ -145,7 +146,7 @@ class BackofficeController
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $data = [
-            'title' => 'ระบบ Backoffice',
+            'title' => 'Account - ภาพรวมสำนักงาน',
             'user' => $this->userPayload,
             'user_id' => $this->userPayload['user_id'] ?? '',
             'firstname' => $this->userPayload['user_firstname'] ?? '',
@@ -211,7 +212,7 @@ class BackofficeController
         $totalJobsData      = $workspaceModel->getTotalJobsByCompany($userId, $isSuperAdmin);
 
         $data = [
-            'title'              => 'Dashboard Workspace',
+            'title'              => 'Account - Dashboard Workspace',
             'user'               => $this->userPayload,
             'user_id'            => $userId,
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -270,7 +271,7 @@ class BackofficeController
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $data = [
-            'title'              => 'ระบบ Backoffice',
+            'title'              => 'Account - งานที่ต้องทำ',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -472,7 +473,7 @@ class BackofficeController
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $data = [
-            'title'              => 'ระบบ Backoffice',
+            'title'              => 'Account - จัดการพนักงาน',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -512,6 +513,7 @@ class BackofficeController
         $user_password  = trim($_POST['user_password'] ?? '');
         $user_firstname = trim($_POST['user_firstname'] ?? '');
         $user_lastname  = trim($_POST['user_lastname'] ?? '');
+        $user_email     = trim($_POST['user_email'] ?? '');
         $user_position  = trim($_POST['user_position'] ?? '');
         $team_name      = trim($_POST['team_name'] ?? '');
 
@@ -575,6 +577,7 @@ class BackofficeController
                     'user_password'  => password_hash($user_password, PASSWORD_DEFAULT),
                     'user_firstname' => $user_firstname,
                     'user_lastname'  => $user_lastname,
+                    'user_email'     => $user_email,
                     'position'       => $user_position,
                     'team_id'        => $team_id,
                 ];
@@ -603,6 +606,7 @@ class BackofficeController
         $user_firstname = trim($_POST['user_firstname'] ?? '');
 
         $user_lastname = trim($_POST['user_lastname'] ?? '');
+        $user_email    = trim($_POST['user_email'] ?? '');
         $user_position = trim($_POST['user_position'] ?? '');
         $team_name     = trim($_POST['team_name'] ?? '');
         $user_status   = trim($_POST['user_status'] ?? '');
@@ -633,6 +637,7 @@ class BackofficeController
                 'user_firstname' => $user_firstname,
 
                 'user_lastname'  => $user_lastname,
+                'user_email'     => $user_email,
                 'position'       => $user_position,
                 'team_id'        => $team_id,
                 'user_status'    => $user_status,
@@ -746,7 +751,7 @@ class BackofficeController
         $stats      = $customModal->getCustomersgid($fiscal_id);
 
         $data = [
-            'title'              => 'ระบบ Backoffice',
+            'title'              => 'Account - ตั้งค่าลูกค้า',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'user_firstname'     => $this->userPayload['user_firstname'] ?? '',
@@ -811,7 +816,7 @@ class BackofficeController
         }));
 
         $data = [
-            'title'              => 'แดชบอร์ดลูกค้า',
+            'title'              => 'Account - แดชบอร์ดลูกค้า',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -1042,6 +1047,54 @@ class BackofficeController
 
     }
 
+   public function customerDashFilter()
+{
+    header('Content-Type: application/json; charset=utf-8');
+    $this->checkAuth();
+
+    $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+    if (! $fiscal_id) {
+        echo json_encode(['result' => 0, 'msg' => 'ไม่พบปีบัญชีที่ใช้งานอยู่'], JSON_UNESCAPED_UNICODE);
+        return;
+    }
+
+    $month = null;
+    if (isset($_GET['month']) && ctype_digit((string) $_GET['month'])) {
+        $month = str_pad($_GET['month'], 2, '0', STR_PAD_LEFT);
+    }
+
+    require_once '../app/models/CustomerDashModel.php';
+    $customerDashModel = new CustomerDashModel();
+
+    $customerWork = $month
+        ? $customerDashModel->getCustomerWorkDashboard($fiscal_id, $month)
+        : $customerDashModel->getCustomerWorkDashboard($fiscal_id);
+
+    $totalTasks          = array_sum(array_map(static fn($c) => (int) ($c['total_tasks'] ?? 0), $customerWork));
+    $completedTasks      = array_sum(array_map(static fn($c) => (int) ($c['completed_tasks'] ?? 0), $customerWork));
+    $totalAccountsAmount = array_sum(array_map(static fn($c) => (float) ($c['accounts_amount'] ?? 0), $customerWork));
+
+    // Match the same $data shape that customer_dash_table.php is rendered with
+    // on the normal page load (see BackofficeController::customer_dash()).
+    $data = ['customers' => $customerWork];
+
+    ob_start();
+    require '../app/views/backoffice/table/customer_dash_table.php';
+    $html = ob_get_clean();
+
+    echo json_encode([
+        'result' => 1,
+        'html'   => $html,
+        'stats'  => [
+            'total_customers'       => count($customerWork),
+            'total_tasks'           => $totalTasks,
+            'completed_tasks'       => $completedTasks,
+            'unfinished_tasks'      => max(0, $totalTasks - $completedTasks),
+            'total_accounts_amount' => number_format($totalAccountsAmount, 2),
+        ],
+    ], JSON_UNESCAPED_UNICODE);
+}
+
     /////////////////////////////////////// registration_board ///////////////////////////////////////////////
 
     public function registration_board()
@@ -1081,7 +1134,7 @@ class BackofficeController
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $data = [
-            'title'              => 'ระบบ Backoffice',
+            'title'              => 'Account - จัดการงานทะเบียน',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -1198,7 +1251,7 @@ class BackofficeController
         $to        = min($offset + $perPage, $totalItems);
 
         $data = [
-            'title'             => 'Post-it แจ้งเตือน',
+            'title'             => 'Account - Post-it',
             'user'              => $this->userPayload,
             'user_id'           => $this->userPayload['user_id'] ?? '',
             'firstname'         => $this->userPayload['user_firstname'] ?? '',
@@ -1575,7 +1628,7 @@ class BackofficeController
         }
 
         $data = [
-            'title'             => 'ระบบ Backoffice',
+            'title'             => 'Account - ปิดงบการเงิน',
             'user'              => $this->userPayload,
             'user_id'           => $this->userPayload['user_id'] ?? '',
             'firstname'         => $this->userPayload['user_firstname'] ?? '',
@@ -1616,97 +1669,94 @@ class BackofficeController
 
     /////////////////////////////////////// monthly_task ///////////////////////////////////////////////
     public function monthly_task()
-    {
-        // 1. ตรวจสอบสิทธิ์ผู้ใช้ก่อน
-        $this->checkAuth();
+{
+    $this->checkAuth();
 
-        // 2. รับค่า fiscal_id จาก Session (ตั้งค่ามาจากหน้าหลักผ่าน AJAX)
-        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+    $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
 
-        if (! $fiscal_id) {
-            // ถ้าไม่มีรหัสปี ให้เด้งกลับไปหน้าหลัก
-            header("Location: " . BASE_URL . "/main");
-            exit();
-        }
+    if (! $fiscal_id) {
+        header("Location: " . BASE_URL . "/main");
+        exit();
+    }
 
-        require_once '../app/models/CompanyModel.php';
-        $companyModel = new CompanyModel();
-        $userId       = $this->userPayload['user_id'] ?? null;
-        $companies    = $companyModel->getAllCompanies($userId);
-        // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
-        $active_company_id  = '';
-        $active_fiscal_year = '';
-        foreach ($companies as $company) {
-            if (isset($company['fiscal_years'])) {
-                foreach ($company['fiscal_years'] as $fy) {
-                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
-                    if ($fy_id == $fiscal_id) {
-                        $active_company_id  = $company['company_id'] ?? $company['id'] ?? '';
-                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
-                        break 2;
-                    }
+    require_once '../app/models/CompanyModel.php';
+    $companyModel = new CompanyModel();
+    $userId       = $this->userPayload['user_id'] ?? null;
+    $companies    = $companyModel->getAllCompanies($userId);
+
+    $active_company_id  = '';
+    $active_fiscal_year = '';
+    foreach ($companies as $company) {
+        if (isset($company['fiscal_years'])) {
+            foreach ($company['fiscal_years'] as $fy) {
+                $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                if ($fy_id == $fiscal_id) {
+                    $active_company_id  = $company['company_id'] ?? $company['id'] ?? '';
+                    $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                    break 2;
                 }
             }
         }
-
-                                              // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
-        $month      = $_GET['month'] ?? '09'; // Default to month 09 or current month
-        $customerId = isset($_GET['customer_id']) && ctype_digit((string) $_GET['customer_id'])
-            ? (int) $_GET['customer_id']
-            : null;
-        $userId       = $this->userPayload['user_id'] ?? null;
-        $isSuperAdmin = (int) ($this->userPayload['is_super_admin'] ?? 0);
-        $caretakerId  = ! $isSuperAdmin ? $userId : null;
-
-        require_once '../app/models/monthly_task_Modal.php';
-        $monthlyTaskModel = new MonthlyTaskModal();
-        $monthly_tasks    = $monthlyTaskModel->getMonthlyTasks(
-            $fiscal_id,
-            $customerId ? null : $month,
-            $userId,
-            $customerId,
-            $caretakerId
-        );
-        $monthly_task_stats = $monthlyTaskModel->getMonthlyTaskStats(
-            $fiscal_id,
-            $customerId ? null : $month,
-            $customerId,
-            $caretakerId
-        );
-        $monthly_task_customers  = $monthlyTaskModel->getMonthlyTaskCustomers($fiscal_id);
-        $monthly_task_caretakers = $monthlyTaskModel->getCaretakersByFiscalId($fiscal_id);
-        $review_users            = $monthlyTaskModel->getReviewUsers();
-        $available_months        = $monthlyTaskModel->getAvailableMonths($fiscal_id);
-
-        $data = [
-            'title'                   => 'ระบบ Backoffice',
-            'user'                    => $this->userPayload,
-            'user_id'                 => $this->userPayload['user_id'] ?? '',
-            'firstname'               => $this->userPayload['user_firstname'] ?? '',
-            'lastname'                => $this->userPayload['user_lastname'] ?? '',
-            'is_super_admin'          => $this->userPayload['is_super_admin'] ?? '0',
-            'fiscal_id'               => $fiscal_id,
-            'companies'               => $companies,
-            'active_company_id'       => $active_company_id,
-            'active_fiscal_year'      => $active_fiscal_year,
-            'monthly_tasks'           => $monthly_tasks,
-            'monthly_task_stats'      => $monthly_task_stats,
-            'selected_month'          => $month,
-            'selected_customer_id'    => $customerId,
-            'monthly_task_customers'  => $monthly_task_customers,
-            'monthly_task_caretakers' => $monthly_task_caretakers,
-            'is_customer_year_view'   => $customerId !== null,
-            'review_users'            => $review_users,
-            'review1_user_id'         => $this->userPayload['user_id'] ?? null,
-            'review2_user_id'         => $this->userPayload['user_id'] ?? null,
-            'review3_user_id'         => $this->userPayload['user_id'] ?? null,
-            'available_months'        => $available_months,
-
-        ];
-
-        // 4. ดึงหน้า View มาแสดงผล
-        require_once '../app/views/backoffice/monthly_task.php';
     }
+
+    $month      = $_GET['month'] ?? '09';
+    $customerId = isset($_GET['customer_id']) && ctype_digit((string) $_GET['customer_id'])
+        ? (int) $_GET['customer_id']
+        : null;
+    $userId       = $this->userPayload['user_id'] ?? null;
+    $isSuperAdmin = (int) ($this->userPayload['is_super_admin'] ?? 0);
+    $caretakerId  = ! $isSuperAdmin ? $userId : null;
+
+    require_once '../app/models/monthly_task_Modal.php';
+    $monthlyTaskModel = new MonthlyTaskModal();
+
+    $monthly_tasks = $monthlyTaskModel->getMonthlyTasks(
+        $fiscal_id,
+        $customerId ? null : $month,
+        $userId,
+        $customerId,
+        $caretakerId
+    );
+    $monthly_task_stats = $monthlyTaskModel->getMonthlyTaskStats(
+        $fiscal_id,
+        $customerId ? null : $month,
+        $customerId,
+        $caretakerId
+    );
+    $monthly_task_customers  = $monthlyTaskModel->getMonthlyTaskCustomers($fiscal_id);
+    $monthly_task_caretakers = $monthlyTaskModel->getCaretakersByFiscalId($fiscal_id);
+    $review_users            = $monthlyTaskModel->getReviewUsers();
+    $available_months        = $monthlyTaskModel->getAvailableMonths($fiscal_id);
+    $tax_options             = $monthlyTaskModel->getTaxOptions(); // ✅ แก้ตรงนี้
+
+    $data = [
+        'title'                   => 'Account - จัดการงานรายเดือน',
+        'user'                    => $this->userPayload,
+        'user_id'                 => $this->userPayload['user_id'] ?? '',
+        'firstname'               => $this->userPayload['user_firstname'] ?? '',
+        'lastname'                => $this->userPayload['user_lastname'] ?? '',
+        'is_super_admin'          => $this->userPayload['is_super_admin'] ?? '0',
+        'fiscal_id'               => $fiscal_id,
+        'companies'               => $companies,
+        'active_company_id'       => $active_company_id,
+        'active_fiscal_year'      => $active_fiscal_year,
+        'monthly_tasks'           => $monthly_tasks,
+        'monthly_task_stats'      => $monthly_task_stats,
+        'selected_month'          => $month,
+        'selected_customer_id'    => $customerId,
+        'monthly_task_customers'  => $monthly_task_customers,
+        'monthly_task_caretakers' => $monthly_task_caretakers,
+        'is_customer_year_view'   => $customerId !== null,
+        'review_users'            => $review_users,
+        'review1_user_id'         => $this->userPayload['user_id'] ?? null,
+        'review2_user_id'         => $this->userPayload['user_id'] ?? null,
+        'review3_user_id'         => $this->userPayload['user_id'] ?? null,
+        'available_months'        => $available_months,
+        'tax_options'             => $tax_options, // ✅ ใส่ในอาร์เรย์ $data
+    ];
+
+    require_once '../app/views/backoffice/monthly_task.php';
+}
 
     public function filterMonthlyTasks()
     {
@@ -1856,6 +1906,7 @@ class BackofficeController
 
             'payment_status'   => $input['payment_status'] ?? '0',
             'tax_status'       => $input['tax_status'] ?? '0',
+            'doc_status'       => $input['doc_status'] ?? '0',
         ];
 
         $tasksData = $input['tasks'] ?? [];
@@ -1991,7 +2042,7 @@ class BackofficeController
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
         $data = [
-            'title'              => 'ระบบ Backoffice',
+            'title'              => 'Account - แดชบอร์ดรายปี',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -2053,7 +2104,7 @@ class BackofficeController
         $dashboardData    = $monthlyDashModel->getDashboardStats($fiscal_id, $monthStr);
 
         $data = [
-            'title'              => 'ระบบ Backoffice',
+            'title'              => 'Account - แดชบอร์ดรายเดือน',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -2147,7 +2198,7 @@ class BackofficeController
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View (ถ้ามี)
         $data = [
-            'title'             => 'ระบบ Backoffice',
+            'title'             => 'Account - ส่งข้อความลูกค้า',
             'user'              => $this->userPayload,
             'user_id'           => $this->userPayload['user_id'] ?? '',
             'firstname'         => $this->userPayload['user_firstname'] ?? '',
@@ -2576,7 +2627,7 @@ class BackofficeController
         $totalPages    = ceil($totalCount / $perPage);
 
         $data = [
-            'title'         => 'การแจ้งเตือน',
+            'title'         => 'Account - การแจ้งเตือนทั้งหมด',
             'firstname'     => $this->userPayload['user_firstname'] ?? '',
             'lastname'      => $this->userPayload['user_lastname'] ?? '',
             'username'      => $this->userPayload['user_name'] ?? '',
@@ -2897,7 +2948,7 @@ class BackofficeController
 
         // 3. เตรียมข้อมูล
         $data = [
-            'title'              => 'การมอบหมายงาน',
+            'title'              => 'Account - การมอบหมายงาน',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -2976,6 +3027,8 @@ class BackofficeController
 
             require_once '../app/models/AssignTaskModel.php';
             $assignTaskModel = new AssignTaskModel();
+
+            $assign_status = $_POST['assign_status'] ?? 0;
 
             $data = [
                 'company_id'     => $active_company_id,
@@ -3090,7 +3143,7 @@ class BackofficeController
         }
 
         $data = [
-            'title'              => 'ระบบ Backoffice - ตั้งค่าระบบ',
+            'title'              => 'Account - ตั้งค่าระบบ',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -3280,7 +3333,7 @@ class BackofficeController
 
         // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
         $data = [
-            'title'              => 'ระบบ Backoffice',
+            'title'              => 'Account - ประเด็นคงค้าง',
             'user'               => $this->userPayload,
             'user_id'            => $this->userPayload['user_id'] ?? '',
             'firstname'          => $this->userPayload['user_firstname'] ?? '',
@@ -3295,6 +3348,335 @@ class BackofficeController
 
         // 4. เรียก View (เดี๋ยวเราต้องไปสร้างไฟล์ app/views/backoffice/issues.php)
         require_once '../app/views/backoffice/issues.php';
+    }
+
+    /////////////////////////////////////// manual ///////////////////////////////////////////////
+
+    public function manual()
+    {
+        $this->checkAuth();
+
+        // 1. ดึงปีบัญชีและบริษัทที่เลือกใน Session (ใช้หลักการเดียวกับหน้าอื่น)
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId       = $this->userPayload['user_id'] ?? null;
+        $companies    = $companyModel->getAllCompanies($userId);
+
+        // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+        $active_company_id  = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id  = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        // 2. ดึงข้อมูลจาก Model (ถ้ามี)
+        require_once '../app/models/ManualModel.php';
+        $manualModel = new ManualModel();
+
+        $current_user_id = (int) ($this->userPayload['user_id'] ?? 0);
+        $is_super_admin  = (int) ($this->userPayload['is_super_admin'] ?? 0);
+        $topics          = $manualModel->getAllTopicsWithContents();
+
+        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
+        $data = [
+            'title'              => 'Account - ตั้งค่าคู่มือ',
+            'user'               => $this->userPayload,
+            'user_id'            => $this->userPayload['user_id'] ?? '',
+            'firstname'          => $this->userPayload['user_firstname'] ?? '',
+            'lastname'           => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin'     => $this->userPayload['is_super_admin'] ?? '0',
+            'companies'          => $companies,
+            'fiscal_id'          => $fiscal_id,
+            'active_company_id'  => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'topics'             => $topics,
+        ];
+
+        // 4. เรียก View (เดี๋ยวเราต้องไปสร้างไฟล์ app/views/backoffice/manual.php)
+        require_once '../app/views/backoffice/manual.php';
+    }
+    public function setting_manual()
+    {
+        $this->checkAuth();
+
+        // 1. ดึงปีบัญชีและบริษัทที่เลือกใน Session (ใช้หลักการเดียวกับหน้าอื่น)
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId       = $this->userPayload['user_id'] ?? null;
+        $companies    = $companyModel->getAllCompanies($userId);
+
+        // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+        $active_company_id  = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id  = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        // 2. ดึงข้อมูลจาก Model (ถ้ามี)
+        require_once '../app/models/ManualModel.php';
+        $manualModel = new ManualModel();
+
+        $current_user_id = (int) ($this->userPayload['user_id'] ?? 0);
+        $is_super_admin  = (int) ($this->userPayload['is_super_admin'] ?? 0);
+        $topics          = $manualModel->getAllTopicsWithContents();
+
+        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
+        $data = [
+            'title'              => 'Account - ตั้งค่าคู่มือ',
+            'user'               => $this->userPayload,
+            'user_id'            => $this->userPayload['user_id'] ?? '',
+            'firstname'          => $this->userPayload['user_firstname'] ?? '',
+            'lastname'           => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin'     => $this->userPayload['is_super_admin'] ?? '0',
+            'companies'          => $companies,
+            'fiscal_id'          => $fiscal_id,
+            'active_company_id'  => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'topics'             => $topics,
+        ];
+
+        // 4. เรียก View (เดี๋ยวเราต้องไปสร้างไฟล์ app/views/backoffice/manual.php)
+        require_once '../app/views/backoffice/manual_form.php';
+    }
+    public function setting_manual_pages()
+    {
+        $this->checkAuth();
+
+        // 1. ดึงปีบัญชีและบริษัทที่เลือกใน Session (ใช้หลักการเดียวกับหน้าอื่น)
+        $fiscal_id = $_SESSION['fiscal_year_id'] ?? null;
+
+        require_once '../app/models/CompanyModel.php';
+        $companyModel = new CompanyModel();
+        $userId       = $this->userPayload['user_id'] ?? null;
+        $companies    = $companyModel->getAllCompanies($userId);
+
+        // หา company_id ของ fiscal_id ที่กำลังใช้งานอยู่
+        $active_company_id  = '';
+        $active_fiscal_year = '';
+        foreach ($companies as $company) {
+            if (isset($company['fiscal_years'])) {
+                foreach ($company['fiscal_years'] as $fy) {
+                    $fy_id = $fy['fiscal_id'] ?? $fy['id'] ?? '';
+                    if ($fy_id == $fiscal_id) {
+                        $active_company_id  = $company['company_id'] ?? $company['id'] ?? '';
+                        $active_fiscal_year = $fy['fiscal_years'] ?? $fy['working_year'] ?? $fy['year'] ?? '';
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        // 2. ดึงข้อมูลจาก Model (ถ้ามี)
+        require_once '../app/models/ManualModel.php';
+        $manualModel = new ManualModel();
+
+        $current_user_id = (int) ($this->userPayload['user_id'] ?? 0);
+        $is_super_admin  = (int) ($this->userPayload['is_super_admin'] ?? 0);
+        $topics          = $manualModel->getAllTopicsWithContents();
+
+        // 3. เตรียมข้อมูลเบื้องต้นสำหรับส่งไปหน้า View
+        $data = [
+            'title'              => 'Account - ตั้งค่าคู่มือ',
+            'user'               => $this->userPayload,
+            'user_id'            => $this->userPayload['user_id'] ?? '',
+            'firstname'          => $this->userPayload['user_firstname'] ?? '',
+            'lastname'           => $this->userPayload['user_lastname'] ?? '',
+            'is_super_admin'     => $this->userPayload['is_super_admin'] ?? '0',
+            'companies'          => $companies,
+            'fiscal_id'          => $fiscal_id,
+            'active_company_id'  => $active_company_id,
+            'active_fiscal_year' => $active_fiscal_year,
+            'topics'             => $topics,
+        ];
+
+        // 4. เรียก View (เดี๋ยวเราต้องไปสร้างไฟล์ app/views/backoffice/manual.php)
+        require_once '../app/views/backoffice/manual_setting.php';
+    }
+
+    public function save_manual_topic()
+    {
+        $this->checkAuth();
+
+        header('Content-Type: application/json');
+
+        $name = trim($_POST['topic_name'] ?? '');
+
+        if ($name === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกชื่อ Topic']);
+            exit();
+        }
+
+        require_once '../app/models/ManualModel.php';
+        $manualModel = new ManualModel();
+
+        $newId = $manualModel->insertTopic($name);
+
+        if ($newId) {
+            echo json_encode([
+                'result'      => 1,
+                'id'          => (int) $newId,
+                'topics_name' => $name,
+            ]);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกได้']);
+        }
+        exit();
+    }
+
+    public function save_manual_content()
+    {
+        $this->checkAuth();
+        header('Content-Type: application/json');
+
+        $content_id = isset($_POST['content_id']) ? trim($_POST['content_id']) : '';
+        $topic_id = isset($_POST['topic_id']) ? (int)$_POST['topic_id'] : 0;
+        $title = trim($_POST['title'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+
+        if ($title === '' || $description === '') {
+            echo json_encode(['result' => 0, 'msg' => 'กรุณากรอกข้อมูลให้ครบถ้วน']);
+            exit();
+        }
+
+        require_once '../app/models/ManualModel.php';
+        $manualModel = new ManualModel();
+
+        // Handle Image Upload (Optional)
+        $content_image = null;
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $tmp_path = $_FILES['image']['tmp_name'];
+            $mime = mime_content_type($tmp_path);
+            
+            $image = null;
+            if ($mime === 'image/jpeg') {
+                $image = @imagecreatefromjpeg($tmp_path);
+            } elseif ($mime === 'image/png') {
+                $image = @imagecreatefrompng($tmp_path);
+            } elseif ($mime === 'image/webp') {
+                $image = @imagecreatefromwebp($tmp_path);
+            }
+
+            if ($image !== false && $image !== null) {
+                $webp_tmp = sys_get_temp_dir() . '/' . uniqid('manual_', true) . '.webp';
+                
+                imagepalettetotruecolor($image);
+                imagealphablending($image, true);
+                imagesavealpha($image, true);
+                
+                imagewebp($image, $webp_tmp, 80);
+                imagedestroy($image);
+
+                require_once '../app/services/AwsS3.php';
+                $s3_result = \App\Services\AwsS3::uploadFileByPath($webp_tmp, true, 'manuals');
+                if (isset($s3_result['path']) && $s3_result['path']) {
+                    $content_image = $s3_result['path'];
+                }
+                
+                @unlink($webp_tmp);
+            }
+        }
+
+        if ($content_id !== '') {
+            $success = $manualModel->updateContent($content_id, $title, $description, $content_image);
+        } else {
+            $success = $manualModel->insertContent($topic_id, $title, $description, $content_image);
+        }
+
+        if ($success) {
+            echo json_encode(['result' => 1, 'msg' => 'บันทึกสำเร็จ']);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถบันทึกได้']);
+        }
+        exit();
+    }
+
+    public function delete_manual_content()
+    {
+        $this->checkAuth();
+        header('Content-Type: application/json');
+
+        $content_id = isset($_POST['content_id']) ? (int)$_POST['content_id'] : 0;
+
+        if ($content_id === 0) {
+            echo json_encode(['result' => 0, 'msg' => 'Invalid ID']);
+            exit();
+        }
+
+        require_once '../app/models/ManualModel.php';
+        $manualModel = new ManualModel();
+
+        if ($manualModel->deleteContent($content_id)) {
+            echo json_encode(['result' => 1, 'msg' => 'ลบสำเร็จ']);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถลบได้']);
+        }
+        exit();
+    }
+
+    public function update_manual_topic_order()
+    {
+        $this->checkAuth();
+        header('Content-Type: application/json');
+        
+        $topic_ids = isset($_POST['topic_ids']) ? $_POST['topic_ids'] : [];
+        if (!is_array($topic_ids) || empty($topic_ids)) {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่มีข้อมูลสำหรับเรียงลำดับ']);
+            exit();
+        }
+
+        require_once '../app/models/ManualModel.php';
+        $manualModel = new ManualModel();
+        
+        if ($manualModel->updateTopicOrder($topic_ids)) {
+            echo json_encode(['result' => 1, 'msg' => 'เรียงลำดับสำเร็จ']);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถเรียงลำดับได้']);
+        }
+        exit();
+    }
+
+    public function update_manual_content_order()
+    {
+        $this->checkAuth();
+        header('Content-Type: application/json');
+        
+        $content_ids = isset($_POST['content_ids']) ? $_POST['content_ids'] : [];
+        if (!is_array($content_ids) || empty($content_ids)) {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่มีข้อมูลสำหรับเรียงลำดับ']);
+            exit();
+        }
+
+        require_once '../app/models/ManualModel.php';
+        $manualModel = new ManualModel();
+        
+        if ($manualModel->updateContentOrder($content_ids)) {
+            echo json_encode(['result' => 1, 'msg' => 'เรียงลำดับสำเร็จ']);
+        } else {
+            echo json_encode(['result' => 0, 'msg' => 'ไม่สามารถเรียงลำดับได้']);
+        }
+        exit();
     }
 
 }

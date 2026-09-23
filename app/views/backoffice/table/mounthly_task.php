@@ -129,8 +129,13 @@
                         <!-- รีวิว 1 -->
                         <td class="text-center">
                             <?php if ($task['review1_status'] === '1'): ?>
-                                <!-- สีเขียวพาสเทลตามรูป -->
-                                <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">รีวิวแล้ว</span>
+                                <?php 
+                                    $r1Name = 'รีวิวแล้ว';
+                                    if (!empty($task['r1_firstname'])) {
+                                        $r1Name = htmlspecialchars(trim($task['r1_firstname']));
+                                    }
+                                ?>
+                                <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;"><?php echo $r1Name; ?></span>
                             <?php else: ?>
                                 <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">รอรีวิว</span>
                             <?php endif; ?>
@@ -139,7 +144,13 @@
                         <!-- รีวิว 2 -->
                         <td class="text-center">
                             <?php if ($task['review2_status'] === '1'): ?>
-                                <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">รีวิวแล้ว</span>
+                                <?php 
+                                    $r2Name = 'รีวิวแล้ว';
+                                    if (!empty($task['r2_firstname'])) {
+                                        $r2Name = htmlspecialchars(trim($task['r2_firstname']));
+                                    }
+                                ?>
+                                <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;"><?php echo $r2Name; ?></span>
                             <?php else: ?>
                                 <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">รอรีวิว</span>
                             <?php endif; ?>
@@ -148,7 +159,13 @@
                         <!-- รีวิว 3 -->
                         <td class="text-center">
                             <?php if ($task['review3_status'] === '1'): ?>
-                                <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">รีวิวแล้ว</span>
+                                <?php 
+                                    $r3Name = 'รีวิวแล้ว';
+                                    if (!empty($task['r3_firstname'])) {
+                                        $r3Name = htmlspecialchars(trim($task['r3_firstname']));
+                                    }
+                                ?>
+                                <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;"><?php echo $r3Name; ?></span>
                             <?php else: ?>
                                 <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">รอรีวิว</span>
                             <?php endif; ?>

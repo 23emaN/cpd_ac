@@ -17,7 +17,7 @@ class UserModel extends Model {
 
     public function getAllUsersWithTeams() {
         $stmt = $this->pdo->prepare("
-            SELECT u.user_id, u.user_name, u.user_firstname, u.user_lastname, u.position, u.team_id, t.team_name 
+            SELECT u.user_id, u.user_name, u.user_firstname, u.user_lastname, u.user_email, u.position, u.team_id, t.team_name 
             FROM tbl_user u
             LEFT JOIN tbl_team t ON u.team_id = t.team_id
             WHERE u.is_super_admin = '0'
@@ -33,6 +33,7 @@ class UserModel extends Model {
                 user_password, 
                 user_firstname, 
                 user_lastname, 
+                user_email,
                 user_status,
                 create_at,
                 is_super_admin,
@@ -43,6 +44,7 @@ class UserModel extends Model {
                 :user_password,
                 :user_firstname,
                 :user_lastname,
+                :user_email,
                 '1', 
                 NOW(),
                 '0',
@@ -55,6 +57,7 @@ class UserModel extends Model {
             'user_password' => $data['user_password'],
             'user_firstname' => $data['user_firstname'],
             'user_lastname' => $data['user_lastname'],
+            'user_email' => $data['user_email'] ?? null,
             'position' => $data['position'] ?? null,
             'team_id' => $data['team_id'] ?? null
         ]);
@@ -66,6 +69,7 @@ class UserModel extends Model {
             "UPDATE tbl_user SET 
                 user_firstname = :user_firstname, 
                 user_lastname = :user_lastname, 
+                user_email = :user_email,
                 position = :position, 
                 team_id = :team_id,
                 user_status = :user_status
@@ -75,6 +79,7 @@ class UserModel extends Model {
             'user_id' => $data['user_id'],
             'user_firstname' => $data['user_firstname'],
             'user_lastname' => $data['user_lastname'],
+            'user_email' => $data['user_email'] ?? null,
             'position' => $data['position'] ?? null,
             'team_id' => $data['team_id'] ?? null,
             'user_status' => $data['user_status'] ?? '1'

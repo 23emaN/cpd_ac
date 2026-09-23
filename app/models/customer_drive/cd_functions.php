@@ -1549,7 +1549,7 @@ function cd_guest_can_see(array $link, array $session, int $node_id): ?array
  * @param string $tmp          ไฟล์บนดิสก์ที่พร้อมใช้
  * @param string $originalName ชื่อที่ลูกค้าตั้ง ยังไม่ผ่าน cd_safe_name()
  */
-function cd_guest_accept(array $link, array $session, string $tmp, string $originalName): void
+function cd_guest_accept(array $link, array $session, string $tmp, string $originalName, ?int $requestedParentId = null): void
 {
     $customer_id = (int) $link['customer_id'];
     $label = (string) ($session['guest_label'] ?? '');
@@ -1584,7 +1584,21 @@ function cd_guest_accept(array $link, array $session, string $tmp, string $origi
         cd_fail('ลิงก์นี้ส่งไฟล์ครบจำนวนที่กำหนดแล้ว กรุณาติดต่อผู้ตรวจสอบบัญชีของท่าน');
     }
 
-    $parentId = cd_guest_target($link);
+    $scopeId = cd_guest_target($link);
+    $parentId = $scopeId;
+
+    if ($requestedParentId !== null && $requestedParentId !== $scopeId) {
+        $allowed = false;
+        foreach (cd_guest_items($link, $session) as $item) {
+            if ($item['kind'] === 'folder' && (int) $item['node_id'] === $requestedParentId) {
+                $allowed = true;
+                break;
+            }
+        }
+        if ($allowed) {
+            $parentId = $requestedParentId;
+        }
+    }
 
     // ส่งซ้ำไฟล์เดิม — เนื้อไฟล์เหมือนเดิมเป๊ะ = กดส่งซ้ำหรือเน็ตหลุดแล้วส่งใหม่
     $sha = hash_file('sha256', $tmp) ?: '';

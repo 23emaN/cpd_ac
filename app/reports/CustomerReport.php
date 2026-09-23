@@ -1,5 +1,22 @@
 <?php
 
+// ตรวจสอบและโหลด Composer Autoload อัตโนมัติหากยังไม่ถูกโหลด
+if (!class_exists(\PhpOffice\PhpSpreadsheet\Spreadsheet::class)) {
+    $autoloadPaths = [
+        __DIR__ . '/../../vendor/autoload.php',
+        __DIR__ . '/../vendor/autoload.php',
+        __DIR__ . '/vendor/autoload.php',
+        $_SERVER['DOCUMENT_ROOT'] . '/../vendor/autoload.php',
+        $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php',
+    ];
+    foreach ($autoloadPaths as $path) {
+        if (file_exists($path)) {
+            require_once $path;
+            break;
+        }
+    }
+}
+
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -67,7 +84,6 @@ class CustomerReport
         foreach ($headers as $cell => $text) {
             $sheet->setCellValue($cell, $text);
         }
-        // แก้จาก A1:J1 -> A1:P1 ให้ครอบคลุมทุกคอลัมน์ที่มี header จริง
         $sheet->getStyle('A1:P1')->applyFromArray($headerStyle);
         $sheet->getRowDimension(1)->setRowHeight(28);
 
@@ -75,36 +91,33 @@ class CustomerReport
         $row = 2;
         $i = 1;
         foreach ($customers as $c) {
-            $statusText     = ($c['active_status'] == 1) ? 'ใช้บริการอยู่' : 'เลิกจ้าง';
-            $caretaker      = trim(($c['caretaker_firstname'] ?? '') . ' ' . ($c['caretaker_lastname'] ?? ''));
-            $closingDate    = !empty($c['fiscal_closing_date']) ? date('d/m/Y', strtotime($c['fiscal_closing_date'])) : '-';
+            $statusText     = (isset($c['active_status']) && $c['active_status'] == 1) ? 'ใช้บริการอยู่' : 'เลิกจ้าง';
+            $caretaker       = trim(($c['caretaker_firstname'] ?? '') . ' ' . ($c['caretaker_lastname'] ?? ''));
+            $closingDate     = !empty($c['fiscal_closing_date']) ? date('d/m/Y', strtotime($c['fiscal_closing_date'])) : '-';
             $accountsAmount = floatval($c['accounts_amount'] ?? 0);
 
-            // --- แก้ไขตำแหน่งคอลัมน์ให้ตรงกับ Header ---
+            // --- วางข้อมูลลงในคอลัมน์ A ถึง P ---
             $sheet->setCellValue('A' . $row, $i++);
-            $sheet->setCellValue('B' . $row, $caretaker ?: '-');            // ผู้ดูแล
-            $sheet->setCellValue('C' . $row, $c['customer_name'] ?? '');    // ชื่อลูกค้า
-            $sheet->setCellValue('D' . $row, $statusText);                  // สถานะ
-            $sheet->setCellValue('E' . $row, $c['team_name'] ?: '-');       // ทีม
-            $sheet->setCellValue('F' . $row, $closingDate);                 // วันสิ้นรอบบัญชี
-            $sheet->setCellValue('G' . $row, $accountsAmount);              // ค่าบริการรายเดือน
-            $sheet->setCellValue('H' . $row, $c['customer_phone'] ?: '-');  // เบอร์โทร
-            $sheet->setCellValue('I' . $row, $c['customer_email'] ?: '-');  // อีเมล
-            $sheet->setCellValue('J' . $row, $c['line_id'] ?: '-');         // Line ID
+            $sheet->setCellValue('B' . $row, $caretaker ?: '-');
+            $sheet->setCellValue('C' . $row, $c['customer_name'] ?? '');
+            $sheet->setCellValue('D' . $row, $statusText);
+            $sheet->setCellValue('E' . $row, !empty($c['team_name']) ? $c['team_name'] : '-');
+            $sheet->setCellValue('F' . $row, $closingDate);
+            $sheet->setCellValue('G' . $row, $accountsAmount);
+            $sheet->setCellValueExplicit('H' . $row, (string)($c['customer_phone'] ?? '-'), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $sheet->setCellValue('I' . $row, !empty($c['customer_email']) ? $c['customer_email'] : '-');
+            $sheet->setCellValue('J' . $row, !empty($c['line_id']) ? $c['line_id'] : '-');
 
-            // --- คอลัมน์ K-P: ข้อมูลราชการ ---
-            // K, M, O: ยังไม่มีคอลัมน์นี้ในฐานข้อมูล (เลขผู้เสียภาษี / เลข DBD / เลขประกันสังคม)
-            // ถ้าต้องการเก็บจริง ต้อง ALTER TABLE เพิ่มคอลัมน์ก่อน เช่น tax_id, dbd_reg_no, sso_no
-            $sheet->setCellValue('K' . $row, $c['rn_user'] ?? '-');          // placeholder รอเพิ่มคอลัมน์จริง
-            $sheet->setCellValue('L' . $row, $c['rn_password'] ?: '-');         // รหัสกรมสรรพากร (มีจริงใน DB)
-            $sheet->setCellValue('M' . $row, $c['dbd_user'] ?? '-');      // placeholder รอเพิ่มคอลัมน์จริง
-            $sheet->setCellValue('N' . $row, $c['dbd_password'] ?: '-');       // รหัสกรมพัฒนาธุรกิจการค้า (มีจริงใน DB)
-            $sheet->setCellValue('O' . $row, $c['sso_user'] ?? '-');          // placeholder รอเพิ่มคอลัมน์จริง
-            $sheet->setCellValue('P' . $row, $c['sso_password'] ?: '-');       // รหัสประกันสังคม (มีจริงใน DB)
+            // ข้อมูลราชการ (ใช้ setCellValueExplicit เพื่อป้องกันเลข 0 นำหน้าหาย)
+            $sheet->setCellValueExplicit('K' . $row, (string)($c['rn_user'] ?? '-'), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('L' . $row, (string)($c['rn_password'] ?? '-'), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('M' . $row, (string)($c['dbd_user'] ?? '-'), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('N' . $row, (string)($c['dbd_password'] ?? '-'), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('O' . $row, (string)($c['sso_user'] ?? '-'), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('P' . $row, (string)($c['sso_password'] ?? '-'), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 
             // จัดตำแหน่งและการแสดงผลของแต่ละเซลล์
             $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('C' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('D' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('F' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('G' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
@@ -117,7 +130,7 @@ class CustomerReport
 
         $lastDataRow = $row - 1;
 
-        // 4. แถวสรุปผลรวมท้ายตาราง (ถ้ามีข้อมูล)
+        // 4. แถวสรุปผลรวมท้ายตาราง
         if ($lastDataRow >= 2) {
             $sheet->mergeCells('A' . $row . ':F' . $row);
             $sheet->setCellValue('A' . $row, 'รวมค่าบัญชีทั้งสิ้น');
@@ -133,32 +146,39 @@ class CustomerReport
                     'startColor' => ['rgb' => 'E8F5E9'],
                 ],
             ];
-            // แก้จาก A:J -> A:P ให้ครอบคลุมแถวสรุปทั้งหมด
             $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray($totalRowStyle);
             $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             $sheet->getStyle('G' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
             $sheet->getRowDimension($row)->setRowHeight(24);
 
-            // ใส่เส้นขอบทุกช่อง (แก้ A1:J -> A1:P)
             $sheet->getStyle('A1:P' . $row)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB('D0D7DE');
         } else {
             $sheet->getStyle('A1:P1')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB('D0D7DE');
         }
 
-        // 5. ปรับขนาดความกว้างคอลัมน์อัตโนมัติ (แก้ A-J -> A-P)
+        // 5. ปรับขนาดความกว้างคอลัมน์อัตโนมัติ
         foreach (range('A', 'P') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // 6. เคลียร์ Output Buffer ก่อนดาวน์โหลด ป้องกันไฟล์เสียหาย
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
+        // 6. ล้าง Output Buffer ทุกระดับ เพื่อป้องกันไฟล์เสีย
+        if (ob_get_length() > 0) { ob_clean(); }
 
+        // 7. จัดการชื่อไฟล์ภาษาไทยให้ถูกต้องตามมาตรฐาน RFC 5987
         $filename = $options['filename'] ?? ('customer_list_' . date('Ymd_His') . '.xlsx');
+        if (!preg_match('/\.xlsx$/i', $filename)) {
+            $filename .= '.xlsx';
+        }
+        
+        $fallbackFilename = preg_replace('/[^\w\-\.]/', '_', $filename);
+        $encodedFilename = rawurlencode($filename);
+
+        // Header ส่งไฟล์ดาวน์โหลด
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
+        header('Content-Disposition: attachment; filename="' . $fallbackFilename . '"; filename*=UTF-8\'\'' . $encodedFilename);
+        header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate');
+        header('Pragma: public');
+        header('Expires: 0');
 
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');

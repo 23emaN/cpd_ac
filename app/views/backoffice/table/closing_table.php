@@ -23,7 +23,9 @@ $paginated_list = $list;
                 <th class="text-center" style="width: 10%;">รหัสผ่านDBD</th>
                 <th class="text-center" style="width: 9%;">ผู้ดูแล</th>
                 <th class="text-center" style="width: 10%;">สถานะปิดงบ</th>
+                <th class="text-center" style="width: 10%;">การเก็บเงินปิดงบ</th>
                 <th class="text-center" style="width: 10%;">สถานะผู้สอบ</th>
+                <th class="text-center" style="width: 10%;">การเก็บเงินค่าสอบ</th>
                 <th class="text-center" style="width: 9%;">บอจ. 5</th>
                 <th class="text-center" style="width: 11%;">DBD E-Filing</th>
                 <th class="text-center" style="width: 9%;">ภ.ง.ด.50</th>
@@ -68,7 +70,7 @@ $paginated_list = $list;
                             <span class="text-secondary"><?php echo !empty($row['fiscal_closing_date']) ? date('d/m/Y', strtotime($row['fiscal_closing_date'])) : '-'; ?></span>
                         </td>
                         <td class="text-center">
-                            <span class="text-secondary"><?php echo htmlspecialchars($row['rd_user_name'] ?? '-'); ?></span>
+                            <span class="text-secondary"><?php echo htmlspecialchars($row['dbd_user_name'] ?? '-'); ?></span>
                         </td>
                         <td class="text-center">
                             <span class="text-secondary"><?php echo htmlspecialchars($row['rd_password'] ?? '-'); ?></span>
@@ -97,10 +99,19 @@ $paginated_list = $list;
                             <?php endif; ?>
                         </td>
 
+                        <!-- การเก็บเงินปิดงบ -->
+                        <td class="text-center">
+                            <?php if (($row['closing_status'] ?? '0') === '1'): ?>
+                                <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">เก็บเงินแล้ว</span>
+                            <?php else: ?>
+                                <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">ยังไม่เก็บเงิน</span>
+                            <?php endif; ?>
+                        </td>
+
                         <!-- สถานะผู้สอบ -->
                         <td class="text-center">
                             <?php
-                                $auditStatus      = $row['audit_status']  === '1';
+                                $auditStatus      = ($row['audit_status'] ?? '0') === '1';
                                 $auditDate        = !empty($row['audit_date']);
                                 $budgetRefundDate = !empty($row['budget_refund_date']);
                             ?>
@@ -110,6 +121,15 @@ $paginated_list = $list;
                                 <span class="badge-active" style="background-color: #e0f2fe; color: #0284c7;">ตรวจสอบแล้ว</span>
                             <?php else: ?>
                                 <span class="badge-active" style="background-color: #fef2f2; color: #da1616ff;">ยังไม่ได้ส่งตรวจ</span>
+                            <?php endif; ?>
+                        </td>
+
+                        <!-- การเก็บเงินค่าสอบ -->
+                        <td class="text-center">
+                            <?php if (!empty($row['budget_refund_date'])): ?>
+                                <span class="badge-active" style="background-color: #e8fbf0; color: #10b981;">เก็บเงินแล้ว</span>
+                            <?php else: ?>
+                                <span class="badge-active" style="background-color: #fef2f2; color: #ef4444;">ยังไม่เก็บเงิน</span>
                             <?php endif; ?>
                         </td>
 
@@ -154,11 +174,11 @@ $paginated_list = $list;
                     </tr>
                 <?php endforeach; ?>
                 <tr id="noClosingDataRow" class="d-none">
-                    <td colspan="13" class="text-center py-4 text-muted">ไม่พบข้อมูล</td>
+                    <td colspan="15" class="text-center py-4 text-muted">ไม่พบข้อมูล</td>
                 </tr>
             <?php else: ?>
                 <tr>
-                    <td colspan="10" class="text-center py-4 text-muted">ไม่พบข้อมูลลูกค้าในปีนี้</td>
+                    <td colspan="15" class="text-center py-4 text-muted">ไม่พบข้อมูลลูกค้าในปีนี้</td>
                 </tr>
             <?php endif; ?>
         </tbody>

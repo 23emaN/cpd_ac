@@ -52,7 +52,11 @@ $routes = [
         'portal/logout' => ['PortalController', 'logout'],
         'notification/vapid-public-key' => ['BackofficeController', 'getVapidPublicKey'],
         'notifications' => ['BackofficeController', 'notifications'],
-        'system_setting' => ['BackofficeController', 'system_setting']
+        'system_setting' => ['BackofficeController', 'system_setting'],
+        'manual' => ['BackofficeController', 'manual'],
+        'setting_manual' => ['BackofficeController', 'setting_manual'],
+        'setting_manual_pages' => ['BackofficeController', 'setting_manual_pages'],
+        'manual_content' => ['BackofficeController', 'get_manual_content']
     ],
     'POST' => [
         'auth/login'  => ['AuthController', 'processLogin'],
@@ -123,6 +127,12 @@ $routes = [
         'backoffice/deleteTaxOption' => ['BackofficeController', 'deleteTaxOption'],
         'backoffice/updateProfile' => ['BackofficeController', 'updateProfile'],
         'backoffice/changePassword' => ['BackofficeController', 'changePassword'],
+        'save_manual' => ['BackofficeController', 'save_manual'],
+        'save_manual_topic' => ['BackofficeController', 'save_manual_topic'],
+        'save_manual_content' => ['BackofficeController', 'save_manual_content'],
+        'delete_manual_content' => ['BackofficeController', 'delete_manual_content'],
+        'update_manual_topic_order' => ['BackofficeController', 'update_manual_topic_order'],
+        'update_manual_content_order' => ['BackofficeController', 'update_manual_content_order'],
     ]
 ];
 

@@ -150,9 +150,8 @@ class MonthlyTaskReport
 
         $filename = 'monthly_task_' . $month . '_' . date('Ymd_His') . '.xlsx';
 
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
+        
+        if (ob_get_length() > 0) { ob_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
@@ -361,9 +360,8 @@ class MonthlyTaskReport
 
         $filename = 'customer_monthly_task_' . $customerId . '_' . date('Ymd_His') . '.xlsx';
 
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
+        
+        if (ob_get_length() > 0) { ob_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
@@ -542,9 +540,8 @@ class MonthlyTaskReport
 
         $filename = 'customer_dash_yearly_' . date('Ymd_His') . '.xlsx';
 
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
+        
+        if (ob_get_length() > 0) { ob_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
@@ -646,9 +643,8 @@ class MonthlyTaskReport
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
+        
+        if (ob_get_length() > 0) { ob_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: max-age=0');

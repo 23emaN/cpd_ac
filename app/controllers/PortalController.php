@@ -247,36 +247,30 @@ class PortalController
         $out = [];
 
         foreach ($items as $item) {
-            if ($item['kind'] === 'folder') {
-                continue;
-            }
-
             $ext = (string) ($item['ext'] ?? '');
             $mine = $item['source'] === 'guest'
                 && (int) ($item['source_link_id'] ?? 0) === (int) $link['link_id'];
 
             $parentId = $item['parent_id'] === null ? null : (int) $item['parent_id'];
-            $where = ($parentId !== null && $parentId !== $scopeId && isset($folderNames[$parentId]))
-                ? $folderNames[$parentId]
-                : '';
 
             $out[] = [
                 'id'          => (int) $item['node_id'],
                 'name'        => (string) $item['name'],
-                'folder'      => false,
-                'kind'        => cd_file_kind($ext),
-                'size'        => cd_format_bytes((int) $item['size']),
+                'folder'      => $item['kind'] === 'folder',
+                'kind'        => $item['kind'] === 'folder' ? 'folder' : cd_file_kind($ext),
+                'size'        => $item['kind'] === 'folder' ? '' : cd_format_bytes((int) $item['size']),
                 'when'        => cd_time($item['create_datetime']),
-                'where'       => $where,
+                'parent_id'   => $parentId,
                 'canRemove'   => $mine,
-                'canDownload' => $canDownload,
+                'canDownload' => $canDownload && $item['kind'] !== 'folder',
             ];
         }
 
         cd_ok([
-            'items' => $out,
-            'used'  => (int) $link['used_uploads'],
-            'max'   => $link['max_uploads'] === null ? 0 : (int) $link['max_uploads'],
+            'items'   => $out,
+            'scopeId' => $scopeId,
+            'used'    => (int) $link['used_uploads'],
+            'max'     => $link['max_uploads'] === null ? 0 : (int) $link['max_uploads'],
         ]);
     }
 
@@ -308,12 +302,48 @@ class PortalController
         }
 
         $path = cd_current_path($node);
+        $name = (string) $node['name'];
 
-        if (!is_file($path)) {
-            $stop(404, 'ไม่พบไฟล์');
+        require_once '../app/models/customer_drive/cd_s3.php';
+
+        if (!cd_s3_exists($path)) {
+            // Fallback for older local files
+            if (!is_file($path)) {
+                $stop(404, 'ไม่พบไฟล์');
+            }
+            
+            cd_activity(
+                (int) $link['customer_id'],
+                'download',
+                $node_id,
+                $name,
+                'guest',
+                null,
+                (string) ($session['guest_label'] ?? ''),
+                (int) $link['link_id']
+            );
+
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+
+            header('Content-Type: ' . cd_mime((string) $node['ext']));
+            header('Content-Length: ' . filesize($path));
+            header('X-Content-Type-Options: nosniff');
+            header('Referrer-Policy: no-referrer');
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Content-Disposition: attachment; filename="' . rawurlencode($name) . '"'
+                . "; filename*=UTF-8''" . rawurlencode($name));
+
+            readfile($path);
+            exit;
         }
 
-        $name = (string) $node['name'];
+        // S3 Logic
+        $s3Url = cd_s3_presigned_url($path, 30, $name);
+        if (!$s3Url) {
+            $stop(500, 'ไม่สามารถสร้างลิงก์ดาวน์โหลดจากระบบได้');
+        }
 
         cd_activity(
             (int) $link['customer_id'],
@@ -326,19 +356,7 @@ class PortalController
             (int) $link['link_id']
         );
 
-        while (ob_get_level() > 0) {
-            ob_end_clean();
-        }
-
-        header('Content-Type: ' . cd_mime((string) $node['ext']));
-        header('Content-Length: ' . filesize($path));
-        header('X-Content-Type-Options: nosniff');
-        header('Referrer-Policy: no-referrer');
-        header('Cache-Control: private, max-age=0, must-revalidate');
-        header('Content-Disposition: attachment; filename="' . rawurlencode($name) . '"'
-            . "; filename*=UTF-8''" . rawurlencode($name));
-
-        readfile($path);
+        header('Location: ' . $s3Url);
         exit;
     }
 
@@ -431,8 +449,10 @@ class PortalController
             cd_fail('ไฟล์ที่ส่งมาไม่ถูกต้อง');
         }
 
+        $parentId = isset($_POST['parent_id']) && $_POST['parent_id'] !== '' ? (int) $_POST['parent_id'] : null;
+
         // ตั้งแต่ตรงนี้ใช้ตรรกะร่วมกับ uploadChunk() — ทั้งสองทางต่างกันแค่ "ไฟล์มาถึงยังไง"
-        cd_guest_accept($link, $session, $tmp, (string) ($file['name'] ?? ''));
+        cd_guest_accept($link, $session, $tmp, (string) ($file['name'] ?? ''), $parentId);
     }
 
     /////////////////////////////////////// upload_chunk ///////////////////////////////////////////////
@@ -571,7 +591,9 @@ class PortalController
                 @unlink($part);
             });
 
-            cd_guest_accept($link, $session, $part, $name);
+            $parentId = isset($_POST['parent_id']) && $_POST['parent_id'] !== '' ? (int) $_POST['parent_id'] : null;
+
+            cd_guest_accept($link, $session, $part, $name, $parentId);
         }
 
         cd_fail('คำสั่งไม่ถูกต้อง');

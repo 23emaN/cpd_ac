@@ -33,14 +33,17 @@
     var doneCount = 0;
     var dragDepth = 0;   // นับ dragenter/dragleave เพราะมันยิงซ้ำตอนลากผ่านลูก ๆ
 
+    var currentFolderId = null;
+    var scopeId = null;
+    var allItems = [];
+    var breadcrumbEl = document.getElementById('pt-breadcrumb');
+
     // ------------------------------------------------------------ รายการไฟล์
 
     function refresh() {
         Portal.post('list', {})
             .then(function (res) {
                 if (!res || res.result !== 1) {
-                    // session หมดอายุกลางคัน — กลับไปกรอกรหัสใหม่
-                    // ไฟล์ที่ส่งไปแล้วอยู่ครบ ไม่หายไปไหน
                     if (res && res.expired) {
                         window.location.href = Portal.API;
                         return;
@@ -50,7 +53,13 @@
                     return;
                 }
 
-                render(res);
+                scopeId = res.scopeId;
+                allItems = res.items || [];
+                if (currentFolderId === null) {
+                    currentFolderId = scopeId;
+                }
+
+                render();
             })
             .catch(function () {
                 fail('โหลดรายการไม่สำเร็จ');
@@ -60,11 +69,61 @@
     function fail(text) {
         theadEl.hidden = true;
         countEl.textContent = '';
+        if (breadcrumbEl) breadcrumbEl.style.display = 'none';
         listEl.innerHTML = '<div class="pt-empty"><div class="pt-empty-title">' + Portal.esc(text) + '</div></div>';
     }
 
-    function render(res) {
-        var items = res.items || [];
+    function renderBreadcrumb() {
+        if (!breadcrumbEl) return;
+        if (currentFolderId === scopeId) {
+            breadcrumbEl.style.display = 'none';
+            return;
+        }
+
+        var path = [];
+        var curr = currentFolderId;
+
+        // Trace back to scopeId
+        while (curr !== scopeId && curr !== null) {
+            var found = false;
+            for (var i = 0; i < allItems.length; i++) {
+                if (allItems[i].id === curr && allItems[i].folder) {
+                    path.unshift(allItems[i]);
+                    curr = allItems[i].parent_id;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) break; // Should not happen if data is consistent
+        }
+
+        var html = '<a href="#" class="pt-crumb" data-folder="' + (scopeId || '') + '">หน้าหลัก</a>';
+        for (var i = 0; i < path.length; i++) {
+            html += ' &rsaquo; ';
+            if (i === path.length - 1) {
+                html += '<span>' + Portal.esc(path[i].name) + '</span>';
+            } else {
+                html += '<a href="#" class="pt-crumb" data-folder="' + path[i].id + '">' + Portal.esc(path[i].name) + '</a>';
+            }
+        }
+
+        breadcrumbEl.innerHTML = html;
+        breadcrumbEl.style.display = 'block';
+    }
+
+    function render() {
+        var items = allItems.filter(function (it) {
+            return it.parent_id === currentFolderId;
+        });
+
+        // เรียงโฟลเดอร์ไว้บนสุด ตามด้วยไฟล์ (เรียงตามชื่อตัวอักษร)
+        items.sort(function (a, b) {
+            if (a.folder && !b.folder) return -1;
+            if (!a.folder && b.folder) return 1;
+            return a.name.localeCompare(b.name, 'th');
+        });
+
+        renderBreadcrumb();
 
         if (!items.length) {
             theadEl.hidden = true;
@@ -85,21 +144,24 @@
             ? 'ส่งไปแล้ว ' + items.length + ' ไฟล์'
             : items.length + ' รายการ';
 
-        if (res.max > 0 && cfg.canUpload) {
-            note += ' · ส่งได้อีก ' + Math.max(0, res.max - res.used) + ' ไฟล์';
-        }
+        // NOTE: we don't have res.max here anymore, assume we don't need it or use global state.
+        // Actually we can keep used and max in global state, but it's not strictly necessary.
 
         countEl.textContent = note;
 
         var html = '';
 
         items.forEach(function (it) {
+            var isFolder = it.folder;
+            var nameHtml = isFolder 
+                ? '<a href="#" class="pt-item-name pt-folder-link" data-folder="' + it.id + '" title="' + Portal.esc(it.name) + '">' + Portal.esc(it.name) + '</a>'
+                : '<span class="pt-item-name" title="' + Portal.esc(it.name) + '">' + Portal.esc(it.name) + '</span>';
+
             html += '<div class="pt-item" data-id="' + it.id + '">' +
                 '<span class="pt-item-main">' +
                 Portal.fileIcon(it.kind) +
                 '<span class="pt-item-text">' +
-                '<span class="pt-item-name" title="' + Portal.esc(it.name) + '">' + Portal.esc(it.name) + '</span>' +
-                (it.where ? '<span class="pt-item-where">ใน ' + Portal.esc(it.where) + '</span>' : '') +
+                nameHtml +
                 '</span>' +
                 '</span>' +
                 '<span class="pt-col-size">' + Portal.esc(it.size) + '</span>' +
@@ -241,6 +303,9 @@
                         fin.append('upload_id', id);
                         fin.append('name', file.name);
                         fin.append('size', file.size);
+                        if (currentFolderId !== null) {
+                            fin.append('parent_id', currentFolderId);
+                        }
 
                         return chunkApi(fin);
                     }
@@ -314,6 +379,9 @@
         var form = new FormData();
 
         form.append('file', file);
+        if (currentFolderId !== null) {
+            form.append('parent_id', currentFolderId);
+        }
 
         var xhr = new XMLHttpRequest();
 
@@ -427,6 +495,19 @@
             enqueue(e.dataTransfer && e.dataTransfer.files);
         });
     }
+
+    // จัดการการนำทางโฟลเดอร์
+    document.addEventListener('click', function (e) {
+        var folderLink = e.target.closest('.pt-folder-link, .pt-crumb');
+        if (folderLink) {
+            e.preventDefault();
+            var folderId = folderLink.getAttribute('data-folder');
+            currentFolderId = folderId ? parseInt(folderId, 10) : null;
+            if (isNaN(currentFolderId)) currentFolderId = null;
+            render();
+            return;
+        }
+    });
 
     listEl.addEventListener('click', function (e) {
         var btn = e.target.closest('[data-remove]');

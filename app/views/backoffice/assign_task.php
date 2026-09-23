@@ -108,7 +108,7 @@
                     <!-- Filter / Search -->
                     <div class="d-flex justify-content-between mb-6 align-items-center">
                         <form method="GET" action="" id="filterForm" class="d-flex gap-2">
-                            <select class="form-select" style="width: 300px;" name="assignee_id" onchange="document.getElementById('filterForm').submit();">
+                            <select class="form-select" style="width: 300px;" name="assignee_id" id="filter_assignee_id">
                                 <option value="">ผู้รับผิดชอบทั้งหมด</option>
                                 <?php if (!empty($data['employees'])): ?>
                                     <?php foreach ($data['employees'] as $emp): ?>
@@ -118,7 +118,7 @@
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
-                            <select class="form-select" style="width: 200px;" name="status" onchange="document.getElementById('filterForm').submit();">
+                            <select class="form-select" style="width: 200px;" name="status" id="filter_status">
                                 <option value="">สถานะงานทั้งหมด</option>
                                 <option value="critical" <?php echo ($data['filters']['status'] == 'critical') ? 'selected' : ''; ?>>ใกล้ถึงกำหนด</option>
                                 <option value="overdue" <?php echo ($data['filters']['status'] == 'overdue') ? 'selected' : ''; ?>>เลยกำหนด</option>
@@ -162,6 +162,7 @@
                     <div class="mb-3">
                         <label class="form-label">ชื่องาน<span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="assign_title" id="assign_title" required placeholder="ระบุชื่องาน">
+                        <div class="invalid-feedback">กรุณาระบุชื่องาน</div>
                     </div>
                     
                     <div class="mb-3">
@@ -170,17 +171,18 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">กำหนดส่ง (Due Date) <span class="text-danger">*</span></label>
+                        <label class="form-label">กำหนดส่ง <span class="text-danger">*</span></label>
                             <div class="position-relative">
                                 <input type="text" class="form-control pe-5" name="due_date" id="due_date" required placeholder="วว/ดด/ปปปป">
                                 <i class="ri-calendar-line position-absolute top-50 end-0 translate-middle-y me-3 text-muted" style="pointer-events: none;"></i>
                             </div>
+                            <div class="text-danger mt-1" id="due_date_error" style="font-size: 0.875rem; display: none;">กรุณาระบุกำหนดส่ง</div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">ลูกค้า</label>
                         <select class="form-select" name="customer_id" id="customer_id">
-                            <option value="">-- ไม่ระบุลูกค้า --</option>
+                            <option value="">ไม่ระบุลูกค้า</option>
                             <?php if (!empty($data['customers'])): ?>
                                 <?php foreach ($data['customers'] as $cust): ?>
                                     <option value="<?php echo htmlspecialchars($cust['customer_id']); ?>">
@@ -194,7 +196,7 @@
                     <div class="mb-3">
                         <label class="form-label">ผู้รับผิดชอบ <span class="text-danger">*</span></label>
                         <select class="form-select" name="user_id" id="user_id" required>
-                            <option value="">-- เลือกพนักงาน --</option>
+                            <option value="">เลือกพนักงาน</option>
                             <?php if (!empty($data['employees'])): ?>
                                 <?php foreach ($data['employees'] as $emp): ?>
                                     <option value="<?php echo htmlspecialchars($emp['user_id']); ?>">
@@ -203,11 +205,12 @@
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
+                        <div class="text-danger mt-1" id="user_id_error" style="font-size: 0.875rem; display: none;">กรุณาเลือกผู้รับผิดชอบ</div>
                     </div>
 
                     <div class="mb-3" id="status_container" style="display: none;">
                         <label class="form-label">สถานะงาน</label>
-                        <select class="form-select" name="assign_status" id="assign_status">
+                        <select class="form-select select2-modal" name="assign_status" id="assign_status">
                             <option value="0">ดำเนินการ</option>
                             <option value="1">รอตรวจ</option>
                             <option value="3">ปิดงาน</option>
@@ -224,11 +227,29 @@
     </div>
 </div>
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 === 'function') {
+            // Modal Selects
+            $('#customer_id, #user_id, #assign_status').select2({
+                dropdownParent: $('#assignTaskModal .modal-content'),
+                width: '100%'
+            });
+
+            // Filter Selects
+            $('#filter_assignee_id').select2({ width: '300px' });
+            $('#filter_status').select2({ width: '200px' });
+
+            $('#filter_assignee_id, #filter_status').on('change', function() {
+                $('#filterForm').submit();
+            });
+        }
+
         if (typeof flatpickr !== 'undefined') {
             flatpickr("#due_date", {
                 dateFormat: "Y-m-d", // รูปแบบที่จะส่งเข้า Database (POST)
@@ -243,8 +264,11 @@
 
     function modal_assign_task() {
         document.getElementById('assignTaskForm').reset();
+        $('#customer_id').val('').trigger('change');
+        $('#user_id').val('').trigger('change');
+        
         document.getElementById('status_container').style.display = 'none';
-        $('#assign_status').val('0');
+        $('#assign_status').val('0').trigger('change');
         
         var assignModal = new bootstrap.Modal(document.getElementById('assignTaskModal'));
         assignModal.show();
@@ -271,12 +295,12 @@
             $('#due_date').val(task.due_date);
         }
         
-        $('#user_id').val(task.user_id || task.assignee_id);
-        $('#customer_id').val(task.customer_id || '');
+        $('#user_id').val(task.user_id || task.assignee_id).trigger('change');
+        $('#customer_id').val(task.customer_id || '').trigger('change');
         
         // สถานะงาน
         document.getElementById('status_container').style.display = 'block';
-        $('#assign_status').val(task.assign_status !== undefined ? task.assign_status : '0');
+        $('#assign_status').val(task.assign_status !== undefined ? task.assign_status : '0').trigger('change');
         
         // แสดง Modal
         var assignModal = new bootstrap.Modal(document.getElementById('assignTaskModal'));
@@ -284,8 +308,47 @@
     }
     
     function saveAssignTask() {
-        if (!$('#assignTaskForm')[0].checkValidity()) {
-            $('#assignTaskForm')[0].reportValidity();
+        let isValid = true;
+        
+        const title = $('#assign_title').val().trim();
+        if (title === '') {
+            $('#assign_title').addClass('is-invalid');
+            isValid = false;
+        } else {
+            $('#assign_title').removeClass('is-invalid');
+        }
+
+        const dueDate = $('#due_date').val().trim();
+        if (dueDate === '') {
+            const fpInput = $('#due_date').siblings('.flatpickr-input, .form-control');
+            if (fpInput.length) {
+                fpInput.addClass('is-invalid');
+            } else {
+                $('#due_date').addClass('is-invalid');
+            }
+            $('#due_date_error').show();
+            isValid = false;
+        } else {
+            const fpInput = $('#due_date').siblings('.flatpickr-input, .form-control');
+            if (fpInput.length) {
+                fpInput.removeClass('is-invalid');
+            } else {
+                $('#due_date').removeClass('is-invalid');
+            }
+            $('#due_date_error').hide();
+        }
+
+        const userId = $('#user_id').val();
+        if (!userId || userId === '') {
+            $('#user_id').next('.select2-container').find('.select2-selection').css('border-color', '#dc3545');
+            $('#user_id_error').show();
+            isValid = false;
+        } else {
+            $('#user_id').next('.select2-container').find('.select2-selection').css('border-color', '');
+            $('#user_id_error').hide();
+        }
+
+        if (!isValid) {
             return;
         }
 

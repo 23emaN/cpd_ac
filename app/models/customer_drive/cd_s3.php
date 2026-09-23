@@ -134,7 +134,7 @@ function cd_s3_delete_prefix(string $prefix): bool
 /**
  * Get Pre-signed URL for viewing/downloading
  */
-function cd_s3_presigned_url(string $s3Key, int $expiresInMinutes = 30): ?string
+function cd_s3_presigned_url(string $s3Key, int $expiresInMinutes = 30, string $downloadFilename = ''): ?string
 {
     $client = cd_s3_client();
     $bucket = cd_s3_bucket();
@@ -144,10 +144,18 @@ function cd_s3_presigned_url(string $s3Key, int $expiresInMinutes = 30): ?string
     }
 
     try {
-        $cmd = $client->getCommand('GetObject', [
+        $params = [
             'Bucket' => $bucket,
             'Key'    => $s3Key
-        ]);
+        ];
+        
+        if ($downloadFilename !== '') {
+            $fallback = preg_replace('/[^\w\-\.]/', '_', $downloadFilename);
+            $encoded = rawurlencode($downloadFilename);
+            $params['ResponseContentDisposition'] = 'attachment; filename="' . $fallback . '"; filename*=UTF-8\'\'' . $encoded;
+        }
+
+        $cmd = $client->getCommand('GetObject', $params);
         $request = $client->createPresignedRequest($cmd, "+{$expiresInMinutes} minutes");
         return (string) $request->getUri();
     } catch (AwsException $e) {

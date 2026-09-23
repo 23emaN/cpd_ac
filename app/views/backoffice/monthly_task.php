@@ -616,7 +616,58 @@
     .comment-message.is-mine .comment-time {
         color: #64748b;
     }
+    .task-status-wrap {
+        position: relative;
+        display: inline-block;
+        width: 130px;
+        flex-shrink: 0;
+    }
 
+    .task-status-badge {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 7px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        pointer-events: none; /* ให้คลิกทะลุไปที่ select ด้านล่าง */
+        white-space: nowrap;
+    }
+
+.task-status-badge::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    margin-left: 6px;
+    flex-shrink: 0;
+}
+
+.task-status-badge.status-pending {
+    background-color: #fef3c7;
+    color: #b45309;
+}
+
+.task-status-badge.status-done {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+/* select ตัวจริง โปร่งใสซ้อนทับ badge ไว้ทั้งหมด ยังคลิก/เปิด dropdown ได้ตามปกติ */
+.task-status-select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
     @media (max-width: 576px) {
         .comment-bubble {
             max-width: calc(100% - 72px);
@@ -1111,6 +1162,19 @@
                     });
             }
         });
+// ผูกครั้งเดียว ทำงานได้กับ select ที่ถูกสร้างใหม่ทีหลังด้วย (delegation)
+document.addEventListener('change', function (e) {
+    if (e.target.classList.contains('task-status-select')) {
+        const select = e.target;
+        const wrap = select.closest('.task-status-wrap');
+        if (!wrap) return;
+        const badge = wrap.querySelector('.task-status-badge');
+        const isDone = select.value === '1';
+        badge.textContent = isDone ? 'เสร็จแล้ว' : 'รอดำเนินการ';
+        badge.classList.toggle('status-done', isDone);
+        badge.classList.toggle('status-pending', !isDone);
+    }
+});
 
         function exportMonthlyTaskExcel(exportMode) {
             const customerValue = $('#customerSelect').val();
@@ -1190,6 +1254,7 @@
                     
                     $('#detail_payment_status').val(data.period.payment_status || '0').trigger('change');
                     $('#detail_tax_status').val(data.period.tax_status || '0').trigger('change');
+                    $('#detail_doc_status').val(data.period.doc_status || '0').trigger('change');
                 } else {
                     // clear fields if no period data
                     ['detail_doc_date', 'detail_tax_date_1', 'detail_completed_date_1', 'detail_tax_date_2', 'detail_completed_date_2'].forEach(id => {
@@ -1200,7 +1265,7 @@
                         const el = document.getElementById(id);
                         if (el) { el.value = ''; $(el).trigger('change'); }
                     });
-                    ['detail_payment_status', 'detail_tax_status'].forEach(id => {
+                    ['detail_payment_status', 'detail_tax_status', 'detail_doc_status'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) { el.value = '0'; $(el).trigger('change'); }
                     });
@@ -1219,16 +1284,17 @@
     const isNotifyAmount = t.is_notify_amount == 1 || t.is_notify_amount === true;
     const hasComment = !!(t.comment && t.comment.trim() !== '');
 
-    html += `
-    <div id="task-row-${t.customer_tasks_id}" class="d-flex align-items-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
-        <!-- Left side: Task Name & Badge -->
+   html += `
+<div id="task-row-${t.customer_tasks_id}" class="d-flex align-items-center justify-content-center w-100 py-3 ${!isLast ? 'border-bottom' : ''}" style="${!isLast ? 'border-color: #f1f5f9 !important;' : ''}">
+
+    <div class="d-flex align-items-center w-100" style="max-width: 760px;">
+
         <div class="d-flex align-items-center gap-2" style="flex: 1;">
             <span class="fw-bold" style="font-size:0.88rem; color:#1e293b;">${t.task_name}</span>
             ${isNotifyAmount ? '<span class="badge" style="background-color: #f3e8ff; color: #7c3aed; font-weight: 600; font-size: 0.73rem; padding: 4px 8px; border-radius: 6px;">ระบุจำนวนเงิน</span>' : ''}
         </div>
 
-        <!-- Center: Comment Button -->
-        <div class="d-flex justify-content-center align-items-center" style="flex: 0 0 auto;">
+        <div class="d-flex justify-content-center align-items-center" style="flex: 0 0 auto; margin: 0 20px;">
             <button type="button" class="btn-task-comment position-relative"
                 data-customer-tasks-id="${t.customer_tasks_id}"
                 data-task-name="${t.task_name}"
@@ -1240,23 +1306,28 @@
             </button>
         </div>
 
-        <!-- Right side: Amount Input & Select dropdown -->
         <div class="d-flex align-items-center justify-content-end gap-2" style="flex: 1;">
             ${isNotifyAmount ? `
                 <div class="d-flex align-items-center gap-2">
                     <input class="form-check-input flex-shrink-0 task-amount-checkbox" type="checkbox" data-customer-tasks-id="${t.customer_tasks_id}" style="cursor: pointer; width: 30px !important; height: 30px !important; margin: 0; border-radius: 3px !important; margin-top: 0;">
-                    <input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 110px; border-radius: 3px !important;height: 30px !important; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.parentElement.nextElementSibling.value='1';}">
+                    <input type="number" class="form-control form-control-sm bg-light border-0 text-muted flex-shrink-0 task-amount-input" data-customer-tasks-id="${t.customer_tasks_id}" placeholder="จำนวนเงิน" value="${(t.amount && t.amount > 0) ? Number(t.amount) : ''}" style="width: 100px; border-radius: 3px !important; height: 30px !important; padding: 7px 12px; font-size: 0.85rem;" oninput="if(this.value && this.value > 0){this.parentElement.nextElementSibling.value='1';}">
                 </div>
             ` : ''}
 
-            <select class="form-select-sm bg-light border-0 fw-semibold text-secondary flex-shrink-0 task-status-select"
-                    data-customer-tasks-id="${t.customer_tasks_id}"
-                    style="border-radius: 8px; padding: 7px 12px; font-size: 0.85rem;width:130px;">
-                <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
-                <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
-            </select>
+            <div class="task-status-wrap" style="width: 130px; flex-shrink: 0;">
+                <span class="task-status-badge ${t.status === '1' ? 'status-done' : 'status-pending'}">
+                    ${t.status === '1' ? 'เสร็จแล้ว' : 'รอดำเนินการ'}
+                </span>
+                <select class="task-status-select"
+                        data-customer-tasks-id="${t.customer_tasks_id}">
+                    <option value="0" ${t.status !== '1' ? 'selected' : ''}>รอดำเนินการ</option>
+                    <option value="1" ${t.status === '1' ? 'selected' : ''}>เสร็จแล้ว</option>
+                </select>
+            </div>
         </div>
-    </div>`;
+
+    </div>
+</div>`;
 });
     taskList.innerHTML = html;
 
@@ -1581,6 +1652,7 @@ function saveTaskDetail() {
 
     payment_status: document.getElementById('detail_payment_status').value,
     tax_status: document.getElementById('detail_tax_status').value,
+    doc_status: document.getElementById('detail_doc_status').value,
 
     tasks: []
 };

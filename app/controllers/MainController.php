@@ -6,6 +6,46 @@ class MainController
 
     private $userPayload = null;
 
+    // Map URL => ชื่อหน้าภาษาไทย
+    private $pageTitles = [
+        'main'                => 'หน้าหลัก',
+        'backoffice'          => 'แดชบอร์ด',
+        'dashboard_workspace' => 'Workspace',
+        'tasks'               => 'งานทั้งหมด',
+        'customer'            => 'ลูกค้า',
+        'employee'            => 'พนักงาน',
+        'registration_board'  => 'ทะเบียนงาน',
+        'post_it'             => 'Post-it',
+        'closing'             => 'ปิดงาน',
+        'issues'              => 'ปัญหา',
+        'yearly_dash'         => 'รายงานรายปี',
+        'monthly_dash'        => 'รายงานรายเดือน',
+        'customer_dash'       => 'รายงานลูกค้า',
+        'customer_message'    => 'ข้อความลูกค้า',
+        'assign_task'         => 'มอบหมายงาน',
+        'monthly_task'        => 'งานรายเดือน',
+        'customer_drive'      => 'ไดรฟ์ลูกค้า',
+        'portal'              => 'Portal',
+        'notifications'       => 'การแจ้งเตือน',
+        'system_setting'      => 'ตั้งค่าระบบ',
+        'manual'              => 'คู่มือ',
+        'setting_manual'      => 'จัดการคู่มือ',
+    ];
+
+    // ดึงชื่อหน้าจาก URL ปัจจุบัน
+    private function getPageTitle(): string
+    {
+        $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+        // ตัด BASE_URL prefix ออกถ้ามี (กรณี run ใน subfolder)
+        $basePath = trim(parse_url(BASE_URL, PHP_URL_PATH) ?? '', '/');
+        if ($basePath !== '' && str_starts_with($uri, $basePath . '/')) {
+            $uri = substr($uri, strlen($basePath) + 1);
+        }
+        // ใช้แค่ segment แรก
+        $segment = explode('/', $uri)[0];
+        return $this->pageTitles[$segment] ?? ucfirst($segment);
+    }
+
     // ตรวจสอบการ Login ไว้เป็นฟังก์ชันส่วนตัว จะได้ไม่ต้องเขียนซ้ำ
     private function checkAuth()
     {
@@ -39,7 +79,7 @@ class MainController
 
         // 2. เตรียมข้อมูลส่งไปที่ View (MVC Pattern)
         $data = [
-            'title' => 'CPD ACC - ระบบบริหารสำนักงานบัญชี',
+            'title' => 'Account - ' . $this->getPageTitle(),
             'user_id' => $this->userPayload['user_id'] ?? '',
             'user_name' => $this->userPayload['user_name'] ?? '',
             'firstname' => $this->userPayload['user_firstname'] ?? '',

@@ -30,6 +30,7 @@ class ClosingModel extends Model
                 u.user_lastname,
                 acc_rd.account_user_name as rd_user_name,
                 acc_rd.account_password as rd_password,
+                acc_dbd.account_user_name as dbd_user_name,
                 acc_dbd.account_password as dbd_password
             FROM tbl_fiscal_year_customers fyc
             INNER JOIN tbl_customers c ON fyc.customer_id = c.customer_id

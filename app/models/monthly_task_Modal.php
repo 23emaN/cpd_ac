@@ -194,8 +194,17 @@ class MonthlyTaskModal extends Model
             p.tax_status,
             p.payment_status,
             p.review1_status,
+            p.review1_user_id,
             p.review2_status,
+            p.review2_user_id,
             p.review3_status,
+            p.review3_user_id,
+            r1_user.user_firstname as r1_firstname,
+            r1_user.user_lastname as r1_lastname,
+            r2_user.user_firstname as r2_firstname,
+            r2_user.user_lastname as r2_lastname,
+            r3_user.user_firstname as r3_firstname,
+            r3_user.user_lastname as r3_lastname,
             c.customer_id,
             c.customer_name,
             c.cpd_name,
@@ -251,6 +260,15 @@ class MonthlyTaskModal extends Model
 
         LEFT JOIN tbl_team t
             ON fyc.team_id = t.team_id
+
+        LEFT JOIN tbl_user r1_user
+            ON p.review1_user_id = r1_user.user_id
+
+        LEFT JOIN tbl_user r2_user
+            ON p.review2_user_id = r2_user.user_id
+
+        LEFT JOIN tbl_user r3_user
+            ON p.review3_user_id = r3_user.user_id
 
         WHERE p.fiscal_year_id = :fiscal_id
           AND p.delete_at IS NULL
@@ -463,7 +481,8 @@ class MonthlyTaskModal extends Model
                 review3_user_id = :review3_user_id,
 
                 payment_status = :payment,
-                tax_status = :tax
+                tax_status = :tax,
+                doc_status = :doc_status
 
             WHERE period_id = :id";
 
@@ -493,6 +512,7 @@ class MonthlyTaskModal extends Model
 
         'payment' => $data['payment_status'] ?? '0',
         'tax' => $data['tax_status'] ?? '0',
+        'doc_status' => $data['doc_status'] ?? '0',
 
         'id' => $periodId,
     ]);
@@ -556,6 +576,21 @@ class MonthlyTaskModal extends Model
         return $stmt->execute([
             'task_id' => $customerTasksId,
             'user_id' => $userId,
-        ]);
+        ]);  
+    }
+
+    public function getTaxOptions()
+    {
+        $sql = "SELECT
+                    option_id ,
+                    option_name
+                FROM tbl_option_tax
+                WHERE delete_at IS NULL
+                ORDER BY list_order ASC, option_id ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

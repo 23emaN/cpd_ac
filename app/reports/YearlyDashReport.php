@@ -103,6 +103,7 @@ class YearlyDashReport
 
         // Output File
         $filename = "Yearly_Dashboard_" . $fiscalYear . ".xlsx";
+        if (ob_get_length() > 0) { ob_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');

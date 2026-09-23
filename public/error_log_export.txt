@@ -1,5 +1,9 @@
-Class "PhpOffice\PhpSpreadsheet\Spreadsheet" not found
-#0 /home/admin/domains/account.cpathai.com/public_html/app/controllers/ReportController.php(287): ClosingTaskReport->exportClosing(Array, '', 'Accounting')
-#1 /home/admin/domains/account.cpathai.com/public_html/routes/web.php(135): ReportController->closingExcel()
-#2 /home/admin/domains/account.cpathai.com/public_html/public/index.php(25): require_once('/home/admin/dom...')
-#3 {main}
+ZipStream\ZipStream::__construct(): Argument #1 ($operationMode) must be of type ZipStream\OperationMode, null given, called in /home/admin/domains/account.cpathai.com/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/ZipStream2.php on line 25
+#0 /home/admin/domains/account.cpathai.com/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/ZipStream2.php(25): ZipStream\ZipStream->__construct(NULL, Object(ZipStream\Option\Archive))
+#1 /home/admin/domains/account.cpathai.com/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/ZipStream0.php(15): PhpOffice\PhpSpreadsheet\Writer\ZipStream2::newZipStream(Resource id #147)
+#2 /home/admin/domains/account.cpathai.com/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/Xlsx.php(624): PhpOffice\PhpSpreadsheet\Writer\ZipStream0::newZipStream(Resource id #147)
+#3 /home/admin/domains/account.cpathai.com/public_html/app/reports/MonthlyDashReport.php(139): PhpOffice\PhpSpreadsheet\Writer\Xlsx->save('php://output')
+#4 /home/admin/domains/account.cpathai.com/public_html/app/controllers/ReportController.php(370): MonthlyDashReport->exportMonthlyDash(Array, '\xE0\xB8\x81\xE0\xB8\xB1\xE0\xB8\x99\xE0\xB8\xA2\xE0\xB8\xB2...', '2569', 'Accounting', '')
+#5 /home/admin/domains/account.cpathai.com/public_html/routes/web.php(135): ReportController->monthlyDashExcel()
+#6 /home/admin/domains/account.cpathai.com/public_html/public/index.php(25): require_once('/home/admin/dom...')
+#7 {main}

@@ -12,7 +12,7 @@ class AssignTaskModel extends Model {
                 fiscal_id, 
                 assign_title, 
                 assign_detail, 
-                assign_status, 
+                
                 due_date, 
                 create_at, 
                 create_user_id
@@ -23,7 +23,7 @@ class AssignTaskModel extends Model {
                 :fiscal_id, 
                 :assign_title, 
                 :assign_detail, 
-                '0', 
+                
                 :due_date, 
                 NOW(), 
                 :create_user_id
@@ -39,6 +39,7 @@ class AssignTaskModel extends Model {
             'assign_detail'  => $data['assign_detail'] ?? null,
             'due_date'       => $data['due_date'],
             'create_user_id' => $data['create_user_id']
+            
         ]);
         
         return $this->pdo->lastInsertId();

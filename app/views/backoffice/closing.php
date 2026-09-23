@@ -410,7 +410,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                 <i class="ri-file-text-line"></i>
                             </div>
                             <div class="stat-info">
-                                <span class="stat-val"><?php echo $cntDocReceived; ?></span>
+                                <span class="stat-val"><?php echo count($closingRows); ?></span>
                                 <span class="stat-label">ลูกค้าปิดงบ</span>
                             </div>
                         </div>
@@ -589,7 +589,7 @@ require_once dirname(__DIR__) . '/main/sidebar.php';
                                     onchange="toggleDateInput(this, 'closing_date')">
                                 <label class="form-check-label text-muted" for="closing_status"
                                     style=" font-size: 14px; margin-left: 8px; padding-top: 2px;">
-                                    เสร็จแล้ว
+                                    ได้รับเงินแล้ว
                                 </label>
                             </div>
                             <div class="flex-grow-1 position-relative">

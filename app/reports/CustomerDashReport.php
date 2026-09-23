@@ -71,9 +71,8 @@ class CustomerDashReport
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
+        
+        if (ob_get_length() > 0) { ob_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="customer_dashboard_' . date('Ymd_His') . '.xlsx"');
         header('Cache-Control: max-age=0');

@@ -114,13 +114,25 @@
                             <option value="1">ได้รับเงินแล้ว</option>
                         </select>
                     </div>
-                    <div class="mb-3">
+                     <div class="mb-3">
                         <label class="form-label fw-semibold text-secondary"
                             style="font-size: 0.85rem;">สถานะการยื่นภาษี</label>
+                    <select class="form-select bg-light border-0 py-2 text-muted fw-semibold detail-search-select" id="detail_tax_status" style="border-radius: 8px; font-size: 0.9rem;">
+                        <?php foreach (($data['tax_options'] ?? []) as $index => $taxOption): ?>
+                            <option value="<?php echo (int) $taxOption['option_id']; ?>"
+                                <?php echo $index === 0 ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($taxOption['option_name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary"
+                            style="font-size: 0.85rem;">สถานะเอกสาร</label>
                         <select class="form-select bg-light border-0 py-2 text-muted fw-semibold detail-search-select"
-                            id="detail_tax_status" style="border-radius: 8px; font-size: 0.9rem;">
-                            <option value="0" selected>ยังไม่ได้ยื่นภาษี</option>
-                            <option value="1">ยื่นภาษีแล้ว</option>
+                            id="detail_doc_status" style="border-radius: 8px; font-size: 0.9rem;">
+                            <option value="0" selected>ยังไม่ได้รับเอกสาร</option>
+                            <option value="1">ได้รับเอกสารแล้ว</option>
                         </select>
                     </div>
                 </div>
@@ -132,38 +144,39 @@
                     <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #334155;">ข้อมูลรอบที่ 1</h6>
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-secondary"
-                            style="font-size: 0.85rem;">วันที่ยื่นภาษีรอบที่ 1</label>
-                        <input type="text"
-                            class="form-control bg-light border-0 py-2 text-muted fw-semibold flatpickr-date"
-                            id="detail_tax_date_1" placeholder="วัน/เดือน/ปี"
-                            style="border-radius: 8px; font-size: 0.9rem;">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-secondary"
                             style="font-size: 0.85rem;">วันที่เสร็จรอบที่ 1</label>
                         <input type="text"
                             class="form-control bg-light border-0 py-2 text-muted fw-semibold flatpickr-date"
                             id="detail_completed_date_1" placeholder="วัน/เดือน/ปี"
                             style="border-radius: 8px; font-size: 0.9rem;">
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary"
+                            style="font-size: 0.85rem;">วันที่ยื่นภาษีรอบที่ 1</label>
+                        <input type="text"
+                            class="form-control bg-light border-0 py-2 text-muted fw-semibold flatpickr-date"
+                            id="detail_tax_date_1" placeholder="วัน/เดือน/ปี"
+                            style="border-radius: 8px; font-size: 0.9rem;">
+                    </div>
+                    
                 </div>
 
                 <div class="col-md-6 ps-md-4 mt-4 mt-md-0">
                     <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #334155;">ข้อมูลรอบที่ 2</h6>
                     <div class="mb-3">
                         <label class="form-label fw-semibold text-secondary"
-                            style="font-size: 0.85rem;">วันที่ยื่นภาษีรอบที่ 2</label>
-                        <input type="text"
-                            class="form-control bg-light border-0 py-2 text-muted fw-semibold flatpickr-date"
-                            id="detail_tax_date_2" placeholder="วัน/เดือน/ปี"
-                            style="border-radius: 8px; font-size: 0.9rem;">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-secondary"
                             style="font-size: 0.85rem;">วันที่เสร็จรอบที่ 2</label>
                         <input type="text"
                             class="form-control bg-light border-0 py-2 text-muted fw-semibold flatpickr-date"
                             id="detail_completed_date_2" placeholder="วัน/เดือน/ปี"
+                            style="border-radius: 8px; font-size: 0.9rem;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary"
+                            style="font-size: 0.85rem;">วันที่ยื่นภาษีรอบที่ 2</label>
+                        <input type="text"
+                            class="form-control bg-light border-0 py-2 text-muted fw-semibold flatpickr-date"
+                            id="detail_tax_date_2" placeholder="วัน/เดือน/ปี"
                             style="border-radius: 8px; font-size: 0.9rem;">
                     </div>
                 </div>

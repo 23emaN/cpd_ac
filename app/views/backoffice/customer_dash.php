@@ -175,6 +175,7 @@ $totalAccountsAmount = (float) ($workStats['total_accounts_amount'] ?? 0);
         </div>
     </div>
 </div>
+<?php require_once dirname(__DIR__) . '/main/footer.php'; ?>
 
 <script>
     (() => {

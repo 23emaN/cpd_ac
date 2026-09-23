@@ -31,9 +31,13 @@ window.Portal = (function () {
     /** กล่องสีพร้อมตัวย่อนามสกุล — ไม่พึ่งฟอนต์ไอคอนใด ๆ เลย */
     function fileIcon(kind) {
         var label = {
-            image: 'รูป', pdf: 'PDF', sheet: 'XLS', doc: 'DOC',
+            folder: '📁', image: 'รูป', pdf: 'PDF', sheet: 'XLS', doc: 'DOC',
             archive: 'ZIP', text: 'TXT'
         }[kind] || 'FILE';
+
+        if (kind === 'folder') {
+            return '<span class="pt-file-icon pt-file-icon-folder" style="background: none; font-size: 1.25em; padding: 0;">📁</span>';
+        }
 
         return '<span class="pt-file-icon pt-file-icon-' + esc(kind || 'file') + '">' + esc(label) + '</span>';
     }

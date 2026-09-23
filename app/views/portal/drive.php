@@ -55,6 +55,8 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '/cpd_ac/public';
         </div>
 
         <div class="pt-panel" id="pt-drop">
+            <div id="pt-breadcrumb" class="pt-breadcrumb" style="padding: 10px 15px; border-bottom: 1px solid #eee; font-size: 0.95em; color: #555; display: none;"></div>
+
             <div class="pt-thead" id="pt-thead" hidden>
                 <span>ชื่อ</span>
                 <span class="pt-col-size">ขนาด</span>

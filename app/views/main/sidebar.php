@@ -20,10 +20,11 @@ $task_setting_pages = ['tasks'];
 $message_pages = ['messages', 'chat', 'customer_message'];
 $postit_pages = ['post_it', 'postit', 'notes', 'reminders'];
 $system_setting_pages = ['settings', 'setting', 'system_setting'];
-$manual_pages = ['manual', 'tutorial', 'videos'];
+$manual_pages = ['manual', 'tutorial'];
 $assinge_pages = ['assign_task'];
 $issues_pages = ['issues', 'outstanding_issues']; // เมนูใหม่: ประเด็นคงค้าง
 $notification_pages = ['notifications', 'notification'];
+$setting_manual_pages = ['setting_manual', 'setting_manual_pages'];
 
 
 $assign_task_count = 0;
@@ -151,7 +152,7 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
 
     .sidebar-area .menu-item .menu-link {
         margin: -7px 10px !important;
-        padding: 7px 12px !important;
+        padding: 5px 12px !important;
         border-radius: 8px !important;
         min-height: unset !important;
         height: auto !important;
@@ -507,10 +508,18 @@ if (isset($_SESSION['fiscal_year_id']) && $_SESSION['fiscal_year_id'] !== '') {
             <?php endif; ?>
 
             <li class="menu-item <?php echo in_array($now_page, $manual_pages) ? 'open active' : '' ?>">
-                <a href="javascript:void(0);"
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/manual"
                     class="menu-link <?php echo in_array($now_page, $manual_pages) ? 'active' : '' ?>">
                     <i class="ri-play-circle-line menu-icon"></i>
                     <span class="title">คู่มือ</span>
+                </a>
+            </li> 
+
+            <li class="menu-item <?php echo in_array($now_page, $setting_manual_pages) ? 'open active' : '' ?>">
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : '/cpd_ac/public'; ?>/setting_manual_pages"
+                    class="menu-link <?php echo in_array($now_page, $setting_manual_pages) ? 'active' : '' ?>">
+                    <i class="ri-play-circle-line menu-icon"></i>
+                    <span class="title">เขียนคู่มือ</span>
                 </a>
             </li> 
 

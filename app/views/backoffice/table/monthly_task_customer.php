@@ -27,6 +27,7 @@ foreach ($data['monthly_tasks'] ?? [] as $task) {
     }
 }
 ?>
+<script>console.log('DEBUG TASKS:', <?php echo json_encode($tasksByMonth); ?>);</script>
 <div class="table-wrap">
     <table class="table" style="min-width: 1250px;">
         <thead>
@@ -107,7 +108,17 @@ foreach ($data['monthly_tasks'] ?? [] as $task) {
                     </td>
                     <?php for ($review = 1; $review <= 3; $review++): ?>
                         <td class="text-center">
-                            <?php echo $task ? $status($task['review' . $review . '_status'], 'รีวิวแล้ว', 'รอรีวิว') : '<span class="text-muted">ไม่ระบุ</span>'; ?>
+                            <?php 
+                            if ($task) {
+                                $rName = 'รีวิวแล้ว';
+                                if (!empty($task['r' . $review . '_firstname'])) {
+                                    $rName = htmlspecialchars(trim($task['r' . $review . '_firstname']));
+                                }
+                                echo $status($task['review' . $review . '_status'], $rName, 'รอรีวิว');
+                            } else {
+                                echo '<span class="text-muted">ไม่ระบุ</span>';
+                            }
+                            ?>
                         </td>
                     <?php endfor; ?>
                     <td class="text-center">
